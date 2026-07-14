@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#05070b" />
+  <title>322 EZPK War Center</title>
+  <meta name="description" content="322 서버 EZPK 연맹 라스트 시즌 워 팀 편성 및 공지" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+Arabic:wght@500;700;800&family=Noto+Sans+KR:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-glow bg-glow-a"></div>
+  <div class="bg-glow bg-glow-b"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="EZPK War Center">
+      <div class="brand-mark">★</div>
+      <div>
+        <strong>322 EZPK</strong>
+        <span>WAR CENTER</span>
+      </div>
+    </a>
+
+    <nav class="nav">
+      <a href="#lineup" data-i18n="navLineup">팀 편성</a>
+      <a href="#notice" data-i18n="navNotice">공지</a>
+      <a href="#roles" data-i18n="navRoles">임무</a>
+    </nav>
+
+    <div class="lang-wrap">
+      <button id="langButton" class="lang-button" type="button" aria-expanded="false">
+        <span id="currentFlag">🇰🇷</span>
+        <span id="currentLang">한국어</span>
+        <span class="caret">▾</span>
+      </button>
+      <div id="langMenu" class="lang-menu" hidden>
+        <button data-lang="ko">🇰🇷 한국어</button>
+        <button data-lang="en">🇺🇸 English</button>
+        <button data-lang="pt">🇧🇷 Português</button>
+        <button data-lang="vi">🇻🇳 Tiếng Việt</button>
+        <button data-lang="ar">🇸🇦 العربية</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="eyebrow">SERVER 322 · EZPK ALLIANCE</div>
+      <h1 data-i18n="heroTitle">LAST SEASON WAR<br><span>TEAM LINEUP</span></h1>
+      <p data-i18n="heroSubtitle">함께 싸우고, 함께 승리한다.</p>
+
+      <div class="hero-actions">
+        <a class="primary-btn" href="#lineup" data-i18n="viewLineup">팀 편성 보기</a>
+        <button class="secondary-btn" id="fullscreenBtn" type="button" data-i18n="fullscreen">전체 화면</button>
+      </div>
+
+      <div class="quick-stats">
+        <div><strong>322</strong><span data-i18n="server">서버</span></div>
+        <div><strong>4</strong><span data-i18n="teams">전투 팀</span></div>
+        <div><strong>5</strong><span data-i18n="languages">지원 언어</span></div>
+      </div>
+    </section>
+
+    <section id="lineup" class="section">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker" data-i18n="mainBoard">MAIN BOARD</span>
+          <h2 data-i18n="lineupTitle">라스트 시즌 워 팀 편성</h2>
+        </div>
+        <div class="board-tools">
+          <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
+          <span id="zoomValue">100%</span>
+          <button id="zoomIn" type="button" aria-label="Zoom in">＋</button>
+        </div>
+      </div>
+
+      <div class="lineup-shell">
+        <div id="lineupStage" class="lineup-stage">
+          <img id="lineupImage" src="assets/ko.png" alt="EZPK team lineup" />
+        </div>
+      </div>
+
+      <div class="mobile-hint" data-i18n="mobileHint">이미지를 두 손가락으로 확대해 자세히 확인하세요.</div>
+    </section>
+
+    <section id="notice" class="section compact">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker" data-i18n="latest">LATEST</span>
+          <h2 data-i18n="noticeTitle">전쟁 공지</h2>
+        </div>
+      </div>
+
+      <div class="notice-grid">
+        <article class="notice-card important">
+          <span class="notice-label" data-i18n="important">중요</span>
+          <h3 data-i18n="notice1Title">팀 편성을 먼저 확인하세요</h3>
+          <p data-i18n="notice1Body">자신의 팀과 담당 구역을 확인한 후 지휘관의 지시에 따라 이동합니다.</p>
+        </article>
+        <article class="notice-card">
+          <span class="notice-label" data-i18n="rule">규칙</span>
+          <h3 data-i18n="notice2Title">개별 행동 금지</h3>
+          <p data-i18n="notice2Body">단독 공격보다 집결과 증원을 우선하고, 변경 사항은 연맹 채팅을 확인합니다.</p>
+        </article>
+        <article class="notice-card">
+          <span class="notice-label" data-i18n="support">지원</span>
+          <h3 data-i18n="notice3Title">SOUR 연맹과 협동</h3>
+          <p data-i18n="notice3Body">지원팀은 요청이 있을 때 공격과 방어를 신속하게 지원합니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="roles" class="section compact">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker" data-i18n="rolesKicker">TEAM ROLES</span>
+          <h2 data-i18n="rolesTitle">팀별 핵심 임무</h2>
+        </div>
+      </div>
+
+      <div class="role-grid">
+        <article class="role-card blue">
+          <div class="role-icon">♜</div>
+          <h3 data-i18n="towerTeam">타워팀</h3>
+          <p data-i18n="towerDesc">타워 점령 및 증원</p>
+        </article>
+        <article class="role-card red">
+          <div class="role-icon">🛡</div>
+          <h3 data-i18n="defenseA">디펜스팀 A</h3>
+          <p data-i18n="defenseADesc">6B 지역 길목 방어</p>
+        </article>
+        <article class="role-card green">
+          <div class="role-icon">🛡</div>
+          <h3 data-i18n="defenseB">디펜스팀 B</h3>
+          <p data-i18n="defenseBDesc">레벨 7 타워 위쪽 길목 방어</p>
+        </article>
+        <article class="role-card gold">
+          <div class="role-icon">🤝</div>
+          <h3 data-i18n="supportTeam">지원팀</h3>
+          <p data-i18n="supportDesc">SOUR 연맹과 공격·방어 협동</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>322 EZPK ALLIANCE</strong>
+    <span data-i18n="footerText">역할을 다하고, 서로를 믿고, 끝까지 함께하자!</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
