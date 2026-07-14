@@ -1,19 +1,2 @@
-# 322 EZPK War Center
-
-## 실행 방법
-1. 압축을 해제합니다.
-2. `index.html`을 더블클릭하면 바로 열립니다.
-3. GitHub Pages에 올릴 때는 폴더 안의 모든 파일을 저장소 최상단에 업로드합니다.
-
-## 구성
-- 5개 언어 전환: 한국어, 영어, 포르투갈어, 베트남어, 아랍어
-- 모바일 반응형
-- 팀 편성 이미지 확대/축소
-- 전체 화면 보기
-- 전쟁 공지 및 팀별 임무 카드
-- 선택 언어 자동 저장
-
-## 수정 위치
-- 공지 문구: `script.js`
-- 디자인: `style.css`
-- 이미지: `assets` 폴더
+압축을 풀고 index.html을 실행하세요.
+GitHub Pages에는 index.html, style.css, script.js, data.js, assets 폴더를 저장소 최상단에 업로드하세요.
