@@ -9,50 +9,105 @@ function initImageViewers(){
     stage.dataset.viewerReady='1';
     const img=stage.querySelector('img');
     if(!img) return;
+
     img.draggable=false;
     let zoom=1;
-    const tools=document.createElement('div');
-    tools.className='image-tools';
-    tools.innerHTML='<button type="button" aria-label="Zoom out">−</button><button type="button" aria-label="Reset zoom">↺</button><button type="button" aria-label="Zoom in">＋</button>';
-    stage.prepend(tools);
-    const [minus,reset,plus]=tools.querySelectorAll('button');
-    const apply=(next,center=true)=>{
-      const prev=zoom;
-      zoom=Math.min(4,Math.max(1,Math.round(next*10)/10));
-      const oldLeft=stage.scrollLeft, oldTop=stage.scrollTop;
-      const cx=oldLeft+stage.clientWidth/2, cy=oldTop+stage.clientHeight/2;
+    let lastTap=0;
+    const pointers=new Map();
+    let dragStart=null;
+    let pinchStart=null;
+
+    const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+    const applyZoom=(next, focusX=stage.clientWidth/2, focusY=stage.clientHeight/2)=>{
+      const previous=zoom;
+      const nextZoom=clamp(Math.round(next*100)/100,1,4);
+      if(nextZoom===previous) return;
+
+      const contentX=(stage.scrollLeft+focusX)/previous;
+      const contentY=(stage.scrollTop+focusY)/previous;
+      zoom=nextZoom;
       img.style.width=(zoom*100)+'%';
       stage.classList.toggle('is-zoomed',zoom>1);
+
       requestAnimationFrame(()=>{
-        if(center && prev>0){
-          stage.scrollLeft=cx*(zoom/prev)-stage.clientWidth/2;
-          stage.scrollTop=cy*(zoom/prev)-stage.clientHeight/2;
-        }
+        stage.scrollLeft=contentX*zoom-focusX;
+        stage.scrollTop=contentY*zoom-focusY;
+        if(zoom===1){stage.scrollLeft=0;stage.scrollTop=0;}
       });
     };
-    minus.onclick=()=>apply(zoom-.5);
-    plus.onclick=()=>apply(zoom+.5);
-    reset.onclick=()=>{apply(1,false);stage.scrollTo({left:0,top:0,behavior:'smooth'})};
-    let lastTap=0;
-    stage.addEventListener('click',(e)=>{
-      if(e.target.closest('.image-tools')) return;
-      const now=Date.now();
-      if(now-lastTap<320){apply(zoom===1?2:1);lastTap=0}else lastTap=now;
+
+    const reset=()=>applyZoom(1);
+
+    stage.addEventListener('dblclick',(e)=>{
+      e.preventDefault();
+      const rect=stage.getBoundingClientRect();
+      applyZoom(zoom===1?2:1,e.clientX-rect.left,e.clientY-rect.top);
     });
+
+    stage.addEventListener('pointerdown',(e)=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      stage.setPointerCapture?.(e.pointerId);
+
+      if(pointers.size===1 && zoom>1){
+        dragStart={x:e.clientX,y:e.clientY,left:stage.scrollLeft,top:stage.scrollTop};
+        stage.classList.add('is-dragging');
+      }else if(pointers.size===2){
+        const pts=[...pointers.values()];
+        const dx=pts[0].x-pts[1].x,dy=pts[0].y-pts[1].y;
+        pinchStart={distance:Math.hypot(dx,dy),zoom};
+        dragStart=null;
+      }
+    });
+
+    stage.addEventListener('pointermove',(e)=>{
+      if(!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+
+      if(pointers.size===2 && pinchStart){
+        e.preventDefault();
+        const pts=[...pointers.values()];
+        const dx=pts[0].x-pts[1].x,dy=pts[0].y-pts[1].y;
+        const distance=Math.hypot(dx,dy);
+        const rect=stage.getBoundingClientRect();
+        const focusX=((pts[0].x+pts[1].x)/2)-rect.left;
+        const focusY=((pts[0].y+pts[1].y)/2)-rect.top;
+        applyZoom(pinchStart.zoom*(distance/pinchStart.distance),focusX,focusY);
+      }else if(pointers.size===1 && zoom>1 && dragStart){
+        e.preventDefault();
+        stage.scrollLeft=dragStart.left-(e.clientX-dragStart.x);
+        stage.scrollTop=dragStart.top-(e.clientY-dragStart.y);
+      }
+    },{passive:false});
+
+    const finishPointer=(e)=>{
+      const wasSingle=pointers.size===1;
+      pointers.delete(e.pointerId);
+      stage.releasePointerCapture?.(e.pointerId);
+      stage.classList.remove('is-dragging');
+      dragStart=null;
+      if(pointers.size<2) pinchStart=null;
+
+      if(wasSingle && e.pointerType==='touch'){
+        const now=Date.now();
+        if(now-lastTap<320){
+          const rect=stage.getBoundingClientRect();
+          applyZoom(zoom===1?2:1,e.clientX-rect.left,e.clientY-rect.top);
+          lastTap=0;
+        }else lastTap=now;
+      }
+    };
+    stage.addEventListener('pointerup',finishPointer);
+    stage.addEventListener('pointercancel',finishPointer);
+
     stage.addEventListener('wheel',(e)=>{
       if(!e.ctrlKey) return;
       e.preventDefault();
-      apply(zoom+(e.deltaY<0?.25:-.25));
+      const rect=stage.getBoundingClientRect();
+      applyZoom(zoom+(e.deltaY<0?.25:-.25),e.clientX-rect.left,e.clientY-rect.top);
     },{passive:false});
-    let dragging=false,startX=0,startY=0,startLeft=0,startTop=0;
-    stage.addEventListener('pointerdown',(e)=>{
-      if(zoom<=1 || e.pointerType==='touch' || e.target.closest('.image-tools')) return;
-      dragging=true;startX=e.clientX;startY=e.clientY;startLeft=stage.scrollLeft;startTop=stage.scrollTop;
-      stage.classList.add('is-dragging');stage.setPointerCapture(e.pointerId);
-    });
-    stage.addEventListener('pointermove',(e)=>{if(!dragging)return;stage.scrollLeft=startLeft-(e.clientX-startX);stage.scrollTop=startTop-(e.clientY-startY)});
-    const stop=()=>{dragging=false;stage.classList.remove('is-dragging')};
-    stage.addEventListener('pointerup',stop);stage.addEventListener('pointercancel',stop);
+
+    img.addEventListener('load',reset);
   });
 }
 initImageViewers();
