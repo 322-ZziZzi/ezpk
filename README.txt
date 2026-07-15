@@ -1,2 +1,8 @@
-압축을 풀고 index.html을 실행하세요.
-GitHub Pages에는 index.html, style.css, script.js, data.js, assets 폴더를 저장소 최상단에 업로드하세요.
+322 EZPK War Portal v4 Optimized
+
+- 6 languages: Korean, English, Portuguese, Vietnamese, Arabic, Traditional Chinese
+- Season 7 information menu
+- Traditional Chinese lineup auto-switch
+- All large PNG images converted to WebP for faster loading and easier GitHub upload
+
+Upload the CONTENTS of this folder to the repository root. Do not upload the ZIP itself.
