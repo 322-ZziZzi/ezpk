@@ -74,3 +74,10 @@ v11 updates:
 V14 fix:
 - Saving no longer reloads and overwrites unsaved BGB lineup data.
 - The save action fetches only GitHub file SHAs, then preserves and commits the current admin selections.
+
+
+[v15 관리자 로그인]
+- /admin 접속 시 비밀번호 로그인 화면이 먼저 표시됩니다.
+- 비밀번호: 322ezpk
+- 로그인 상태는 현재 브라우저 탭의 sessionStorage에만 유지됩니다.
+- LOGOUT 버튼으로 즉시 잠글 수 있습니다.

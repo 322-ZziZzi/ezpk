@@ -59,4 +59,35 @@ $('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const s
 $('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments()};
 $('#loadGithub').onclick=async()=>{try{setStatus('GitHub에서 데이터를 불러오는 중...');await loadGithub();setStatus('GitHub 데이터 연결 완료.','ok')}catch(e){setStatus(e.message,'error')}};
 $('#saveAllGithub').onclick=async()=>{try{setStatus('GitHub에 저장하는 중...');await saveAllGithub()}catch(e){setStatus(e.message,'error')}};
-restoreToken();loadLocal().catch(e=>setStatus(e.message,'error'));
+
+const ADMIN_PASSWORD='322ezpk';
+function unlockAdmin(){
+  sessionStorage.setItem('ezpk-admin-auth','1');
+  $('#adminLogin').hidden=true;
+  $('#adminApp').hidden=false;
+  document.body.classList.add('admin-unlocked');
+  restoreToken();
+  loadLocal().catch(e=>setStatus(e.message,'error'));
+}
+function lockAdmin(){
+  sessionStorage.removeItem('ezpk-admin-auth');
+  $('#adminApp').hidden=true;
+  $('#adminLogin').hidden=false;
+  document.body.classList.remove('admin-unlocked');
+  $('#adminPassword').value='';
+  $('#loginStatus').textContent='';
+  setTimeout(()=>$('#adminPassword').focus(),0);
+}
+$('#adminLoginForm').onsubmit=e=>{
+  e.preventDefault();
+  if($('#adminPassword').value===ADMIN_PASSWORD){
+    $('#loginStatus').textContent='';
+    unlockAdmin();
+  }else{
+    $('#loginStatus').textContent='비밀번호가 올바르지 않습니다.';
+    $('#adminPassword').select();
+  }
+};
+$('#adminLogout').onclick=lockAdmin;
+if(sessionStorage.getItem('ezpk-admin-auth')==='1') unlockAdmin(); else lockAdmin();
+

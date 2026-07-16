@@ -5,13 +5,27 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
-  <link rel="stylesheet" href="../style.css?v=130">
-  <link rel="stylesheet" href="admin.css?v=130">
+  <link rel="stylesheet" href="../style.css?v=150">
+  <link rel="stylesheet" href="admin.css?v=150">
 </head>
 <body>
+<section id="adminLogin" class="admin-login-screen">
+  <form id="adminLoginForm" class="admin-login-card" autocomplete="off">
+    <div class="login-mark">★</div>
+    <span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span>
+    <h1>ADMIN LOGIN</h1>
+    <p>관리자 비밀번호를 입력하세요.</p>
+    <label>비밀번호
+      <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Password" required>
+    </label>
+    <button type="submit" class="primary">관리자 로그인</button>
+    <div id="loginStatus" class="login-status" aria-live="polite"></div>
+  </form>
+</section>
+<div id="adminApp" hidden>
 <header>
   <a href="../" class="brand">★ <span><b>322 EZPK</b><small>ADMIN MANAGER</small></span></a>
-  <nav class="admin-nav"><a href="../">PORTAL</a><a href="../members/">MEMBERS</a><a href="../bgb/">BGB</a></nav>
+  <nav class="admin-nav"><a href="../">PORTAL</a><a href="../members/">MEMBERS</a><a href="../bgb/">BGB</a><button id="adminLogout" type="button">LOGOUT</button></nav>
 </header>
 <main class="admin-main">
   <section class="admin-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1>EZPK ADMIN</h1><p>멤버 정보와 BGB A/B TEAM 편성을 관리하고 GitHub에 영구 저장합니다.</p></section>
@@ -79,7 +93,8 @@
     </div>
   </section>
 </main>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="admin.js?v=130"></script>
+<script src="admin.js?v=150"></script>
 </body>
 </html>
