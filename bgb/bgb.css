@@ -5,3 +5,9 @@
 @media(max-width:1000px){.final-lineup{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.final-lineup{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.final-lineup{grid-template-columns:1fr}}
+
+
+/* v19 JPG team-list download */
+.download-row{max-width:1400px;margin:0 auto 18px;display:flex;justify-content:flex-end}.jpg-download{min-height:48px;padding:0 20px;border:1px solid #f5c54788;border-radius:11px;background:#f5c547;color:#171000;font-weight:900;cursor:pointer;box-shadow:0 10px 28px #0004}.jpg-download:hover{filter:brightness(1.07);transform:translateY(-1px)}.jpg-download:active{transform:translateY(0)}
+.rtl .download-row{justify-content:flex-start}
+@media(max-width:620px){.download-row{display:block}.jpg-download{width:100%}}

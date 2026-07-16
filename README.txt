@@ -93,3 +93,6 @@ V14 fix:
 - H2: 전투력 6, 8, 10위
 - M1/M2/H1/H2에는 15~20위 멤버를 배정하지 않음
 - CENTER: 1, 2, 3, 5, 6, 8위
+
+
+V19: Added public BGB A/B team lineup JPG download (single-page image).
