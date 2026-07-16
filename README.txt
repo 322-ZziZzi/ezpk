@@ -20,3 +20,8 @@ EZPK War Portal v7.1
 EZPK War Portal v7.2
 - Added a localized Last Updated date at the bottom-right of the member list.
 - Current member list update date: 2026.07.17 KST.
+
+
+EZPK War Portal v7.4
+- Fixed MEMBER rank expand/collapse behavior.
+- Changed member shelter level prefix from 'Lv.' to 'ind.'.
