@@ -8,3 +8,10 @@ Mobile image interaction fix:
 - Applied to lineup, map, and Season 7 images.
 
 Upload all files and folders in this archive to the repository root, then hard refresh or clear the mobile browser cache.
+
+
+EZPK War Portal v7.1
+- Added independent MEMBER page Excel download.
+- The Excel file follows the current search, rank filter, and sort order.
+- Added missing R2 members MonsteR and Siggus (R2 total: 17).
+- Excel generation uses SheetJS from jsDelivr, so the first download requires an internet connection.

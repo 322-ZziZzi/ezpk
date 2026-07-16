@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>322 EZPK Members</title>
+  <link rel="stylesheet" href="../style.css?v=70">
+  <link rel="stylesheet" href="members.css?v=71">
+</head>
+<body>
+<header>
+  <a href="../" class="brand">★ <span><b>322 EZPK</b><small>WAR PORTAL</small></span></a>
+  <button id="menuBtn" aria-label="Menu">☰</button>
+  <nav id="nav">
+    <a href="../#lineup" data-k="navLineup"></a>
+    <a href="../#map" data-k="navMap"></a>
+    <a href="../#strategy" data-k="navStrategy"></a>
+    <a href="../#orders" data-k="navOrders"></a>
+    <a href="../#season7" data-k="navSeason7"></a>
+    <a href="./" class="active" data-k="navMember"></a>
+  </nav>
+  <div class="lang">
+    <button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button>
+    <div id="langMenu" hidden>
+      <button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="zh-tw">🇹🇼 繁體中文</button>
+    </div>
+  </div>
+</header>
+<main class="members-main">
+  <section class="members-hero">
+    <span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span>
+    <h1 id="membersTitle"></h1>
+    <p id="membersLead"></p>
+    <div class="member-summary">
+      <div><span id="totalLabel"></span><strong id="totalMembers">0</strong></div>
+      <div><span id="totalPowerLabel"></span><strong id="totalPower">0</strong></div>
+      <div><span id="avgPowerLabel"></span><strong id="avgPower">0</strong></div>
+    </div>
+  </section>
+  <section class="members-content">
+    <div class="member-tools">
+      <input id="memberSearch" type="search" autocomplete="off">
+      <select id="rankFilter"></select>
+      <select id="sortMembers"></select>
+      <button type="button" id="excelDownloadBtn" class="excel-download"></button>
+    </div>
+    <div id="memberGroups" class="member-groups"></div>
+    <div id="emptyState" class="empty-state" hidden></div>
+  </section>
+</main>
+<footer><b>322 EZPK ALLIANCE</b><span id="memberFooter"></span></footer>
+<script src="../data.js?v=71"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="members.js?v=71"></script>
+</body>
+</html>
