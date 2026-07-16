@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
-  <link rel="stylesheet" href="../style.css?v=110">
-  <link rel="stylesheet" href="admin.css?v=110">
+  <link rel="stylesheet" href="../style.css?v=130">
+  <link rel="stylesheet" href="admin.css?v=130">
 </head>
 <body>
 <header>
@@ -50,6 +50,15 @@
         </div>
         <div class="lineup-tools"><input id="lineupSearch" type="search" placeholder="닉네임 검색"><select id="lineupRank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><select id="lineupSort"><option value="power-desc">전투력 높은 순</option><option value="ind-desc">IND. 높은 순</option><option value="name-asc">닉네임 순</option></select></div>
         <div id="lineupMembers" class="lineup-members"></div>
+
+        <section class="final-preview-card" aria-live="polite">
+          <div class="final-preview-head">
+            <div><span class="preview-step">STEP 2</span><h3>FINAL LINEUP PREVIEW</h3><p>선택된 멤버만 전투력 높은 순으로 표시됩니다. 이 단계에서는 위치에 배정되지 않습니다.</p></div>
+            <strong id="previewCount">0 / 20</strong>
+          </div>
+          <div id="finalLineupPreview" class="final-lineup-preview"></div>
+        </section>
+
         <div class="auto-actions"><button id="autoAssign" class="primary">전투력 균등 자동 배정</button><button id="clearTeam" class="danger">현재 팀 명단 및 배정 초기화</button></div>
         <div id="autoSummary" class="auto-summary"></div>
       </section>
@@ -71,6 +80,6 @@
   </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="admin.js?v=110"></script>
+<script src="admin.js?v=130"></script>
 </body>
 </html>

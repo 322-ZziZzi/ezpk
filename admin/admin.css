@@ -5,3 +5,24 @@
 @media(max-width:1050px){.lineup-members{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.lineup-tools{grid-template-columns:1fr 1fr}.lineup-tools input{grid-column:1/-1}.lineup-members{grid-template-columns:1fr}.lineup-head{align-items:flex-start;flex-direction:column}.auto-actions{flex-direction:column}}
 @media(max-width:500px){.lineup-tools{grid-template-columns:1fr}.lineup-tools input{grid-column:auto}}
+
+
+/* v13: Final lineup preview and strict pre-assignment separation */
+.final-preview-card{margin-top:18px;padding:18px;border:1px solid #ffffff14;border-radius:14px;background:#090f18}
+.final-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}
+.final-preview-head h3{margin:5px 0 4px;font-size:18px}
+.final-preview-head p{margin:0;color:#7f8da0;font-size:13px}
+.preview-step{display:inline-block;color:#f5c547;font-size:11px;font-weight:900;letter-spacing:.12em}
+#previewCount{flex:0 0 auto;color:#f5c547;font-size:18px}
+#previewCount.complete{color:#77e39c}
+.final-lineup-preview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.preview-member{display:flex;align-items:center;gap:10px;min-width:0;padding:11px 12px;border:1px solid #ffffff12;border-radius:10px;background:#111923}
+.preview-member .preview-no{display:grid;place-items:center;flex:0 0 31px;height:31px;border-radius:50%;background:#ffffff0b;color:#f5c547;font-size:11px;font-weight:900}
+.preview-member span:last-child{min-width:0}
+.preview-member strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.preview-member small{display:block;margin-top:3px;color:#778394;font-size:11px}
+.preview-empty{grid-column:1/-1;padding:26px 16px;border:1px dashed #ffffff18;border-radius:10px;color:#778394;text-align:center}
+.location-manager-section.locked .location-buttons button{opacity:.45;pointer-events:none}
+.location-manager-section.locked .assignment-actions button,.location-manager-section.locked .assignment-toolbar input{opacity:.45;pointer-events:none}
+@media(max-width:1050px){.final-lineup-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.final-preview-head{display:block}.final-preview-head #previewCount{display:block;margin-top:10px}.final-lineup-preview{grid-template-columns:1fr}}
