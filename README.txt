@@ -25,3 +25,19 @@ EZPK War Portal v7.2
 EZPK War Portal v7.4
 - Fixed MEMBER rank expand/collapse behavior.
 - Changed member shelter level prefix from 'Lv.' to 'ind.'.
+
+EZPK v8 Admin Manager
+- 관리자 주소: /admin/
+- 멤버 데이터: /data/members.json
+- 관리자 페이지에서 Rank, Nickname, IND., Power 수정 가능
+- Excel 가져오기/내보내기 및 JSON 백업 지원
+- GitHub에 영구 저장하려면 기존 GitHub 계정에서 Fine-grained personal access token을 발급하여 관리자 페이지에 입력
+- 권장 토큰 권한: 해당 ezpk 저장소만 선택, Contents: Read and write
+- 토큰은 페이지 코드에 저장되지 않으며 현재 탭에서 입력해서 사용
+- 관리자 페이지 주소는 메뉴에 표시되지 않음
+
+EZPK v8.1 privacy/layout update:
+- Removed Excel download/import UI from the public /members/ page.
+- Excel import/export remains available only in /admin/.
+- Removed the hidden admin entry link from the public footer.
+- The admin page is accessible only by entering /admin/ directly.
