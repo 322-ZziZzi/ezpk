@@ -96,3 +96,7 @@ V14 fix:
 
 
 V19: Added public BGB A/B team lineup JPG download (single-page image).
+
+v20 KakaoTalk JPG compatibility
+- Chrome/Safari: JPG button downloads the selected BGB team image.
+- KakaoTalk in-app browser: opens a full-screen image preview. Press and hold the image to save it, or copy the page link and open it in an external browser.
