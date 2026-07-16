@@ -49,3 +49,19 @@ EZPK v9 BGB Manager
 - Added data/bgb.json for R1-R6, M1-M2, H1-H2 and CENTER assignments.
 - Admin page includes Member Manager and BGB Manager.
 - GitHub token can save both members.json and bgb.json permanently.
+
+v9.1 update:
+- Converted BGB map image from PNG to WebP.
+- BGB page now loads assets/bgb-map.webp.
+- Updated cache version for the BGB page.
+
+v10 BGB Team Auto Assignment
+- BGB A TEAM / B TEAM tabs.
+- Select exactly 20 members from members.json for each team.
+- Admin list shows nickname, IND., and combat power.
+- Automatic balanced assignment:
+  * R1-R6: all 20 members distributed once across six refinery teams (4,4,3,3,3,3) using power balancing.
+  * M1/M2/H1/H2: all 20 members distributed once, each location receives five members and each power quintile contributes at least one member.
+  * CENTER: power ranks 1, 2, 5, 6, 9, and 10.
+- Cross-layer duplicate assignment is allowed; duplicates inside each layer are prevented by automatic assignment.
+- Public BGB page displays nicknames only.
