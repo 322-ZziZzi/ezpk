@@ -1,4 +1,58 @@
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+// v16: initialize the login gate before the rest of the admin manager.
+// This keeps login functional even if a later manager feature raises an error.
+const ADMIN_PASSWORD='322ezpk';
+function showAdminApp(){
+  sessionStorage.setItem('ezpk-admin-auth','1');
+  const login=document.getElementById('adminLogin');
+  const app=document.getElementById('adminApp');
+  if(login) login.hidden=true;
+  if(app) app.hidden=false;
+  document.body.classList.add('admin-unlocked');
+}
+function showAdminLogin(){
+  sessionStorage.removeItem('ezpk-admin-auth');
+  const login=document.getElementById('adminLogin');
+  const app=document.getElementById('adminApp');
+  if(app) app.hidden=true;
+  if(login) login.hidden=false;
+  document.body.classList.remove('admin-unlocked');
+  const input=document.getElementById('adminPassword');
+  const status=document.getElementById('loginStatus');
+  if(input) input.value='';
+  if(status) status.textContent='';
+  setTimeout(()=>input?.focus(),0);
+}
+function initAdminLoginGate(){
+  const form=document.getElementById('adminLoginForm');
+  const input=document.getElementById('adminPassword');
+  const status=document.getElementById('loginStatus');
+  const logout=document.getElementById('adminLogout');
+  if(!form||!input) return;
+  form.addEventListener('submit',event=>{
+    event.preventDefault();
+    if(input.value.trim()===ADMIN_PASSWORD){
+      if(status) status.textContent='';
+      showAdminApp();
+      // Initialize manager data only after successful login.
+      try{ restoreToken(); }catch(_e){}
+      if(typeof loadLocal==='function') loadLocal().catch(e=>setStatus(e.message,'error'));
+    }else{
+      if(status) status.textContent='비밀번호가 올바르지 않습니다.';
+      input.focus();
+      input.select();
+    }
+  });
+  logout?.addEventListener('click',showAdminLogin);
+  if(sessionStorage.getItem('ezpk-admin-auth')==='1'){
+    showAdminApp();
+  }else{
+    showAdminLogin();
+  }
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
+else initAdminLoginGate();
 const LOCATIONS=[['R1','REFINERY 1'],['R2','REFINERY 2'],['R3','REFINERY 3'],['R4','REFINERY 4'],['R5','REFINERY 5'],['R6','REFINERY 6'],['M1','MILITARY BASE 1'],['M2','MILITARY BASE 2'],['H1','HOSPITAL 1'],['H2','HOSPITAL 2'],['CENTER','ALLOY FACTORY']];
 const TEAM_KEYS=['A','B'];
 let membersData={lastUpdated:'',members:[]},bgbData=blankBgb(),memberSha='',bgbSha='',selectedTeam='A',selectedLocation='R1';
@@ -59,35 +113,4 @@ $('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const s
 $('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments()};
 $('#loadGithub').onclick=async()=>{try{setStatus('GitHub에서 데이터를 불러오는 중...');await loadGithub();setStatus('GitHub 데이터 연결 완료.','ok')}catch(e){setStatus(e.message,'error')}};
 $('#saveAllGithub').onclick=async()=>{try{setStatus('GitHub에 저장하는 중...');await saveAllGithub()}catch(e){setStatus(e.message,'error')}};
-
-const ADMIN_PASSWORD='322ezpk';
-function unlockAdmin(){
-  sessionStorage.setItem('ezpk-admin-auth','1');
-  $('#adminLogin').hidden=true;
-  $('#adminApp').hidden=false;
-  document.body.classList.add('admin-unlocked');
-  restoreToken();
-  loadLocal().catch(e=>setStatus(e.message,'error'));
-}
-function lockAdmin(){
-  sessionStorage.removeItem('ezpk-admin-auth');
-  $('#adminApp').hidden=true;
-  $('#adminLogin').hidden=false;
-  document.body.classList.remove('admin-unlocked');
-  $('#adminPassword').value='';
-  $('#loginStatus').textContent='';
-  setTimeout(()=>$('#adminPassword').focus(),0);
-}
-$('#adminLoginForm').onsubmit=e=>{
-  e.preventDefault();
-  if($('#adminPassword').value===ADMIN_PASSWORD){
-    $('#loginStatus').textContent='';
-    unlockAdmin();
-  }else{
-    $('#loginStatus').textContent='비밀번호가 올바르지 않습니다.';
-    $('#adminPassword').select();
-  }
-};
-$('#adminLogout').onclick=lockAdmin;
-if(sessionStorage.getItem('ezpk-admin-auth')==='1') unlockAdmin(); else lockAdmin();
 
