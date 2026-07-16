@@ -65,3 +65,8 @@ v10 BGB Team Auto Assignment
   * CENTER: power ranks 1, 2, 5, 6, 9, and 10.
 - Cross-layer duplicate assignment is allowed; duplicates inside each layer are prevented by automatic assignment.
 - Public BGB page displays nicknames only.
+
+v11 updates:
+- BGB menu moved to the far right on public navigation menus.
+- BGB admin flow separates FINAL LINEUP selection from LOCATION ASSIGNMENTS.
+- Select exactly 20 members first, then run automatic assignment.
