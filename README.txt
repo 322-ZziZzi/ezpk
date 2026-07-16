@@ -70,3 +70,7 @@ v11 updates:
 - BGB menu moved to the far right on public navigation menus.
 - BGB admin flow separates FINAL LINEUP selection from LOCATION ASSIGNMENTS.
 - Select exactly 20 members first, then run automatic assignment.
+
+V14 fix:
+- Saving no longer reloads and overwrites unsaved BGB lineup data.
+- The save action fetches only GitHub file SHAs, then preserves and commits the current admin selections.

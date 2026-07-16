@@ -7,7 +7,7 @@
 @media(max-width:500px){.lineup-tools{grid-template-columns:1fr}.lineup-tools input{grid-column:auto}}
 
 
-/* v13: Final lineup preview and strict pre-assignment separation */
+/* v14: Final lineup preview and strict pre-assignment separation */
 .final-preview-card{margin-top:18px;padding:18px;border:1px solid #ffffff14;border-radius:14px;background:#090f18}
 .final-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:14px}
 .final-preview-head h3{margin:5px 0 4px;font-size:18px}
