@@ -96,19 +96,97 @@
       }
     },
     "B": {
-      "members": [],
+      "members": [
+        "GB I’m ok",
+        "Heman0133",
+        "GuidoBauz",
+        "咸鸭蛋",
+        "Angellore",
+        "AnonymuzGamer",
+        "mamimo",
+        "A n W a R",
+        "ShadowKILLZ",
+        "Andrea •",
+        "Moldakill",
+        "・・QUEEN・・",
+        "deicide태클",
+        "Chloae",
+        "RoughRider25",
+        "GB Mèo Méo Meo",
+        "YuaNNN",
+        "--Jane Z",
+        "FoxxyScorpio",
+        "GB Chí Nguyễn"
+      ],
       "locations": {
-        "R1": [],
-        "R2": [],
-        "R3": [],
-        "R4": [],
-        "R5": [],
-        "R6": [],
-        "M1": [],
-        "M2": [],
-        "H1": [],
-        "H2": [],
-        "CENTER": []
+        "R1": [
+          "GB I’m ok",
+          "FoxxyScorpio",
+          "RoughRider25",
+          "Chloae"
+        ],
+        "R2": [
+          "ShadowKILLZ",
+          "Andrea •",
+          "YuaNNN",
+          "GB Chí Nguyễn"
+        ],
+        "R3": [
+          "AnonymuzGamer",
+          "Moldakill",
+          "deicide태클"
+        ],
+        "R4": [
+          "Heman0133",
+          "A n W a R",
+          "GB Mèo Méo Meo"
+        ],
+        "R5": [
+          "Angellore",
+          "咸鸭蛋",
+          "・・QUEEN・・"
+        ],
+        "R6": [
+          "mamimo",
+          "GuidoBauz",
+          "--Jane Z"
+        ],
+        "M1": [
+          "GB I’m ok",
+          "Angellore",
+          "A n W a R",
+          "--Jane Z",
+          "Chloae"
+        ],
+        "M2": [
+          "ShadowKILLZ",
+          "咸鸭蛋",
+          "Moldakill",
+          "・・QUEEN・・",
+          "deicide태클"
+        ],
+        "H1": [
+          "AnonymuzGamer",
+          "GuidoBauz",
+          "FoxxyScorpio",
+          "GB Mèo Méo Meo",
+          "RoughRider25"
+        ],
+        "H2": [
+          "Heman0133",
+          "mamimo",
+          "Andrea •",
+          "YuaNNN",
+          "GB Chí Nguyễn"
+        ],
+        "CENTER": [
+          "GB I’m ok",
+          "ShadowKILLZ",
+          "Angellore",
+          "mamimo",
+          "A n W a R",
+          "Moldakill"
+        ]
       }
     }
   }
