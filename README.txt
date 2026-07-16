@@ -15,3 +15,8 @@ EZPK War Portal v7.1
 - The Excel file follows the current search, rank filter, and sort order.
 - Added missing R2 members MonsteR and Siggus (R2 total: 17).
 - Excel generation uses SheetJS from jsDelivr, so the first download requires an internet connection.
+
+
+EZPK War Portal v7.2
+- Added a localized Last Updated date at the bottom-right of the member list.
+- Current member list update date: 2026.07.17 KST.

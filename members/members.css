@@ -3,3 +3,5 @@ nav a.active{color:#f5c547}.members-main{min-height:100vh}.members-hero{padding:
 .excel-download{min-height:48px;padding:0 18px;border:1px solid #f5c54788;border-radius:10px;background:#f5c547;color:#171000;font-weight:900;white-space:nowrap;cursor:pointer}.excel-download:hover{filter:brightness(1.08)}.excel-download:focus-visible{outline:2px solid #fff;outline-offset:2px}
 @media(max-width:900px){.excel-download{grid-column:1/-1}}
 @media(max-width:620px){.excel-download{grid-column:auto;width:100%}}
+
+.member-updated{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:18px;padding:0 4px;color:#7f8997;font-size:12px;text-align:right}.member-updated strong{color:#aeb8c5;font-weight:800}.rtl .member-updated{justify-content:flex-start;text-align:left}@media(max-width:620px){.member-updated{justify-content:flex-end;flex-wrap:wrap;margin-top:15px;padding:0 2px}}
