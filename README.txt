@@ -41,3 +41,11 @@ EZPK v8.1 privacy/layout update:
 - Excel import/export remains available only in /admin/.
 - Removed the hidden admin entry link from the public footer.
 - The admin page is accessible only by entering /admin/ directly.
+
+
+EZPK v9 BGB Manager
+- Added standalone /bgb/ page.
+- BGB map, facility names, and assigned members are public.
+- Added data/bgb.json for R1-R6, M1-M2, H1-H2 and CENTER assignments.
+- Admin page includes Member Manager and BGB Manager.
+- GitHub token can save both members.json and bgb.json permanently.
