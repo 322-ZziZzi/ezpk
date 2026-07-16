@@ -88,15 +88,16 @@ function powerOf(name){return membersData.members.find(m=>m.nickname===name)?.po
 function assignRefineries(sorted){const codes=['R1','R2','R3','R4','R5','R6'],caps=[4,4,3,3,3,3],groups=codes.map((code,i)=>({code,cap:caps[i],names:[],total:0}));for(const m of sorted){const choices=groups.filter(g=>g.names.length<g.cap).sort((a,b)=>a.total-b.total||a.names.length-b.names.length||codes.indexOf(a.code)-codes.indexOf(b.code));choices[0].names.push(m.nickname);choices[0].total+=m.power}return Object.fromEntries(groups.map(g=>[g.code,g.names]))}
 function assignMh(sorted){
   // Fixed BGB secondary assignments based on combat-power ranking (1-based ranks).
-  // M1 leader: 4th. M2 leader: 7th. Neither is assigned to H1/H2.
+  // M1 leader: 4th. M2 leader: 7th. Rankings 15-20 are excluded from M/H assignments.
+  // The 4th and 7th ranked members are not assigned to H1/H2.
   return {
-    M1:[3,11,17].map(i=>sorted[i].nickname),   // 4th, 12th, 18th
-    M2:[6,10,18].map(i=>sorted[i].nickname),   // 7th, 11th, 19th
-    H1:[4,12,19].map(i=>sorted[i].nickname),   // 5th, 13th, 20th
-    H2:[5,13,16].map(i=>sorted[i].nickname)    // 6th, 14th, 17th
+    M1:[3,9,12].map(i=>sorted[i].nickname),    // 4th, 10th, 13th
+    M2:[6,10,13].map(i=>sorted[i].nickname),   // 7th, 11th, 14th
+    H1:[4,8,11].map(i=>sorted[i].nickname),    // 5th, 9th, 12th
+    H2:[5,7,9].map(i=>sorted[i].nickname)      // 6th, 8th, 10th
   };
 }
-function autoAssign(){const team=currentTeam();if(team.members.length!==20){alert(`${selectedTeam} TEAM 최종 참전 멤버를 정확히 20명 선택해야 합니다.`);return}const sorted=team.members.map(n=>membersData.members.find(m=>m.nickname===n)).filter(Boolean).sort((a,b)=>b.power-a.power);if(sorted.length!==20){alert('멤버 데이터가 올바르지 않습니다. Member Manager를 확인하세요.');return}const r=assignRefineries(sorted),mh=assignMh(sorted);Object.assign(team.locations,r,mh,{CENTER:[0,1,2,4,5,7].map(i=>sorted[i].nickname)});const totals=code=>(team.locations[code]||[]).reduce((s,n)=>s+powerOf(n),0);$('#autoSummary').innerHTML=`<strong>${selectedTeam} TEAM 자동 배정 완료</strong><span>R1~R6 전투력 범위: ${Math.min(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()} ~ ${Math.max(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()}</span><span>M1 4·12·18위 · M2 7·11·19위 · H1 5·13·20위 · H2 6·14·17위 · CENTER 1·2·3·5·6·8위</span>`;renderLocationButtons();renderAssignments()}
+function autoAssign(){const team=currentTeam();if(team.members.length!==20){alert(`${selectedTeam} TEAM 최종 참전 멤버를 정확히 20명 선택해야 합니다.`);return}const sorted=team.members.map(n=>membersData.members.find(m=>m.nickname===n)).filter(Boolean).sort((a,b)=>b.power-a.power);if(sorted.length!==20){alert('멤버 데이터가 올바르지 않습니다. Member Manager를 확인하세요.');return}const r=assignRefineries(sorted),mh=assignMh(sorted);Object.assign(team.locations,r,mh,{CENTER:[0,1,2,4,5,7].map(i=>sorted[i].nickname)});const totals=code=>(team.locations[code]||[]).reduce((s,n)=>s+powerOf(n),0);$('#autoSummary').innerHTML=`<strong>${selectedTeam} TEAM 자동 배정 완료</strong><span>R1~R6 전투력 범위: ${Math.min(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()} ~ ${Math.max(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()}</span><span>M1 4·10·13위 · M2 7·11·14위 · H1 5·9·12위 · H2 6·8·10위 · CENTER 1·2·3·5·6·8위 · M/H 15~20위 제외</span>`;renderLocationButtons();renderAssignments()}
 function renderBgbAll(){renderTeamTabs();renderLineup();renderFinalPreview();renderLocationButtons();renderAssignments()}
 function renderAll(){renderMembers();renderBgbAll()}
 function membersPayload(){return{lastUpdated:$('#lastUpdated').value.trim(),members:membersData.members.map(normalizeMember)}}
