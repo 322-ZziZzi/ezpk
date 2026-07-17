@@ -100,3 +100,10 @@ V19: Added public BGB A/B team lineup JPG download (single-page image).
 v20 KakaoTalk JPG compatibility
 - Chrome/Safari: JPG button downloads the selected BGB team image.
 - KakaoTalk in-app browser: opens a full-screen image preview. Press and hold the image to save it, or copy the page link and open it in an external browser.
+
+
+V21 update:
+- Replaced JPG download with Team Lineup View.
+- Always opens a full-screen generated team image on all browsers.
+- Mobile users can press and hold the image to save or share.
+- Includes SERVER 322 · EZPK, selected BGB team, final lineup, all location assignments, and last updated date.
