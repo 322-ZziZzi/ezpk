@@ -199,3 +199,6 @@ It safely adds the game_id column and preserves all existing SURVIVAL scores.
 
 
 v53: Unified SURVIVAL/DRONE HUNTER start overlay typography and alignment. Fixed DRONE HUNTER ranking refresh with explicit reload feedback and click locking.
+
+
+v54: Fixed Supabase key compatibility for mini-game rankings (publishableKey/anonKey).
