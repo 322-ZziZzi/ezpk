@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Mini Game</title>
-  <link rel="stylesheet" href="../style.css?v=400">
-  <link rel="stylesheet" href="game.css?v=560">
-  <link rel="stylesheet" href="../game-switcher.css?v=560">
+  <link rel="stylesheet" href="../style.css?v=570">
+  <link rel="stylesheet" href="game.css?v=570">
+  <link rel="stylesheet" href="../game-switcher.css?v=570">
 </head>
 <body>
 <header class="site-header">
@@ -33,6 +33,11 @@
     <article class="game-choice locked-game"><div class="game-choice-icon">🔒</div><div><span class="comingSoon"></span><h2>TANK BATTLE</h2><p class="futureMission"></p></div></article>
     <article class="game-choice locked-game"><div class="game-choice-icon">🔒</div><div><span class="comingSoon"></span><h2>MISSILE DEFENSE</h2><p class="futureMission"></p></div></article>
     <article class="game-choice active-game drone-game"><div class="game-choice-icon">🎯</div><div><span id="droneAvailable"></span><h2>DRONE HUNTER</h2><p id="droneDescription"></p></div><a href="../drone-hunter/#gameShell" id="playDroneLink"></a></article>
+  </section>
+  <section class="mobile-game-info" id="mobileGameInfo" aria-live="polite">
+    <h2 id="mobileInfoTitle"></h2>
+    <p id="mobileInfoText"></p>
+    <small id="mobileInfoControl"></small>
   </section>
   <section class="game-layout">
     <div class="game-panel">
@@ -72,6 +77,6 @@
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="gameFooter"></span></footer>
-<script src="../data.js?v=550"></script><script src="../supabase-config.js?v=550"></script><script src="game.js?v=560"></script>
+<script src="../data.js?v=570"></script><script src="../supabase-config.js?v=570"></script><script src="game.js?v=570"></script>
 </body>
 </html>

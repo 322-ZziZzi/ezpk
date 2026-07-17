@@ -205,3 +205,6 @@ v54: Fixed Supabase key compatibility for mini-game rankings (publishableKey/ano
 
 
 v56: Mobile playfields rebuilt as true 1:1 squares. Removed artificial 650px minimum heights. Restored normal page scrolling outside active Survival drag control and throughout Drone Hunter. PC layout unchanged.
+
+
+v57 mobile UX: game instructions moved between game list and playfield; mobile start overlay now contains only nickname and start button.

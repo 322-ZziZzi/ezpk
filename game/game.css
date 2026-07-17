@@ -101,3 +101,36 @@ nav a.active{color:#f5c547}.game-main{min-height:100vh}.game-hero{padding:94px 4
   .game-overlay{overflow-y:auto;touch-action:pan-y;overscroll-behavior:auto}
   .overlay-card{margin:auto 0;touch-action:pan-y}
 }
+
+
+/* v57 — mobile instructions moved outside the playfield */
+.mobile-game-info{display:none}
+@media(max-width:620px){
+  .game-library{margin-bottom:0}
+  .mobile-game-info{
+    display:block;
+    margin:18px 0 16px;
+    padding:18px 16px;
+    border:1px solid rgba(126,217,255,.22);
+    border-radius:16px;
+    background:rgba(13,19,29,.82);
+    text-align:center;
+  }
+  .mobile-game-info h2{margin:0 0 8px;font-size:20px;line-height:1.3;color:#fff}
+  .mobile-game-info p{margin:0;color:#aab4c2;font-size:14px;line-height:1.55}
+  .mobile-game-info small{display:block;margin-top:10px;color:#7f8a98;font-size:12px;line-height:1.45}
+  #startOverlay .overlay-card{
+    width:calc(100% - 24px);
+    max-width:390px;
+    margin:auto;
+    padding:20px 16px 18px;
+  }
+  #startOverlay .tank-mark,
+  #startOverlay .target-mark,
+  #startOverlay h2,
+  #startOverlay p,
+  #startOverlay small{display:none!important}
+  #startOverlay .overlay-card label{margin:0 0 8px;font-size:13px}
+  #startOverlay .overlay-card input{height:50px;min-height:50px}
+  #startOverlay .overlay-card>button{height:50px;min-height:50px;margin-top:10px}
+}
