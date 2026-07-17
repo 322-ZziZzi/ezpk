@@ -1,3 +1,5 @@
+EZPK v49 - Persistent mini-game switcher on Drone Hunter
+
 EZPK v40
 
 Changes from v39:
