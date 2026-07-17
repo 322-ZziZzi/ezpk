@@ -1,0 +1,17 @@
+EZPK REQUEST BOARD - SUPABASE SETUP
+
+1) Open supabase-config.js
+2) Replace PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE with your Publishable key (sb_publishable_...)
+3) Keep the Project URL as configured.
+4) Upload all files to GitHub.
+
+Recommended SQL migration (run once in Supabase SQL Editor):
+
+alter table public.requests rename column delete_password to delete_password_hash;
+
+alter table public.requests add constraint requests_nickname_length check (char_length(nickname) between 1 and 30);
+alter table public.requests add constraint requests_message_length check (char_length(message) between 1 and 1000);
+alter table public.requests add constraint requests_password_hash_length check (char_length(delete_password_hash) = 64);
+
+The public page supports anonymous read/write via existing SELECT and INSERT policies.
+Admin reply/delete is intentionally not enabled from the browser. Use a Supabase Edge Function for secure admin actions.

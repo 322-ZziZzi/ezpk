@@ -49,3 +49,5 @@ body.admin-unlocked{overflow:auto}
 
 /* v24: force game-style 24-hour ST text inputs */
 .event-time-24h{font-variant-numeric:tabular-nums;letter-spacing:.04em}.event-time-24h::placeholder{color:#667387}.event-time-24h.invalid{border-color:#ff6b6b!important;box-shadow:0 0 0 2px #ff6b6b22}.event-time-24h::-webkit-calendar-picker-indicator{display:none}
+
+.request-admin-head{display:flex;justify-content:space-between;align-items:center;gap:14px}.request-admin-list{display:grid;gap:12px;margin-top:16px}.request-admin-item{padding:16px;border:1px solid #ffffff15;border-radius:12px;background:#080d14}.request-admin-item>div{display:flex;justify-content:space-between;gap:12px}.request-admin-item small{color:#748194}.request-admin-item p{white-space:pre-wrap;line-height:1.6}.request-admin-item span{display:inline-block;padding:5px 8px;border-radius:999px;background:#f5c54716;color:#f5c547;font-size:10px;font-weight:900}.request-admin-item blockquote{margin:14px 0 0;padding:12px;border-left:3px solid #f5c547;background:#ffffff06;white-space:pre-wrap}
