@@ -3,6 +3,7 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>S
 // v17: initialize the login gate before the rest of the admin manager.
 // This keeps login functional even if a later manager feature raises an error.
 const ADMIN_PASSWORD='322ezpk';
+window.EZPK_ADMIN_PASSWORD='';
 function showAdminApp(){
   sessionStorage.setItem('ezpk-admin-auth','1');
   const login=document.getElementById('adminLogin');

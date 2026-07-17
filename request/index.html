@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b">
 <title>EZPK Request Board</title>
-<link rel="stylesheet" href="../style.css?v=300"><link rel="stylesheet" href="request.css?v=300">
+<link rel="stylesheet" href="../style.css?v=320"><link rel="stylesheet" href="request.css?v=320">
 </head>
 <body>
 <header><a href="../" class="brand">★ <span><b>322 EZPK</b><small>WAR PORTAL</small></span></a><button id="menuBtn">☰</button><nav id="nav"><a href="../#schedule" data-k="navSchedule"></a><a href="../#lineup" data-k="navLineup"></a><a href="../#map" data-k="navMap"></a><a href="../#strategy" data-k="navStrategy"></a><a href="../#orders" data-k="navOrders"></a><a href="../#season7" data-k="navSeason7"></a><a href="../members/" data-k="navMember"></a><a href="../bgb/">BGB</a><a href="./" data-k="navRequest" class="active"></a></nav><div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div></header>
 <main class="request-main">
 <section class="request-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 id="requestTitle"></h1><p id="requestLead"></p></section>
 <section class="request-layout">
+  <div class="request-left-column">
   <form id="requestForm" class="request-form" autocomplete="off">
     <div class="request-form-head"><span id="newRequestLabel"></span><h2 id="writeTitle"></h2></div>
     <label><span id="nicknameLabel"></span><input id="requestNickname" maxlength="30" required></label>
@@ -19,9 +20,18 @@
     <button id="requestSubmit" type="submit" class="request-submit"></button>
     <div id="requestFormStatus" class="request-status" aria-live="polite"></div>
   </form>
+  <form id="ownDeleteForm" class="own-delete-form" autocomplete="off">
+    <h3 id="ownDeleteTitle"></h3>
+    <p id="ownDeleteHelp"></p>
+    <label><span id="ownDeleteIdLabel"></span><input id="ownDeleteId" type="number" min="1" inputmode="numeric" required placeholder="#25"></label>
+    <label><span id="ownDeletePasswordLabel"></span><input id="ownDeletePassword" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••"></label>
+    <button id="ownDeleteSubmit" type="submit" class="own-delete-submit"></button>
+    <div id="ownDeleteStatus" class="request-status" aria-live="polite"></div>
+  </form>
+  </div>
   <section class="request-list-card"><div class="request-list-head"><div><span id="recentLabel"></span><h2 id="recentTitle"></h2></div><button id="requestRefresh" type="button">↻</button></div><div id="requestList" class="request-list"></div><button id="requestMore" type="button" class="request-more" hidden></button></section>
 </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="footerText"></span></footer>
-<script src="../data.js?v=300"></script><script src="../supabase-config.js?v=300"></script><script src="request.js?v=300"></script>
+<script src="../data.js?v=320"></script><script src="../supabase-config.js?v=320"></script><script src="request.js?v=320"></script>
 </body></html>
