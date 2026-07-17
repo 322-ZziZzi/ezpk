@@ -19,3 +19,6 @@
 
 /* v38: unified active state for every top navigation item */
 nav a.active{color:#f5c547!important}
+
+/* v39: identical active appearance for every main navigation link */
+#nav a.active,#nav a[aria-current="page"]{color:#f5c547!important}

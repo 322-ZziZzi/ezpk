@@ -4,35 +4,86 @@ function renderTeam(){const t=D[lang].teams[team];$('#team').innerHTML=`<div cla
 $('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;$$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$('#langMenu').hidden=true;render()});$$('.tabs button').forEach(b=>b.onclick=()=>{$$('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');team=b.dataset.t;renderTeam()});$('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');$$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));render();
 
 
-// v38: use one active-menu rule for all main-page sections.
+// v39: one reliable active-menu rule for every main-page section.
 (function setupActiveNavigation(){
-  const navLinks=[...document.querySelectorAll('#nav a')];
-  const sectionLinks=navLinks.filter(a=>a.getAttribute('href')?.startsWith('#'));
-  const sections=sectionLinks
-    .map(a=>({a,section:document.querySelector(a.getAttribute('href'))}))
-    .filter(x=>x.section);
+  const nav = document.getElementById('nav');
+  if (!nav) return;
+
+  const navLinks = [...nav.querySelectorAll('a')];
+  const sectionLinks = navLinks.filter(a => {
+    const href = a.getAttribute('href') || '';
+    return href.startsWith('#');
+  });
+  const items = sectionLinks.map(link => {
+    const id = (link.getAttribute('href') || '').slice(1);
+    return { link, section: document.getElementById(id) };
+  }).filter(item => item.section);
 
   function activate(link){
-    navLinks.forEach(a=>a.classList.remove('active'));
-    if(link) link.classList.add('active');
+    navLinks.forEach(item => {
+      item.classList.remove('active');
+      item.removeAttribute('aria-current');
+    });
+    if (link) {
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
+    }
   }
 
-  sectionLinks.forEach(a=>a.addEventListener('click',()=>activate(a)));
-
-  if('IntersectionObserver' in window && sections.length){
-    const visible=new Map();
-    const observer=new IntersectionObserver(entries=>{
-      entries.forEach(entry=>visible.set(entry.target,entry.intersectionRatio));
-      let best=null;
-      for(const item of sections){
-        const ratio=visible.get(item.section)||0;
-        if(ratio>0 && (!best || ratio>best.ratio)) best={...item,ratio};
-      }
-      if(best) activate(best.a);
-    },{rootMargin:'-20% 0px -55% 0px',threshold:[0,0.1,0.25,0.5,0.75]});
-    sections.forEach(x=>observer.observe(x.section));
+  function linkForHash(hash){
+    return sectionLinks.find(link => link.getAttribute('href') === hash) || null;
   }
 
-  const initialHash=location.hash||'#schedule';
-  activate(sectionLinks.find(a=>a.getAttribute('href')===initialHash)||sectionLinks[0]);
+  function activateFromHash(){
+    const hash = window.location.hash;
+    const matched = linkForHash(hash);
+    if (matched) activate(matched);
+  }
+
+  function activateFromScroll(){
+    if (!items.length) return;
+    const header = document.querySelector('header');
+    const offset = (header?.offsetHeight || 72) + 32;
+    const probe = window.scrollY + offset;
+    let current = items[0];
+
+    for (const item of items) {
+      if (item.section.offsetTop <= probe) current = item;
+      else break;
+    }
+
+    const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+    if (nearBottom) current = items[items.length - 1];
+    activate(current.link);
+  }
+
+  sectionLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      activate(link);
+      const href = link.getAttribute('href');
+      if (href) history.replaceState(null, '', href);
+    });
+  });
+
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => {
+      activateFromScroll();
+      ticking = false;
+    });
+  }, { passive: true });
+
+  window.addEventListener('hashchange', () => {
+    activateFromHash();
+    window.setTimeout(activateFromScroll, 80);
+  });
+
+  window.addEventListener('load', () => {
+    activateFromHash();
+    window.setTimeout(activateFromScroll, 120);
+  });
+
+  activate(linkForHash(window.location.hash) || sectionLinks[0] || null);
 })();
