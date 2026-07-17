@@ -21,3 +21,5 @@ nav a.active{color:#f5c547}.game-main{min-height:100vh}.game-hero{padding:94px 4
 .ranking-check-icon{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 12px;border:1px solid #f5c54788;border-radius:50%;background:#f5c54714;color:#f5c547;font-size:23px;font-weight:1000}
 .post-ranking-card p{margin:0 0 15px;color:#dce2ea;font-weight:900}
 .post-ranking-card>button{margin-top:0}
+.game-choice.drone-game{border-color:rgba(126,217,255,.38)}
+.game-choice.drone-game .game-choice-icon{filter:drop-shadow(0 0 12px rgba(126,217,255,.35))}

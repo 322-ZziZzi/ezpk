@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>322 EZPK Drone Hunter</title>
+  <link rel="stylesheet" href="../style.css?v=480">
+  <link rel="stylesheet" href="drone.css?v=480">
+</head>
+<body>
+<header class="site-header">
+  <a href="../" class="brand">★ <span><b>322 EZPK</b><small>WAR PORTAL</small></span></a>
+  <button id="menuBtn" aria-label="Menu">☰</button>
+  <nav id="nav">
+    <a href="../#schedule" data-k="navSchedule"></a><a href="../#lineup" data-k="navLineup"></a><a href="../#map" data-k="navMap"></a><a href="../#strategy" data-k="navStrategy"></a><a href="../#orders" data-k="navOrders"></a><a href="../#season7" data-k="navSeason7"></a><a href="../members/" data-k="navMember"></a><a href="../bgb/">BGB</a><a href="../request/" data-k="navRequest"></a><a href="../game/" class="active" data-k="navGame"></a>
+  </nav>
+  <div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div>
+</header>
+<main class="hunter-main">
+  <section class="hunter-hero"><span class="eyebrow" id="gameEyebrow"></span><h1>DRONE HUNTER</h1><p id="gameLead"></p><a class="back-link" href="../game/" id="backToGames"></a></section>
+  <section class="hunter-layout">
+    <div class="hunter-panel">
+      <div class="hunter-toolbar">
+        <div><span id="scoreLabel"></span><strong id="scoreValue">0</strong></div>
+        <div><span id="streakLabel"></span><strong id="streakValue">0</strong></div>
+        <div><span id="baseLabel"></span><strong id="baseValue">♥♥♥</strong></div>
+        <div><span id="timeLabel"></span><strong id="timeValue">60.0</strong></div>
+        <button id="soundBtn" type="button" aria-label="Sound">🔊</button>
+      </div>
+      <div id="gameShell" class="hunter-shell">
+        <canvas id="gameCanvas" width="900" height="650" aria-label="EZPK Drone Hunter game"></canvas>
+        <div id="startOverlay" class="game-overlay"><div class="overlay-card"><div class="target-mark">◎</div><h2 id="startTitle"></h2><p id="startText"></p><label for="nickname" id="nicknameLabel"></label><input id="nickname" maxlength="16" autocomplete="nickname" spellcheck="false"><button id="startBtn" type="button"></button><small id="controlHelp"></small></div></div>
+        <div id="resultOverlay" class="game-overlay" hidden><div class="overlay-card result-card"><span class="result-label" id="resultLabel"></span><strong id="finalScore">0</strong><p id="resultText"></p><div class="result-actions"><button id="retryBtn" type="button"></button><button id="rankingBtn" type="button" class="secondary"></button></div></div></div>
+        <div id="postRankingOverlay" class="game-overlay post-ranking-overlay" hidden><div class="overlay-card post-ranking-card"><span class="ranking-check-icon">✓</span><p id="rankingCheckedText"></p><button id="replayBtn" type="button"></button></div></div>
+      </div>
+    </div>
+    <aside id="ranking" class="ranking-panel"><div class="ranking-head"><div><span>TOP 30</span><h2 id="rankingTitle"></h2></div><button id="refreshRanking" type="button" aria-label="Refresh">↻</button></div><div class="month-chip" id="monthChip"></div><div id="rankingStatus" class="ranking-status"></div><ol id="rankingList" class="ranking-list"></ol><p id="rankingNote" class="ranking-note"></p></aside>
+  </section>
+</main>
+<footer><b>322 EZPK ALLIANCE</b><span id="gameFooter"></span></footer>
+<script src="../data.js?v=480"></script><script src="../supabase-config.js?v=480"></script><script src="drone.js?v=480"></script>
+</body>
+</html>

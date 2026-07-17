@@ -174,3 +174,16 @@ V44 UPDATE
 - 순위 보기 버튼은 결과창을 닫고 랭킹을 강조한 뒤 게임 화면에 다시 플레이 메뉴를 표시합니다.
 - PC와 모바일 모두 새로고침 없이 반복 플레이할 수 있습니다.
 - 6개 언어에 랭킹 확인 및 다시 플레이 문구를 추가했습니다.
+
+============================================================
+V48 - DRONE HUNTER
+============================================================
+- Added DRONE HUNTER as the second playable mini game.
+- 60-second aim-and-shoot gameplay with normal, fast, and armored drones.
+- Base HP, hit streak bonuses, sound effects, PC mouse and mobile touch controls.
+- Independent monthly TOP 30 ranking using game_id='drone_hunter'.
+- SURVIVAL now uses game_id='survival' so the two rankings stay separate.
+
+IMPORTANT SUPABASE UPGRADE
+Run the updated SUPABASE_GAME_SETUP.sql once in the existing ezpk-request-board project.
+It safely adds the game_id column and preserves all existing SURVIVAL scores.
