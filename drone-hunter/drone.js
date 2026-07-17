@@ -31,3 +31,12 @@ async function loadRanking(){const t=tx();$('#rankingStatus').textContent=t.load
 function clearRankingFocus(){const p=$('#ranking');p.classList.remove('ranking-focus');$$('.ranking-row.current-player').forEach(r=>r.classList.remove('current-player'))}
 async function showRanking(){$('#resultOverlay').hidden=true;$('#startOverlay').hidden=true;$('#postRankingOverlay').hidden=false;await loadRanking();const p=$('#ranking');clearRankingFocus();void p.offsetWidth;p.classList.add('ranking-focus');const key=(lastPlayerNickname||localStorage.getItem('ezpk-game-nickname')||'').trim().toLowerCase(),row=[...$$('.ranking-row')].find(r=>r.dataset.playerKey===key);if(row)row.classList.add('current-player');if(matchMedia('(max-width:980px)').matches)(row||p).scrollIntoView({behavior:'smooth',block:row?'center':'start'});setTimeout(()=>p.classList.remove('ranking-focus'),1400);setTimeout(()=>row&&row.classList.remove('current-player'),2600)}
 $('#startBtn').onclick=startGame;$('#retryBtn').onclick=startGame;$('#rankingBtn').onclick=showRanking;$('#replayBtn').onclick=startGame;$('#refreshRanking').onclick=loadRanking;$('#soundBtn').onclick=()=>{muted=!muted;$('#soundBtn').textContent=muted?'🔇':'🔊'};$('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;$$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$('#langMenu').hidden=true;renderLanguage();loadRanking()});$('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');$$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';renderLanguage();resizeCanvas();draw(performance.now());loadRanking();
+function scrollToRequestedGame(){
+  if(location.hash!=='#gameShell')return;
+  const target=$('#gameShell');
+  if(!target)return;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'})));
+}
+window.addEventListener('load',scrollToRequestedGame);
+window.addEventListener('hashchange',scrollToRequestedGame);
+if(document.readyState==='complete')scrollToRequestedGame();

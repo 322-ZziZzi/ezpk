@@ -194,3 +194,5 @@ It safely adds the game_id column and preserves all existing SURVIVAL scores.
 
 
 [v50] SURVIVAL과 DRONE HUNTER의 미니게임 선택 카드를 공통 CSS로 통일했습니다. 현재 게임은 파란 테두리와 현재 게임 배지로 표시되며 모든 카드 크기가 동일합니다.
+
+[v52] SURVIVAL의 DRONE HUNTER 플레이 버튼을 누르면 DRONE HUNTER 게임 화면으로 자동 스크롤되도록 수정했습니다. 해시 앵커와 로드 후 보정 스크롤을 함께 적용했습니다.
