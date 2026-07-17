@@ -222,3 +222,10 @@ EZPK v63 UPDATE
 - Added complete Korean, English, Vietnamese, Portuguese, Arabic and Traditional Chinese translations.
 - Opens the application securely in a new browser tab.
 - Preserved Season 6/BGB shared authentication and all v62 features.
+
+v71 — Unified PC Mini-Game Layout
+- Survival, Drone Hunter, Tank Battle, and Missile Defense use the same PC page structure.
+- All desktop playfields use a 3:2 aspect ratio.
+- All desktop layouts use the same 1320px container, 380px ranking column, 18px gap, panel padding, and border radius.
+- Mobile playfields remain 1:1 and retain the existing touch/scroll UX.
+- Existing ranking, Supabase, and 8-language support are preserved.
