@@ -148,3 +148,16 @@ V21 update:
 - Custom secret: REQUEST_ADMIN_PASSWORD
 - 관리자 답변 저장과 요청 삭제는 /functions/v1/request-admin을 통해 처리됩니다.
 - 관리자 비밀번호는 현재 브라우저 탭의 sessionStorage에만 임시 보관되며 탭을 닫으면 삭제됩니다.
+
+[v41 MINI GAME]
+- New page: game/index.html (EZPK Survival)
+- Controls: Arrow keys/WASD, mobile drag, or mobile direction buttons
+- Ranking: TOP 30, gold/silver/bronze badges, best score per nickname
+- Monthly reset: the page automatically queries only the current month
+- Supabase setup: run SUPABASE_GAME_SETUP.sql once in the Supabase SQL Editor
+- Before the SQL is installed, the game remains playable and uses a local browser ranking for testing
+
+V43 UPDATE
+- Mini game menu and all visible mini game interface text support Korean, English, Portuguese, Vietnamese, Arabic, and Traditional Chinese.
+- Language changes immediately update the game library, controls, result screen, ranking, and monthly labels.
+- The game names SURVIVAL, TANK BATTLE, MISSILE DEFENSE, and DRONE HUNTER remain global title names.
