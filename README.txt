@@ -157,7 +157,7 @@ V21 update:
 - Supabase setup: run SUPABASE_GAME_SETUP.sql once in the Supabase SQL Editor
 - Before the SQL is installed, the game remains playable and uses a local browser ranking for testing
 
-V43 UPDATE
+V44 UPDATE
 - Mini game menu and all visible mini game interface text support Korean, English, Portuguese, Vietnamese, Arabic, and Traditional Chinese.
 - Language changes immediately update the game library, controls, result screen, ranking, and monthly labels.
 - The game names SURVIVAL, TANK BATTLE, MISSILE DEFENSE, and DRONE HUNTER remain global title names.
