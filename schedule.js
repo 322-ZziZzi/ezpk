@@ -25,7 +25,7 @@
   function formatServerTime(date) {
     if (!date) return '-';
     const shifted = new Date(date.getTime() + SERVER_OFFSET_HOURS * 60 * 60 * 1000);
-    return `${pad(shifted.getUTCMonth() + 1)}/${pad(shifted.getUTCDate())} ${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())}`;
+    return `${pad(shifted.getUTCMonth() + 1)}/${pad(shifted.getUTCDate())} ${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())} ST`;
   }
   function countdown(ms) {
     const total = Math.max(0, Math.floor(ms / 1000));
