@@ -215,3 +215,10 @@ v58 mobile members update:
 - Keeps only the sorting select.
 - Disables sticky filter toolbar on mobile so the member list is not covered.
 - Desktop layout remains unchanged.
+
+
+EZPK v63 UPDATE
+- Replaced the Immigration Coming Soon card with a live Google Forms application link.
+- Added complete Korean, English, Vietnamese, Portuguese, Arabic and Traditional Chinese translations.
+- Opens the application securely in a new browser tab.
+- Preserved Season 6/BGB shared authentication and all v62 features.
