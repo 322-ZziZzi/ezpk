@@ -160,3 +160,70 @@ body.admin-unlocked{overflow:auto}
   .admin-tabs button{padding:11px 12px;font-size:12px}
   .connect-grid input,.update-row input,.bgb-manager-head input,.manager-tools input,.manager-tools select,.assignment-toolbar input,.lineup-tools input,.lineup-tools select,.event-admin-fields input{font-size:16px}
 }
+
+/* v75: compact, centered mobile admin toolbar */
+@media(max-width:900px){
+  .admin-header-row{
+    position:relative;
+    display:grid;
+    grid-template-columns:48px minmax(0,1fr) 48px;
+    align-items:center;
+    min-height:64px;
+    padding:8px 12px;
+  }
+  .admin-menu-button{
+    grid-column:1;
+    grid-row:1;
+    justify-self:start;
+    width:48px;
+    height:48px;
+    flex-basis:48px;
+    border-radius:12px;
+    font-size:22px;
+    z-index:2;
+  }
+  .admin-header .brand{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    margin:0;
+    gap:8px;
+    font-size:30px;
+    line-height:1;
+    z-index:1;
+  }
+  .admin-header .brand b{
+    font-size:18px;
+    line-height:1;
+  }
+  .admin-header .admin-nav{
+    display:flex;
+    max-height:0;
+    padding:0 14px;
+    overflow:hidden;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-6px);
+    pointer-events:none;
+    transition:max-height .28s ease,opacity .2s ease,transform .28s ease,padding .28s ease,visibility 0s linear .28s;
+  }
+  .admin-header .admin-nav.open{
+    max-height:360px;
+    padding:10px 14px 14px;
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+    pointer-events:auto;
+    transition:max-height .32s ease,opacity .22s ease,transform .32s ease,padding .32s ease,visibility 0s;
+  }
+}
+@media(max-width:500px){
+  .admin-header-row{
+    grid-template-columns:48px minmax(0,1fr) 48px;
+    min-height:64px;
+    padding:8px 10px;
+  }
+  .admin-header .brand{font-size:29px}
+  .admin-header .brand b{font-size:18px}
+}
