@@ -30,7 +30,25 @@ function bestRows(rows){const map=new Map();for(const r of rows){const k=String(
 async function loadRanking(){const t=tx();$('#rankingStatus').textContent=t.loading;let rows=[],remote=false;if(configured()){try{const q=`select=nickname,score,created_at&game_id=eq.drone_hunter&created_at=gte.${encodeURIComponent(monthStartISO())}&created_at=lt.${encodeURIComponent(nextMonthISO())}&order=score.desc&limit=300`;const r=await fetch(`${cfg.url}/rest/v1/game_scores?${q}`,{headers:headers()});if(!r.ok)throw new Error(await r.text());rows=await r.json();remote=true}catch(e){console.warn(e)}}if(!remote)rows=localRows();rows=bestRows(rows);$('#rankingStatus').textContent=rows.length?'':t.empty;$('#rankingList').innerHTML=rows.map((r,i)=>`<li class="ranking-row ${i<3?`top-${i+1}`:''}" data-player-key="${esc(String(r.nickname).trim().toLowerCase())}"><span>${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span><span class="rank-name">${esc(r.nickname)}</span><strong class="rank-score">${Number(r.score).toLocaleString()}</strong></li>`).join('');$('#rankingNote').textContent=t.note+(!remote?' '+t.offline:'');return rows}
 function clearRankingFocus(){const p=$('#ranking');p.classList.remove('ranking-focus');$$('.ranking-row.current-player').forEach(r=>r.classList.remove('current-player'))}
 async function showRanking(){$('#resultOverlay').hidden=true;$('#startOverlay').hidden=true;$('#postRankingOverlay').hidden=false;await loadRanking();const p=$('#ranking');clearRankingFocus();void p.offsetWidth;p.classList.add('ranking-focus');const key=(lastPlayerNickname||localStorage.getItem('ezpk-game-nickname')||'').trim().toLowerCase(),row=[...$$('.ranking-row')].find(r=>r.dataset.playerKey===key);if(row)row.classList.add('current-player');if(matchMedia('(max-width:980px)').matches)(row||p).scrollIntoView({behavior:'smooth',block:row?'center':'start'});setTimeout(()=>p.classList.remove('ranking-focus'),1400);setTimeout(()=>row&&row.classList.remove('current-player'),2600)}
-$('#startBtn').onclick=startGame;$('#retryBtn').onclick=startGame;$('#rankingBtn').onclick=showRanking;$('#replayBtn').onclick=startGame;$('#refreshRanking').onclick=loadRanking;$('#soundBtn').onclick=()=>{muted=!muted;$('#soundBtn').textContent=muted?'🔇':'🔊'};$('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;$$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$('#langMenu').hidden=true;renderLanguage();loadRanking()});$('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');$$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';renderLanguage();resizeCanvas();draw(performance.now());loadRanking();
+$('#startBtn').onclick=startGame;$('#retryBtn').onclick=startGame;$('#rankingBtn').onclick=showRanking;$('#replayBtn').onclick=startGame;
+async function refreshRankingNow(){
+  const button=$('#refreshRanking');
+  if(button.disabled)return;
+  button.disabled=true;
+  button.classList.add('is-refreshing');
+  try{
+    await loadRanking();
+    const panel=$('#ranking');
+    panel.classList.remove('ranking-focus');
+    void panel.offsetWidth;
+    panel.classList.add('ranking-focus');
+    setTimeout(()=>panel.classList.remove('ranking-focus'),900);
+  }finally{
+    setTimeout(()=>{button.disabled=false;button.classList.remove('is-refreshing')},350);
+  }
+}
+$('#refreshRanking').addEventListener('click',e=>{e.preventDefault();refreshRankingNow()});
+$('#soundBtn').onclick=()=>{muted=!muted;$('#soundBtn').textContent=muted?'🔇':'🔊'};$('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;$$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$('#langMenu').hidden=true;renderLanguage();loadRanking()});$('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');$$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';renderLanguage();resizeCanvas();draw(performance.now());loadRanking();
 function scrollToRequestedGame(){
   if(location.hash!=='#gameShell')return;
   const target=$('#gameShell');

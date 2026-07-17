@@ -4,3 +4,84 @@
 
 /* v49 persistent mini-game switcher */
 .game-library{width:100%;margin:0 0 24px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.game-choice{min-height:138px;padding:17px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:linear-gradient(145deg,rgba(16,22,33,.96),rgba(6,9,14,.94));display:flex;gap:13px;position:relative;overflow:hidden}.game-choice-icon{font-size:25px;line-height:1}.game-choice span{display:block;color:#8c98aa;font-size:10px;font-weight:800;letter-spacing:.12em;margin-bottom:7px}.game-choice h2{margin:0 0 7px;font-size:17px;color:#fff}.game-choice p{margin:0;color:#8490a1;font-size:12px;line-height:1.5}.game-choice a{position:absolute;right:14px;bottom:14px;padding:7px 12px;border-radius:8px;background:#d8a928;color:#090b0f;font-size:11px;font-weight:900;text-decoration:none}.active-game{border-color:rgba(216,169,40,.52)}.locked-game{opacity:.48;filter:saturate(.65)}.current-game{border-color:rgba(126,217,255,.65);box-shadow:0 0 0 1px rgba(126,217,255,.12),0 0 26px rgba(126,217,255,.08)}.current-game .game-choice-icon{filter:drop-shadow(0 0 12px rgba(126,217,255,.4))}.current-badge{position:absolute;right:14px;bottom:14px;margin:0!important;padding:7px 10px;border:1px solid rgba(126,217,255,.35);border-radius:999px;background:rgba(126,217,255,.08);color:#7ed9ff!important;letter-spacing:.08em!important}.rtl .game-choice a,.rtl .current-badge{right:auto;left:14px}@media(max-width:900px){.game-library{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.game-library{grid-template-columns:1fr 1fr;gap:8px}.game-choice{min-height:124px;padding:12px;gap:8px}.game-choice-icon{font-size:19px}.game-choice h2{font-size:13px}.game-choice p{display:none}.game-choice a,.current-badge{right:9px;bottom:9px;padding:6px 9px}.rtl .game-choice a,.rtl .current-badge{right:auto;left:9px}}
+
+
+/* v53 — shared start interface alignment with SURVIVAL */
+.overlay-card{
+  width:min(430px,100%);
+  padding:28px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:18px;
+  background:rgba(11,17,27,.94);
+  text-align:center;
+}
+.target-mark{
+  display:grid;
+  place-items:center;
+  width:88px;
+  height:66px;
+  margin:0 auto 18px;
+  color:var(--gold);
+  font-size:54px;
+  line-height:1;
+  text-shadow:0 0 18px rgba(245,197,71,.4);
+}
+.overlay-card h2{
+  margin:0 0 8px;
+  font-size:29px;
+  line-height:1.25;
+  font-weight:900;
+  text-align:center;
+}
+.overlay-card p{
+  margin:0 0 18px;
+  color:#aab4c2;
+  line-height:1.6;
+  text-align:center;
+}
+.overlay-card label{
+  display:block;
+  margin:0 0 8px;
+  text-align:left;
+  color:#dce2ea;
+  font-size:12px;
+  font-weight:900;
+}
+.overlay-card input{
+  width:100%;
+  height:50px;
+  padding:0 14px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:10px;
+  background:#111923;
+  color:#fff;
+  font:inherit;
+  text-align:center;
+  font-weight:900;
+}
+.overlay-card>button,.result-actions button{
+  height:50px;
+  padding:0 14px;
+  border:0;
+  border-radius:10px;
+  background:var(--gold);
+  color:#111;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+}
+.overlay-card>button{width:100%;margin-top:11px}
+.overlay-card small{display:block;margin-top:13px;color:#7f8a98;line-height:1.5;text-align:center}
+.rtl .overlay-card label{text-align:right}
+
+/* v53 — ranking refresh feedback */
+#refreshRanking{cursor:pointer;transition:opacity .2s ease,transform .2s ease}
+#refreshRanking:disabled{cursor:wait;opacity:.65}
+#refreshRanking.is-refreshing{animation:droneRankingSpin .75s linear infinite}
+@keyframes droneRankingSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#refreshRanking.is-refreshing{animation:none}}
+@media(max-width:620px){
+  .overlay-card{padding:20px 17px}
+  .overlay-card h2{font-size:24px}
+  .target-mark{transform:scale(.88);margin-bottom:10px}
+}
