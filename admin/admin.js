@@ -65,7 +65,32 @@ function isoToServerParts(value){const d=parseEventDate(value);if(!d)return{date
 function isValid24HourTime(value){return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value||''))}
 function formatTimeDigits(value){const digits=String(value||'').replace(/\D/g,'').slice(0,4);if(digits.length<=2)return digits;return `${digits.slice(0,2)}:${digits.slice(2)}`}
 function serverPartsToIso(date,time){if(!date||!isValid24HourTime(time))return'';return `${date}T${time}:00-02:00`}
-function updateEventDateTime(i,prefix,field,value){const e=eventsData.events[i],parts=isoToServerParts(e[prefix]);parts[field]=value;e[prefix]=serverPartsToIso(parts.date,parts.time)}
+function updateEventDateTime(i,prefix,field,value){
+  const e=eventsData.events[i];
+  const dateKey=`_${prefix}Date`,timeKey=`_${prefix}Time`;
+  const parsed=isoToServerParts(e[prefix]);
+  if(e[dateKey]===undefined)e[dateKey]=parsed.date;
+  if(e[timeKey]===undefined)e[timeKey]=parsed.time;
+  if(field==='date')e[dateKey]=value;
+  if(field==='time')e[timeKey]=value;
+  e[prefix]=serverPartsToIso(e[dateKey],e[timeKey]);
+}
+function syncEventsFromForm(){
+  $$('#eventAdminGrid [data-event-i]').forEach(card=>{
+    const i=Number(card.dataset.eventI),e=eventsData.events[i];
+    if(!e)return;
+    const get=f=>card.querySelector(`[data-event-f="${f}"]`);
+    const enabled=get('enabled'),title=get('title'),startDate=get('startDate'),startTime=get('startTime'),endDate=get('endDate'),endTime=get('endTime');
+    if(enabled)e.enabled=enabled.checked;
+    if(title)e.title=title.value.trim();
+    const sd=startDate?.value||'',st=formatTimeDigits(startTime?.value||''),ed=endDate?.value||'',et=formatTimeDigits(endTime?.value||'');
+    if(startTime){startTime.value=st;startTime.classList.toggle('invalid',Boolean(st)&&!isValid24HourTime(st));}
+    if(endTime){endTime.value=et;endTime.classList.toggle('invalid',Boolean(et)&&!isValid24HourTime(et));}
+    e._startDate=sd;e._startTime=st;e._endDate=ed;e._endTime=et;
+    e.start=serverPartsToIso(sd,st);
+    e.end=serverPartsToIso(ed,et);
+  });
+}
 function cfg(){return{owner:$('#owner').value.trim(),repo:$('#repo').value.trim(),branch:$('#branch').value.trim()||'main',token:$('#token').value.trim()}}
 function setStatus(msg,type=''){const e=$('#status');e.textContent=msg;e.className='status '+type}
 function normalizeMember(m){return{rank:String(m.rank||m.Rank||'R1').toUpperCase(),nickname:String(m.nickname||m.Nickname||'').trim(),ind:Number(m.ind??m.IND??m['Shelter Level']??0),power:Number(String(m.power??m['Combat Power']??0).replaceAll(',',''))}}
@@ -148,7 +173,7 @@ function renderEvents(){
 function renderAll(){renderMembers();renderBgbAll();renderEvents()}
 function membersPayload(){return{lastUpdated:$('#lastUpdated').value.trim(),members:membersData.members.map(normalizeMember)}}
 function bgbPayload(){const out=blankBgb();out.lastUpdated=$('#bgbLastUpdated').value.trim();TEAM_KEYS.forEach(t=>{out.teams[t].members=[...bgbData.teams[t].members];LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=[...bgbData.teams[t].locations[c]])});return out}
-function eventsPayload(){const out=blankEvents();out.lastUpdated=$('#eventsLastUpdated').value.trim();out.events=eventsData.events.slice(0,9).map(e=>({title:String(e.title||'').trim(),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled)}));return out}
+function eventsPayload(){syncEventsFromForm();const out=blankEvents();out.lastUpdated=$('#eventsLastUpdated').value.trim();out.events=eventsData.events.slice(0,9).map(e=>({title:String(e.title||'').trim(),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled)}));return out}
 function todayKst(){const d=new Date(Date.now()-2*60*60*1000),p=n=>String(n).padStart(2,'0');return `${d.getUTCFullYear()}.${p(d.getUTCMonth()+1)}.${p(d.getUTCDate())}`}
 function b64EncodeUnicode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin)}
 function b64DecodeUnicode(b64){const bin=atob(b64.replace(/\n/g,''));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))}
