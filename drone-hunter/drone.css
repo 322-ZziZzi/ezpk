@@ -85,3 +85,52 @@
   .overlay-card h2{font-size:24px}
   .target-mark{transform:scale(.88);margin-bottom:10px}
 }
+
+/* v55 — mobile-only start/result overlay usability fix */
+@media(max-width:620px){
+  .hunter-shell{
+    aspect-ratio:auto;
+    min-height:650px;
+    overflow:hidden;
+    touch-action:pan-y;
+  }
+  .hunter-shell canvas{
+    touch-action:none;
+  }
+  .game-overlay{
+    place-items:start center;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding:18px 12px calc(22px + env(safe-area-inset-bottom));
+    touch-action:pan-y;
+  }
+  .overlay-card{
+    width:100%;
+    max-width:430px;
+    margin:auto 0;
+    padding:22px 18px 20px;
+    max-height:none;
+    pointer-events:auto;
+    touch-action:pan-y;
+  }
+  .overlay-card h2{font-size:26px;line-height:1.28;margin:6px 0 8px}
+  .overlay-card p{font-size:15px;line-height:1.55;margin:0 0 16px}
+  .overlay-card label{font-size:13px;margin:0 0 7px}
+  .overlay-card input{
+    height:52px;
+    min-height:52px;
+    padding:0 14px;
+    font-size:16px;
+    pointer-events:auto;
+    touch-action:manipulation;
+  }
+  .overlay-card>button,.result-actions button{
+    min-height:52px;
+    font-size:16px;
+    pointer-events:auto;
+    touch-action:manipulation;
+  }
+  .overlay-card small{font-size:12px;line-height:1.45;margin-top:11px}
+  .target-mark{font-size:45px;transform:none;margin-bottom:2px}
+}
