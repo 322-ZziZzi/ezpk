@@ -6,7 +6,7 @@ create table if not exists public.game_scores (
   created_at timestamptz not null default now()
 );
 
--- v48: separate rankings for SURVIVAL and DRONE HUNTER.
+-- v48: separate rankings for SURVIVAL, DRONE HUNTER, TANK BATTLE, and MISSILE DEFENSE.
 alter table public.game_scores
   add column if not exists game_id varchar(32) not null default 'survival';
 
@@ -24,7 +24,7 @@ create policy "Anyone can submit game scores" on public.game_scores
   for insert to anon, authenticated with check (
     char_length(trim(nickname)) between 1 and 16
     and score between 0 and 3600000
-    and game_id in ('survival', 'drone_hunter')
+    and game_id in ('survival', 'drone_hunter', 'tank_battle', 'missile_defense')
   );
 
 -- Existing v47 scores automatically remain classified as 'survival'.

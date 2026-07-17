@@ -5,23 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Drone Hunter</title>
-  <link rel="stylesheet" href="../style.css?v=570">
-  <link rel="stylesheet" href="drone.css?v=570">
-  <link rel="stylesheet" href="../game-switcher.css?v=570">
+  <link rel="stylesheet" href="../style.css?v=670">
+  <link rel="stylesheet" href="drone.css?v=670">
+  <link rel="stylesheet" href="../game-switcher.css?v=670">
 </head>
 <body>
 <header class="site-header">
   <a href="../" class="brand">★ <span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></span></a>
   <button id="menuBtn" aria-label="Menu">☰</button>
   <nav id="nav"><a href="../" data-k="navHome"></a><a href="../season6/" data-k="navSeason6"></a><a href="../members/" data-k="navMember"></a><a href="../bgb/">BGB</a><a href="../request/" data-k="navRequest"></a><a href="../game/" data-k="navGame" class="active"></a></nav>
-  <div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div>
+  <div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="ja">🇯🇵 日本語</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div>
 </header>
 <main class="hunter-main mini-game-main">
   <section class="hunter-hero mini-game-hero"><span class="eyebrow" id="gameEyebrow"></span><h1>DRONE HUNTER</h1><p id="gameLead"></p></section>
   <section class="game-library" id="gameLibrary" aria-label="EZPK mini games">
     <article class="game-choice active-game"><div class="game-choice-icon">🛡</div><div><span id="survivalStatus"></span><h2>SURVIVAL</h2><p id="survivalDescription"></p></div><a href="../game/#gameShell" id="playSurvivalLink"></a></article>
-    <article class="game-choice locked-game"><div class="game-choice-icon">🔒</div><div><span class="comingSoon"></span><h2>TANK BATTLE</h2><p class="futureMission"></p></div></article>
-    <article class="game-choice locked-game"><div class="game-choice-icon">🔒</div><div><span class="comingSoon"></span><h2>MISSILE DEFENSE</h2><p class="futureMission"></p></div></article>
+    <article class="game-choice active-game tank-game"><div class="game-choice-icon">💥</div><div><span id="tankAvailable"></span><h2>TANK BATTLE</h2><p id="tankDescription"></p></div><a href="../tank-battle/#gameShell" id="playTankLink"></a></article>
+    <article class="game-choice active-game missile-game"><div class="game-choice-icon">🚀</div><div><span id="missileAvailable"></span><h2>MISSILE DEFENSE</h2><p id="missileDescription"></p></div><a href="../missile-defense/#gameShell" id="playMissileLink"></a></article>
     <article class="game-choice active-game current-game"><div class="game-choice-icon">🎯</div><div><span id="droneStatus"></span><h2>DRONE HUNTER</h2><p id="droneDescription"></p></div><span class="current-badge" id="currentGameBadge"></span></article>
   </section>
   <section class="mobile-game-info" id="mobileGameInfo" aria-live="polite">
@@ -49,6 +49,6 @@
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="gameFooter"></span></footer>
-<script src="../data.js?v=570"></script><script src="../supabase-config.js?v=570"></script><script src="drone.js?v=570"></script>
+<script src="../data.js?v=670"></script><script src="../supabase-config.js?v=670"></script><script src="drone.js?v=670"></script>
 </body>
 </html>
