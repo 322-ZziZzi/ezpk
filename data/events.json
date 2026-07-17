@@ -1,24 +1,24 @@
 {
-  "lastUpdated": "",
+  "lastUpdated": "2026.07.17",
   "timezone": "Asia/Seoul",
   "events": [
     {
-      "title": "",
-      "start": "",
-      "end": "",
-      "enabled": false
+      "title": "LAST SEASON WAR",
+      "start": "2026-07-18T22:00:00+09:00",
+      "end": "2026-07-19T00:00:00+09:00",
+      "enabled": true
     },
     {
-      "title": "",
-      "start": "",
-      "end": "",
-      "enabled": false
+      "title": "BGB - A TEAM",
+      "start": "2026-07-19T21:00:00+09:00",
+      "end": "2026-07-19T21:50:00+09:00",
+      "enabled": true
     },
     {
-      "title": "",
-      "start": "",
-      "end": "",
-      "enabled": false
+      "title": "BGB - B TEAM",
+      "start": "2026-07-20T06:00:00+09:00",
+      "end": "2026-07-20T06:50:00+09:00",
+      "enabled": true
     },
     {
       "title": "",
