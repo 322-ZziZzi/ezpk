@@ -107,3 +107,14 @@ V21 update:
 - Always opens a full-screen generated team image on all browsers.
 - Mobile users can press and hold the image to save or share.
 - Includes SERVER 322 · EZPK, selected BGB team, final lineup, all location assignments, and last updated date.
+
+
+[v22 EVENT SCHEDULE]
+- 상단 메뉴 가장 왼쪽에 SCHEDULE 추가
+- 메인 도입부 아래 EVENT SCHEDULE 섹션 추가
+- 데스크톱 3열, 태블릿 2열, 모바일 1열
+- 관리자 Event Manager에서 최대 9개 일정 관리
+- 관리자만 시작/종료시간 입력
+- 연맹원 화면에는 시작시간만 표시
+- 시작 전 카운트다운, 진행 중 LIVE, 종료 후 FINISHED
+- 데이터 파일: data/events.json

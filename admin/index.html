@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
-  <link rel="stylesheet" href="../style.css?v=160">
-  <link rel="stylesheet" href="admin.css?v=180">
+  <link rel="stylesheet" href="../style.css?v=220">
+  <link rel="stylesheet" href="admin.css?v=220">
 </head>
 <body>
 <section id="adminLogin" class="admin-login-screen">
@@ -28,7 +28,7 @@
   <nav class="admin-nav"><a href="../">PORTAL</a><a href="../members/">MEMBERS</a><a href="../bgb/">BGB</a><button id="adminLogout" type="button">LOGOUT</button></nav>
 </header>
 <main class="admin-main">
-  <section class="admin-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1>EZPK ADMIN</h1><p>멤버 정보와 BGB A/B TEAM 편성을 관리하고 GitHub에 영구 저장합니다.</p></section>
+  <section class="admin-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1>EZPK ADMIN</h1><p>멤버 정보, BGB A/B TEAM 편성, 이벤트 일정을 관리하고 GitHub에 영구 저장합니다.</p></section>
   <section class="connect-card">
     <h2>GitHub 연결</h2>
     <p class="help">Fine-grained token은 이 브라우저에서만 사용됩니다. 공용 PC에서는 ‘이 브라우저에 기억’을 체크하지 마세요.</p>
@@ -44,7 +44,7 @@
   </section>
 
   <section class="manager-card">
-    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button></div>
+    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="eventsPanel">Event Manager</button></div>
 
     <div id="membersPanel" class="admin-panel active">
       <div class="manager-tools"><input id="search" type="search" placeholder="닉네임 검색"><select id="rank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><button id="addMember">+ 멤버 추가</button><button id="importExcel">↑ Excel 가져오기</button><button id="exportExcel">↓ Excel 다운로드</button><button id="downloadJson">↓ JSON 백업</button><input id="excelFile" type="file" accept=".xlsx,.xls" hidden></div>
@@ -91,10 +91,17 @@
       </section>
       <div class="bgb-backup-actions"><button id="downloadBgbJson">↓ BGB JSON 백업</button></div>
     </div>
+
+    <div id="eventsPanel" class="admin-panel">
+      <div class="event-manager-head"><div><h2>Event Manager</h2><p>최대 9개의 이벤트를 설정합니다. 종료시간은 상태 판단에만 사용되며 연맹원 화면에는 시작시간만 표시됩니다.</p></div><label>일정 업데이트<input id="eventsLastUpdated" type="text" placeholder="2026.07.17"></label></div>
+      <div class="event-manager-guide"><strong>표시 규칙</strong><span>시작 전: 카운트다운</span><span>진행 중: LIVE</span><span>종료 후: FINISHED</span></div>
+      <div id="eventAdminGrid" class="event-admin-grid"></div>
+      <div class="event-manager-actions"><button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button><button id="downloadEventsJson" type="button">↓ Events JSON 백업</button></div>
+    </div>
   </section>
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="admin.js?v=180"></script>
+<script src="admin.js?v=220"></script>
 </body>
 </html>
