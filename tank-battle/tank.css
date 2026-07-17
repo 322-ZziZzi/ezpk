@@ -90,3 +90,10 @@
 
   .mobile-controls{padding-bottom:calc(4px + env(safe-area-inset-bottom))}
 }
+
+
+/* v72 — mobile page scroll outside active gameplay */
+@media(max-width:620px){
+  .tank-shell,.tank-shell canvas{touch-action:pan-y pinch-zoom;overscroll-behavior:auto}
+  .tank-shell.is-playing,.tank-shell.is-playing canvas{touch-action:none;overscroll-behavior:contain}
+}

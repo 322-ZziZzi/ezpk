@@ -196,3 +196,10 @@
   #startOverlay .overlay-card input{height:50px;min-height:50px}
   #startOverlay .overlay-card>button{height:50px;min-height:50px;margin-top:10px}
 }
+
+
+/* v72 — mobile page scroll outside active gameplay */
+@media(max-width:620px){
+  .hunter-shell,.hunter-shell canvas{touch-action:pan-y pinch-zoom;overscroll-behavior:auto}
+  .hunter-shell.is-playing,.hunter-shell.is-playing canvas{touch-action:none;overscroll-behavior:contain}
+}
