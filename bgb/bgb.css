@@ -18,3 +18,22 @@ nav a.active{color:#f5c547!important}
 
 .preview-primary-full{grid-column:1/-1}
 @media(max-width:620px){.preview-primary-full{grid-column:auto}}
+
+/* v62: shared alliance password gate for BGB lineups */
+.bgb-lock{max-width:760px;margin:0 auto;padding:54px 30px;text-align:center;border:1px solid rgba(245,197,71,.24);border-radius:24px;background:linear-gradient(145deg,rgba(18,24,35,.96),rgba(8,12,19,.98));box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.lock-emblem{width:70px;height:70px;margin:0 auto 18px;display:grid;place-items:center;border-radius:50%;font-size:30px;background:rgba(245,197,71,.09);border:1px solid rgba(245,197,71,.28)}
+.lock-kicker{display:block;color:#f5c547;font-size:.76rem;font-weight:900;letter-spacing:.22em;margin-bottom:12px}
+.bgb-lock h2{margin:0;color:#fff;font-size:clamp(1.7rem,4vw,2.6rem)}
+.bgb-lock>p{max-width:560px;margin:14px auto 28px;color:#9ca8b8;line-height:1.7}
+.bgb-lock-form{max-width:560px;margin:0 auto;text-align:left}
+.bgb-lock-form label{display:block;margin:0 0 9px;color:#dce2ea;font-size:.88rem;font-weight:800}
+.bgb-password-row{display:flex;gap:10px}
+.bgb-password-row input{min-width:0;flex:1;height:50px;padding:0 16px;border-radius:12px;border:1px solid #303b4d;background:#080c13;color:#fff;font-size:1rem;outline:none}
+.bgb-password-row input:focus{border-color:#f5c547;box-shadow:0 0 0 3px rgba(245,197,71,.11)}
+.bgb-password-row button,.protected-toolbar button{border:1px solid #f5c547;border-radius:12px;background:#f5c547;color:#101217;font-weight:900;cursor:pointer;padding:0 20px}
+.bgb-lock-error{min-height:22px;margin:10px 0 0!important;color:#ff7979!important;font-size:.87rem}
+.protected-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:-6px 0 20px;color:#7fdca8;font-size:.85rem;font-weight:800}
+.protected-toolbar button{height:36px;padding:0 14px;background:transparent;color:#f5c547}
+[hidden]{display:none!important}
+.rtl .bgb-lock-form{text-align:right}
+@media(max-width:620px){.bgb-lock{padding:38px 18px;border-radius:18px}.bgb-password-row{flex-direction:column}.bgb-password-row button{height:48px}.protected-toolbar{justify-content:space-between}}
