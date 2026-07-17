@@ -118,3 +118,11 @@ V21 update:
 - 연맹원 화면에는 시작시간만 표시
 - 시작 전 카운트다운, 진행 중 LIVE, 종료 후 FINISHED
 - 데이터 파일: data/events.json
+
+
+[v23 Event Schedule]
+- EVENT SCHEDULE is the first homepage section.
+- SCHEDULE is the leftmost menu item.
+- All event inputs/displays use fixed Server Time (ST = UTC-02:00 = KST-11).
+- Admin uses separate date and 24-hour time fields; midnight is 00:00.
+- Members see start time only; status automatically changes UPCOMING > LIVE > FINISHED.

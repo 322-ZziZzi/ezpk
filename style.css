@@ -2,7 +2,7 @@
 
 @media(max-width:620px){.stage{max-height:none;overflow:visible}.hint{padding:0 12px}}
 \n/* v22 Event Schedule */
-.schedule-section{padding-top:68px;background:linear-gradient(180deg,#070a10 0%,#05070b 100%)}
+.schedule-section{min-height:calc(100vh - 74px);padding-top:68px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(180deg,#070a10 0%,#05070b 100%)}
 .schedule-head{text-align:center}.schedule-head p{margin-left:auto;margin-right:auto}
 .event-schedule-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .event-card{position:relative;min-height:210px;padding:22px;border:1px solid #ffffff16;border-radius:16px;background:linear-gradient(145deg,#121a27,#0c121c);box-shadow:0 14px 34px #0000002e;overflow:hidden}
@@ -11,3 +11,5 @@
 .event-card h3{margin:24px 0 18px;font-size:clamp(20px,2.2vw,30px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.event-countdown small{display:block;margin-bottom:6px;color:#768398;font-size:10px;font-weight:900;letter-spacing:.14em}.event-countdown strong{display:block;color:#f5c547;font-size:clamp(25px,3vw,40px);font-variant-numeric:tabular-nums;letter-spacing:.04em}.event-live .event-countdown strong{color:#70ee9d}.event-finished .event-countdown strong{color:#8c97a7;font-size:24px}.event-card time{display:block;margin-top:20px;color:#8e9aab;font-size:12px;font-weight:700}
 .event-schedule-empty{max-width:1400px;margin:0 auto;padding:30px;border:1px dashed #ffffff18;border-radius:14px;color:#788597;text-align:center}
 @media(max-width:900px){.event-schedule-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.event-schedule-grid{grid-template-columns:1fr}.event-card{min-height:185px}.schedule-section{padding-top:50px}}
+
+.schedule-timezone{display:block;margin-top:10px;color:#f5c547;font-size:11px;font-weight:800;letter-spacing:.08em}
