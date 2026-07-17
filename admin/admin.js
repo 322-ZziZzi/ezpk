@@ -54,6 +54,31 @@ function initAdminLoginGate(){
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
+
+// v73: mobile-only collapsible admin navigation.
+function initAdminMobileMenu(){
+  const button=document.getElementById('adminMenuButton');
+  const nav=document.getElementById('adminNav');
+  if(!button||!nav)return;
+  const closeMenu=()=>{
+    nav.classList.remove('open');
+    button.setAttribute('aria-expanded','false');
+    button.setAttribute('aria-label','관리자 메뉴 열기');
+    button.textContent='☰';
+  };
+  button.addEventListener('click',()=>{
+    const willOpen=!nav.classList.contains('open');
+    nav.classList.toggle('open',willOpen);
+    button.setAttribute('aria-expanded',String(willOpen));
+    button.setAttribute('aria-label',willOpen?'관리자 메뉴 닫기':'관리자 메뉴 열기');
+    button.textContent=willOpen?'✕':'☰';
+  });
+  nav.querySelectorAll('a,button').forEach(item=>item.addEventListener('click',closeMenu));
+  window.addEventListener('resize',()=>{if(window.innerWidth>900)closeMenu()});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminMobileMenu,{once:true});
+else initAdminMobileMenu();
+
 const LOCATIONS=[['R1','REFINERY 1'],['R2','REFINERY 2'],['R3','REFINERY 3'],['R4','REFINERY 4'],['R5','REFINERY 5'],['R6','REFINERY 6'],['M1','MILITARY BASE 1'],['M2','MILITARY BASE 2'],['H1','HOSPITAL 1'],['H2','HOSPITAL 2'],['CENTER','ALLOY FACTORY']];
 const TEAM_KEYS=['A','B'];
 let membersData={lastUpdated:'',members:[]},bgbData=blankBgb(),eventsData=blankEvents(),memberSha='',bgbSha='',eventsSha='',selectedTeam='A',selectedLocation='R1';

@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
-  <link rel="stylesheet" href="../style.css?v=720">
-  <link rel="stylesheet" href="admin.css?v=720">
+  <link rel="stylesheet" href="../style.css?v=730">
+  <link rel="stylesheet" href="admin.css?v=730">
 </head>
 <body>
 <section id="adminLogin" class="admin-login-screen">
@@ -23,9 +23,12 @@
   </form>
 </section>
 <div id="adminApp" hidden>
-<header>
-  <a href="../" class="brand">★ <span><b>322 EZPK</b><small>ADMIN MANAGER</small></span></a>
-  <nav class="admin-nav"><a href="../">PORTAL</a><a href="../members/">MEMBERS</a><a href="../bgb/">BGB</a><a href="../request/">REQUEST</a><button id="adminLogout" type="button">LOGOUT</button></nav>
+<header class="admin-header">
+  <div class="admin-header-row">
+    <a href="../" class="brand">★ <span><b>322 EZPK</b><small>ADMIN MANAGER</small></span></a>
+    <button id="adminMenuButton" class="admin-menu-button" type="button" aria-expanded="false" aria-controls="adminNav" aria-label="관리자 메뉴 열기">☰</button>
+  </div>
+  <nav id="adminNav" class="admin-nav"><a href="../">PORTAL</a><a href="../members/">MEMBERS</a><a href="../bgb/">BGB</a><a href="../request/">REQUEST</a><button id="adminLogout" type="button">LOGOUT</button></nav>
 </header>
 <main class="admin-main">
   <section class="admin-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1>EZPK ADMIN</h1><p>멤버 정보, BGB A/B TEAM 편성, 이벤트 일정을 관리하고 GitHub에 영구 저장합니다.</p></section>
@@ -108,6 +111,6 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=720"></script><script src="../request/request-admin.js?v=720"></script><script src="admin.js?v=720"></script>
+<script src="../supabase-config.js?v=730"></script><script src="../request/request-admin.js?v=730"></script><script src="admin.js?v=730"></script>
 </body>
 </html>
