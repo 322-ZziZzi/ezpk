@@ -161,3 +161,16 @@ V44 UPDATE
 - Mini game menu and all visible mini game interface text support Korean, English, Portuguese, Vietnamese, Arabic, and Traditional Chinese.
 - Language changes immediately update the game library, controls, result screen, ranking, and monthly labels.
 - The game names SURVIVAL, TANK BATTLE, MISSILE DEFENSE, and DRONE HUNTER remain global title names.
+
+
+[V46] BGB page navigation fixed: MINI GAME menu now appears in all six languages.
+
+
+[v46] PC에서 순위 보기 후 시작 화면이 다시 표시되어 새로고침 없이 재도전할 수 있도록 수정.
+
+
+[v47 변경사항]
+- 게임 실패 후 다시 도전 버튼은 즉시 새 게임을 시작합니다.
+- 순위 보기 버튼은 결과창을 닫고 랭킹을 강조한 뒤 게임 화면에 다시 플레이 메뉴를 표시합니다.
+- PC와 모바일 모두 새로고침 없이 반복 플레이할 수 있습니다.
+- 6개 언어에 랭킹 확인 및 다시 플레이 문구를 추가했습니다.

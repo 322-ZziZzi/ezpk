@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Mini Game</title>
   <link rel="stylesheet" href="../style.css?v=400">
-  <link rel="stylesheet" href="game.css?v=440">
+  <link rel="stylesheet" href="game.css?v=470">
 </head>
 <body>
 <header class="site-header">
@@ -51,6 +51,13 @@
         <div id="resultOverlay" class="game-overlay" hidden>
           <div class="overlay-card result-card"><span class="result-label" id="resultLabel"></span><strong id="finalScore">0</strong><p id="resultText"></p><div class="result-actions"><button id="retryBtn" type="button"></button><button id="rankingBtn" type="button" class="secondary"></button></div></div>
         </div>
+        <div id="postRankingOverlay" class="game-overlay post-ranking-overlay" hidden>
+          <div class="overlay-card post-ranking-card">
+            <span class="ranking-check-icon" aria-hidden="true">✓</span>
+            <p id="rankingCheckedText"></p>
+            <button id="replayBtn" type="button"></button>
+          </div>
+        </div>
       </div>
       <div class="mobile-pad" aria-label="Mobile controls"><button data-dir="up">▲</button><div><button data-dir="left">◀</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div></div>
     </div>
@@ -64,6 +71,6 @@
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="gameFooter"></span></footer>
-<script src="../data.js?v=440"></script><script src="../supabase-config.js?v=440"></script><script src="game.js?v=440"></script>
+<script src="../data.js?v=470"></script><script src="../supabase-config.js?v=470"></script><script src="game.js?v=470"></script>
 </body>
 </html>
