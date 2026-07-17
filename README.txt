@@ -208,3 +208,10 @@ v56: Mobile playfields rebuilt as true 1:1 squares. Removed artificial 650px min
 
 
 v57 mobile UX: game instructions moved between game list and playfield; mobile start overlay now contains only nickname and start button.
+
+
+v58 mobile members update:
+- Mobile only: hides nickname search and rank filter.
+- Keeps only the sorting select.
+- Disables sticky filter toolbar on mobile so the member list is not covered.
+- Desktop layout remains unchanged.

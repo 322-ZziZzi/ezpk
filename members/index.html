@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Members</title>
   <link rel="stylesheet" href="../style.css?v=400">
-  <link rel="stylesheet" href="members.css?v=330">
+  <link rel="stylesheet" href="members.css?v=600">
 </head>
 <body>
 <header class="site-header">
@@ -46,7 +46,10 @@
     <div class="member-tools">
       <input id="memberSearch" type="search" autocomplete="off">
       <select id="rankFilter"></select>
-      <select id="sortMembers"></select>
+      <div class="mobile-sort-wrap">
+        <label id="mobileSortLabel" for="sortMembers"></label>
+        <select id="sortMembers"></select>
+      </div>
     </div>
     <div id="memberGroups" class="member-groups"></div>
     <div id="emptyState" class="empty-state" hidden></div>
@@ -54,7 +57,7 @@
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="memberFooter"></span></footer>
-<script src="../data.js?v=330"></script>
-<script src="members.js?v=330"></script>
+<script src="../data.js?v=600"></script>
+<script src="members.js?v=600"></script>
 </body>
 </html>

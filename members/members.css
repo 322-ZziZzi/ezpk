@@ -4,3 +4,79 @@ nav a.active{color:#f5c547}.members-main{min-height:100vh}.members-hero{padding:
 
 /* Ensure rank collapse works even though .rank-list uses CSS Grid */
 .rank-list[hidden]{display:none!important}
+
+/* v58: mobile member tools — keep sorting only and avoid covering the member list */
+@media(max-width:620px){
+  .member-tools{
+    position:static;
+    top:auto;
+    z-index:auto;
+    display:block;
+    padding:0;
+    margin:0 0 16px;
+    border:0;
+    background:transparent;
+    backdrop-filter:none;
+  }
+  #memberSearch,
+  #rankFilter{
+    display:none!important;
+  }
+  #sortMembers{
+    display:block;
+    width:100%;
+    height:48px;
+    padding:0 14px;
+    border:1px solid #ffffff20;
+    border-radius:10px;
+    background:#111823;
+    color:#fff;
+    font:inherit;
+  }
+}
+
+
+/* v59: mobile = all ranks fixed, sort control only */
+.mobile-sort-wrap{display:contents}
+#mobileSortLabel{display:none}
+@media(max-width:620px){
+  .mobile-sort-wrap{display:block}
+  #mobileSortLabel{display:block;margin:0 0 8px 2px;color:#8f9baa;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+  #sortMembers{width:100%}
+}
+
+/* v60: mobile final — show only the sort select, no search/rank/all-ranks labels */
+@media(max-width:768px){
+  .member-tools{
+    position:static!important;
+    top:auto!important;
+    z-index:auto!important;
+    display:block!important;
+    padding:0!important;
+    margin:0 0 16px!important;
+    border:0!important;
+    background:transparent!important;
+    backdrop-filter:none!important;
+  }
+  #memberSearch,
+  #rankFilter,
+  #mobileSortLabel{
+    display:none!important;
+  }
+  .mobile-sort-wrap{
+    display:block!important;
+    width:100%;
+  }
+  #sortMembers{
+    display:block!important;
+    width:100%!important;
+    height:48px;
+    margin:0!important;
+    padding:0 14px;
+    border:1px solid #ffffff20;
+    border-radius:10px;
+    background:#111823;
+    color:#fff;
+    font:inherit;
+  }
+}
