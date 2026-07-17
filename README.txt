@@ -132,3 +132,10 @@ V21 update:
 - Event Manager time fields use fixed 24-hour HH:mm text input (00:00-23:59).
 - Browser AM/PM display is removed to match in-game Server Time.
 - Countdown and automatic UPCOMING/LIVE/FINISHED states use absolute timestamps based on game Server Time.
+
+[v35 Request Manager Edge Function 연결]
+- Supabase Edge Function 이름: request-admin
+- Verify JWT with legacy secret: OFF
+- Custom secret: REQUEST_ADMIN_PASSWORD
+- 관리자 답변 저장과 요청 삭제는 /functions/v1/request-admin을 통해 처리됩니다.
+- 관리자 비밀번호는 현재 브라우저 탭의 sessionStorage에만 임시 보관되며 탭을 닫으면 삭제됩니다.
