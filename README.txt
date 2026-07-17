@@ -1,3 +1,12 @@
+EZPK v40
+
+Changes from v39:
+- Mobile header only: hamburger menu moved to the far left.
+- Mobile header only: 322 EZPK brand title centered on the screen.
+- Language selector remains on the far right.
+- Desktop layout and styling remain unchanged.
+- Applied consistently to Home, Members, BGB, and Request pages.
+
 322 EZPK War Portal v6.2
 
 Mobile image interaction fix:
