@@ -202,3 +202,6 @@ v53: Unified SURVIVAL/DRONE HUNTER start overlay typography and alignment. Fixed
 
 
 v54: Fixed Supabase key compatibility for mini-game rankings (publishableKey/anonKey).
+
+
+v56: Mobile playfields rebuilt as true 1:1 squares. Removed artificial 650px minimum heights. Restored normal page scrolling outside active Survival drag control and throughout Drone Hunter. PC layout unchanged.
