@@ -1,16 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>322 EZPK War Portal</title><link rel="stylesheet" href="style.css?v=230"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>322 EZPK War Portal</title><link rel="stylesheet" href="style.css?v=260"></head><body>
 <header><a href="#home" class="brand">★ <span><b>322 EZPK</b><small>WAR PORTAL</small></span></a><button id="menuBtn">☰</button><nav id="nav"><a href="#schedule">SCHEDULE</a><a href="#lineup" data-k="navLineup"></a><a href="#map" data-k="navMap"></a><a href="#strategy" data-k="navStrategy"></a><a href="#orders" data-k="navOrders"></a><a href="#season7" data-k="navSeason7"></a><a href="members/" data-k="navMember"></a><a href="bgb/" class="nav-bgb">BGB</a></nav><div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div></header>
 <main id="home"><section id="schedule" class="schedule-section">
   <div class="head schedule-head">
     <span>SCHEDULE</span>
     <h2>EVENT SCHEDULE</h2>
     <p>Upcoming alliance events and countdown</p>
-    <small class="schedule-timezone">SERVER TIME · ST (KST − 11 HOURS)</small>
   </div>
   <div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div>
   <div id="eventScheduleEmpty" class="event-schedule-empty" hidden>No scheduled events.</div>
 </section>
-<section class="hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 data-k="heroTitle"></h1><p data-k="heroSubtitle"></p><div class="actions"><a href="#strategy" data-k="start"></a><a href="#map" data-k="mapBtn"></a></div></section>
+<section class="hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 data-k="heroTitle"></h1><p data-k="heroSubtitle"></p><div class="actions"><a href="#schedule" data-k="start"></a><a href="#map" data-k="mapBtn"></a></div></section>
 
 <section id="lineup"><div class="head"><span>PAGE 1</span><h2 data-k="lineupTitle"></h2><p data-k="lineupLead"></p></div><div class="frame"><div class="stage"><img id="lineupImg"></div></div><p class="hint" data-k="pinch"></p></section>
 <section id="map" class="alt"><div class="head"><span>PAGE 2</span><h2 data-k="mapTitle"></h2><p data-k="mapLead"></p></div><div class="frame mapframe"><div class="stage"><img src="assets/level6-map.webp"></div></div></section>
@@ -18,4 +17,4 @@
 <section id="orders" class="alt"><div class="head"><span>PAGE 8</span><h2 data-k="ordersTitle"></h2><p data-k="ordersLead"></p></div><div id="ordersGrid" class="orders"></div></section>
 <section id="season7"><div class="head"><span>PAGE 9</span><h2 data-k="seasonTitle"></h2><p data-k="seasonLead"></p></div><div class="frame seasonframe"><div class="stage"><img id="season7Img" alt="Season 7 information"></div></div><p class="hint" data-k="pinch"></p></section></main>
 <footer><b>322 EZPK ALLIANCE</b><span data-k="footer"></span></footer>
-<script src="data.js?v=230"></script><script src="script.js?v=230"></script><script src="schedule.js?v=230"></script></body></html>
+<script src="data.js?v=260"></script><script src="script.js?v=260"></script><script src="schedule.js?v=260"></script><script>document.querySelectorAll('.schedule-timezone').forEach(function(el){el.remove();});</script></body></html>

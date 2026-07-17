@@ -16,7 +16,7 @@
   function formatServerTime(date) {
     if (!date) return '-';
     const shifted = new Date(date.getTime() + SERVER_OFFSET_HOURS * 60 * 60 * 1000);
-    return `${pad(shifted.getUTCMonth() + 1)}/${pad(shifted.getUTCDate())} ${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())} ST`;
+    return `${pad(shifted.getUTCMonth() + 1)}/${pad(shifted.getUTCDate())} ${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())}`;
   }
   function countdown(ms) {
     const total = Math.max(0, Math.floor(ms / 1000));
@@ -29,7 +29,7 @@
     const now=new Date();
     const events=(scheduleData.events||[]).filter(e=>e&&e.enabled&&e.title&&e.start&&e.end).slice(0,9);
     empty.hidden=events.length>0;
-    grid.innerHTML=events.map((event,index)=>{const info=stateOf(event,now);let badge='UPCOMING',timerText='',timerLabel='START IN';if(info.state==='upcoming')timerText=countdown(info.start-now);if(info.state==='live'){badge='LIVE';timerLabel='';timerText='● LIVE';}if(info.state==='finished'){badge='FINISHED';timerLabel='';timerText='FINISHED';}return `<article class="event-card event-${info.state}" style="--event-index:${index}"><div class="event-card-top"><span class="event-number">${pad(index+1)}</span><span class="event-status">${badge}</span></div><h3>${escapeHtml(event.title)}</h3><div class="event-countdown">${timerLabel?`<small>${timerLabel}</small>`:''}<strong>${timerText}</strong></div><time>START · ${formatServerTime(info.start)}</time></article>`;}).join('');
+    grid.innerHTML=events.map((event,index)=>{const info=stateOf(event,now);let badge='UPCOMING',timerText='',timerLabel='START IN';if(info.state==='upcoming')timerText=countdown(info.start-now);if(info.state==='live'){badge='LIVE';timerLabel='';timerText='● LIVE';}if(info.state==='finished'){badge='FINISHED';timerLabel='';timerText='FINISHED';}return `<article class="event-card event-${info.state}" style="--event-index:${index}"><div class="event-card-top"><span class="event-number">${pad(index+1)}</span><span class="event-status">${badge}</span></div><h3>${escapeHtml(event.title)}</h3><div class="event-countdown">${timerLabel?`<small>${timerLabel}</small>`:''}<strong>${timerText}</strong></div><time><small>START</small><strong>${formatServerTime(info.start)}</strong></time></article>`;}).join('');
   }
   fetch(`data/events.json?v=${Date.now()}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Schedule data unavailable');return r.json();}).then(data=>{scheduleData=data||{events:[]};render();timer=window.setInterval(render,1000);}).catch(()=>{empty.hidden=false;empty.textContent='No scheduled events.';});
   window.addEventListener('beforeunload',()=>timer&&clearInterval(timer),{once:true});

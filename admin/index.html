@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
-  <link rel="stylesheet" href="../style.css?v=230">
-  <link rel="stylesheet" href="admin.css?v=230">
+  <link rel="stylesheet" href="../style.css?v=250">
+  <link rel="stylesheet" href="admin.css?v=250">
 </head>
 <body>
 <section id="adminLogin" class="admin-login-screen">
@@ -94,7 +94,7 @@
 
     <div id="eventsPanel" class="admin-panel">
       <div class="event-manager-head"><div><h2>Event Manager</h2><p>최대 9개의 이벤트를 설정합니다. 종료시간은 상태 판단에만 사용되며 연맹원 화면에는 시작시간만 표시됩니다.</p></div><label>일정 업데이트<input id="eventsLastUpdated" type="text" placeholder="2026.07.17"></label></div>
-      <div class="event-manager-guide"><strong>SERVER TIME (ST)</strong><span>ST = KST − 11시간</span><span>24시간 표기: 00:00~23:59</span><span>시작 전: 카운트다운</span><span>진행 중: LIVE</span><span>종료 후: FINISHED</span></div>
+      <div class="event-manager-guide"><strong>EVENT MANAGER</strong><span>게임 내 SERVER TIME과 동일하게 입력하세요.</span><span>24시간 표기: 00:00~23:59</span><span>시작 전: 카운트다운</span><span>진행 중: LIVE</span><span>종료 후: FINISHED</span></div>
       <div id="eventAdminGrid" class="event-admin-grid"></div>
       <div class="event-manager-actions"><button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button><button id="downloadEventsJson" type="button">↓ Events JSON 백업</button></div>
     </div>
@@ -102,6 +102,6 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="admin.js?v=230"></script>
+<script src="admin.js?v=250"></script>
 </body>
 </html>

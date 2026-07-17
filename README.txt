@@ -123,6 +123,12 @@ V21 update:
 [v23 Event Schedule]
 - EVENT SCHEDULE is the first homepage section.
 - SCHEDULE is the leftmost menu item.
-- All event inputs/displays use fixed Server Time (ST = UTC-02:00 = KST-11).
+- Event inputs and countdowns use the game Server Time internally.
 - Admin uses separate date and 24-hour time fields; midnight is 00:00.
 - Members see start time only; status automatically changes UPCOMING > LIVE > FINISHED.
+
+
+[v24 update]
+- Event Manager time fields use fixed 24-hour HH:mm text input (00:00-23:59).
+- Browser AM/PM display is removed to match in-game Server Time.
+- Countdown and automatic UPCOMING/LIVE/FINISHED states use absolute timestamps based on game Server Time.
