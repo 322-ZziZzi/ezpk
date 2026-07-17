@@ -1,3 +1,5 @@
+EZPK v51 - Common Mini Game Header Layout
+
 EZPK v49 - Persistent mini-game switcher on Drone Hunter
 
 EZPK v40
@@ -189,3 +191,6 @@ V48 - DRONE HUNTER
 IMPORTANT SUPABASE UPGRADE
 Run the updated SUPABASE_GAME_SETUP.sql once in the existing ezpk-request-board project.
 It safely adds the game_id column and preserves all existing SURVIVAL scores.
+
+
+[v50] SURVIVAL과 DRONE HUNTER의 미니게임 선택 카드를 공통 CSS로 통일했습니다. 현재 게임은 파란 테두리와 현재 게임 배지로 표시되며 모든 카드 크기가 동일합니다.

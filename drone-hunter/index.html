@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Drone Hunter</title>
-  <link rel="stylesheet" href="../style.css?v=490">
-  <link rel="stylesheet" href="drone.css?v=490">
+  <link rel="stylesheet" href="../style.css?v=510">
+  <link rel="stylesheet" href="drone.css?v=510">
+  <link rel="stylesheet" href="../game-switcher.css?v=510">
 </head>
 <body>
 <header class="site-header">
@@ -17,9 +18,9 @@
   </nav>
   <div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div>
 </header>
-<main class="hunter-main">
-  <section class="hunter-hero"><span class="eyebrow" id="gameEyebrow"></span><h1>DRONE HUNTER</h1><p id="gameLead"></p></section>
-  <section class="game-library compact-library" id="gameLibrary" aria-label="EZPK mini games">
+<main class="hunter-main mini-game-main">
+  <section class="hunter-hero mini-game-hero"><span class="eyebrow" id="gameEyebrow"></span><h1>DRONE HUNTER</h1><p id="gameLead"></p></section>
+  <section class="game-library" id="gameLibrary" aria-label="EZPK mini games">
     <article class="game-choice active-game"><div class="game-choice-icon">🛡</div><div><span id="survivalStatus"></span><h2>SURVIVAL</h2><p id="survivalDescription"></p></div><a href="../game/#gameShell" id="playSurvivalLink"></a></article>
     <article class="game-choice locked-game"><div class="game-choice-icon">🔒</div><div><span class="comingSoon"></span><h2>TANK BATTLE</h2><p class="futureMission"></p></div></article>
     <article class="game-choice locked-game"><div class="game-choice-icon">🔒</div><div><span class="comingSoon"></span><h2>MISSILE DEFENSE</h2><p class="futureMission"></p></div></article>
@@ -45,6 +46,6 @@
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="gameFooter"></span></footer>
-<script src="../data.js?v=490"></script><script src="../supabase-config.js?v=490"></script><script src="drone.js?v=490"></script>
+<script src="../data.js?v=510"></script><script src="../supabase-config.js?v=510"></script><script src="drone.js?v=510"></script>
 </body>
 </html>
