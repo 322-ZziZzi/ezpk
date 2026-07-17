@@ -4,7 +4,6 @@
     "A": {
       "members": [
         "TIGER VESSEL",
-        "Ling² Kwong",
         "daoxxxx",
         "Uncle Uay Balam",
         "LU -",
@@ -12,9 +11,7 @@
         "플러팅 Flirting",
         "SOS Lưu Đan",
         "LaJin",
-        "Alliance Bot・・",
         "Purple・・",
-        "Aikunlo",
         "Katreeya",
         "나이스한Ding",
         "・・HORANG",
@@ -22,12 +19,15 @@
         "GB I’m ok",
         "Angellore",
         "GB MURAD1907",
-        "GB Long Huy Diet"
+        "GB Long Huy Diet",
+        "GB Bóngluxury",
+        "NOX",
+        "Aikunlo"
       ],
       "locations": {
         "R1": [
           "TIGER VESSEL",
-          "Alliance Bot・・",
+          "Purple・・",
           "Loki",
           "Angellore"
         ],
@@ -38,52 +38,52 @@
           "GB I’m ok"
         ],
         "R3": [
-          "Ling² Kwong",
+          "GB Bóngluxury",
           "플러팅 Flirting",
           "나이스한Ding"
         ],
         "R4": [
           "daoxxxx",
           "SOS Lưu Đan",
-          "Katreeya"
+          "NOX"
         ],
         "R5": [
           "GB MURAD1907",
           "GB Trung Hi",
-          "Aikunlo"
+          "Katreeya"
         ],
         "R6": [
           "Uncle Uay Balam",
           "LU -",
-          "Purple・・"
+          "Aikunlo"
         ],
         "M1": [
+          "daoxxxx",
           "플러팅 Flirting",
-          "Uncle Uay Balam",
-          "Alliance Bot・・"
+          "GB Bóngluxury"
         ],
         "M2": [
           "LU -",
-          "LaJin",
-          "Loki"
+          "Katreeya",
+          "NOX"
         ],
         "H1": [
-          "SOS Lưu Đan",
-          "daoxxxx",
-          "GB MURAD1907"
+          "GB MURAD1907",
+          "Purple・・",
+          "Loki"
         ],
         "H2": [
+          "Uncle Uay Balam",
           "GB Trung Hi",
-          "플러팅 Flirting",
-          "Purple・・"
+          "플러팅 Flirting"
         ],
         "CENTER": [
           "TIGER VESSEL",
           "GB Long Huy Diet",
-          "Ling² Kwong",
+          "GB Bóngluxury",
           "GB MURAD1907",
           "Uncle Uay Balam",
-          "daoxxxx",
+          "NOX",
           "Loki"
         ]
       }
@@ -91,15 +91,12 @@
     "B": {
       "members": [
         "・・QUEEN・・",
-        "GB Bóngluxury",
         "horror_KW",
         "Pro",
         "mamimo",
         "RoughRider25",
         "Bird of Hermes",
         "GuidoBauz",
-        "FoxxyScorpio",
-        "YuaNNN",
         "Anubis X",
         "Just A’",
         "aØyssa",
@@ -109,69 +106,72 @@
         "AnonymuzGamer",
         "alsos",
         "GB Kit Kat",
-        "Wild Merida"
+        "Wild Merida",
+        "Ling² Kwong",
+        "小YG",
+        "Alliance Bot・・"
       ],
       "locations": {
         "R1": [
-          "GB Bóngluxury",
+          "Ling² Kwong",
           "RoughRider25",
           "Selenn£",
           "Wild Merida"
         ],
         "R2": [
-          "horror_KW",
+          "Alliance Bot・・",
           "aØyssa",
           "alsos",
           "Just A’"
         ],
         "R3": [
-          "Pro",
-          "YuaNNN",
-          "Bird of Hermes"
-        ],
-        "R4": [
-          "AnonymuzGamer",
+          "horror_KW",
           "GB Kit Kat",
           "Khaled-70"
         ],
-        "R5": [
-          "mamimo",
+        "R4": [
+          "Pro",
           "・・QUEEN・・",
+          "Bird of Hermes"
+        ],
+        "R5": [
+          "小YG",
+          "GuidoBauz",
           "GBmt nhokkk"
         ],
         "R6": [
-          "GuidoBauz",
-          "FoxxyScorpio",
+          "AnonymuzGamer",
+          "mamimo",
           "Anubis X"
         ],
         "M1": [
-          "AnonymuzGamer",
-          "YuaNNN",
-          "Pro"
+          "GB Kit Kat",
+          "horror_KW",
+          "・・QUEEN・・"
         ],
         "M2": [
-          "FoxxyScorpio",
           "GBmt nhokkk",
-          "GB Bóngluxury"
+          "Alliance Bot・・",
+          "Pro"
         ],
         "H1": [
-          "mamimo",
-          "GB Kit Kat",
-          "RoughRider25"
+          "小YG",
+          "RoughRider25",
+          "mamimo"
         ],
         "H2": [
+          "AnonymuzGamer",
           "GuidoBauz",
-          "・・QUEEN・・",
-          "YuaNNN"
+          "GB Kit Kat"
         ],
         "CENTER": [
-          "GB Bóngluxury",
+          "Ling² Kwong",
+          "Alliance Bot・・",
           "horror_KW",
+          "小YG",
           "Pro",
-          "mamimo",
-          "GuidoBauz",
           "・・QUEEN・・",
-          "FoxxyScorpio"
+          "mamimo"
         ]
       }
     }
