@@ -16,3 +16,6 @@
 
 /* v26: legacy timezone explanation removed from public schedule header */
 .schedule-timezone{display:none!important}
+
+/* v38: unified active state for every top navigation item */
+nav a.active{color:#f5c547!important}
