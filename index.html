@@ -3,7 +3,58 @@
 <main id="home"><section class="immigration-section"><a class="immigration-card" href="https://docs.google.com/forms/d/e/1FAIpQLSesj4jx9Cb3-qsB8tTcoAFWDoEKQhbP0gNLErNgNI794U1ANg/viewform" target="_blank" rel="noopener noreferrer" aria-label="EZPK immigration application"><span class="immigration-status" data-k="immigrationStatus"></span><h2 data-k="immigrationTitle"></h2><p class="immigration-copy" data-k="immigrationBody"></p><span class="immigration-button" data-k="immigrationButton"></span><span class="immigration-process" data-k="immigrationProcess"></span><small class="immigration-external" data-k="immigrationExternal"></small><div class="immigration-arrow" aria-hidden="true">→</div></a></section>
 <section id="schedule" class="schedule-section"><div class="head schedule-head"><span data-k="scheduleEyebrow"></span><h2 data-k="scheduleTitle"></h2><p data-k="scheduleSubtitle"></p></div><div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div><div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div></section>
 <section id="season7"><div class="head"><span>SEASON 7</span><h2 data-k="seasonTitle"></h2><p data-k="seasonLead"></p></div><div class="frame seasonframe"><div class="stage"><img id="season7Img" alt="Season 7 information"></div></div><p class="hint" data-k="pinch"></p></section>
-<section class="ezpk-video-section" aria-label="EZPK Alliance Video"><div class="ezpk-video-frame"><iframe src="https://www.youtube.com/embed/mgoCrdaiI6E?autoplay=1&mute=1&loop=1&playlist=mgoCrdaiI6E&controls=0&playsinline=1&rel=0&disablekb=1&fs=0&modestbranding=1" title="EZPK Alliance Video" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1"></iframe><div class="ezpk-video-overlay" aria-hidden="true"></div></div></section>
+<section class="ezpk-video-section" aria-label="EZPK Alliance Video"><div class="ezpk-video-frame"><div id="ezpkYouTubePlayer"></div><button class="ezpk-video-cover" id="ezpkVideoCover" type="button" aria-label="Play EZPK Alliance video"><span>EZPK</span></button><div class="ezpk-video-overlay" aria-hidden="true"></div></div></section>
 <section class="brand-hero"><span class="eyebrow" data-k="brandKicker"></span><h1>EZPK</h1><div class="brand-manifesto"><strong data-k="brandLine1"></strong><strong data-k="brandLine2"></strong></div><p data-k="brandBody"></p><div class="brand-principles"><span data-k="brandPoint1"></span><span data-k="brandPoint2"></span><span data-k="brandPoint3"></span></div></section></main>
 <footer><b>322 EZPK ALLIANCE</b><span data-k="footer"></span></footer>
-<script src="data.js?v=703"></script><script src="script.js?v=703"></script><script src="schedule.js?v=703"></script><script>document.querySelectorAll('.schedule-timezone').forEach(function(el){el.remove();});</script></body></html>
+<script src="data.js?v=703"></script><script src="script.js?v=703"></script><script src="schedule.js?v=703"></script><script>document.querySelectorAll('.schedule-timezone').forEach(function(el){el.remove();});</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+(function(){
+  var player;
+  var cover = document.getElementById('ezpkVideoCover');
+
+  function hideCover(){
+    if (cover) cover.classList.add('is-hidden');
+  }
+
+  window.onYouTubeIframeAPIReady = function(){
+    player = new YT.Player('ezpkYouTubePlayer', {
+      videoId: 'mgoCrdaiI6E',
+      playerVars: {
+        autoplay: 1,
+        mute: 1,
+        controls: 0,
+        loop: 1,
+        playlist: 'mgoCrdaiI6E',
+        playsinline: 1,
+        rel: 0,
+        disablekb: 1,
+        fs: 0,
+        iv_load_policy: 3
+      },
+      events: {
+        onReady: function(event){
+          event.target.mute();
+          event.target.playVideo();
+        },
+        onStateChange: function(event){
+          if (event.data === YT.PlayerState.PLAYING) hideCover();
+          if (event.data === YT.PlayerState.ENDED) {
+            event.target.seekTo(0);
+            event.target.playVideo();
+          }
+        }
+      }
+    });
+  };
+
+  if (cover) {
+    cover.addEventListener('click', function(){
+      if (player && typeof player.playVideo === 'function') {
+        player.mute();
+        player.playVideo();
+      }
+    });
+  }
+})();
+</script></body></html>
