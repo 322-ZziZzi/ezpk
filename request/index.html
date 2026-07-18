@@ -3,11 +3,28 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b">
 <title>EZPK Request Board</title>
-<link rel="stylesheet" href="../style.css?v=720"><link rel="stylesheet" href="request.css?v=720">
+<link rel="stylesheet" href="../style.css?v=720"><link rel="stylesheet" href="request.css?v=850">
 </head>
 <body>
 <header class="site-header"><a href="../" class="brand">★ <span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></span></a><button id="menuBtn">☰</button><nav id="nav"><a href="../" data-k="navHome"></a><a href="../season6/" data-k="navSeason6"></a><a href="../members/" data-k="navMember"></a><a href="../bgb/">BGB</a><a href="../tip/" data-k="navTip"></a><a href="../request/" data-k="navRequest" class="active"></a><a href="../game/" data-k="navGame"></a></nav><div class="lang"><button id="langBtn"><span id="flag"></span><span id="lname"></span> ▾</button><div id="langMenu" hidden><button data-l="ko">🇰🇷 한국어</button><button data-l="en">🇺🇸 English</button><button data-l="pt">🇧🇷 Português</button><button data-l="vi">🇻🇳 Tiếng Việt</button><button data-l="ar">🇸🇦 العربية</button><button data-l="ja">🇯🇵 日本語</button><button data-l="th">🇹🇭 ไทย</button><button data-l="zh-tw">🇹🇼 繁體中文</button></div></div></header>
 <main class="request-main">
+<section id="requestLock" class="request-lock-wrap">
+  <div class="request-lock">
+    <div class="request-lock-icon" aria-hidden="true">🔒</div>
+    <span class="request-lock-kicker">MEMBERS ONLY</span>
+    <h1 id="requestLockTitle"></h1>
+    <p id="requestLockLead"></p>
+    <form id="requestLockForm" class="request-lock-form">
+      <label for="alliancePassword" id="alliancePasswordLabel"></label>
+      <div class="request-password-row">
+        <input id="alliancePassword" type="password" autocomplete="current-password" required>
+        <button id="requestUnlockBtn" type="submit"></button>
+      </div>
+      <p id="requestLockError" class="request-lock-error" role="alert"></p>
+    </form>
+  </div>
+</section>
+<div id="requestProtected" hidden>
 <section class="request-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 id="requestTitle"></h1><p id="requestLead"></p></section>
 <section class="request-layout">
   <div class="request-left-column">
@@ -31,7 +48,8 @@
   </div>
   <section class="request-list-card"><div class="request-list-head"><div><span id="recentLabel"></span><h2 id="recentTitle"></h2></div><button id="requestRefresh" type="button">↻</button></div><div id="requestList" class="request-list"></div><button id="requestMore" type="button" class="request-more" hidden></button></section>
 </section>
+</div>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="footerText"></span></footer>
-<script src="../data.js?v=720"></script><script src="../supabase-config.js?v=720"></script><script src="request.js?v=720"></script>
+<script src="../data.js?v=850"></script><script src="../supabase-config.js?v=850"></script><script src="request.js?v=850"></script>
 </body></html>
