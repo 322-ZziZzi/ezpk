@@ -93,6 +93,8 @@ nav a.active{color:#f5c547!important}
 /* v82: EZPK autoplay alliance video */
 .ezpk-video-section{padding:0 4vw 78px;background:#05070b}
 .ezpk-video-frame{position:relative;width:min(700px,50%);aspect-ratio:12/9;margin:0 auto;overflow:hidden;border:1px solid #ffffff1c;border-radius:17px;background:#020406;box-shadow:0 24px 70px #0006}
-.ezpk-video-frame iframe{position:absolute;top:50%;left:50%;width:133.334%;height:100%;border:0;transform:translate(-50%,-50%);pointer-events:none}
+.ezpk-video-frame iframe{position:absolute;top:50%;left:50%;width:100%;height:100%;border:0;transform:translate(-50%,-50%);pointer-events:none}
 .ezpk-video-overlay{position:absolute;inset:0;z-index:2;background:transparent}
 @media(max-width:768px){.ezpk-video-section{padding:0 12px 55px}.ezpk-video-frame{width:100%;border-radius:12px}}
+
+@media (max-width:768px){.ezpk-video-frame iframe{width:133.334%;height:100%;}}
