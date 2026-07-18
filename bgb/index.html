@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>EZPK BGB</title>
-  <link rel="stylesheet" href="../style.css?v=790">
-  <link rel="stylesheet" href="bgb.css?v=790">
+  <link rel="stylesheet" href="../style.css?v=870">
+  <link rel="stylesheet" href="bgb.css?v=870">
 </head>
 <body>
 <header class="site-header">
@@ -20,18 +20,18 @@
   <section class="map-section"><div class="section-head"><span>TACTICAL MAP</span><h2 id="mapTitle"></h2><p id="mapHelp"></p></div><div class="map-frame"><div class="stage"><img src="../assets/bgb-map.webp?v=720" alt="BGB tactical map"></div></div><p class="hint" id="pinch"></p></section>
   <section class="location-section alt"><div class="section-head"><span>LOCATION INFORMATION</span><h2 id="locationTitle"></h2><p id="locationLead"></p></div><div id="locationLegend" class="location-legend"></div></section>
   <section class="assignment-section">
-    <div id="bgbLock" class="bgb-lock">
-      <div class="lock-emblem" aria-hidden="true">🔒</div>
-      <span class="lock-kicker">BGB LINE UP</span>
-      <h2 id="lockTitle"></h2>
-      <p id="lockLead"></p>
-      <form id="bgbLockForm" class="bgb-lock-form">
+    <div id="bgbLock" class="member-gate-card">
+      <div class="member-gate-icon" aria-hidden="true">🔒</div>
+      <span id="bgbLockSection" class="member-gate-section"></span>
+      <h2 id="lockTitle" class="member-gate-title"></h2>
+      <p id="lockLead" class="member-gate-description"></p>
+      <form id="bgbLockForm" class="member-gate-form">
         <label for="bgbPassword" id="passwordLabel"></label>
-        <div class="bgb-password-row">
+        <div class="member-gate-row">
           <input id="bgbPassword" type="password" autocomplete="current-password" required>
           <button id="bgbUnlockBtn" type="submit"></button>
         </div>
-        <p id="bgbLockError" class="bgb-lock-error" role="alert"></p>
+        <p id="bgbLockError" class="member-gate-error" role="alert"></p>
       </form>
     </div>
     <div id="bgbProtected" hidden>
@@ -64,6 +64,6 @@
   </section>
 </div>
 
-<script src="bgb.js?v=790"></script>
+<script src="bgb.js?v=870"></script>
 </body>
 </html>
