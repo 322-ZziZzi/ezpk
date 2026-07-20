@@ -1,0 +1,34 @@
+
+.logo-main{min-height:calc(100vh - 160px)}
+.logo-hero{text-align:center;padding:72px 20px 34px;background:radial-gradient(circle at 50% 0,#f5c54718,transparent 40%)}
+.logo-kicker{display:block;color:#f5c547;font-size:12px;font-weight:900;letter-spacing:3px}
+.logo-hero h1{margin:12px 0 10px;font-size:clamp(38px,6vw,72px);line-height:1}
+.logo-hero p{max-width:760px;margin:0 auto;color:#aeb7c3;font-size:clamp(15px,2vw,19px);line-height:1.7}
+.logo-gallery-section{padding:22px 4vw 82px}
+.download-guide{max-width:920px;margin:0 auto 28px;padding:20px 22px;border:1px solid #f5c54745;border-radius:16px;background:#111823;text-align:center}
+.download-guide strong{display:block;color:#f5c547;font-size:17px;margin-bottom:7px}
+.download-guide p{margin:0;color:#c6ced8;line-height:1.65}
+.guide-methods{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-top:12px;color:#9ea9b6;font-size:14px}
+.logo-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+.logo-card{padding:18px 18px 22px;border:1px solid #ffffff18;border-radius:20px;background:linear-gradient(180deg,#111823,#0b1018);text-align:center;box-shadow:0 16px 40px #0007}
+.logo-image-button{display:block;width:100%;padding:0;border:0;border-radius:14px;overflow:hidden;background:#030507;cursor:zoom-in}
+.logo-image-button img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;transition:transform .25s ease}
+.logo-image-button:hover img{transform:scale(1.015)}
+.logo-card h2{margin:20px 0 8px;color:#f5c547;font-size:25px;letter-spacing:.5px}
+.logo-card p{min-height:52px;margin:0 auto 18px;max-width:430px;color:#aeb7c3;line-height:1.65}
+.logo-open-btn{width:100%;padding:13px 18px;border:1px solid #f5c54788;border-radius:11px;background:#f5c547;color:#171000;font-weight:900;cursor:pointer}
+.logo-open-btn:hover{filter:brightness(1.06)}
+.logo-preview-modal{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:18px}
+.logo-preview-modal[hidden]{display:none}
+.logo-preview-backdrop{position:absolute;inset:0;background:#000d;backdrop-filter:blur(6px)}
+.logo-preview-panel{position:relative;z-index:1;width:min(920px,96vw);max-height:94vh;overflow:auto;padding:18px;border:1px solid #ffffff22;border-radius:18px;background:#0b1018;box-shadow:0 24px 80px #000}
+.logo-preview-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px}
+.logo-preview-head span{color:#f5c547;font-size:11px;font-weight:900;letter-spacing:2px}
+.logo-preview-head h2{margin:4px 0 0;font-size:25px}
+#logoPreviewClose{width:42px;height:42px;border:1px solid #ffffff22;border-radius:10px;background:#111823;color:#fff;font-size:26px;cursor:pointer}
+#logoPreviewGuide{margin:10px 0 14px;color:#aeb7c3;line-height:1.55}
+.logo-preview-image-wrap{background:#020406;border-radius:12px;overflow:auto;text-align:center}
+.logo-preview-image-wrap img{display:block;width:auto;max-width:100%;height:auto;max-height:72vh;margin:auto;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
+.logo-preview-done{width:100%;margin-top:14px;padding:13px;border:0;border-radius:10px;background:#f5c547;color:#171000;font-weight:900;cursor:pointer}
+body.logo-modal-open{overflow:hidden}
+@media(max-width:760px){.logo-hero{padding:54px 16px 26px}.logo-gallery-section{padding:18px 12px 60px}.logo-grid{grid-template-columns:1fr;gap:20px}.logo-card{padding:12px 12px 18px}.logo-card h2{font-size:22px}.logo-card p{min-height:0}.download-guide{text-align:left}.guide-methods{display:grid;gap:6px;justify-content:stretch}.logo-preview-modal{padding:8px}.logo-preview-panel{width:100%;max-height:96vh;padding:12px}.logo-preview-image-wrap img{max-height:none;width:100%}}
