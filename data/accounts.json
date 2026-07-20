@@ -1,4 +1,31 @@
 {
-  "lastNumber": 0,
-  "accounts": []
+  "lastNumber": 1,
+  "accounts": [
+    {
+      "server": "322",
+      "industryLevel": "i10",
+      "vip": "11",
+      "totalCp": "11.5G",
+      "troop1Type": "Fighter",
+      "troop1Cp": "3.2G",
+      "troop1Resonance": "3",
+      "troop2Type": "Shooter",
+      "troop2Cp": "1.1G",
+      "troop2Resonance": "2",
+      "frostPetLevel": "4",
+      "titanPetLevel": "4",
+      "shelterSkins": "1",
+      "desiredPrice": "$1200",
+      "negotiable": "Y",
+      "emailChangeAvailable": "Y",
+      "contactType": "In-game DM",
+      "contactId": "Purple··",
+      "premium": true,
+      "premiumDurationDays": 30,
+      "premiumStartedAt": "2026-07-20T18:11:35.899Z",
+      "premiumExpiresAt": "2026-08-19T18:11:00.000Z",
+      "accountNumber": 1,
+      "postedDate": "2026-07-20T18:11:35.899Z"
+    }
+  ]
 }
