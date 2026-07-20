@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
   <link rel="stylesheet" href="../style.css?v=750">
-  <link rel="stylesheet" href="admin.css?v=1260">
+  <link rel="stylesheet" href="admin.css?v=1280">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 </head>
 <body>
@@ -123,13 +123,34 @@
       <div class="account-admin-head"><div><h2>Account Manager</h2><p>Discord로 받은 표준 양식을 붙여넣어 계정 정보를 등록하고 관리합니다.</p></div><a class="secondary account-page-link" href="../accounts/" target="_blank">Account Showcase 열기</a></div>
       <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식과 게시 옵션 안내를 함께 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요. 하단 안내문은 붙여넣기 분석 시 자동으로 제외됩니다.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">COPY TEMPLATE</button><button id="downloadAccountTemplate" type="button">DOWNLOAD TEMPLATE</button></div><div id="templateActionStatus" class="mini-status"></div></section>
       <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">PARSE TEMPLATE</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">RESET</button><button id="registerAccount" class="primary" type="button">REGISTER ACCOUNT</button></div></section></div>
-      <section class="account-list-admin"><div class="account-list-head"><h3>등록 계정</h3><button id="downloadAccountsJson" type="button">↓ Accounts JSON 백업</button></div><div id="accountAdminList"></div></section>
+      <section class="account-list-admin">
+  <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · Premium 0개</p></div><button id="downloadAccountsJson" type="button">↓ Accounts JSON 백업</button></div>
+  <div class="account-mobile-tabs" role="tablist" aria-label="계정 게시 유형">
+    <button type="button" data-account-tab="all" class="active">전체 <b id="accountTabAllCount">0</b></button>
+    <button type="button" data-account-tab="premium">⭐ Premium <b id="accountTabPremiumCount">0</b></button>
+    <button type="button" data-account-tab="expiring">⚠ 만료 예정 <b id="accountTabExpiringCount">0</b></button>
+    <button type="button" data-account-tab="standard">Standard <b id="accountTabStandardCount">0</b></button>
+  </div>
+  <div class="account-list-tools">
+    <label class="account-search-field"><span>검색</span><input id="accountAdminSearch" type="search" placeholder="서버, 연락처, 가격, VIP 검색"></label>
+    <label><span>게시 유형</span><select id="accountAdminFilter"><option value="all">전체</option><option value="premium">Premium</option><option value="expiring">만료 예정</option><option value="standard">Standard</option><option value="expired">Premium 만료</option></select></label>
+    <label><span>정렬</span><select id="accountAdminSort"><option value="premium">Premium 우선</option><option value="newest">최신 등록순</option><option value="oldest">오래된 등록순</option><option value="expiring">Premium 만료 임박순</option><option value="priceDesc">가격 높은순</option><option value="priceAsc">가격 낮은순</option></select></label>
+    <label><span>표시</span><select id="accountAdminPageSize"><option value="10">10개</option><option value="30">30개</option></select></label>
+  </div>
+  <div id="accountAdminList"></div>
+  <nav class="account-admin-pagination" aria-label="계정 목록 페이지">
+    <button id="accountPrevPage" type="button" aria-label="이전 페이지">‹ <span>이전</span></button>
+    <strong id="accountPageInfo">1 / 1</strong>
+    <button id="accountNextPage" type="button" aria-label="다음 페이지"><span>다음</span> ›</button>
+  </nav>
+</section>
+<div id="adminAccountImageModal" class="admin-account-image-modal" hidden><div class="admin-image-backdrop" data-admin-image-close></div><article><header><h3>ACCOUNT IMAGE</h3><button type="button" data-admin-image-close>×</button></header><div><img id="adminAccountImagePreview" alt="Account image preview"></div><p>모바일에서는 이미지를 길게 눌러 저장할 수 있습니다.</p><button class="secondary" type="button" data-admin-image-close>CLOSE</button></article></div>
     </div>
 
   </section>
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=1240"></script><script src="season6-manager.js?v=1240"></script><script src="accounts-manager.js?v=1260"></script>
+<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=1240"></script><script src="season6-manager.js?v=1240"></script><script src="accounts-manager.js?v=1280"></script>
 </body>
 </html>

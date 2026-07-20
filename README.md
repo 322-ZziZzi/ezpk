@@ -113,3 +113,17 @@ Current Version: v93
 - Premium prices: 7 days $5, 15 days $8, and 30 days $10 (Best Value).
 - Kept the administrator parser label-based, so pricing, benefits, separators, and explanatory text are ignored automatically.
 - Only the existing account specification fields are populated in Account Manager.
+
+
+## v127 Premium Detail Image Button Fix
+
+- Fixed the Premium account detail modal so the `VIEW ACCOUNT IMAGE` button remains visible.
+- Converted the detail modal to a flex-column layout.
+- The Premium badge, header, and footer remain fixed within the modal while only the detail body scrolls.
+- Standard account detail behavior remains unchanged.
+
+## v128 - Account Manager UX
+- PC: account search, listing filter, Premium-first sorting, 10/30 items per page, previous/next pagination, total/Premium counts.
+- Mobile: compact account cards with expand/collapse details, Premium/Expiring/Standard tabs, sticky previous/next pagination, Edit/Image/Delete actions.
+- Premium expiration is evaluated automatically in filters and sorting.
+- Admin account image preview/export modal added.
