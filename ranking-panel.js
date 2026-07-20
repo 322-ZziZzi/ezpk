@@ -1,0 +1,15 @@
+(function(){
+  'use strict';
+  const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+  function markup(){return '<div class="ranking-head"><div><span id="rankingEyebrow">TOP 30</span><h2 id="rankingTitle"></h2></div><button id="refreshRanking" type="button" aria-label="Refresh">↻</button></div><div class="month-chip" id="monthChip"></div><div id="rankingStatus" class="ranking-status"></div><ol id="rankingList" class="ranking-list"></ol><p id="rankingNote" class="ranking-note"></p>'}
+  function init(root=document){root.querySelectorAll('[data-ranking-panel], .ranking-panel').forEach(panel=>{if(!panel.dataset.rankingReady){panel.innerHTML=markup();panel.dataset.rankingReady='true'}})}
+  function getPanel(panel){return typeof panel==='string'?document.querySelector(panel):panel||document.querySelector('.ranking-panel')}
+  function renderRows(rows,options={}){const panel=getPanel(options.panel),list=panel?.querySelector('#rankingList');if(!list)return;const scoreKey=options.scoreKey||'score';list.innerHTML=(rows||[]).map((row,index)=>{const nickname=String(row.nickname??'').trim(),key=nickname.toLowerCase(),rank=index+1,place=rank===1?'<span class="rank-medal">🥇</span>':rank===2?'<span class="rank-medal">🥈</span>':rank===3?'<span class="rank-medal">🥉</span>':rank;return `<li class="ranking-row ${rank<=3?`top-${rank}`:''}" data-player-key="${escapeHtml(key)}"><span class="rank-place">${place}</span><span class="rank-name">${escapeHtml(nickname)}</span><strong class="rank-score">${Number(row[scoreKey]||0).toLocaleString()}</strong></li>`}).join('')}
+  function setStatus(text,panel){const el=getPanel(panel)?.querySelector('#rankingStatus');if(el)el.textContent=text||''}
+  function setNote(text,panel){const el=getPanel(panel)?.querySelector('#rankingNote');if(el)el.textContent=text||''}
+  function setMonth(text,panel){const el=getPanel(panel)?.querySelector('#monthChip');if(el)el.textContent=text||''}
+  function clearFocus(panel){const p=getPanel(panel);if(!p)return;p.classList.remove('ranking-focus');p.querySelectorAll('.ranking-row.current-player').forEach(row=>row.classList.remove('current-player'))}
+  function focusPlayer(nickname,options={}){const panel=getPanel(options.panel);if(!panel)return null;clearFocus(panel);void panel.offsetWidth;panel.classList.add('ranking-focus');const key=String(nickname||'').trim().toLowerCase(),row=[...panel.querySelectorAll('.ranking-row')].find(item=>item.dataset.playerKey===key);if(row)row.classList.add('current-player');if(options.scroll!==false&&matchMedia('(max-width:980px)').matches)(row||panel).scrollIntoView({behavior:'smooth',block:row?'center':'start'});setTimeout(()=>panel.classList.remove('ranking-focus'),options.panelFocusMs||1400);setTimeout(()=>row&&row.classList.remove('current-player'),options.playerFocusMs||2600);return row}
+  window.EZPKRankingPanel={init,renderRows,setStatus,setNote,setMonth,clearFocus,focusPlayer,escapeHtml};
+  init();
+})();

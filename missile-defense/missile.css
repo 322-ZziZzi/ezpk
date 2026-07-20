@@ -97,3 +97,30 @@
   .missile-shell,.missile-shell canvas{touch-action:pan-y pinch-zoom;overscroll-behavior:auto}
   .missile-shell.is-playing,.missile-shell.is-playing canvas{touch-action:none;overscroll-behavior:contain}
 }
+
+
+/* v114 — ranking panel unified with SURVIVAL */
+.tank-layout,.missile-layout{grid-template-columns:minmax(0,1fr) 380px;gap:18px}
+.ranking-panel{padding:20px;align-self:start;position:sticky;top:84px;border:1px solid #ffffff18;border-radius:18px;background:#0b1018;box-shadow:0 24px 60px #0007;color:#fff}
+.ranking-head{display:flex;justify-content:space-between;align-items:center}
+.ranking-head span{color:#f5c547;font-size:11px;font-weight:1000;letter-spacing:1.4px}
+.ranking-head h2{margin:4px 0 0;font-size:25px}
+.ranking-head button{width:40px;height:40px;padding:0;border:1px solid #ffffff18;border-radius:10px;background:#111923;color:#fff;font-size:20px}
+.month-chip{display:inline-flex;margin:16px 0 12px;padding:7px 10px;border:1px solid #f5c5473c;border-radius:999px;background:#f5c54710;color:#f5c547;font-size:11px;font-weight:900}
+.ranking-status{padding:16px;color:#8793a2;text-align:center;font-size:12px;line-height:1.5}
+.ranking-list{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.ranking-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 12px;border:1px solid #ffffff10;border-radius:11px;background:#101721}
+.ranking-row.top-1{border-color:#f5c54788;background:#f5c54712}
+.ranking-row.top-2{border-color:#c8d0dc66}
+.ranking-row.top-3{border-color:#d48a5266}
+.rank-place{font-weight:1000;text-align:center}
+.rank-medal{font-size:23px}
+.rank-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:900}
+.rank-score{color:#f5c547;font-weight:1000}
+.ranking-note{margin:14px 2px 0;color:#788493;font-size:11px;line-height:1.5}
+.ranking-row.current-player{position:relative;outline:none;border-color:#f5c547!important;background:#f5c54720!important;box-shadow:0 0 0 2px #f5c54755,0 0 24px #f5c54720}
+.ranking-row.current-player:after{content:'★';position:absolute;right:8px;top:4px;color:#f5c547;font-size:10px}
+.rtl .ranking-row{direction:rtl}
+.rtl .ranking-row.current-player:after{right:auto;left:8px}
+@media(max-width:980px){.tank-layout,.missile-layout{grid-template-columns:1fr}.ranking-panel{position:static;margin-top:16px}}
+@media(max-width:620px){.ranking-panel{padding:15px}}

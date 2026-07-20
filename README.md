@@ -51,3 +51,16 @@ Current Version: v93
 - Added selectable South, Ella, and Mason hero cards with a shared detail panel.
 - Added optimized WEBP card/detail assets extracted from the supplied hero reference image.
 - Added responsive PC/mobile layouts and RTL support.
+
+
+## v114 — Tank Battle / Missile Defense ranking UI unified
+- Unified the Tank Battle and Missile Defense ranking panels with the Survival ranking panel.
+- Matched panel width, spacing, borders, background, shadow, typography, month chip, refresh button, ranking rows, medal sizing, score emphasis, top-3 borders, notes, and mobile behavior.
+- Updated ranking row markup to use the same `rank-place`, `rank-medal`, `rank-name`, and `rank-score` classes as Survival.
+- Bumped Tank Battle and Missile Defense asset cache versions to v1140.
+
+## v115
+- Added shared `ranking-panel.css` and `ranking-panel.js` components.
+- Survival, Tank Battle, Missile Mission, and Drone Hunter now mount the same ranking panel markup and use the same row renderer.
+- New games can use the identical panel by loading both shared files and adding `<aside id="ranking" class="ranking-panel" data-ranking-panel></aside>`.
+- Ranking visual design, medals, score typography, responsive behavior, RTL behavior, and player-focus state are now managed centrally.
