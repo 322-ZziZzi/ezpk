@@ -90,3 +90,12 @@ Current Version: v93
 - Restored and hardened the Accounts page 8-language selector.
 - Language flag/name, dropdown, outside-click close, Escape close, mobile navigation, localStorage persistence, cross-page sync, full Accounts UI translation, and v121 ACCOUNT / SHOWCASE header are preserved together.
 - Updated Accounts asset cache version to 1220.
+
+
+## v123
+
+- Updated the Account Registration template to use Fighter / Shooter / Rider in English.
+- Fixed Accounts GitHub saving by fetching the latest data/accounts.json SHA immediately before each PUT request.
+- Added one automatic retry for GitHub 409/422 conflicts after refreshing the SHA.
+- GitHub API error messages now include the returned reason for easier diagnosis.
+- Updated the Account Manager cache version to 1230.
