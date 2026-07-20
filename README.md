@@ -107,3 +107,9 @@ Current Version: v93
 - Added one automatic retry for GitHub 409/422 conflicts after refreshing the SHA.
 - GitHub API error messages now include the returned reason for easier diagnosis.
 - Updated the Account Manager cache version to 1230.
+
+## v126 Account Registration Listing Options
+- Added Standard Listing and Premium Listing pricing guidance to the bottom of the Account Registration template.
+- Premium prices: 7 days $5, 15 days $8, and 30 days $10 (Best Value).
+- Kept the administrator parser label-based, so pricing, benefits, separators, and explanatory text are ignored automatically.
+- Only the existing account specification fields are populated in Account Manager.

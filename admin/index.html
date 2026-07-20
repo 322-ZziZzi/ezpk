@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
   <link rel="stylesheet" href="../style.css?v=750">
-  <link rel="stylesheet" href="admin.css?v=750">
+  <link rel="stylesheet" href="admin.css?v=1260">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 </head>
 <body>
@@ -121,7 +121,7 @@
 
     <div id="accountsPanel" class="admin-panel">
       <div class="account-admin-head"><div><h2>Account Manager</h2><p>Discord로 받은 표준 양식을 붙여넣어 계정 정보를 등록하고 관리합니다.</p></div><a class="secondary account-page-link" href="../accounts/" target="_blank">Account Showcase 열기</a></div>
-      <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식을 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">COPY TEMPLATE</button><button id="downloadAccountTemplate" type="button">DOWNLOAD TEMPLATE</button></div><div id="templateActionStatus" class="mini-status"></div></section>
+      <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식과 게시 옵션 안내를 함께 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요. 하단 안내문은 붙여넣기 분석 시 자동으로 제외됩니다.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">COPY TEMPLATE</button><button id="downloadAccountTemplate" type="button">DOWNLOAD TEMPLATE</button></div><div id="templateActionStatus" class="mini-status"></div></section>
       <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">PARSE TEMPLATE</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">RESET</button><button id="registerAccount" class="primary" type="button">REGISTER ACCOUNT</button></div></section></div>
       <section class="account-list-admin"><div class="account-list-head"><h3>등록 계정</h3><button id="downloadAccountsJson" type="button">↓ Accounts JSON 백업</button></div><div id="accountAdminList"></div></section>
     </div>
@@ -130,6 +130,6 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=1240"></script><script src="season6-manager.js?v=1240"></script><script src="accounts-manager.js?v=1240"></script>
+<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=1240"></script><script src="season6-manager.js?v=1240"></script><script src="accounts-manager.js?v=1260"></script>
 </body>
 </html>
