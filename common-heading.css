@@ -1,0 +1,175 @@
+/* EZPK v102: shared heading system for all pages and primary page sections */
+:root{
+  --ezpk-heading-gold:#f5c547;
+  --ezpk-heading-white:#f7f8fa;
+  --ezpk-heading-sub:#9fcdf4;
+}
+
+/* Primary page and section heading containers */
+:is(
+  .admin-hero,
+  .map-section > .section-head,
+  .location-section > .section-head,
+  .assignment-section .section-head,
+  .mini-game-hero,
+  .logo-hero,
+  .members-hero,
+  .request-hero,
+  .record-hero,
+  .section-title-block,
+  .team-section-head,
+  .tip-hero,
+  .schedule-section > .head
+){
+  text-align:center !important;
+}
+
+/* Eyebrow / kicker */
+:is(
+  .admin-hero,
+  .section-head,
+  .mini-game-hero,
+  .logo-hero,
+  .members-hero,
+  .request-hero,
+  .record-hero,
+  .section-title-block,
+  .team-section-head,
+  .tip-hero,
+  .schedule-section > .head
+) > :is(span,.eyebrow,.logo-kicker){
+  display:inline-block !important;
+  margin:0 0 16px !important;
+  color:var(--ezpk-heading-gold) !important;
+  font-family:Arial,'Noto Sans KR',sans-serif !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  line-height:1.3 !important;
+  letter-spacing:.18em !important;
+  text-transform:uppercase !important;
+  text-shadow:none !important;
+  -webkit-text-stroke:0 !important;
+}
+
+/* Main title */
+:is(
+  .admin-hero,
+  .section-head,
+  .mini-game-hero,
+  .logo-hero,
+  .members-hero,
+  .request-hero,
+  .record-hero,
+  .section-title-block,
+  .team-section-head,
+  .tip-hero,
+  .schedule-section > .head
+) > :is(h1,h2){
+  margin:0 !important;
+  color:var(--ezpk-heading-white) !important;
+  font-family:Arial,'Noto Sans KR',sans-serif !important;
+  font-size:clamp(42px,6vw,72px) !important;
+  font-weight:900 !important;
+  line-height:1.08 !important;
+  letter-spacing:-.045em !important;
+  text-shadow:none !important;
+  -webkit-text-stroke:0 !important;
+}
+
+/* Subtitle */
+:is(
+  .admin-hero,
+  .section-head,
+  .mini-game-hero,
+  .logo-hero,
+  .members-hero,
+  .request-hero,
+  .record-hero,
+  .section-title-block,
+  .team-section-head,
+  .tip-hero,
+  .schedule-section > .head
+) > p{
+  width:min(760px,100%) !important;
+  margin:18px auto 0 !important;
+  color:var(--ezpk-heading-sub) !important;
+  font-family:Arial,'Noto Sans KR',sans-serif !important;
+  font-size:16px !important;
+  font-weight:500 !important;
+  line-height:1.75 !important;
+  letter-spacing:-.02em !important;
+  text-shadow:none !important;
+  -webkit-text-stroke:0 !important;
+}
+
+/* Ensure internal BGB section headings use the same generous rhythm */
+.section-head{
+  width:min(1240px,calc(100% - 32px)) !important;
+  max-width:1240px !important;
+  margin:0 auto 34px !important;
+}
+
+/* RTL keeps hierarchy while respecting reading direction */
+.rtl :is(.admin-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.schedule-section > .head){
+  direction:rtl;
+  text-align:center !important;
+}
+
+@media(max-width:760px){
+  :is(
+    .admin-hero,
+    .section-head,
+    .mini-game-hero,
+    .logo-hero,
+    .members-hero,
+    .request-hero,
+    .record-hero,
+    .section-title-block,
+    .team-section-head,
+    .tip-hero,
+    .schedule-section > .head
+  ) > :is(span,.eyebrow,.logo-kicker){
+    margin-bottom:13px !important;
+    font-size:11px !important;
+  }
+
+  :is(
+    .admin-hero,
+    .section-head,
+    .mini-game-hero,
+    .logo-hero,
+    .members-hero,
+    .request-hero,
+    .record-hero,
+    .section-title-block,
+    .team-section-head,
+    .tip-hero,
+    .schedule-section > .head
+  ) > :is(h1,h2){
+    font-size:clamp(38px,11vw,52px) !important;
+    line-height:1.1 !important;
+  }
+
+  :is(
+    .admin-hero,
+    .section-head,
+    .mini-game-hero,
+    .logo-hero,
+    .members-hero,
+    .request-hero,
+    .record-hero,
+    .section-title-block,
+    .team-section-head,
+    .tip-hero,
+    .schedule-section > .head
+  ) > p{
+    margin-top:15px !important;
+    font-size:14px !important;
+    line-height:1.7 !important;
+  }
+
+  .section-head{
+    width:min(100% - 24px,1240px) !important;
+    margin-bottom:26px !important;
+  }
+}
