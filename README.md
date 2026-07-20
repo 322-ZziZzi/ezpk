@@ -1,3 +1,11 @@
+# EZPK v124
+
+- GitHub JSON 저장 로직을 최신 SHA 기반으로 통일했습니다.
+- data/members.json, data/bgb.json, data/events.json, data/season6-teams.json은 저장 직전에 최신 SHA를 다시 조회합니다.
+- data/accounts.json도 기존 최신 SHA 조회 및 409/422 자동 재시도 방식을 유지합니다.
+- 409 또는 422 충돌 시 해당 파일의 최신 SHA를 다시 조회한 뒤 1회 자동 재시도합니다.
+- GitHub 오류 발생 시 실제 오류 메시지를 표시합니다.
+
 # EZPK v121 — Account Showcase Header Update
 
 - Changed the Account Showcase hero to a two-line structure: ACCOUNT / SHOWCASE.
