@@ -12,3 +12,10 @@ Changes
 - Team image modal includes mobile and PC save instructions.
 - Full multilingual copy applied for ko, en, vi, ar, pt, zh-tw, ja and th.
 - Season 7 Manager changes are reflected immediately after saving; the former public/private gate is removed.
+
+
+[Single-page structure correction]
+- Removed Season 7 latest/team tabs.
+- Latest information and team assignment now render continuously on one page.
+- Team cards remain visible below the team assignment notice.
+- Updated multilingual Season 7 heading and team release notice.
