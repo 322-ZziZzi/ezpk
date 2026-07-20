@@ -24,3 +24,11 @@ Current Version: v93
 - Removed obsolete README text files
 - Consolidated documentation into this README
 - Assets cleaned and optimized
+
+
+## v107
+- Added a Season 7 Battlefield Map section before Team Assignment.
+- Season 7 flow: Battlefield Map → Team Assignment → Team Strategy → Common Orders.
+- Added multilingual Battlefield Map labels and a responsive coming-soon panel.
+- BGB A/B Team section now uses conditional member-password protection only when Team A or Team B has assigned members/locations.
+- When both teams are empty, the existing A/B Team section remains visible without a password gate.
