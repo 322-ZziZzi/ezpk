@@ -27,3 +27,12 @@
 @media(max-width:980px){.ranking-panel{position:static;margin-top:16px}}
 @media(max-width:620px){.ranking-panel{padding:15px}.ranking-head h2{font-size:23px}}
 @media(prefers-reduced-motion:reduce){.ranking-panel.ranking-focus,.ranking-row.current-player{animation:none}}
+
+/* v116: shared 10-row pagination for TOP 30 */
+.ranking-pagination{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0 0}
+.ranking-pagination[hidden]{display:none}
+.ranking-page-button{width:36px;height:34px;padding:0;border:1px solid #ffffff18;border-radius:9px;background:#111923;color:#fff;font-size:24px;line-height:1;cursor:pointer;transition:border-color .18s ease,color .18s ease,background .18s ease}
+.ranking-page-button:hover:not(:disabled){border-color:#f5c54766;background:#f5c54710;color:#f5c547}
+.ranking-page-button:disabled{opacity:.3;cursor:default}
+.ranking-page-indicator{min-width:52px;color:#9ba6b4;font-size:12px;font-weight:900;text-align:center;letter-spacing:.4px}
+.rtl .ranking-pagination,[dir="rtl"] .ranking-pagination{direction:ltr}

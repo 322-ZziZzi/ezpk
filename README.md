@@ -59,8 +59,10 @@ Current Version: v93
 - Updated ranking row markup to use the same `rank-place`, `rank-medal`, `rank-name`, and `rank-score` classes as Survival.
 - Bumped Tank Battle and Missile Defense asset cache versions to v1140.
 
-## v115
-- Added shared `ranking-panel.css` and `ranking-panel.js` components.
-- Survival, Tank Battle, Missile Mission, and Drone Hunter now mount the same ranking panel markup and use the same row renderer.
-- New games can use the identical panel by loading both shared files and adding `<aside id="ranking" class="ranking-panel" data-ranking-panel></aside>`.
-- Ranking visual design, medals, score typography, responsive behavior, RTL behavior, and player-focus state are now managed centrally.
+## v116
+- Added shared TOP 30 pagination to the common ranking component.
+- Rankings are displayed 10 at a time: 1–10, 11–20, and 21–30.
+- Added previous/next icon buttons and a page indicator.
+- Disabled unavailable navigation directions automatically.
+- Player highlighting now switches to the page containing that player.
+- Applied automatically to Survival, Tank Battle, Missile Mission, Drone Hunter, and future games using the shared component.
