@@ -1,3 +1,15 @@
+# EZPK v121 — Account Showcase Header Update
+
+- Changed the Account Showcase hero to a two-line structure: ACCOUNT / SHOWCASE.
+- Applied the same Arial/Noto Sans menu font style and weight used by the shared navigation.
+- Localized both header lines across all 8 supported languages.
+- Kept the existing subtitle, Account Registration, and Discord contact block unchanged.
+
+EZPK v120
+
+- Added Account Registration and Discord: zzizzi_ beneath the Account Showcase subtitle.
+- Added localization for the Account Registration label across all 8 supported languages.
+
 EZPK v112
 
 - Replaced the Season 6 latest-information images with eight optimized WEBP language versions.
