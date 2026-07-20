@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>Season 7 | 322 EZPK Alliance</title>
   <link rel="stylesheet" href="../style.css?v=1010">
-  <link rel="stylesheet" href="season7.css?v=1030">
+  <link rel="stylesheet" href="season7.css?v=1060">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 </head>
 <body>
@@ -32,6 +32,38 @@
       </div>
       <div id="teamCards" class="team-cards"></div>
     </section>
+    <section id="teamStrategyView" class="season7-content-section">
+      <div class="team-section-head">
+        <span>SEASON 7</span>
+        <h2 id="teamStrategyTitle">TEAM STRATEGY</h2>
+        <p id="teamStrategyLead"></p>
+      </div>
+      <section id="strategyPanel" class="strategy-panel strategy-panel--attack" aria-labelledby="teamStrategyTitle">
+        <div class="strategy-tabs" role="tablist" aria-label="Team strategy">
+          <button class="strategy-tab strategy-tab--attack is-active" type="button" role="tab" aria-selected="true" aria-controls="strategyContent" data-strategy-team="attack"></button>
+          <button class="strategy-tab strategy-tab--defense" type="button" role="tab" aria-selected="false" aria-controls="strategyContent" data-strategy-team="defense"></button>
+          <button class="strategy-tab strategy-tab--support" type="button" role="tab" aria-selected="false" aria-controls="strategyContent" data-strategy-team="support"></button>
+        </div>
+        <div id="strategyContent" class="strategy-content" role="tabpanel">
+          <div id="strategyIcon" class="strategy-content-icon" aria-hidden="true"></div>
+          <h3 id="strategyContentTitle"></h3>
+          <p id="strategyComingSoon"></p>
+        </div>
+      </section>
+    </section>
+
+    <section id="commonOrdersView" class="season7-content-section">
+      <div class="team-section-head">
+        <span>SEASON 7</span>
+        <h2 id="commonOrdersTitle">COMMON ORDERS</h2>
+        <p id="commonOrdersLead"></p>
+      </div>
+      <section class="common-orders-panel" aria-labelledby="commonOrdersTitle">
+        <div class="common-orders-icon" aria-hidden="true">✦</div>
+        <h3 id="commonOrdersBoxTitle"></h3>
+        <p id="commonOrdersComingSoon"></p>
+      </section>
+    </section>
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span data-k="footer"></span></footer>
@@ -56,6 +88,6 @@
 </div>
 
 <script src="../data.js?v=1010"></script>
-<script src="season7.js?v=1050"></script>
+<script src="season7.js?v=1060"></script>
 </body>
 </html>

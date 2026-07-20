@@ -56,3 +56,38 @@
   .team-card-head>p{font-size:13px}
   .team-member-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:10px}.team-member-cell{height:58px;padding:5px}.team-member-name{font-size:13px}.team-image-modal{padding:8px}.team-image-panel{max-height:calc(100vh - 16px);padding:14px;border-radius:14px}.team-image-actions{flex-direction:column}
 }
+
+/* v106: team strategy tabs and common orders */
+.strategy-panel,
+.common-orders-panel{border:1px solid #2a3548;border-radius:20px;background:linear-gradient(180deg,#0e1521,#090e16);overflow:hidden;box-shadow:0 18px 45px rgba(0,0,0,.22)}
+.strategy-panel{--strategy-accent:#d85a5a;--strategy-glow:rgba(216,90,90,.16);box-shadow:inset 0 3px 0 var(--strategy-accent),0 18px 45px rgba(0,0,0,.22);transition:box-shadow .2s ease,border-color .2s ease}
+.strategy-panel--attack{--strategy-accent:#d85a5a;--strategy-glow:rgba(216,90,90,.16)}
+.strategy-panel--defense{--strategy-accent:#5f8fe5;--strategy-glow:rgba(95,143,229,.16)}
+.strategy-panel--support{--strategy-accent:#4fbd83;--strategy-glow:rgba(79,189,131,.16)}
+.strategy-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px;border-bottom:1px solid #263247;background:#0a1019}
+.strategy-tab{min-width:0;padding:14px 10px;border:1px solid #2b374b;border-radius:11px;background:#111927;color:#9eabba;font:inherit;font-size:15px;font-weight:900;line-height:1.25;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease,box-shadow .18s ease}
+.strategy-tab:hover{transform:translateY(-1px);color:#fff;border-color:#44526a}
+.strategy-tab.is-active{color:#fff;border-color:var(--tab-accent);background:var(--tab-glow);box-shadow:inset 0 0 0 1px var(--tab-accent),0 0 22px var(--tab-glow)}
+.strategy-tab--attack{--tab-accent:#d85a5a;--tab-glow:rgba(216,90,90,.18)}
+.strategy-tab--defense{--tab-accent:#5f8fe5;--tab-glow:rgba(95,143,229,.18)}
+.strategy-tab--support{--tab-accent:#4fbd83;--tab-glow:rgba(79,189,131,.18)}
+.strategy-content{min-height:300px;padding:58px 28px 62px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 0,var(--strategy-glow),transparent 55%)}
+.strategy-content-icon{width:58px;height:58px;display:grid;place-items:center;margin-bottom:18px;border:1px solid var(--strategy-accent);border-radius:16px;background:var(--strategy-glow);color:var(--strategy-accent);box-shadow:0 0 26px var(--strategy-glow)}
+.strategy-content-icon svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.strategy-panel--support .strategy-content-icon svg{fill:currentColor;stroke:none}
+.strategy-content h3,.common-orders-panel h3{margin:0;color:var(--strategy-accent);font-size:clamp(25px,3vw,36px);font-weight:900;line-height:1.15;letter-spacing:-.025em}
+.strategy-content p,.common-orders-panel p{margin:16px 0 0;color:#8f9bad;font-size:15px;font-weight:700}
+.common-orders-panel{min-height:260px;padding:54px 28px 58px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-color:#4a4126;box-shadow:inset 0 3px 0 #d9bb65,0 18px 45px rgba(0,0,0,.22);background:radial-gradient(circle at 50% 0,rgba(217,187,101,.14),transparent 56%),linear-gradient(180deg,#0e1521,#090e16)}
+.common-orders-icon{width:58px;height:58px;display:grid;place-items:center;margin-bottom:18px;border:1px solid #d9bb65;border-radius:16px;background:rgba(217,187,101,.12);color:#d9bb65;font-size:28px;box-shadow:0 0 26px rgba(217,187,101,.12)}
+.common-orders-panel h3{color:#d9bb65}
+.rtl .strategy-tabs{direction:rtl}
+
+@media(max-width:620px){
+  .strategy-tabs{gap:6px;padding:9px}
+  .strategy-tab{padding:12px 5px;font-size:clamp(11px,3.4vw,14px);letter-spacing:-.02em}
+  .strategy-content{min-height:240px;padding:42px 18px 46px}
+  .common-orders-panel{min-height:220px;padding:42px 18px 46px}
+  .strategy-content-icon,.common-orders-icon{width:50px;height:50px;border-radius:14px}
+  .strategy-content-icon svg{width:27px;height:27px}
+  .strategy-content h3,.common-orders-panel h3{font-size:25px}
+}
