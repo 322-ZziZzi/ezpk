@@ -1,8 +1,9 @@
-EZPK v111
+EZPK v112
 
-- Season 6 hero information corrected to Selwyn, Sebastian, and Ella.
-- Added multilingual troop type, core ability, effects, recommendations, and summaries.
-- Replaced hero images with optimized WEBP assets from the supplied screenshots.
+- Replaced the Season 6 latest-information images with eight optimized WEBP language versions.
+- Added dedicated Japanese and Thai Season 6 images instead of the English fallback.
+- Updated language-to-image switching for Korean, English, Vietnamese, Arabic, Portuguese, Traditional Chinese, Japanese, and Thai.
+- Corrected remaining Season 7 references in the Season 6 section translations.
 
 # EZPK War Portal
 
