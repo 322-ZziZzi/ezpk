@@ -1,0 +1,14 @@
+{
+  "lastUpdated": "",
+  "published": true,
+  "supportPriority": [
+    "defense",
+    "attack"
+  ],
+  "participants": [],
+  "teams": {
+    "attack": [],
+    "defense": [],
+    "support": []
+  }
+}
