@@ -204,7 +204,34 @@ function todayKst(){const d=new Date(Date.now()-2*60*60*1000),p=n=>String(n).pad
 function b64EncodeUnicode(str){const bytes=new TextEncoder().encode(str);let bin='';bytes.forEach(b=>bin+=String.fromCharCode(b));return btoa(bin)}
 function b64DecodeUnicode(b64){const bin=atob(b64.replace(/\n/g,''));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))}
 async function githubGetFile(path){const c=cfg();if(!c.token)throw new Error('GitHub Token을 입력하세요.');const url=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}?ref=${encodeURIComponent(c.branch)}`;const r=await fetch(url,{headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28'}});if(!r.ok)throw new Error(`GitHub 불러오기 실패: ${path} (${r.status})`);const j=await r.json();return{sha:j.sha,data:JSON.parse(b64DecodeUnicode(j.content))}}
-async function githubPutFile(path,payload,sha,message){const c=cfg(),url=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}`;const body={message,content:b64EncodeUnicode(JSON.stringify(payload,null,2)),branch:c.branch};if(sha)body.sha=sha;const r=await fetch(url,{method:'PUT',headers:{Accept:'application/vnd.github+json',Authorization:`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok){const err=await r.text();throw new Error(`GitHub 저장 실패: ${path} (${r.status}) ${err.slice(0,180)}`)}return(await r.json()).content.sha}
+async function githubPutFile(path,payload,sha,message){
+  const c=cfg();
+  if(!c.token)throw new Error('GitHub Token을 입력하세요.');
+  const url=`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}`;
+  const headers={Accept:'application/vnd.github+json',Authorization:`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'};
+  const getLatestSha=async()=>{
+    const latest=await githubGetFile(path);
+    return latest.sha;
+  };
+  const put=async currentSha=>{
+    const body={message,content:b64EncodeUnicode(JSON.stringify(payload,null,2)),branch:c.branch};
+    if(currentSha)body.sha=currentSha;
+    return fetch(url,{method:'PUT',headers,body:JSON.stringify(body)});
+  };
+  let latestSha=await getLatestSha();
+  let r=await put(latestSha);
+  if(r.status===409||r.status===422){
+    latestSha=await getLatestSha();
+    r=await put(latestSha);
+  }
+  if(!r.ok){
+    let detail='';
+    try{const j=await r.json();detail=j.message||JSON.stringify(j)}catch(e){detail=await r.text()}
+    throw new Error(`GitHub 저장 실패: ${path} (${r.status})${detail?` ${detail}`:''}`);
+  }
+  const saved=await r.json();
+  return saved.content&&saved.content.sha?saved.content.sha:latestSha;
+}
 async function loadGithub(){rememberToken();const [m,b,e]=await Promise.all([githubGetFile('data/members.json'),githubGetFile('data/bgb.json'),githubGetFile('data/events.json')]);memberSha=m.sha;bgbSha=b.sha;eventsSha=e.sha;membersData=m.data;membersData.members=(membersData.members||[]).map(normalizeMember);bgbData=normalizeBgb(b.data);eventsData=normalizeEvents(e.data);syncInputs();renderAll()}
 async function saveAllGithub(){rememberToken();if(!memberSha){const m=await githubGetFile('data/members.json');memberSha=m.sha}if(!bgbSha){const b=await githubGetFile('data/bgb.json');bgbSha=b.sha}if(!eventsSha){const e=await githubGetFile('data/events.json');eventsSha=e.sha}const date=todayKst(),mp=membersPayload(),bp=bgbPayload(),ep=eventsPayload();if(!mp.lastUpdated)mp.lastUpdated=date;if(!bp.lastUpdated)bp.lastUpdated=date;if(!ep.lastUpdated)ep.lastUpdated=date;TEAM_KEYS.forEach(t=>{if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`)});ep.events.forEach((e,i)=>{if(!e.enabled)return;if(!e.title||!e.start||!e.end)throw new Error(`EVENT ${i+1}: 활성화된 이벤트는 이벤트명, 시작시간, 종료시간이 모두 필요합니다.`);const startDate=parseEventDate(e.start),endDate=parseEventDate(e.end);if(!startDate||!endDate)throw new Error(`EVENT ${i+1}: 시간을 24시간 형식(HH:mm)으로 정확히 입력해 주세요. 예: 19:00`);if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`)});memberSha=await githubPutFile('data/members.json',mp,memberSha,`Update EZPK members ${mp.lastUpdated}`);bgbSha=await githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`);eventsSha=await githubPutFile('data/events.json',ep,eventsSha,`Update EZPK events ${ep.lastUpdated}`);membersData=mp;bgbData=normalizeBgb(bp);eventsData=normalizeEvents(ep);syncInputs();renderAll();setStatus('멤버 정보, BGB 편성, 이벤트 일정 저장 완료. GitHub Pages 반영까지 보통 1~3분 정도 걸립니다.','ok')}
 function exportExcel(){if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}const rows=membersData.members.map((m,i)=>({No:i+1,Rank:m.rank,Nickname:m.nickname,IND:m.ind,'Combat Power':m.power}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EZPK Members');XLSX.writeFile(wb,`EZPK_Member_List_${($('#lastUpdated').value||'backup').replaceAll('.','-')}.xlsx`)}
