@@ -2,177 +2,35 @@
   "lastUpdated": "2026.07.17",
   "teams": {
     "A": {
-      "members": [
-        "TIGER VESSEL",
-        "daoxxxx",
-        "Uncle Uay Balam",
-        "LU -",
-        "GB Trung Hi",
-        "플러팅 Flirting",
-        "SOS Lưu Đan",
-        "LaJin",
-        "Purple・・",
-        "Katreeya",
-        "나이스한Ding",
-        "・・HORANG",
-        "Loki",
-        "GB I’m ok",
-        "Angellore",
-        "GB MURAD1907",
-        "GB Long Huy Diet",
-        "GB Bóngluxury",
-        "NOX",
-        "Aikunlo"
-      ],
+      "members": [],
       "locations": {
-        "R1": [
-          "TIGER VESSEL",
-          "Purple・・",
-          "Loki",
-          "Angellore"
-        ],
-        "R2": [
-          "GB Long Huy Diet",
-          "LaJin",
-          "・・HORANG",
-          "GB I’m ok"
-        ],
-        "R3": [
-          "GB Bóngluxury",
-          "플러팅 Flirting",
-          "나이스한Ding"
-        ],
-        "R4": [
-          "daoxxxx",
-          "SOS Lưu Đan",
-          "NOX"
-        ],
-        "R5": [
-          "GB MURAD1907",
-          "GB Trung Hi",
-          "Katreeya"
-        ],
-        "R6": [
-          "Uncle Uay Balam",
-          "LU -",
-          "Aikunlo"
-        ],
-        "M1": [
-          "daoxxxx",
-          "플러팅 Flirting",
-          "GB Bóngluxury"
-        ],
-        "M2": [
-          "LU -",
-          "Katreeya",
-          "NOX"
-        ],
-        "H1": [
-          "GB MURAD1907",
-          "Purple・・",
-          "Loki"
-        ],
-        "H2": [
-          "Uncle Uay Balam",
-          "GB Trung Hi",
-          "플러팅 Flirting"
-        ],
-        "CENTER": [
-          "TIGER VESSEL",
-          "GB Long Huy Diet",
-          "GB Bóngluxury",
-          "GB MURAD1907",
-          "Uncle Uay Balam",
-          "NOX",
-          "Loki"
-        ]
+        "R1": [],
+        "R2": [],
+        "R3": [],
+        "R4": [],
+        "R5": [],
+        "R6": [],
+        "M1": [],
+        "M2": [],
+        "H1": [],
+        "H2": [],
+        "CENTER": []
       }
     },
     "B": {
-      "members": [
-        "・・QUEEN・・",
-        "horror_KW",
-        "Pro",
-        "mamimo",
-        "RoughRider25",
-        "Bird of Hermes",
-        "GuidoBauz",
-        "Anubis X",
-        "Just A’",
-        "aØyssa",
-        "GBmt nhokkk",
-        "Selenn£",
-        "Khaled-70",
-        "AnonymuzGamer",
-        "alsos",
-        "GB Kit Kat",
-        "Wild Merida",
-        "Ling² Kwong",
-        "小YG",
-        "Alliance Bot・・"
-      ],
+      "members": [],
       "locations": {
-        "R1": [
-          "Ling² Kwong",
-          "RoughRider25",
-          "Selenn£",
-          "Wild Merida"
-        ],
-        "R2": [
-          "Alliance Bot・・",
-          "aØyssa",
-          "alsos",
-          "Just A’"
-        ],
-        "R3": [
-          "horror_KW",
-          "GB Kit Kat",
-          "Khaled-70"
-        ],
-        "R4": [
-          "Pro",
-          "・・QUEEN・・",
-          "Bird of Hermes"
-        ],
-        "R5": [
-          "小YG",
-          "GuidoBauz",
-          "GBmt nhokkk"
-        ],
-        "R6": [
-          "AnonymuzGamer",
-          "mamimo",
-          "Anubis X"
-        ],
-        "M1": [
-          "GB Kit Kat",
-          "horror_KW",
-          "・・QUEEN・・"
-        ],
-        "M2": [
-          "GBmt nhokkk",
-          "Alliance Bot・・",
-          "Pro"
-        ],
-        "H1": [
-          "小YG",
-          "RoughRider25",
-          "mamimo"
-        ],
-        "H2": [
-          "AnonymuzGamer",
-          "GuidoBauz",
-          "GB Kit Kat"
-        ],
-        "CENTER": [
-          "Ling² Kwong",
-          "Alliance Bot・・",
-          "horror_KW",
-          "小YG",
-          "Pro",
-          "・・QUEEN・・",
-          "mamimo"
-        ]
+        "R1": [],
+        "R2": [],
+        "R3": [],
+        "R4": [],
+        "R5": [],
+        "R6": [],
+        "M1": [],
+        "M2": [],
+        "H1": [],
+        "H2": [],
+        "CENTER": []
       }
     }
   }
