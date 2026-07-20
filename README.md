@@ -1,3 +1,9 @@
+EZPK v111
+
+- Season 6 hero information corrected to Selwyn, Sebastian, and Ella.
+- Added multilingual troop type, core ability, effects, recommendations, and summaries.
+- Replaced hero images with optimized WEBP assets from the supplied screenshots.
+
 # EZPK War Portal
 
 Current Version: v93
