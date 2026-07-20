@@ -48,7 +48,7 @@
   </section>
 
   <section class="manager-card">
-    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="season6Panel">Season 6 Manager</button><button data-panel="eventsPanel">Event Manager</button><button data-panel="requestsPanel">Request Manager</button></div>
+    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="season6Panel">Season 6 Manager</button><button data-panel="eventsPanel">Event Manager</button><button data-panel="requestsPanel">Request Manager</button><button data-panel="accountsPanel">Account Manager</button></div>
 
     <div id="membersPanel" class="admin-panel active">
       <div class="manager-tools"><input id="search" type="search" placeholder="닉네임 검색"><select id="rank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><button id="addMember">+ 멤버 추가</button><button id="importExcel">↑ Excel 가져오기</button><button id="exportExcel">↓ Excel 다운로드</button><button id="downloadJson">↓ JSON 백업</button><input id="excelFile" type="file" accept=".xlsx,.xls" hidden></div>
@@ -119,10 +119,17 @@
       <div id="requestAdminList" class="request-admin-list"></div>
     </div>
 
+    <div id="accountsPanel" class="admin-panel">
+      <div class="account-admin-head"><div><h2>Account Manager</h2><p>Discord로 받은 표준 양식을 붙여넣어 계정 정보를 등록하고 관리합니다.</p></div><a class="secondary account-page-link" href="../accounts/" target="_blank">Account Showcase 열기</a></div>
+      <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식을 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">COPY TEMPLATE</button><button id="downloadAccountTemplate" type="button">DOWNLOAD TEMPLATE</button></div><div id="templateActionStatus" class="mini-status"></div></section>
+      <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">PARSE TEMPLATE</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">RESET</button><button id="registerAccount" class="primary" type="button">REGISTER ACCOUNT</button></div></section></div>
+      <section class="account-list-admin"><div class="account-list-head"><h3>등록 계정</h3><button id="downloadAccountsJson" type="button">↓ Accounts JSON 백업</button></div><div id="accountAdminList"></div></section>
+    </div>
+
   </section>
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=980"></script><script src="season6-manager.js?v=1080"></script>
+<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=980"></script><script src="season6-manager.js?v=1080"></script><script src="accounts-manager.js?v=1180"></script>
 </body>
 </html>
