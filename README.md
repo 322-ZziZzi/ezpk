@@ -16,7 +16,10 @@ Current Version: v93
 - GitHub
 - Cloudflare Static Assets
 
-## v93 Cleanup
+## v93 Update
+- Restored Season 7 (Coming Soon) across every desktop and mobile navigation
+- Placed Season 7 immediately before Season 6
+- Preserved active-menu highlighting
 - Restored navigation structure
 - Removed obsolete README text files
 - Consolidated documentation into this README
