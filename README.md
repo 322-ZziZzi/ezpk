@@ -127,3 +127,20 @@ Current Version: v93
 - Mobile: compact account cards with expand/collapse details, Premium/Expiring/Standard tabs, sticky previous/next pagination, Edit/Image/Delete actions.
 - Premium expiration is evaluated automatically in filters and sorting.
 - Admin account image preview/export modal added.
+
+
+## v129 - Public Account Showcase Sort Order
+- Public Account Showcase sort options reordered: Premium, Newest, Desired Price, 1st Troop CP, Total CP, Industry Level, Server.
+- Premium is now the default sort and shows active Premium listings first, newest within Premium and Standard groups.
+- Other sort modes now sort all listings strictly by the selected criterion instead of always forcing Premium listings to the top.
+- Server defaults to ascending; numeric and date criteria default to descending.
+
+
+## v130 - Premium Priority Across All Public Sort Options
+
+- Updated the public Account Showcase sorting logic so active Premium listings always appear before Standard listings for every sort option.
+- Premium and Latest: Premium newest first, then Standard newest first.
+- Desired Price, 1st Troop CP, Total CP, Industry Level, and Server: Premium listings are sorted by the selected field first, followed by Standard listings sorted by the same field.
+- Sort direction remains available for field-based sorts; Server defaults to ascending while numeric strength and price sorts default to descending.
+- Expired Premium listings are automatically treated as Standard listings.
+- Bumped Account Showcase asset cache version to 1300.
