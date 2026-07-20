@@ -66,3 +66,9 @@ Current Version: v93
 - Disabled unavailable navigation directions automatically.
 - Player highlighting now switches to the page containing that player.
 - Applied automatically to Survival, Tank Battle, Missile Mission, Drone Hunter, and future games using the shared component.
+
+
+## v117
+- Added multilingual Account Showcase page and navigation.
+- Added account detail/image preview modals, responsive pagination, sorting direction controls.
+- Added Account Manager with parser, sequential account numbering, GitHub JSON storage, copy/download template.
