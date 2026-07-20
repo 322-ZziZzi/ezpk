@@ -84,3 +84,9 @@ Current Version: v93
 - Added multilingual Account Showcase page and navigation.
 - Added account detail/image preview modals, responsive pagination, sorting direction controls.
 - Added Account Manager with parser, sequential account numbering, GitHub JSON storage, copy/download template.
+
+
+## v122
+- Restored and hardened the Accounts page 8-language selector.
+- Language flag/name, dropdown, outside-click close, Escape close, mobile navigation, localStorage persistence, cross-page sync, full Accounts UI translation, and v121 ACCOUNT / SHOWCASE header are preserved together.
+- Updated Accounts asset cache version to 1220.
