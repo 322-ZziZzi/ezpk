@@ -38,3 +38,9 @@ Current Version: v93
 - Season 7 (Coming Soon) was corrected to Season 6 (Coming Soon).
 - Season 6 (Ended) archive was corrected to Season 5 (Ended).
 - Menu links, page titles, section labels, assets, team JSON and admin manager references were updated.
+
+## v109
+- Added multilingual Season 6 S Hero Information module.
+- Added selectable South, Ella, and Mason hero cards with a shared detail panel.
+- Added optimized WEBP card/detail assets extracted from the supplied hero reference image.
+- Added responsive PC/mobile layouts and RTL support.
