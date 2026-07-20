@@ -48,7 +48,7 @@
   </section>
 
   <section class="manager-card">
-    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="season7Panel">Season 7 Manager</button><button data-panel="eventsPanel">Event Manager</button><button data-panel="requestsPanel">Request Manager</button></div>
+    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="season6Panel">Season 6 Manager</button><button data-panel="eventsPanel">Event Manager</button><button data-panel="requestsPanel">Request Manager</button></div>
 
     <div id="membersPanel" class="admin-panel active">
       <div class="manager-tools"><input id="search" type="search" placeholder="닉네임 검색"><select id="rank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><button id="addMember">+ 멤버 추가</button><button id="importExcel">↑ Excel 가져오기</button><button id="exportExcel">↓ Excel 다운로드</button><button id="downloadJson">↓ JSON 백업</button><input id="excelFile" type="file" accept=".xlsx,.xls" hidden></div>
@@ -97,14 +97,14 @@
     </div>
 
 
-    <div id="season7Panel" class="admin-panel">
-      <div class="s7-manager-head"><div><h2>Season 7 Manager</h2><p>참가자를 선택하고 공격 55% · 방어 25% · 지원 20% 비율로 전투력을 균형 배정합니다.</p></div><label>팀 편성 업데이트<input id="s7LastUpdated" type="text" placeholder="2026.07.20"></label></div>
-      <div class="s7-summary" id="s7Summary"></div>
-      <div class="s7-priority"><strong>지원팀 지원 우선순위</strong><span>1순위 방어팀</span><span>2순위 공격팀</span></div>
-      <div class="manager-tools s7-tools"><input id="s7Search" type="search" placeholder="닉네임 검색"><button id="s7SelectAll" type="button">전체 참가</button><button id="s7ClearParticipants" type="button">전체 해제</button><button id="s7AutoAssign" class="primary" type="button">55 · 25 · 20 자동 배정</button><button id="s7ResetTeams" class="danger" type="button">팀 배정 초기화</button></div>
-      <div id="s7ParticipantList" class="s7-participant-list"></div>
-      <div class="s7-team-grid" id="s7TeamGrid"></div>
-      <div class="s7-publish-row"><span class="help">저장된 팀 배정은 시즌7 페이지에 즉시 반영됩니다. 미배정 인원은 하단 미배정 명단에서 확인하고 다시 팀을 배정할 수 있습니다.</span><button id="downloadSeason7Json" type="button">↓ Season 7 JSON 백업</button></div>
+    <div id="season6Panel" class="admin-panel">
+      <div class="s6-manager-head"><div><h2>Season 6 Manager</h2><p>참가자를 선택하고 공격 55% · 방어 25% · 지원 20% 비율로 전투력을 균형 배정합니다.</p></div><label>팀 편성 업데이트<input id="s6LastUpdated" type="text" placeholder="2026.07.20"></label></div>
+      <div class="s6-summary" id="s6Summary"></div>
+      <div class="s6-priority"><strong>지원팀 지원 우선순위</strong><span>1순위 방어팀</span><span>2순위 공격팀</span></div>
+      <div class="manager-tools s6-tools"><input id="s6Search" type="search" placeholder="닉네임 검색"><button id="s6SelectAll" type="button">전체 참가</button><button id="s6ClearParticipants" type="button">전체 해제</button><button id="s6AutoAssign" class="primary" type="button">55 · 25 · 20 자동 배정</button><button id="s6ResetTeams" class="danger" type="button">팀 배정 초기화</button></div>
+      <div id="s6ParticipantList" class="s6-participant-list"></div>
+      <div class="s6-team-grid" id="s6TeamGrid"></div>
+      <div class="s6-publish-row"><span class="help">저장된 팀 배정은 시즌6 페이지에 즉시 반영됩니다. 미배정 인원은 하단 미배정 명단에서 확인하고 다시 팀을 배정할 수 있습니다.</span><button id="downloadSeason6Json" type="button">↓ Season 6 JSON 백업</button></div>
     </div>
 
     <div id="eventsPanel" class="admin-panel">
@@ -123,6 +123,6 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=980"></script><script src="season7-manager.js?v=1040"></script>
+<script src="../supabase-config.js?v=750"></script><script src="../request/request-admin.js?v=750"></script><script src="admin.js?v=980"></script><script src="season6-manager.js?v=1080"></script>
 </body>
 </html>

@@ -228,23 +228,23 @@ body.admin-unlocked{overflow:auto}
   .admin-header .brand b{font-size:18px}
 }
 
-/* v97 Season 7 Manager */
-.s7-manager-head,.s7-publish-row{display:flex;justify-content:space-between;gap:18px;align-items:end}.s7-manager-head h2{margin:0 0 6px}.s7-manager-head p{margin:0;color:#9ca7b8}.s7-manager-head label{display:grid;gap:6px;color:#c7cfdb}.s7-manager-head input{min-width:150px}.s7-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.s7-summary article{padding:16px;border:1px solid #273246;border-radius:14px;background:#0c111b;display:grid;gap:5px}.s7-summary span,.s7-summary small{color:#9ca7b8}.s7-summary b{font-size:22px}.s7-priority{display:flex;gap:16px;flex-wrap:wrap;padding:14px 16px;border:1px solid #8c6a22;background:#18140b;border-radius:12px;margin-bottom:14px}.s7-priority span{color:#e7c96f}.s7-participant-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-height:360px;overflow:auto;padding:10px;border:1px solid #253047;border-radius:14px}.s7-person{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:#0c111b}.s7-person span{display:grid;min-width:0}.s7-person b{overflow:hidden;text-overflow:ellipsis}.s7-person small{color:#8f9bad}.s7-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.s7-team-card{border:1px solid #273246;border-radius:16px;overflow:hidden;background:#0b1019}.s7-team-card header{padding:15px;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #273246}.s7-team-card header div{display:grid}.s7-team-card header span{color:#d9bb65}.s7-team-card header b{font-size:20px}.s7-team-card header small{color:#9ca7b8}.s7-team-card>div{max-height:520px;overflow:auto}.s7-team-card label{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #1a2332}.s7-team-card label span{display:grid;min-width:0}.s7-team-card label small{color:#8995a7}.s7-team-card select{max-width:105px}.s7-empty{padding:20px;color:#8792a3;text-align:center}.s7-publish-row{margin-top:18px}.s7-publish-row .remember{font-size:15px}
-@media(max-width:1000px){.s7-summary{grid-template-columns:repeat(2,1fr)}.s7-participant-list{grid-template-columns:repeat(2,1fr)}.s7-team-grid{grid-template-columns:1fr}}
-@media(max-width:600px){.s7-manager-head,.s7-publish-row{align-items:stretch;flex-direction:column}.s7-summary,.s7-participant-list{grid-template-columns:1fr}.s7-tools button{width:100%}}
+/* v97 Season 6 Manager */
+.s6-manager-head,.s6-publish-row{display:flex;justify-content:space-between;gap:18px;align-items:end}.s6-manager-head h2{margin:0 0 6px}.s6-manager-head p{margin:0;color:#9ca7b8}.s6-manager-head label{display:grid;gap:6px;color:#c7cfdb}.s6-manager-head input{min-width:150px}.s6-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}.s6-summary article{padding:16px;border:1px solid #273246;border-radius:14px;background:#0c111b;display:grid;gap:5px}.s6-summary span,.s6-summary small{color:#9ca7b8}.s6-summary b{font-size:22px}.s6-priority{display:flex;gap:16px;flex-wrap:wrap;padding:14px 16px;border:1px solid #8c6a22;background:#18140b;border-radius:12px;margin-bottom:14px}.s6-priority span{color:#e7c96f}.s6-participant-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-height:360px;overflow:auto;padding:10px;border:1px solid #253047;border-radius:14px}.s6-person{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;background:#0c111b}.s6-person span{display:grid;min-width:0}.s6-person b{overflow:hidden;text-overflow:ellipsis}.s6-person small{color:#8f9bad}.s6-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.s6-team-card{border:1px solid #273246;border-radius:16px;overflow:hidden;background:#0b1019}.s6-team-card header{padding:15px;display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #273246}.s6-team-card header div{display:grid}.s6-team-card header span{color:#d9bb65}.s6-team-card header b{font-size:20px}.s6-team-card header small{color:#9ca7b8}.s6-team-card>div{max-height:520px;overflow:auto}.s6-team-card label{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid #1a2332}.s6-team-card label span{display:grid;min-width:0}.s6-team-card label small{color:#8995a7}.s6-team-card select{max-width:105px}.s6-empty{padding:20px;color:#8792a3;text-align:center}.s6-publish-row{margin-top:18px}.s6-publish-row .remember{font-size:15px}
+@media(max-width:1000px){.s6-summary{grid-template-columns:repeat(2,1fr)}.s6-participant-list{grid-template-columns:repeat(2,1fr)}.s6-team-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.s6-manager-head,.s6-publish-row{align-items:stretch;flex-direction:column}.s6-summary,.s6-participant-list{grid-template-columns:1fr}.s6-tools button{width:100%}}
 
-/* v104 Season 7 unassigned roster */
-.s7-summary{grid-template-columns:repeat(5,minmax(0,1fr))}
-.s7-summary article{position:relative;overflow:hidden}
-.s7-summary article:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#7f8998}
-.s7-summary-attack:before{background:#e2535e!important}.s7-summary-defense:before{background:#4c8ee8!important}.s7-summary-support:before{background:#42b883!important}.s7-summary-none:before{background:#d0aa55!important}
-.s7-summary-none span,.s7-unassigned-card header span{color:#d9bb65}
-.s7-team-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-.s7-unassigned-card{grid-column:1/-1;border-color:#66552d;background:#0d1017}
-.s7-unassigned-card header{border-bottom-color:#4f4328;background:linear-gradient(90deg,rgba(208,170,85,.09),transparent)}
-.s7-unassigned-help{margin:0;padding:11px 14px;color:#a9b1bf;border-bottom:1px solid #252b36;background:#10141d}
-.s7-unassigned-card>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-height:520px}
-.s7-unassigned-card label{border-right:1px solid #1a2332}
-@media(max-width:1100px){.s7-summary{grid-template-columns:repeat(3,1fr)}.s7-unassigned-card>div{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:700px){.s7-summary{grid-template-columns:repeat(2,1fr)}.s7-unassigned-card>div{grid-template-columns:1fr}}
-@media(max-width:420px){.s7-summary{grid-template-columns:1fr}}
+/* v104 Season 6 unassigned roster */
+.s6-summary{grid-template-columns:repeat(5,minmax(0,1fr))}
+.s6-summary article{position:relative;overflow:hidden}
+.s6-summary article:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#7f8998}
+.s6-summary-attack:before{background:#e2535e!important}.s6-summary-defense:before{background:#4c8ee8!important}.s6-summary-support:before{background:#42b883!important}.s6-summary-none:before{background:#d0aa55!important}
+.s6-summary-none span,.s6-unassigned-card header span{color:#d9bb65}
+.s6-team-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.s6-unassigned-card{grid-column:1/-1;border-color:#66552d;background:#0d1017}
+.s6-unassigned-card header{border-bottom-color:#4f4328;background:linear-gradient(90deg,rgba(208,170,85,.09),transparent)}
+.s6-unassigned-help{margin:0;padding:11px 14px;color:#a9b1bf;border-bottom:1px solid #252b36;background:#10141d}
+.s6-unassigned-card>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-height:520px}
+.s6-unassigned-card label{border-right:1px solid #1a2332}
+@media(max-width:1100px){.s6-summary{grid-template-columns:repeat(3,1fr)}.s6-unassigned-card>div{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.s6-summary{grid-template-columns:repeat(2,1fr)}.s6-unassigned-card>div{grid-template-columns:1fr}}
+@media(max-width:420px){.s6-summary{grid-template-columns:1fr}}

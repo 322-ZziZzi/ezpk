@@ -4,47 +4,101 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
-  <title>EZPK Season 6 Records</title>
-  <link rel="stylesheet" href="../style.css?v=880">
-  <link rel="stylesheet" href="season6.css?v=880">
+  <title>Season 6 | 322 EZPK Alliance</title>
+  <link rel="stylesheet" href="../style.css?v=1010">
+  <link rel="stylesheet" href="season6.css?v=1080">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 </head>
 <body>
-<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="season6"></header><script src="../shared-header.js?v=960"></script>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="seasonUpcoming"></header>
+<script src="../shared-header.js?v=1080"></script>
+<main>
+  <section class="season6-page">
+    <section id="latestView" class="season6-content-section">
+      <div class="section-title-block">
+        <span>SEASON 6</span>
+        <h2 id="latestInfoTitle">LATEST INFO</h2>
+        <p id="latestInfoLead"></p>
+      </div>
+      <div class="frame seasonframe"><div class="stage"><img id="season6Img" alt="Season 6 latest information"></div></div>
+      <p class="hint" data-k="pinch"></p>
+    </section>
+    <section id="battleMapView" class="season6-content-section">
+      <div class="team-section-head">
+        <span>SEASON 6</span>
+        <h2 id="battleMapTitle">BATTLEFIELD MAP</h2>
+        <p id="battleMapLead"></p>
+      </div>
+      <section class="battle-map-panel" aria-labelledby="battleMapTitle">
+        <div class="battle-map-icon" aria-hidden="true">⌖</div>
+        <p id="battleMapComingSoon"></p>
+      </section>
+    </section>
+    <section id="teamsView" class="season6-content-section">
+      <div class="team-section-head">
+        <span id="teamEyebrow">SEASON 6</span>
+        <h2 id="teamAssignmentTitle">TEAM ASSIGNMENT</h2>
+        <p id="teamAssignmentLead"></p>
+        <small id="teamUpdated" hidden></small>
+      </div>
+      <div id="teamCards" class="team-cards"></div>
+    </section>
+    <section id="teamStrategyView" class="season6-content-section">
+      <div class="team-section-head">
+        <span>SEASON 6</span>
+        <h2 id="teamStrategyTitle">TEAM STRATEGY</h2>
+        <p id="teamStrategyLead"></p>
+      </div>
+      <section id="strategyPanel" class="strategy-panel strategy-panel--attack" aria-labelledby="teamStrategyTitle">
+        <div class="strategy-tabs" role="tablist" aria-label="Team strategy">
+          <button class="strategy-tab strategy-tab--attack is-active" type="button" role="tab" aria-selected="true" aria-controls="strategyContent" data-strategy-team="attack"></button>
+          <button class="strategy-tab strategy-tab--defense" type="button" role="tab" aria-selected="false" aria-controls="strategyContent" data-strategy-team="defense"></button>
+          <button class="strategy-tab strategy-tab--support" type="button" role="tab" aria-selected="false" aria-controls="strategyContent" data-strategy-team="support"></button>
+        </div>
+        <div id="strategyContent" class="strategy-content" role="tabpanel">
+          <div id="strategyIcon" class="strategy-content-icon" aria-hidden="true"></div>
+          <h3 id="strategyContentTitle"></h3>
+          <p id="strategyComingSoon"></p>
+        </div>
+      </section>
+    </section>
 
-<main class="season-record-page">
-  <section class="record-hero">
-    <span class="eyebrow">SEASON 6 · ARCHIVE</span>
-    <h1 data-record-k="recordTitle"></h1>
-    <p data-record-k="recordLead"></p>
-  </section>
-
-  <section class="record-section" aria-label="Season 6 records">
-    <div class="record-grid">
-      <figure><img src="assets/S6_00.webp" alt="Season 6 record 0" loading="eager"></figure>
-      <figure><img src="assets/S6_01.webp" alt="Season 6 record 1" loading="eager"></figure>
-      <figure><img src="assets/S6_02.webp" alt="Season 6 record 2" loading="lazy"></figure>
-      <figure><img src="assets/S6_03.webp" alt="Season 6 record 3" loading="lazy"></figure>
-      <figure><img src="assets/S6_04.webp" alt="Season 6 record 4" loading="lazy"></figure>
-      <figure><img src="assets/S6_05.webp" alt="Season 6 record 5" loading="lazy"></figure>
-      <figure><img src="assets/S6_06.webp" alt="Season 6 record 6" loading="lazy"></figure>
-      <figure><img src="assets/S6_07.webp" alt="Season 6 record 7" loading="lazy"></figure>
-      <figure><img src="assets/S6_08.webp" alt="Season 6 record 8" loading="lazy"></figure>
-      <figure><img src="assets/S6_09.webp" alt="Season 6 record 9" loading="lazy"></figure>
-      <figure><img src="assets/S6_10.webp" alt="Season 6 record 10" loading="lazy"></figure>
-      <figure><img src="assets/S6_11.webp" alt="Season 6 record 11" loading="lazy"></figure>
-    </div>
-  </section>
-
-  <section class="season-finale">
-    <span class="finale-line" aria-hidden="true"></span>
-    <h2>Season 6 — The Battle Is Over</h2>
-    <div class="finale-message" data-record-k="finaleMessage"></div>
+    <section id="commonOrdersView" class="season6-content-section">
+      <div class="team-section-head">
+        <span>SEASON 6</span>
+        <h2 id="commonOrdersTitle">COMMON ORDERS</h2>
+        <p id="commonOrdersLead"></p>
+      </div>
+      <section class="common-orders-panel" aria-labelledby="commonOrdersTitle">
+        <div class="common-orders-icon" aria-hidden="true">✦</div>
+        <h3 id="commonOrdersBoxTitle"></h3>
+        <p id="commonOrdersComingSoon"></p>
+      </section>
+    </section>
   </section>
 </main>
-
 <footer><b>322 EZPK ALLIANCE</b><span data-k="footer"></span></footer>
-<script src="../data.js?v=880"></script>
-<script src="season6.js?v=880"></script>
+
+<div id="teamImageModal" class="team-image-modal" hidden>
+  <div class="team-image-backdrop" data-team-close></div>
+  <section class="team-image-panel" role="dialog" aria-modal="true" aria-labelledby="teamImageTitle">
+    <div class="team-image-head">
+      <div><span>SERVER 322 · EZPK</span><h2 id="teamImageTitle"></h2></div>
+      <button id="teamImageClose" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="team-image-guide">
+      <strong id="teamImageGuideTitle"></strong>
+      <p id="teamImageGuideMobile"></p>
+      <p id="teamImageGuidePc"></p>
+    </div>
+    <div class="team-image-wrap"><img id="teamImagePreview" alt="Season 6 team image preview"></div>
+    <div class="team-image-actions">
+      <button id="teamImageDone" class="team-close-btn" type="button"></button>
+    </div>
+  </section>
+</div>
+
+<script src="../data.js?v=1010"></script>
+<script src="season6.js?v=1080"></script>
 </body>
 </html>

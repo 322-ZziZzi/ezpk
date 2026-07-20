@@ -32,3 +32,9 @@ Current Version: v93
 - Added multilingual Battlefield Map labels and a responsive coming-soon panel.
 - BGB A/B Team section now uses conditional member-password protection only when Team A or Team B has assigned members/locations.
 - When both teams are empty, the existing A/B Team section remains visible without a password gate.
+
+
+## v108
+- Season 7 (Coming Soon) was corrected to Season 6 (Coming Soon).
+- Season 6 (Ended) archive was corrected to Season 5 (Ended).
+- Menu links, page titles, section labels, assets, team JSON and admin manager references were updated.
