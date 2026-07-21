@@ -62,3 +62,10 @@ Based on v138.
 - Hero Merge game over only when the full board has no possible merges.
 - Tank Battle immediate action, faster movement/fire, stronger impact, and kill combos.
 - Missile Defense faster pacing, one-level difficulty increase, immediate threats, and interception combos.
+
+## v147
+- Tank Battle difficulty reduced by approximately one level while preserving v146 combat speed and combo feedback.
+- Unified the desktop start-screen layout across all eight games.
+- Desktop start screens now consistently include the translated game title, play instructions, nickname label/input, start button, and control guide.
+- Mobile start screens remain compact with nickname input and start button only.
+- Start-screen content supports ko, en, pt, vi, ar, ja, th, and zh-tw, including RTL layout for Arabic.
