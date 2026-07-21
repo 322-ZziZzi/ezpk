@@ -47,3 +47,9 @@ Based on v138.
 - The game screen now contains only the centered 4x4 board.
 - Applied the same structure to desktop and mobile layouts.
 - Status is shown during play and hidden before/after gameplay.
+
+## v145
+- Unified the four new games' mobile start flow with the existing games.
+- Mobile start overlays now show only nickname input and start button while keeping the game description above the game.
+- Added ranking-confirmation overlays and replay buttons after viewing rankings.
+- Preserved nickname values for immediate replay.
