@@ -164,3 +164,11 @@ Current Version: v93
 ## v136
 - Added the existing mobile game-description section between the game list and game viewport for Treasure Hunter, Zombie Defense, Portal Escape, and Hero Merge.
 - Preserved the existing shared ranking panel, 10-row pagination, and shared viewport behavior.
+
+## v137
+- Rebuilt all four new mini games to fit the shared 3:2 desktop / 1:1 mobile viewport.
+- Fixed Treasure Hunter 6x6 grid rendering.
+- Fixed Zombie Defense wave progression and responsive spawn field.
+- Guaranteed a valid route in Portal Escape and normalized its 7x7 board.
+- Rebuilt Hero Merge board sizing and added swipe, keyboard, and button controls.
+- Added per-game cleanup so retries do not leave old timers or handlers running.
