@@ -16,6 +16,7 @@
     ar: { home:'الرئيسية', seasonUpcoming:'الموسم 6 (قريبًا)', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'الطلبات', accounts:'الحسابات', game:'🎮 الألعاب المصغرة', logo:'الشعار' },
     ja: { home:'ホーム', seasonUpcoming:'シーズン6（準備中）', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト', accounts:'アカウント', game:'🎮 ミニゲーム', logo:'ロゴ' },
     th: { home:'หน้าแรก', seasonUpcoming:'ซีซัน 6 (เร็ว ๆ นี้)', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'คำขอ', accounts:'บัญชี', game:'🎮 มินิเกม', logo:'โลโก้' },
+    'zh-cn': { home:'首页', seasonUpcoming:'第 6 赛季（准备中）', seasonArchive:'第 5 赛季（已结束）', members:'成员名单', bgb:'BGB', tip:'提示', request:'留言板', accounts:'账号', game:'🎮 小游戏', logo:'标志' },
     'zh-tw': { home:'首頁', seasonUpcoming:'第 6 賽季（準備中）', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'提示', request:'留言板', accounts:'帳號', game:'🎮 小遊戲', logo:'標誌' }
   };
 
@@ -61,6 +62,7 @@
         <button type="button" data-l="ar">🇸🇦 العربية</button>
         <button type="button" data-l="ja">🇯🇵 日本語</button>
         <button type="button" data-l="th">🇹🇭 ไทย</button>
+        <button type="button" data-l="zh-cn">🇨🇳 简体中文</button>
         <button type="button" data-l="zh-tw">🇹🇼 繁體中文</button>
       </div>
     </div>`;
@@ -73,14 +75,32 @@
     });
   }
 
+  const META = {
+    ko:['🇰🇷','한국어'], en:['🇺🇸','English'], pt:['🇧🇷','Português'], vi:['🇻🇳','Tiếng Việt'],
+    ar:['🇸🇦','العربية'], ja:['🇯🇵','日本語'], th:['🇹🇭','ไทย'], 'zh-cn':['🇨🇳','简体中文'], 'zh-tw':['🇹🇼','繁體中文']
+  };
+  function applyLanguage(lang, emit=true) {
+    if (!META[lang]) lang='en';
+    renderNavLabels(lang);
+    const meta=META[lang];
+    header.querySelector('#flag').textContent=meta[0];
+    header.querySelector('#lname').textContent=meta[1];
+    document.documentElement.lang=lang;
+    document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+    document.body.classList.toggle('rtl',lang==='ar');
+    localStorage.setItem('ezpk-lang-v5',lang);
+    if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang}}));
+  }
   const initialLang = localStorage.getItem('ezpk-lang-v5') || 'en';
-  renderNavLabels(initialLang);
-
+  applyLanguage(initialLang,false);
+  const langBtn=header.querySelector('#langBtn'), langMenu=header.querySelector('#langMenu');
+  langBtn.addEventListener('click',function(e){e.stopPropagation();langMenu.hidden=!langMenu.hidden});
   header.querySelectorAll('#langMenu [data-l]').forEach(function (button) {
-    button.addEventListener('click', function () {
-      renderNavLabels(button.dataset.l);
-    });
+    button.addEventListener('click', function () {langMenu.hidden=true;applyLanguage(button.dataset.l,true)});
   });
-
-  window.EZPKSharedHeader = { renderNavLabels };
+  document.addEventListener('click',function(e){if(!header.querySelector('.lang').contains(e.target))langMenu.hidden=true});
+  const menuBtn=header.querySelector('#menuBtn'),nav=header.querySelector('#nav');
+  menuBtn.addEventListener('click',function(){const open=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open))});
+  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+  window.EZPKSharedHeader = { renderNavLabels, applyLanguage };
 })();
