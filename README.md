@@ -1,3 +1,10 @@
+# EZPK War Portal v157
+
+- Added Season 6 Building Guide between Latest Information and Hero Information.
+- Added 8 localized WebP guide images with automatic language switching.
+- Reused the existing common `.frame > .stage > img` viewer, preserving mobile pan, page scroll and pinch zoom behavior.
+- Added a localized Season 6 quick navigation menu.
+
 # EZPK War Portal v154
 
 Based on v153.
