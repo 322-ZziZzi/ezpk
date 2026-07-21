@@ -25,7 +25,9 @@
       "premiumStartedAt": "2026-07-20T18:11:35.899Z",
       "premiumExpiresAt": "2026-08-19T18:11:00.000Z",
       "accountNumber": 1,
-      "postedDate": "2026-07-20T18:11:35.899Z"
+      "postedDate": "2026-07-20T18:11:35.899Z",
+      "saleStatus": "forSale",
+      "soldAt": ""
     },
     {
       "server": "322",
@@ -51,7 +53,9 @@
       "premiumStartedAt": "",
       "premiumExpiresAt": "",
       "accountNumber": 2,
-      "postedDate": "2026-07-20T18:14:23.497Z"
+      "postedDate": "2026-07-20T18:14:23.497Z",
+      "saleStatus": "forSale",
+      "soldAt": ""
     }
   ]
 }

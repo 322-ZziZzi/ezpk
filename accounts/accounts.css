@@ -9,3 +9,19 @@
 .account-detail{display:flex;flex-direction:column}
 .account-detail>.premium-modal-badge,.account-detail>header,.account-detail>footer{flex:0 0 auto}
 .account-detail>.detail-body{flex:1 1 auto;min-height:0;max-height:none}
+
+
+/* v132 Sale status */
+.sort-bar{flex-wrap:wrap}.sale-only-toggle{display:flex!important;grid-auto-flow:column;align-items:center;gap:8px;margin-right:auto;min-height:44px;color:#dfe6ef!important;text-transform:none!important;letter-spacing:0!important;font-size:13px!important}.sale-only-toggle input{width:18px;height:18px;accent-color:#2d9b5c}.account-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.account-card-head h2{margin:0}.sale-status-badge{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:5px 10px;border-radius:999px;color:#fff;font-size:11px;font-weight:900;letter-spacing:.05em;white-space:nowrap}.sale-status-badge.for-sale{background:#23854d;border:1px solid rgba(94,220,144,.35)}.sale-status-badge.sold{background:#b83b3b;border:1px solid rgba(255,133,133,.35)}.account-card.is-sold{filter:brightness(.72);opacity:.86}.account-card.is-sold:hover{transform:none;border-color:rgba(184,59,59,.55);filter:brightness(.8)}.account-card.is-sold:before{animation:none}.detail-status{vertical-align:middle;margin-inline-start:8px;transform:translateY(-3px)}.account-detail.is-sold{border-color:rgba(184,59,59,.55)}
+@media(max-width:760px){.sort-bar{align-items:stretch}.sale-only-toggle{flex:1 0 100%;margin-bottom:4px}.account-card-head{align-items:flex-start}}
+
+
+/* v133 Trade notice and contact copy feedback */
+.contact-hint{margin:-10px 3px 20px;color:var(--muted);font-size:12px;line-height:1.6}
+.trade-disclaimer{display:flex;align-items:flex-start;gap:12px;margin:8px 0 4px;padding:15px 16px;border:1px solid rgba(214,175,88,.48);border-radius:12px;background:rgba(214,175,88,.08);line-height:1.55}
+.trade-disclaimer-icon{flex:0 0 auto;font-size:20px;line-height:1.3}
+.trade-disclaimer strong{display:block;color:#f4e3b0;font-size:13px}
+.trade-disclaimer p{margin:4px 0 0;color:#e07b7b;font-size:12px;font-weight:700}
+.account-toast{position:fixed;left:50%;bottom:28px;z-index:2000;transform:translateX(-50%);padding:11px 18px;border:1px solid rgba(214,175,88,.55);border-radius:999px;background:#151d28;color:#fff;box-shadow:0 12px 35px rgba(0,0,0,.45);font-size:13px;font-weight:800;pointer-events:none}
+.account-toast[hidden]{display:none}
+@media(max-width:760px){.trade-disclaimer{padding:13px 14px}.trade-disclaimer strong{font-size:12px}.trade-disclaimer p{font-size:11px}.account-toast{bottom:18px}}
