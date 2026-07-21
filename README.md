@@ -34,3 +34,16 @@ Based on v138.
 - 모바일에서 불필요한 세로 여백과 보드 위치 흔들림 방지
 - 점수/시간/사운드 HUD는 게임 화면 위, 방향 컨트롤러는 게임 화면 아래 구조 유지
 - Hero Merge CSS 캐시 버전을 v1420으로 갱신
+
+## v143
+- Unified the game-library title localization for all eight mini games.
+- Added localized names and descriptions for the four original games in Korean, English, Portuguese, Vietnamese, Arabic, Japanese, Thai, and Traditional Chinese.
+- Original-game page hero titles now change immediately with the selected language.
+- Updated the mini-game switcher cache version to v1430.
+
+
+## v144
+- Moved Hero Merge target tier and combo status out of the game screen.
+- The game screen now contains only the centered 4x4 board.
+- Applied the same structure to desktop and mobile layouts.
+- Status is shown during play and hidden before/after gameplay.
