@@ -1,4 +1,4 @@
-# EZPK War Portal v157
+# EZPK War Portal v158
 
 - Added Season 6 Building Guide between Latest Information and Hero Information.
 - Added 8 localized WebP guide images with automatic language switching.
