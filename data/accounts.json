@@ -1,5 +1,5 @@
 {
-  "lastNumber": 3,
+  "lastNumber": 4,
   "accounts": [
     {
       "server": "322",
@@ -84,6 +84,34 @@
       "soldAt": "",
       "accountNumber": 3,
       "postedDate": "2026-07-21T07:07:26.642Z"
+    },
+    {
+      "server": "322",
+      "industryLevel": "i8",
+      "vip": "9",
+      "totalCp": "10.6G",
+      "troop1Type": "Fighter",
+      "troop1Cp": "1.3G",
+      "troop1Resonance": "3",
+      "troop2Type": "Shooter",
+      "troop2Cp": "600M",
+      "troop2Resonance": "2",
+      "frostPetLevel": "40",
+      "titanPetLevel": "30",
+      "shelterSkins": "1",
+      "desiredPrice": "$600",
+      "negotiable": "Y",
+      "emailChangeAvailable": "Y",
+      "contactType": "In-game DM",
+      "contactId": "••Lajin",
+      "saleStatus": "forSale",
+      "premium": true,
+      "premiumDurationDays": 30,
+      "premiumStartedAt": "2026-07-21T07:18:41.803Z",
+      "premiumExpiresAt": "2026-08-20T07:18:00.000Z",
+      "soldAt": "",
+      "accountNumber": 4,
+      "postedDate": "2026-07-21T07:18:41.803Z"
     }
   ]
 }
