@@ -79,3 +79,12 @@ Based on v138.
 - Added a subtle gold glow animation to the Account navigation item only, on desktop and mobile.
 - The Account glow is attached to a stable menu class, so it remains active after language changes.
 - No NEW/HOT/Premium badge was added.
+
+
+## v149 — Game Over result flow restoration
+- Restored the result overlay for all 8 mini-games after a game ends.
+- Fixed the v148 hidden overlay inline-style issue by using the shared showOverlay148() helper.
+- Result screen shows the final score/message plus Replay and View Ranking buttons.
+- View Ranking opens the ranking state, then the Play Again button starts a new game with the saved nickname.
+- Preserved v148 game-start behavior: Start button, Enter-to-start, complete start-overlay hiding, pointer-event release, 8-language localization, Arabic RTL, Tank Battle balance, and Account menu gold glow.
+- Updated modified game script cache versions to v1490.
