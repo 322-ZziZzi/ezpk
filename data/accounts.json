@@ -1,5 +1,5 @@
 {
-  "lastNumber": 5,
+  "lastNumber": 6,
   "accounts": [
     {
       "server": "322",
@@ -99,7 +99,7 @@
       "frostPetLevel": "40",
       "titanPetLevel": "30",
       "shelterSkins": "1",
-      "desiredPrice": "$400",
+      "desiredPrice": "$600",
       "negotiable": "Y",
       "emailChangeAvailable": "Y",
       "contactType": "In-game DM",
@@ -140,6 +140,34 @@
       "soldAt": "",
       "accountNumber": 5,
       "postedDate": "2026-07-21T09:11:46.782Z"
+    },
+    {
+      "server": "322",
+      "industryLevel": "i8",
+      "vip": "9",
+      "totalCp": "10G",
+      "troop1Type": "Fighter",
+      "troop1Cp": "1.8G",
+      "troop1Resonance": "3",
+      "troop2Type": "Rider",
+      "troop2Cp": "700M",
+      "troop2Resonance": "1",
+      "frostPetLevel": "4",
+      "titanPetLevel": "4",
+      "shelterSkins": "0",
+      "desiredPrice": "$300",
+      "negotiable": "Y",
+      "emailChangeAvailable": "Y",
+      "contactType": "In-game DM",
+      "contactId": "··Shindol",
+      "saleStatus": "forSale",
+      "premium": true,
+      "premiumDurationDays": 30,
+      "premiumStartedAt": "2026-07-21T14:45:37.447Z",
+      "premiumExpiresAt": "2026-08-20T14:45:00.000Z",
+      "soldAt": "",
+      "accountNumber": 6,
+      "postedDate": "2026-07-21T14:45:37.447Z"
     }
   ]
 }
