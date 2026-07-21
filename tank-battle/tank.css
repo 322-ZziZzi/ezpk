@@ -124,3 +124,6 @@
 .rtl .ranking-row.current-player:after{right:auto;left:8px}
 @media(max-width:980px){.tank-layout,.missile-layout{grid-template-columns:1fr}.ranking-panel{position:static;margin-top:16px}}
 @media(max-width:620px){.ranking-panel{padding:15px}}
+
+/* v154 mobile 360-degree joystick */
+.tank-joystick{position:relative;width:128px;height:128px;border:1px solid rgba(216,169,40,.62);border-radius:50%;background:radial-gradient(circle,rgba(216,169,40,.13),rgba(19,27,38,.97) 68%);box-shadow:inset 0 0 24px rgba(0,0,0,.38);touch-action:none;user-select:none}.tank-joystick-knob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px;border:1px solid rgba(255,255,255,.26);border-radius:50%;background:linear-gradient(145deg,#364252,#151d28);box-shadow:0 8px 18px rgba(0,0,0,.46);pointer-events:none;will-change:transform}@media(max-width:620px){.mobile-controls{gap:18px}.tank-joystick{flex:0 0 128px}}
