@@ -118,3 +118,28 @@ nav a.active{color:#f5c547!important}
 .member-gate-error{min-height:22px;margin:10px 0 0!important;color:#ff7979!important;font-size:.87rem;text-align:center}
 .rtl .member-gate-form{text-align:right}
 @media(max-width:620px){.member-gate-wrap{padding:34px 16px}.member-gate-card{padding:38px 20px;border-radius:18px}.member-gate-icon{width:62px;height:62px;font-size:27px}.member-gate-title{font-size:clamp(2rem,10vw,2.8rem)!important}.member-gate-description{margin:16px auto 24px!important}.member-gate-row{flex-direction:column}.member-gate-row button{width:100%}}
+
+
+/* v148: Account navigation glow — language-independent, desktop + mobile */
+@keyframes ezpkAccountGlow{
+  0%,100%{
+    text-shadow:0 0 2px rgba(216,169,40,.30),0 0 7px rgba(216,169,40,.18);
+    filter:brightness(1);
+  }
+  50%{
+    text-shadow:0 0 5px rgba(255,218,105,.78),0 0 12px rgba(216,169,40,.55),0 0 20px rgba(216,169,40,.24);
+    filter:brightness(1.12);
+  }
+}
+[data-shared-header] a.nav-account-glow{
+  animation:ezpkAccountGlow 2.8s ease-in-out infinite;
+  will-change:text-shadow,filter;
+}
+[data-shared-header] a.nav-account-glow:hover,
+[data-shared-header] a.nav-account-glow:focus-visible,
+[data-shared-header] a.nav-account-glow.active{
+  text-shadow:0 0 6px rgba(255,225,126,.95),0 0 14px rgba(216,169,40,.72),0 0 24px rgba(216,169,40,.34);
+}
+@media (prefers-reduced-motion:reduce){
+  [data-shared-header] a.nav-account-glow{animation:none}
+}

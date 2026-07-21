@@ -69,3 +69,13 @@ Based on v138.
 - Desktop start screens now consistently include the translated game title, play instructions, nickname label/input, start button, and control guide.
 - Mobile start screens remain compact with nickname input and start button only.
 - Start-screen content supports ko, en, pt, vi, ar, ja, th, and zh-tw, including RTL layout for Arabic.
+
+
+## v148
+- Fixed all 8 mini-games so the start overlay is completely removed after a valid start.
+- Added a high-priority `[hidden]` rule and pointer-event release so invisible overlays cannot block play.
+- Added Enter-key start support to all 8 mini-games.
+- Preserved the v147 unified PC start layout, mobile compact layout, 8-language localization, RTL support, and Tank Battle balance.
+- Added a subtle gold glow animation to the Account navigation item only, on desktop and mobile.
+- The Account glow is attached to a stable menu class, so it remains active after language changes.
+- No NEW/HOT/Premium badge was added.
