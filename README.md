@@ -159,3 +159,8 @@ Current Version: v93
 - Added a prominent 8-language trade disclaimer at the top of generated account images.
 - Improved Contact ID copy with secure/fallback copy support and a translated copied toast.
 - Added translated guidance for contacting in-game IDs through in-game DM.
+
+
+## v136
+- Added the existing mobile game-description section between the game list and game viewport for Treasure Hunter, Zombie Defense, Portal Escape, and Hero Merge.
+- Preserved the existing shared ranking panel, 10-row pagination, and shared viewport behavior.
