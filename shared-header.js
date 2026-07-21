@@ -34,7 +34,7 @@
 
   const menuHtml = menuItems.map(function (item) {
     const isActive = item.key === activeMenu;
-    const classes = [item.key === 'bgb' ? 'nav-bgb' : '', item.key === 'accounts' ? 'nav-account-glow' : '', isActive ? 'active' : '']
+    const classes = [item.key === 'bgb' ? 'nav-bgb' : '', item.key === 'accounts' ? 'nav-account-shine' : '', isActive ? 'active' : '']
       .filter(Boolean)
       .join(' ');
     const attrs = [

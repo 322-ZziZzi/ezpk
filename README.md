@@ -1,3 +1,12 @@
+# EZPK War Portal v150
+
+- Fixed the mobile mini-game ranking pagination being hijacked by the global site navigation CSS.
+- Restored the intended mobile heading flow: eyebrow, game title, subtitle, game library, gameplay, ranking list, then pagination.
+- Forced stable ranking panel order across all 8 mini games.
+- Tank Battle difficulty increased by one progression step.
+- Tank Battle action speed increased by 20% for player movement, projectiles, enemy movement, firing cadence, and spawn tempo.
+- Preserved v149 start, game-over, replay, ranking submission, multilingual, and mobile controls behavior.
+
 # EZPK War Portal v139
 
 Based on v138.
@@ -88,3 +97,11 @@ Based on v138.
 - View Ranking opens the ranking state, then the Play Again button starts a new game with the saved nickname.
 - Preserved v148 game-start behavior: Start button, Enter-to-start, complete start-overlay hiding, pointer-event release, 8-language localization, Arabic RTL, Tank Battle balance, and Account menu gold glow.
 - Updated modified game script cache versions to v1490.
+
+
+## v151
+- Replaced the Account menu glow with a multilingual CSS shine-sweep animation on desktop and mobile.
+- Treasure Hunter levels 1–9 keep the existing balance.
+- Treasure Hunter difficulty increases by about 10% at levels 10–14, 20% at 15–19, and 30% from level 20 through additional bombs and greater spacing between the key, treasure, and exit.
+- Existing remembered-exit and automatic clear behavior remain unchanged.
+- Updated cache versions for shared header, global style, and new-game assets to v1510.
