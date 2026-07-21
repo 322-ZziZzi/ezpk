@@ -106,9 +106,17 @@ Based on v138.
 - Existing remembered-exit and automatic clear behavior remain unchanged.
 - Updated cache versions for shared header, global style, and new-game assets to v1510.
 
-## v152
+## v153
 - Tank Battle enemy vehicle count now increases additively by 20% every five waves: 100% at waves 1–4, 120% at 5–9, 140% at 10–14, and so on.
 - The increase affects enemy spawn count only; existing movement speed, projectile speed, fire cadence, AI, and base spawn timing remain unchanged.
 - Upgraded the Account menu to Premium Shine Sweep 2.0 with a wider/brighter sweep, temporary white-gold text, a subtle 1.04 scale pulse, and stronger glow/aura.
 - Account emphasis remains language-independent and applies on desktop and mobile across all eight languages.
-- Updated modified global and Tank Battle cache versions to v1520.
+- Updated modified global and Tank Battle cache versions to v1530.
+
+
+## v153
+- Fixed duplicate language/menu event handlers on non-game pages.
+- Shared header now exclusively controls language dropdown and mobile navigation.
+- General pages listen to ezpk-language-change and re-render their own translations.
+- Existing game translation behavior preserved.
+- JavaScript cache query versions updated to v1530.
