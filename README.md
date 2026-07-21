@@ -105,3 +105,10 @@ Based on v138.
 - Treasure Hunter difficulty increases by about 10% at levels 10–14, 20% at 15–19, and 30% from level 20 through additional bombs and greater spacing between the key, treasure, and exit.
 - Existing remembered-exit and automatic clear behavior remain unchanged.
 - Updated cache versions for shared header, global style, and new-game assets to v1510.
+
+## v152
+- Tank Battle enemy vehicle count now increases additively by 20% every five waves: 100% at waves 1–4, 120% at 5–9, 140% at 10–14, and so on.
+- The increase affects enemy spawn count only; existing movement speed, projectile speed, fire cadence, AI, and base spawn timing remain unchanged.
+- Upgraded the Account menu to Premium Shine Sweep 2.0 with a wider/brighter sweep, temporary white-gold text, a subtle 1.04 scale pulse, and stronger glow/aura.
+- Account emphasis remains language-independent and applies on desktop and mobile across all eight languages.
+- Updated modified global and Tank Battle cache versions to v1520.

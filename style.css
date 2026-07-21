@@ -120,34 +120,68 @@ nav a.active{color:#f5c547!important}
 @media(max-width:620px){.member-gate-wrap{padding:34px 16px}.member-gate-card{padding:38px 20px;border-radius:18px}.member-gate-icon{width:62px;height:62px;font-size:27px}.member-gate-title{font-size:clamp(2rem,10vw,2.8rem)!important}.member-gate-description{margin:16px auto 24px!important}.member-gate-row{flex-direction:column}.member-gate-row button{width:100%}}
 
 
-/* v151: Account navigation shine sweep — language-independent, desktop + mobile */
+/* v152: Account navigation Premium Shine Sweep 2.0 — language-independent, desktop + mobile */
 @keyframes ezpkAccountShineSweep{
-  0%,62%{transform:translateX(-180%) rotate(18deg);opacity:0}
-  68%{opacity:1}
-  88%{transform:translateX(520%) rotate(18deg);opacity:1}
-  100%{transform:translateX(520%) rotate(18deg);opacity:0}
+  0%,58%{transform:translateX(-210%) rotate(17deg);opacity:0}
+  63%{opacity:.25}
+  69%{opacity:1}
+  88%{transform:translateX(310%) rotate(17deg);opacity:1}
+  94%,100%{transform:translateX(310%) rotate(17deg);opacity:0}
+}
+@keyframes ezpkAccountShinePulse{
+  0%,58%,100%{transform:scale(1);color:inherit;text-shadow:none;filter:none}
+  66%{transform:scale(1.02);color:#ffe8a3;text-shadow:0 0 8px rgba(245,197,71,.72),0 0 15px rgba(245,197,71,.42);filter:brightness(1.12)}
+  75%{transform:scale(1.04);color:#fff7dc;text-shadow:0 0 10px rgba(255,239,177,.96),0 0 22px rgba(245,197,71,.7);filter:brightness(1.28)}
+  88%{transform:scale(1.015);color:#f8d86f;text-shadow:0 0 7px rgba(245,197,71,.58),0 0 16px rgba(245,197,71,.34);filter:brightness(1.1)}
 }
 [data-shared-header] a.nav-account-shine{
   position:relative;
   overflow:hidden;
   isolation:isolate;
-  padding-inline:4px;
+  padding-inline:6px;
+  transform-origin:center;
+  animation:ezpkAccountShinePulse 3s ease-in-out infinite;
+  will-change:transform,color,text-shadow,filter;
 }
 [data-shared-header] a.nav-account-shine::before{
   content:'';
   position:absolute;
-  z-index:-1;
-  top:-55%;
+  z-index:1;
+  top:-70%;
   left:0;
-  width:22%;
-  height:210%;
+  width:58%;
+  height:240%;
   pointer-events:none;
   opacity:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),rgba(255,239,177,.88),rgba(255,255,255,.12),transparent);
-  filter:blur(.3px);
-  transform:translateX(-180%) rotate(18deg);
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,.08) 12%,
+    rgba(255,224,116,.42) 34%,
+    rgba(255,255,255,.98) 50%,
+    rgba(255,229,137,.68) 66%,
+    rgba(255,255,255,.10) 88%,
+    transparent 100%);
+  filter:blur(.15px) drop-shadow(0 0 8px rgba(255,229,137,.75));
+  transform:translateX(-210%) rotate(17deg);
   animation:ezpkAccountShineSweep 3s ease-in-out infinite;
   will-change:transform,opacity;
+}
+[data-shared-header] a.nav-account-shine::after{
+  content:'';
+  position:absolute;
+  z-index:-1;
+  inset:1px -3px;
+  border-radius:8px;
+  pointer-events:none;
+  opacity:0;
+  box-shadow:0 0 0 1px rgba(245,197,71,.18),0 0 14px rgba(245,197,71,.28),0 0 25px rgba(245,197,71,.18);
+  animation:ezpkAccountAura 3s ease-in-out infinite;
+}
+@keyframes ezpkAccountAura{
+  0%,58%,100%{opacity:0}
+  68%{opacity:.55}
+  76%{opacity:1}
+  90%{opacity:.25}
 }
 [data-shared-header] a.nav-account-shine:hover,
 [data-shared-header] a.nav-account-shine:focus-visible,
@@ -155,5 +189,7 @@ nav a.active{color:#f5c547!important}
   color:#f5c547;
 }
 @media (prefers-reduced-motion:reduce){
-  [data-shared-header] a.nav-account-shine::before{animation:none;opacity:0}
+  [data-shared-header] a.nav-account-shine{animation:none}
+  [data-shared-header] a.nav-account-shine::before,
+  [data-shared-header] a.nav-account-shine::after{animation:none;opacity:0}
 }
