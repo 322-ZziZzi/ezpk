@@ -129,3 +129,9 @@ Based on v138.
 - General pages listen to ezpk-language-change and re-render their own translations.
 - Existing game translation behavior preserved.
 - JavaScript cache query versions updated to v1530.
+
+## v155
+- Zombie Defense: zombie movement speed reduced by 12%.
+- Survival: incoming missile, shell, and drone movement speed reduced by 15%.
+- Survival and Tank Battle: virtual joystick knob enlarged to approximately 1.3x.
+- Audio stability: reused and resumed Web Audio contexts so effects continue during long play and replay.
