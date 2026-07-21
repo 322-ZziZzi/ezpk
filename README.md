@@ -1,3 +1,11 @@
+EZPK War Portal v132
+
+- Account sale status: for sale / sold
+- 8-language status badges on cards and details
+- Sold accounts remain viewable, appear dimmed, and sort after active listings
+- Status shown in generated account images
+- Admin sale-status selector with automatic sold date
+
 # EZPK v124
 
 - GitHub JSON 저장 로직을 최신 SHA 기반으로 통일했습니다.
@@ -144,3 +152,10 @@ Current Version: v93
 - Sort direction remains available for field-based sorts; Server defaults to ascending while numeric strength and price sorts default to descending.
 - Expired Premium listings are automatically treated as Standard listings.
 - Bumped Account Showcase asset cache version to 1300.
+
+
+## v133
+- Added an 8-language trade disclaimer at the bottom of the account detail modal.
+- Added a prominent 8-language trade disclaimer at the top of generated account images.
+- Improved Contact ID copy with secure/fallback copy support and a translated copied toast.
+- Added translated guidance for contacting in-game IDs through in-game DM.
