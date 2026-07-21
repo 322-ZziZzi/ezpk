@@ -1,5 +1,5 @@
 {
-  "lastNumber": 6,
+  "lastNumber": 7,
   "accounts": [
     {
       "server": "322",
@@ -168,6 +168,34 @@
       "soldAt": "",
       "accountNumber": 6,
       "postedDate": "2026-07-21T14:45:37.447Z"
+    },
+    {
+      "server": "322",
+      "industryLevel": "i9",
+      "vip": "11",
+      "totalCp": "13G",
+      "troop1Type": "Shooter",
+      "troop1Cp": "3.2G",
+      "troop1Resonance": "5",
+      "troop2Type": "Fighter",
+      "troop2Cp": "1.4G",
+      "troop2Resonance": "3",
+      "frostPetLevel": "4",
+      "titanPetLevel": "4",
+      "shelterSkins": "3",
+      "desiredPrice": "$1400",
+      "negotiable": "Y",
+      "emailChangeAvailable": "Y",
+      "contactType": "Telegram",
+      "contactId": "@S_Lan_Anh_S",
+      "saleStatus": "forSale",
+      "premium": true,
+      "premiumDurationDays": 30,
+      "premiumStartedAt": "2026-07-21T14:54:34.393Z",
+      "premiumExpiresAt": "2026-08-20T14:54:00.000Z",
+      "soldAt": "",
+      "accountNumber": 7,
+      "postedDate": "2026-07-21T14:54:34.393Z"
     }
   ]
 }
