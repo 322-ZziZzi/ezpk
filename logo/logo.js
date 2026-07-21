@@ -26,10 +26,7 @@
     $$('[data-logo-k]').forEach(el=>{const k=el.dataset.logoK;if(t[k]!=null)el.textContent=t[k]});
     localStorage.setItem('ezpk-lang-v5',lang);
   }
-  $('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;
-  $$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;if(!copy[lang])lang='en';$('#langMenu').hidden=true;render()});
-  $('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');
-  $$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));
+  window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=copy[next]?next:'en';render()});
   const modal=$('#logoPreviewModal'), image=$('#logoPreviewImage'), title=$('#logoPreviewTitle');
   function openPreview(file,edition){image.src='./'+file+'?v=950';title.textContent=edition;$('#logoPreviewGuide').textContent=(copy[lang]||copy.en).previewGuide;modal.hidden=false;document.body.classList.add('logo-modal-open');setTimeout(()=>$('#logoPreviewClose').focus(),0)}
   function closePreview(){modal.hidden=true;image.removeAttribute('src');document.body.classList.remove('logo-modal-open')}

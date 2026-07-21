@@ -13,7 +13,7 @@ function unlockBgb(){sessionStorage.setItem(AUTH_KEY,'1');$('#bgbLock').hidden=t
 function lockBgb(){sessionStorage.removeItem(AUTH_KEY);if(!hasBgbAssignments()){applyBgbGate();return}$('#bgbProtected').hidden=true;$('#bgbLock').hidden=false;const toolbar=document.querySelector('.protected-toolbar');if(toolbar)toolbar.hidden=false;$('#bgbPassword').value='';$('#bgbLockError').textContent=''}
 $('#bgbLockForm').addEventListener('submit',e=>{e.preventDefault();if($('#bgbPassword').value===PASSWORD)unlockBgb();else $('#bgbLockError').textContent=LANGS[lang].ui.wrongPassword});
 $('#bgbLockBtn').onclick=lockBgb;
-$('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;$$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$('#langMenu').hidden=true;render()});$('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');$$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));$$('#teamTabs button').forEach(b=>b.onclick=()=>{team=b.dataset.team;render()});
+window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=LANGS[next]?next:'en';render()});$$('#teamTabs button').forEach(b=>b.onclick=()=>{team=b.dataset.team;render()});
 
 function roundRect(ctx,x,y,w,h,r,fill,stroke){
   const rr=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}}
