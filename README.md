@@ -135,3 +135,10 @@ Based on v138.
 - Survival: incoming missile, shell, and drone movement speed reduced by 15%.
 - Survival and Tank Battle: virtual joystick knob enlarged to approximately 1.3x.
 - Audio stability: reused and resumed Web Audio contexts so effects continue during long play and replay.
+
+
+## v156
+- Shared GameAudio system for all mini games.
+- Survival: 1,000 points/sec, 60-second +10,000 bonus, dodge/near-miss rewards.
+- Zombie Defense: smoother 10-second difficulty stages, high-difficulty from 45 seconds, hit/kill-driven scoring targeting 70,000+ around 60 seconds.
+- Zombie Defense ranking scores normalized to integers.
