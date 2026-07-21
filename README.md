@@ -1,3 +1,12 @@
+# EZPK War Portal v154
+
+Based on v153.
+
+- Treasure Hunter: 60-second timer; required treasure count increases by 1 every 5 waves.
+- Survival: mobile D-pad replaced by a 360-degree analog joystick.
+- Tank Battle: mobile D-pad replaced by a 360-degree analog joystick; enemy HP rises every 5 waves; enemy-count increase capped at 30%.
+- Missile Defense: 14 ammo for waves 1-5, 16 ammo from wave 6; all enemy missiles move 10% faster.
+
 # EZPK War Portal v150
 
 - Fixed the mobile mini-game ranking pagination being hijacked by the global site navigation CSS.

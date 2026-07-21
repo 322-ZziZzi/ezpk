@@ -73,24 +73,30 @@ function treasure(){
   const baseBombCount=Math.min(11,3+Math.floor(level*1.2));
   const bombCount=Math.min(15,baseBombCount+Math.round(baseBombCount*difficultyBoost));
   const minDistance=level<10?0:level<15?4:level<20?5:6;
+  const treasureCount=1+Math.floor(level/5);
   const distance=(a,b)=>Math.abs(a%size-b%size)+Math.abs(Math.floor(a/size)-Math.floor(b/size));
   const all=[...Array(total).keys()];
   const randomFrom=list=>list[Math.floor(Math.random()*list.length)];
   const key=randomFrom(all);
-  const goldCandidates=all.filter(i=>i!==key&&distance(i,key)>=minDistance);
-  const gold=randomFrom(goldCandidates.length?goldCandidates:all.filter(i=>i!==key));
-  const exitCandidates=all.filter(i=>i!==key&&i!==gold&&distance(i,key)>=minDistance&&distance(i,gold)>=minDistance);
-  const exit=randomFrom(exitCandidates.length?exitCandidates:all.filter(i=>i!==key&&i!==gold));
-  const slots=all.filter(i=>i!==key&&i!==gold&&i!==exit),take=()=>slots.splice(Math.floor(Math.random()*slots.length),1)[0];
-  const bombs=new Set(Array.from({length:bombCount},take));let gotK=false,gotG=false,foundExit=false,roundMoves=0;roundStart=Date.now();const clearRound=()=>{if(roundLocked||!gotK||!gotG||!foundExit)return;roundLocked=true;const bonus=Math.max(100,900-roundMoves*45);score+=bonus;popup('+'+bonus,'good');level++;setTimeout(newRound,350)};
-  for(let i=0;i<total;i++){const b=document.createElement('button');b.type='button';b.className='newgame-cell';b.textContent=i===key?'🗝':i===gold?'💰':i===exit?'🚪':bombs.has(i)?'💣':'·';g.appendChild(b)}
-  $('#scoreLabel').textContent=`${fmt(t().ui.level,{level})} · ${fmt(t().ui.life,{life:lives})}`;
+  const treasures=[];
+  while(treasures.length<treasureCount){
+   const candidates=all.filter(i=>i!==key&&!treasures.includes(i)&&(minDistance===0||[key,...treasures].every(x=>distance(i,x)>=minDistance)));
+   const fallback=all.filter(i=>i!==key&&!treasures.includes(i));
+   treasures.push(randomFrom(candidates.length?candidates:fallback));
+  }
+  const treasureSet=new Set(treasures);
+  const exitCandidates=all.filter(i=>i!==key&&!treasureSet.has(i)&&(minDistance===0||[key,...treasures].every(x=>distance(i,x)>=minDistance)));
+  const exit=randomFrom(exitCandidates.length?exitCandidates:all.filter(i=>i!==key&&!treasureSet.has(i)));
+  const slots=all.filter(i=>i!==key&&!treasureSet.has(i)&&i!==exit),take=()=>slots.splice(Math.floor(Math.random()*slots.length),1)[0];
+  const bombs=new Set(Array.from({length:Math.min(bombCount,slots.length)},take));let gotK=false,treasuresFound=0,foundExit=false,roundMoves=0;roundStart=Date.now();const clearRound=()=>{if(roundLocked||!gotK||treasuresFound<treasureCount||!foundExit)return;roundLocked=true;const bonus=Math.max(100,900-roundMoves*45);score+=bonus;popup('+'+bonus,'good');level++;setTimeout(newRound,350)};
+  for(let i=0;i<total;i++){const b=document.createElement('button');b.type='button';b.className='newgame-cell';b.textContent=i===key?'🗝':treasureSet.has(i)?'💰':i===exit?'🚪':bombs.has(i)?'💣':'·';g.appendChild(b)}
+  $('#scoreLabel').textContent=`${fmt(t().ui.level,{level})} · 💰 ${treasuresFound}/${treasureCount} · ${fmt(t().ui.life,{life:lives})}`;
   setTimeout(()=>{if(ended)return;[...g.children].forEach(b=>{b.textContent='?';b.classList.add('ready')});roundLocked=false},900);
-  [...g.children].forEach((b,i)=>b.addEventListener('click',()=>{if(ended||roundLocked||b.classList.contains('revealed'))return;b.classList.add('revealed');moves++;roundMoves++;let symbol='·',good=false;if(i===key){symbol='🗝';gotK=true;good=true}else if(i===gold){symbol='💰';gotG=true;good=true}else if(i===exit){symbol='🚪';foundExit=true;good=gotK&&gotG}else if(bombs.has(i)){symbol='💣';lives--;combo=0;popup(fmt(t().ui.bomb,{life:lives}),'danger');if(lives<=0){ended=true;finish(t().ui.timeUp);return}}b.textContent=symbol;if(good){combo++;const speed=Math.max(1,Math.round(12-(Date.now()-roundStart)/1000));score+=80*combo+speed*15;popup(fmt(t().ui.combo,{combo}),'good')}else if(!bombs.has(i)&&i!==exit)combo=0;
-    $('#scoreLabel').textContent=`${fmt(t().ui.level,{level})} · ${fmt(t().ui.life,{life:lives})}`;update();clearRound();
+  [...g.children].forEach((b,i)=>b.addEventListener('click',()=>{if(ended||roundLocked||b.classList.contains('revealed'))return;b.classList.add('revealed');moves++;roundMoves++;let symbol='·',good=false;if(i===key){symbol='🗝';gotK=true;good=true}else if(treasureSet.has(i)){symbol='💰';treasuresFound++;good=true}else if(i===exit){symbol='🚪';foundExit=true;good=gotK&&treasuresFound>=treasureCount}else if(bombs.has(i)){symbol='💣';lives--;combo=0;popup(fmt(t().ui.bomb,{life:lives}),'danger');if(lives<=0){ended=true;finish(t().ui.timeUp);return}}b.textContent=symbol;if(good){combo++;const speed=Math.max(1,Math.round(12-(Date.now()-roundStart)/1000));score+=80*combo+speed*15;popup(fmt(t().ui.combo,{combo}),'good')}else if(!bombs.has(i)&&i!==exit)combo=0;
+    $('#scoreLabel').textContent=`${fmt(t().ui.level,{level})} · 💰 ${treasuresFound}/${treasureCount} · ${fmt(t().ui.life,{life:lives})}`;update();clearRound();
   }))
  }
- roundTimer=setTimeout(()=>{ended=true;finish(t().ui.timeUp)},45000);newRound();cleanupGame=()=>{ended=true;clearTimeout(roundTimer)};
+ roundTimer=setTimeout(()=>{ended=true;finish(t().ui.timeUp)},60000);newRound();cleanupGame=()=>{ended=true;clearTimeout(roundTimer)};
 }
 
 function zombies(){
