@@ -138,14 +138,9 @@
 @media(max-width:460px){.hero-card{grid-template-columns:112px minmax(0,1fr)}.hero-card-media{height:118px}.hero-card-copy h3{font-size:20px}.hero-card-copy p{font-size:13px}.hero-detail-content{padding:18px}.hero-summary{font-size:15px}}
 
 
-/* v157 · Season 6 guide menu and building guide */
-.season6-guide-nav{position:sticky;top:72px;z-index:20;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 28px;padding:10px;border:1px solid #2a3548;border-radius:16px;background:rgba(7,11,18,.94);box-shadow:0 14px 34px rgba(0,0,0,.24);backdrop-filter:blur(12px)}
-.season6-guide-nav a{min-width:0;padding:13px 10px;border:1px solid #334158;border-radius:11px;background:#111927;color:#b9c3d2;text-align:center;text-decoration:none;font-size:14px;font-weight:900;line-height:1.3;transition:border-color .18s ease,color .18s ease,background .18s ease,transform .18s ease}
-.season6-guide-nav a:hover,.season6-guide-nav a:focus-visible{color:#fff;border-color:#d9bb65;background:rgba(217,187,101,.12);transform:translateY(-1px)}
+/* v158 · Season 6 latest images and building guide */
 #latestView,#buildingGuideView,#heroInfoView{scroll-margin-top:154px}
 .building-guide-section .seasonframe{margin-top:0}
 @media(max-width:620px){
-  .season6-guide-nav{top:62px;gap:6px;margin-bottom:14px;padding:7px;border-radius:13px}
-  .season6-guide-nav a{padding:10px 5px;font-size:clamp(10px,3vw,13px);letter-spacing:-.025em}
   #latestView,#buildingGuideView,#heroInfoView{scroll-margin-top:132px}
 }
