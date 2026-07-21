@@ -43,7 +43,7 @@ async function refreshRankingNow(){
   }
 }
 $('#refreshRanking').addEventListener('click',e=>{e.preventDefault();refreshRankingNow()});
-$('#soundBtn').onclick=()=>{muted=!muted;$('#soundBtn').textContent=muted?'🔇':'🔊'};$('#langBtn').onclick=()=>$('#langMenu').hidden=!$('#langMenu').hidden;$$('#langMenu button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;$('#langMenu').hidden=true;renderLanguage();loadRanking()});$('#menuBtn').onclick=()=>$('#nav').classList.toggle('open');$$('#nav a').forEach(a=>a.onclick=()=>$('#nav').classList.remove('open'));$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';renderLanguage();resizeCanvas();draw(performance.now());loadRanking();
+$('#soundBtn').onclick=()=>{muted=!muted;$('#soundBtn').textContent=muted?'🔇':'🔊'};window.addEventListener('ezpk-language-change',e=>{lang=(D[e.detail?.lang]?e.detail.lang:'en');renderLanguage();loadRanking()});$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';renderLanguage();resizeCanvas();draw(performance.now());loadRanking();
 function scrollToRequestedGame(){
   if(location.hash!=='#gameShell')return;
   const target=$('#gameShell');
