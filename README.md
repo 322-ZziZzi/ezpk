@@ -53,3 +53,12 @@ Based on v138.
 - Mobile start overlays now show only nickname input and start button while keeping the game description above the game.
 - Added ranking-confirmation overlays and replay buttons after viewing rankings.
 - Preserved nickname values for immediate replay.
+
+
+## v146
+- Treasure Hunter exit state persistence and automatic clear after key + treasure.
+- Zombie Defense early difficulty reduced by about 1.5 levels.
+- Portal Escape wall touches end the run from Stage 1.
+- Hero Merge game over only when the full board has no possible merges.
+- Tank Battle immediate action, faster movement/fire, stronger impact, and kill combos.
+- Missile Defense faster pacing, one-level difficulty increase, immediate threats, and interception combos.

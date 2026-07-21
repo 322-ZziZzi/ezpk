@@ -10,7 +10,7 @@ body[data-game="hero-merge"] .newgame-shell{flex:none}
 body[data-game="hero-merge"] .merge-game{width:min(96%,620px);height:96%;display:flex;align-items:center;justify-content:center}
 @media(max-width:620px){.merge-status-external{min-height:32px;margin:0 2px 8px;padding:7px 8px;font-size:11px}.merge-controls-external{margin-top:8px;padding:0 4px}.merge-controls-external button{min-height:44px}}
 
-/* v145 — match the existing mobile game start/result/ranking flow */
+/* v146 — match the existing mobile game start/result/ranking flow */
 .ranking-check-icon{display:grid;place-items:center;margin:0 auto 12px;width:48px;height:48px;border-radius:50%;background:#d8a928;color:#111;font-size:28px;font-weight:900}
 .post-ranking-card p{margin:0 0 12px}
 .post-ranking-card button{width:100%}
