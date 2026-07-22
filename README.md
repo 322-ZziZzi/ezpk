@@ -149,3 +149,24 @@ Based on v138.
 - Survival: 1,000 points/sec, 60-second +10,000 bonus, dodge/near-miss rewards.
 - Zombie Defense: smoother 10-second difficulty stages, high-difficulty from 45 seconds, hit/kill-driven scoring targeting 70,000+ around 60 seconds.
 - Zombie Defense ranking scores normalized to integers.
+
+
+## v163 - Unified game ranking service
+- Added `game-ranking-service.js` as the single shared Supabase ranking module for all 8 mini games.
+- Existing game URLs and gameplay files remain unchanged.
+- Existing game IDs and legacy local ranking keys are preserved.
+- New games continue to share `new-game.js`, while ranking storage and loading are delegated to the shared service.
+- No additional SQL migration is required beyond `SUPABASE_GAME_SETUP.sql`.
+
+## v164
+- Added a shared ranking result flow for all eight mini games.
+- Mobile: VIEW RANKING scrolls to the current ranking, allows a short review, then returns to the game with the ranking-confirmed replay popup.
+- PC: VIEW RANKING scrolls to the ranking area when needed and prepares the ranking-confirmed replay popup inside the game frame.
+- Removed the need for a separate ranking-confirmation button.
+
+## v165 - New game publishableKey ranking integration
+- Explicitly fixed the four new games to the shared `game-ranking-service.js` path.
+- `treasure-hunter`, `zombie-defense`, `portal-escape`, and `hero-merge` save and load rankings using their own `game_id`.
+- Browser Supabase authentication prioritizes `EZPK_SUPABASE_CONFIG.publishableKey`; `anonKey` remains only as a legacy fallback.
+- Remote save/load failure still preserves the score in the existing monthly local fallback.
+- Updated new-game and ranking-service cache versions to `v1650`.
