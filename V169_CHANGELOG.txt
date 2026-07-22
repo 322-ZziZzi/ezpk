@@ -1,0 +1,18 @@
+EZPK War Portal v169
+
+Zombie Defense
+- Removed duplicate in-canvas barricade HP, wave HUD, WAVE CLEAR, FINAL DEFENSE, and DEFEND text.
+- Retained wave, kill count, barricade HP, score, and time in the external toolbar only.
+- Added guaranteed bomb pickups at approximately 13s, 30s, and 47s.
+- Bomb pickups remain for 4 seconds and have a short 0.2-second mistap lock.
+- Bombs instantly remove normal, runner, and poison zombies; giant zombies take 70% of their current HP.
+- Bomb kills award reduced points, include a crowd-kill bonus, cap at 5,000 points per bomb, and increase combo by at most 2.
+- Added bomb pulse, explosion shake, and phase-change visual/audio cues.
+
+Hero Merge
+- Replaced exponential merge scoring with fixed level-based scores.
+- Added a 350-point active-move score so roughly 30 seconds of normal play targets about 40,000 points.
+- Added combo milestone bonuses at x5, x10, and x15.
+- Removed oversized tier-up score bonuses.
+- Reduced end-of-game highest-hero bonuses to 3,000 / 5,000 / 8,000 / 12,000 for Lv7-Lv10.
+- Reduced auto-merge rescue bonus to prevent score inflation.

@@ -105,8 +105,8 @@ function treasure(){
 }
 
 function zombies(){
- const stage=$('#stage');stage.innerHTML='<div class="zombie-field"><div class="zombie-darkness"></div><div class="zombie-hud"><div><span>BARRICADE</span><strong id="barricadeValue">100%</strong></div><div><span>WAVE</span><strong id="zombieWaveValue">1 / 6</strong></div></div><div class="barricade-bar"><i id="barricadeFill"></i></div><div class="defense-line"></div></div>';const field=stage.firstElementChild;
- let wave=1,waveKills=0,totalKills=0,openingKills=0,barricade=100,combo=0,ended=false,spawnTimer=null,secondTimer=null,finishTimer=null,lastWave=1;const movers=new Set();
+ const stage=$('#stage');stage.innerHTML='<div class="zombie-field"><div class="zombie-darkness"></div><div class="defense-line"></div></div>';const field=stage.firstElementChild;
+ let wave=1,waveKills=0,totalKills=0,openingKills=0,barricade=100,combo=0,ended=false,spawnTimer=null,secondTimer=null,finishTimer=null,lastWave=1,activeBomb=null,bonusBombs=0;const movers=new Set(),bombTimers=[];
  const elapsed=()=>start?(Date.now()-start)/1000:0;
  const waveAt=()=>Math.min(6,Math.floor(elapsed()/10)+1);
  const waveBonuses=[0,1200,1600,1900,2200,2500,2600];
@@ -114,14 +114,12 @@ function zombies(){
  const maxActive=()=>{const e=elapsed();return e<5?5:e<15?7:e<30?9:e<45?11:15};
  function updateHud(){
   const hp=Math.max(0,Math.round(barricade));
-  const hpEl=$('#barricadeValue'),fill=$('#barricadeFill'),waveEl=$('#zombieWaveValue');
-  if(hpEl)hpEl.textContent=hp+'%';if(fill){fill.style.width=hp+'%';fill.classList.toggle('danger',hp<=30)}if(waveEl)waveEl.textContent=wave+' / 6';
   $('#scoreLabel').textContent=`WAVE ${wave}/6 · KILLS ${totalKills} · HP ${hp}%`;
  }
  function removeMover(e){clearInterval(e.id);movers.delete(e);e.el.remove()}
  function completeWave(nextWave){
-  if(nextWave<=lastWave)return;for(let w=lastWave;w<nextWave;w++){score+=waveBonuses[w]||0;popup('WAVE '+w+' CLEAR · +'+(waveBonuses[w]||0),'good');window.GameAudio?.play('success')}
-  lastWave=nextWave;wave=nextWave;waveKills=0;updateHud();
+  if(nextWave<=lastWave)return;for(let w=lastWave;w<nextWave;w++){score+=waveBonuses[w]||0;window.GameAudio?.play('success')}
+  lastWave=nextWave;wave=nextWave;waveKills=0;field.classList.add('wave-change');setTimeout(()=>field.classList.remove('wave-change'),320);updateHud();
  }
  function damage(amount,type){
   barricade=Math.max(0,barricade-amount);combo=0;window.GameAudio?.play('damage');popup((type==='poison'?'TOXIC HIT ':'BARRICADE -')+amount+'%','danger');updateHud();
@@ -134,33 +132,65 @@ function zombies(){
   if(e>=12&&r<.52)return 'runner';
   return 'normal';
  }
+ function bombPosition(){
+  for(let attempt=0;attempt<12;attempt++){
+   const x=10+Math.random()*80,y=18+Math.random()*48;
+   const safe=[...movers].every(e=>{const ex=parseFloat(e.el.style.left)||50,ey=parseFloat(e.el.style.top)||0;return Math.hypot(ex-x,ey-y)>15});
+   if(safe)return {x,y};
+  }
+  return {x:50,y:38};
+ }
+ function removeBomb(){if(!activeBomb)return;clearTimeout(activeBomb.expire);activeBomb.el.remove();activeBomb=null}
+ function bombBonus(kills){return kills>=10?2000:kills>=7?1200:kills>=4?500:0}
+ function detonateBomb(){
+  if(ended||!activeBomb||activeBomb.locked)return;
+  const bomb=activeBomb;activeBomb=null;clearTimeout(bomb.expire);bomb.el.remove();let kills=0,bombScore=0;
+  [...movers].forEach(entry=>{
+   if(entry.type==='giant'){
+    entry.hp=Math.max(1,Math.ceil(entry.hp*.3));entry.el.classList.add('bomb-hit');setTimeout(()=>entry.el.classList.remove('bomb-hit'),220);return;
+   }
+   const points=entry.type==='poison'?400:entry.type==='runner'?300:180;
+   bombScore+=points;kills++;removeMover(entry);waveKills++;totalKills++;
+  });
+  combo=Math.min(30,combo+Math.min(2,kills));bombScore=Math.min(5000,bombScore+bombBonus(kills));score+=bombScore;
+  field.classList.add('bomb-shake');setTimeout(()=>field.classList.remove('bomb-shake'),300);window.GameAudio?.play('destroy');
+  popup(`BOMB! · ${kills} KILLS · +${bombScore.toLocaleString()}`,'good');updateHud();update();
+ }
+ function spawnBomb(isBonus=false){
+  if(ended||activeBomb)return false;const pos=bombPosition(),b=document.createElement('button');b.type='button';b.className='zombie-bomb locked';b.textContent='💣';b.setAttribute('aria-label','Bomb');b.style.left=pos.x+'%';b.style.top=pos.y+'%';field.appendChild(b);
+  activeBomb={el:b,locked:true,expire:null};setTimeout(()=>{if(activeBomb&&activeBomb.el===b){activeBomb.locked=false;b.classList.remove('locked')}},200);
+  activeBomb.expire=setTimeout(()=>{if(activeBomb&&activeBomb.el===b)removeBomb()},4000);b.addEventListener('click',detonateBomb);if(isBonus)bonusBombs++;return true;
+ }
  function spawnOne(forcedType){
   if(ended||movers.size>=maxActive())return;
   const type=forcedType||chooseType(),z=document.createElement('button');z.type='button';z.className='zombie '+type;
   z.textContent=type==='giant'?'🧟‍♂️':type==='runner'?'🧟‍♀️':type==='poison'?'☣️':'🧟';z.setAttribute('aria-label',type+' zombie');z.style.left=(6+Math.random()*88)+'%';field.appendChild(z);
-  let y=-12;const hpMax=type==='giant'?3:1;let hp=hpMax;
+  let y=-12;const hpMax=type==='giant'?3:1;
   const e=elapsed(),base=type==='runner'?.91:type==='giant'?.40:type==='poison'?.58:.55,speed=base+Math.min(.28,e*.0045)+Math.random()*.06;
-  const entry={el:z,id:null,type};entry.id=setInterval(()=>{y+=speed;z.style.top=y+'%';if(y>=84){removeMover(entry);damage(type==='giant'?12:type==='poison'?8:5,type)}},30);movers.add(entry);
+  const entry={el:z,id:null,type,hp:hpMax};entry.id=setInterval(()=>{y+=speed;z.style.top=y+'%';if(y>=84){removeMover(entry);damage(type==='giant'?12:type==='poison'?8:5,type)}},30);movers.add(entry);
   z.addEventListener('click',()=>{
-   if(ended||!movers.has(entry))return;hp--;window.GameAudio?.play('hit');z.classList.add('hit');setTimeout(()=>z.classList.remove('hit'),90);
-   if(hp>0){score+=150;update();return}
+   if(ended||!movers.has(entry))return;entry.hp--;window.GameAudio?.play('hit');z.classList.add('hit');setTimeout(()=>z.classList.remove('hit'),90);
+   if(entry.hp>0){score+=150;update();return}
    removeMover(entry);waveKills++;totalKills++;combo=Math.min(30,combo+1);
    const basePoints=type==='giant'?2500:type==='poison'?1000:type==='runner'?800:500;
    let gained=basePoints+(combo>=3?Math.min(1000,(combo-2)*80):0);
    if(totalKills===1){gained+=500;popup('FIRST KILL · +1,000','good')}
    openingKills++;if(openingKills===3){gained+=1500;popup('RAPID FIRE · +1,500','good');field.classList.add('opening-burst');setTimeout(()=>field.classList.remove('opening-burst'),350)}
-   score+=gained;window.GameAudio?.play(type==='giant'||combo>=3?'combo':'destroy');if(combo>=4)popup(fmt(t().ui.combo,{combo}),'good');updateHud();update();
+   score+=gained;window.GameAudio?.play(type==='giant'||combo>=3?'combo':'destroy');if(combo>=4)popup(fmt(t().ui.combo,{combo}),'good');
+   if((type==='giant'||type==='poison')&&bonusBombs<1&&!activeBomb&&Math.random()<.08)spawnBomb(true);
+   updateHud();update();
   });
  }
  function schedule(){if(ended)return;const count=elapsed()>=45&&Math.random()<.36?2:1;for(let i=0;i<count;i++)setTimeout(()=>spawnOne(),i*120);spawnTimer=setTimeout(schedule,spawnDelay())}
- function cleanup(){clearTimeout(spawnTimer);clearInterval(secondTimer);clearTimeout(finishTimer);[...movers].forEach(removeMover)}
- updateHud();popup('DEFEND!','good');spawnOne('normal');setTimeout(()=>spawnOne('normal'),260);setTimeout(()=>spawnOne('normal'),520);setTimeout(schedule,900);
+ function cleanup(){clearTimeout(spawnTimer);clearInterval(secondTimer);clearTimeout(finishTimer);bombTimers.forEach(clearTimeout);removeBomb();[...movers].forEach(removeMover)}
+ updateHud();spawnOne('normal');setTimeout(()=>spawnOne('normal'),260);setTimeout(()=>spawnOne('normal'),520);setTimeout(schedule,900);
+ [13000,30000,47000].forEach(ms=>bombTimers.push(setTimeout(()=>spawnBomb(false),ms)));
  secondTimer=setInterval(()=>{
   if(ended)return;const next=waveAt();if(next!==wave)completeWave(next);score+=100;update();
-  if(elapsed()>=45&&!field.classList.contains('final-defense')){field.classList.add('final-defense');popup('FINAL DEFENSE','danger');window.GameAudio?.play('warning')}
+  if(elapsed()>=45&&!field.classList.contains('final-defense')){field.classList.add('final-defense');window.GameAudio?.play('warning')}
  },1000);
  finishTimer=setTimeout(()=>{
-  if(ended)return;ended=true;score+=waveBonuses[6];popup('WAVE 6 CLEAR · +'+waveBonuses[6],'good');const hpBonus=Math.round(barricade/100*10000);score+=10000+hpBonus;popup('DEFENSE COMPLETE · +'+(10000+hpBonus),'good');cleanup();update();finish(`DEFENSE COMPLETE · BARRICADE ${Math.round(barricade)}%`)
+  if(ended)return;ended=true;score+=waveBonuses[6];const hpBonus=Math.round(barricade/100*10000);score+=10000+hpBonus;popup('DEFENSE COMPLETE · +'+(10000+hpBonus),'good');cleanup();update();finish(`DEFENSE COMPLETE · BARRICADE ${Math.round(barricade)}%`)
  },60000);
  cleanupGame=()=>{ended=true;cleanup()};
 }
@@ -176,32 +206,37 @@ function portal(){
 
 function merge(){
  const stage=$('#stage'),controls=$('#mergeControls'),status=$('#mergeStatus');stage.innerHTML='<div class="merge-game"><div class="merge-board" aria-label="Hero merge board"></div><div class="merge-rush" id="mergeRush">HERO RUSH</div></div>';const wrap=stage.firstElementChild,g=wrap.querySelector('.merge-board'),rush=$('#mergeRush');if(controls)controls.hidden=false;if(status)status.hidden=false;
- let board=Array(16).fill(0),ended=false,touchStart=null,combo=0,moves=0,target=6,highest=2,chainCount=0,deadline=null,rushTimer=null,autoTimer=null;
+ let board=Array(16).fill(0),ended=false,touchStart=null,combo=0,moves=0,target=6,highest=2,deadline=null,rushTimer=null,autoTimer=null,comboAwards=new Set();
  const elapsed=()=>start?(Date.now()-start)/1000:0;
+ const mergeScores={2:100,3:250,4:500,5:900,6:1500,7:2300,8:3300,9:4500,10:6000};
+ const highestBonus=level=>level>=10?12000:level===9?8000:level===8?5000:level===7?3000:0;
  function fit(){const size=Math.max(150,Math.floor(Math.min(stage.clientWidth-20,stage.clientHeight-20,560)));g.style.width=size+'px';g.style.height=size+'px'}const ro=new ResizeObserver(fit);ro.observe(stage);fitCleanup=()=>ro.disconnect();
  function add(v){const empty=board.map((x,i)=>x?null:i).filter(x=>x!==null);if(!empty.length)return false;board[empty[Math.floor(Math.random()*empty.length)]]=v||(Math.random()<.86?1:2);return true}
  function draw(){g.innerHTML='';board.forEach(v=>{const d=document.createElement('div');d.className='merge-tile tier-'+Math.min(v,9)+(v===highest?' highest':'');d.textContent=v?['','🪖','⚔️','🛡','👑','🔥','⭐','💎','🏆','🌟'][Math.min(v,9)]+' '+(2**v):'';g.appendChild(d)});if(status){status.dataset.tier=String(2**target);status.dataset.combo=String(combo);status.textContent=`${fmt(t().ui.goal,{tier:2**target})} · ${fmt(t().ui.combo,{combo})} · ${Math.max(0,45-Math.floor(elapsed()))}s`;}fit()}
  function line(arr){
   let a=arr.filter(Boolean),merged=0,points=0,changed=true;
-  while(changed){changed=false;for(let i=0;i<a.length-1;i++){if(a[i]===a[i+1]){a[i]++;a.splice(i+1,1);merged++;points+=(2**a[i])*120;changed=true;break}}}
+  while(changed){changed=false;for(let i=0;i<a.length-1;i++){if(a[i]===a[i+1]){a[i]++;a.splice(i+1,1);merged++;points+=mergeScores[a[i]]||6000;changed=true;break}}}
   while(a.length<4)a.push(0);return {a,merged,points}
  }
  function canMove(){if(board.includes(0))return true;for(let r=0;r<4;r++)for(let c=0;c<4;c++){const v=board[r*4+c];if(c<3&&board[r*4+c+1]===v)return true;if(r<3&&board[(r+1)*4+c]===v)return true}return false}
  function rescue(){
-  const min=Math.min(...board.filter(Boolean));const ids=board.map((v,i)=>v===min?i:-1).filter(i=>i>=0);if(ids.length>=2){board[ids[0]]=min+1;board[ids[1]]=0;score+=1200;popup('AUTO MERGE · +1,200','good');return true}return false
+  const min=Math.min(...board.filter(Boolean));const ids=board.map((v,i)=>v===min?i:-1).filter(i=>i>=0);if(ids.length>=2){board[ids[0]]=min+1;board[ids[1]]=0;score+=500;popup('AUTO MERGE · +500','good');return true}return false
  }
+ function awardCombo(){
+  const levels=[[5,500],[10,1500],[15,3000]];for(const [threshold,bonus] of levels){if(combo>=threshold&&!comboAwards.has(threshold)){comboAwards.add(threshold);score+=bonus;popup(`COMBO ×${threshold} · +${bonus.toLocaleString()}`,'good')}}
+ }
+ function resetCombo(){combo=0;comboAwards.clear()}
  function shift(d){
   if(ended)return;const old=board.join();let nb=Array(16).fill(0),merges=0,mergePoints=0;
   for(let k=0;k<4;k++){let arr=[];for(let j=0;j<4;j++){const r=d==='up'||d==='down'?j:k,c=d==='up'||d==='down'?k:j;arr.push(board[r*4+c])}if(d==='right'||d==='down')arr.reverse();const out=line(arr);arr=out.a;merges+=out.merged;mergePoints+=out.points;if(d==='right'||d==='down')arr.reverse();for(let j=0;j<4;j++){const r=d==='up'||d==='down'?j:k,c=d==='up'||d==='down'?k:j;nb[r*4+c]=arr[j]}}
-  board=nb;if(board.join()===old){combo=0;draw();return}
-  moves++;combo=merges?Math.min(15,combo+merges):0;chainCount=merges>=2?chainCount+1:0;
-  const multiplier=1+Math.min(2.5,combo*.12);score+=Math.round(mergePoints*multiplier)+(merges>=2?merges*500:0);
+  board=nb;if(board.join()===old){resetCombo();draw();return}
+  moves++;score+=350;if(merges){combo=Math.min(15,combo+merges);score+=mergePoints;awardCombo()}else resetCombo();
   add();if(elapsed()>=35&&Math.random()<.55)add(1);highest=Math.max(highest,...board);
   if(merges){window.GameAudio?.play(combo>=4?'combo':'item');popup(merges>=2?`CHAIN MERGE ×${merges}`:fmt(t().ui.combo,{combo}),'good');g.classList.add('merge-impact');setTimeout(()=>g.classList.remove('merge-impact'),180)}
-  if(highest>=target){const tierBonus=highest>=8?50000:highest===7?40000:highest===6?30000:highest===5?18000:9000;score+=tierBonus;popup('LEGEND '+(2**highest)+' · +'+tierBonus,'good');wrap.classList.add('tier-up');setTimeout(()=>wrap.classList.remove('tier-up'),500);target=Math.min(9,target+1)}
+  if(highest>=target){popup('NEW HERO '+(2**highest),'good');wrap.classList.add('tier-up');setTimeout(()=>wrap.classList.remove('tier-up'),500);target=Math.min(10,target+1)}
   if(!canMove()&&!rescue()){ended=true;finishMerge(t().ui.noMoves);return}draw();update();
  }
- function finishMerge(reason){if(ended&&start===0)return;ended=true;clearTimeout(deadline);clearTimeout(rushTimer);clearInterval(autoTimer);const top=Math.max(...board);const topBonus=top>=9?70000:top===8?55000:top===7?40000:top===6?28000:top===5?16000:top===4?8000:3000;score+=topBonus;popup('TOP HERO '+(2**top)+' · +'+topBonus,'good');update();finish(`${reason} · TOP HERO ${2**top}`)}
+ function finishMerge(reason){if(ended&&start===0)return;ended=true;clearTimeout(deadline);clearTimeout(rushTimer);clearInterval(autoTimer);const top=Math.max(...board),topBonus=highestBonus(top);score+=topBonus;if(topBonus)popup('TOP HERO '+(2**top)+' · +'+topBonus.toLocaleString(),'good');update();finish(`${reason} · TOP HERO ${2**top}`)}
  controls?.querySelectorAll('[data-d]').forEach(b=>b.addEventListener('click',()=>shift(b.dataset.d)));const keyHandler=e=>{const map={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};if(map[e.key]){e.preventDefault();shift(map[e.key])}};document.addEventListener('keydown',keyHandler);g.addEventListener('pointerdown',e=>touchStart={x:e.clientX,y:e.clientY});g.addEventListener('pointerup',e=>{if(!touchStart)return;const dx=e.clientX-touchStart.x,dy=e.clientY-touchStart.y;touchStart=null;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return;shift(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))});
  [1,1,2,2,1,1,2,1,1,2].forEach(v=>add(v));highest=Math.max(...board);draw();popup('MERGE RUSH!','good');
  autoTimer=setInterval(()=>{if(ended)return;if(board.filter(Boolean).length<11){add(Math.random()<.82?1:2);draw()}},1200);

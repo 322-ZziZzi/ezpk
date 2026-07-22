@@ -1,3 +1,9 @@
+# EZPK War Portal v169
+
+- Zombie Defense: clean external HUD, bomb pickups, reduced bomb scoring, bomb score/combo caps, and visual phase cues.
+- Hero Merge: fixed merge scores, active-move score, combo milestone bonuses, and reduced highest-hero bonuses.
+- See `V169_CHANGELOG.txt` for full details.
+
 # EZPK War Portal v158
 
 - Added Season 6 Building Guide between Latest Information and Hero Information.
