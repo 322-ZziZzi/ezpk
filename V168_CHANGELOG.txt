@@ -1,0 +1,17 @@
+EZPK War Portal v168
+
+Zombie Defense
+- Rebuilt as a 60-second barricade defense game.
+- Added 100% barricade HP, six time-based waves, and HP damage on breakthrough.
+- Added Normal, Runner, Poison, and Giant zombies with distinct speed, HP, damage, and score values.
+- Added an easy three-zombie opening, FIRST KILL, RAPID FIRE, combo feedback, and larger touch targets.
+- Added gradual difficulty growth and FINAL DEFENSE from 45 seconds.
+- Added survival, wave-clear, 60-second completion, and remaining-HP bonuses.
+
+Hero Merge
+- Reduced play time to 45 seconds.
+- Added a 10-second HERO RUSH finale from 35 seconds.
+- Increased starting activity and automatic low-tier hero supply.
+- Added true chain merging within a single move, stronger combo feedback, tier-up effects, and top-hero bonuses.
+- Added automatic rescue merge when the board is blocked, when possible.
+- Preserved multilingual UI, monthly rankings, shared audio, viewport, and v167 result modal flow.
