@@ -5,6 +5,29 @@
   const PC_POPUP_DELAY_MS=420;
   let pendingTimer=0;
 
+  const COMMON_MODAL_COPY={
+    ko:{score:'점수'},
+    en:{score:'SCORE'},
+    pt:{score:'PONTOS'},
+    vi:{score:'ĐIỂM'},
+    ar:{score:'النقاط'},
+    th:{score:'คะแนน'},
+    ja:{score:'スコア'},
+    'zh-tw':{score:'分數'}
+  };
+
+  function syncCommonModalLanguage(lang){
+    const normalized=COMMON_MODAL_COPY[lang]?lang:'en';
+    const copy=COMMON_MODAL_COPY[normalized];
+    const finalScore=document.querySelector('#finalScore');
+    if(finalScore)finalScore.dataset.scoreLabel=copy.score;
+    const result=document.querySelector('#resultOverlay');
+    const confirmed=document.querySelector('#postRankingOverlay');
+    const direction=normalized==='ar'?'rtl':'ltr';
+    if(result)result.setAttribute('dir',direction);
+    if(confirmed)confirmed.setAttribute('dir',direction);
+  }
+
   function setOverlay(el,visible){
     if(!el)return;
     window.clearTimeout(pendingTimer);
@@ -83,5 +106,7 @@
     },mobile?MOBILE_REVIEW_MS:PC_POPUP_DELAY_MS);
   }
 
-  window.EZPKGameResultFlow={showRanking};
+  window.addEventListener('ezpk-language-change',event=>syncCommonModalLanguage(event.detail?.lang||'en'));
+  syncCommonModalLanguage(window.EZPKLanguage?.get?.()||localStorage.getItem('ezpk-lang-v5')||'en');
+  window.EZPKGameResultFlow={showRanking,syncCommonModalLanguage};
 })();

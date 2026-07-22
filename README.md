@@ -178,3 +178,11 @@ Based on v138.
 - Ranking refresh failure no longer blocks the replay confirmation flow.
 - Mobile: ranking review for 1.8 seconds, then return to the game and show replay.
 - PC: ranking view, then prepare the replay confirmation inside the game frame.
+
+
+## v167
+- Unified the Korean result action label as `순위 보기` across all eight mini games.
+- Applied eight-language behavior to the shared result and post-ranking modal flow, including the score caption and Arabic RTL direction.
+- Kept the shared header language selector above game overlays so it remains usable while result popups are open.
+- Standardized nickname input text as bold in every shared start popup.
+- Changed mobile result buttons from stacked rows to one horizontal row while keeping the popup inside the game frame with responsive sizing.
