@@ -93,12 +93,10 @@
 }
 
 
-/* v107 · Season 6 battlefield map */
-.battle-map-panel{min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:42px 24px;border:1px solid rgba(217,187,101,.55);border-radius:18px;background:radial-gradient(circle at 50% 42%,rgba(217,187,101,.09),transparent 34%),linear-gradient(180deg,#0e1521,#090e16);box-shadow:inset 0 3px 0 rgba(217,187,101,.72),0 18px 44px rgba(0,0,0,.18);text-align:center}
-.battle-map-icon{width:62px;height:62px;display:grid;place-items:center;border:1px solid rgba(217,187,101,.6);border-radius:50%;background:rgba(217,187,101,.08);color:#e3ca79;font-size:30px;line-height:1;box-shadow:0 0 28px rgba(217,187,101,.1)}
-.battle-map-panel p{margin:0;color:#d9bb65;font-size:18px;font-weight:900;letter-spacing:.08em}
-@media(max-width:620px){.battle-map-panel{min-height:260px;padding:32px 18px}.battle-map-icon{width:54px;height:54px;font-size:26px}.battle-map-panel p{font-size:16px}}
-
+/* v160 · Season 6 battlefield map uses the shared image viewer */
+.battle-map-frame{margin-top:0}
+#battleMapView{scroll-margin-top:154px}
+@media(max-width:620px){#battleMapView{scroll-margin-top:132px}}
 
 /* v109 · Season 6 S Hero Information */
 .hero-info-section{scroll-margin-top:90px}
