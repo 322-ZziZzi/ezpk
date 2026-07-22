@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="../game-switcher.css?v=1160">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 <link rel="stylesheet" href="../game-viewport.css?v=1350"><link rel="stylesheet" href="../game-start-v148.css?v=1480">
+<link rel="stylesheet" href="../game-result-modal.css?v=1660">
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="game"></header><script src="../shared-header.js?v=1530"></script>
@@ -30,7 +31,7 @@
         <canvas id="gameCanvas" width="960" height="640" aria-label="EZPK Tank Battle game"></canvas>
         <div id="startOverlay" class="game-overlay"><div class="overlay-card"><div class="tank-emblem">★</div><h2 id="startTitle"></h2><p id="startText"></p><label for="nickname" id="nicknameLabel"></label><input id="nickname" maxlength="16" autocomplete="nickname" spellcheck="false"><button id="startBtn" type="button"></button><small id="controlHelp"></small></div></div>
         <div id="resultOverlay" class="game-overlay" hidden><div class="overlay-card result-card"><span class="result-label" id="resultLabel"></span><strong id="finalScore">0</strong><p id="resultText"></p><div class="result-actions"><button id="retryBtn" type="button"></button><button id="rankingBtn" type="button" class="secondary"></button></div></div></div>
-        <div id="postRankingOverlay" class="game-overlay" hidden><div class="overlay-card"><span class="ranking-check-icon">✓</span><p id="rankingCheckedText"></p><button id="replayBtn" type="button"></button></div></div>
+        <div id="postRankingOverlay" class="game-overlay" hidden><div class="overlay-card post-ranking-card"><span class="ranking-check-icon">✓</span><p id="rankingCheckedText"></p><button id="replayBtn" type="button"></button></div></div>
       </div>
       <div class="mobile-controls" aria-label="Mobile tank controls">
         <div class="tank-joystick" id="tankJoystick" role="application" aria-label="360 degree movement joystick"><span class="tank-joystick-knob"></span></div>
@@ -41,5 +42,5 @@
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="gameFooter"></span></footer>
-<script src="../game-switcher-extra.js?v=1530"></script><script src="../data.js?v=1530"></script><script src="../supabase-config.js?v=1530"></script><script src="../game-ranking-service.js?v=1630"></script><script src="../ranking-panel.js?v=1530"></script><script src="../game-viewport.js?v=1530"></script><script src="../assets/js/game-audio.js?v=1560"></script><script src="../game-result-flow.js?v=1640"></script><script src="tank.js?v=1630"></script>
+<script src="../game-switcher-extra.js?v=1530"></script><script src="../data.js?v=1530"></script><script src="../supabase-config.js?v=1530"></script><script src="../game-ranking-service.js?v=1630"></script><script src="../ranking-panel.js?v=1530"></script><script src="../game-viewport.js?v=1530"></script><script src="../assets/js/game-audio.js?v=1560"></script><script src="../game-result-flow.js?v=1660"></script><script src="tank.js?v=1630"></script>
 </body></html>
