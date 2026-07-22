@@ -170,3 +170,11 @@ Based on v138.
 - Browser Supabase authentication prioritizes `EZPK_SUPABASE_CONFIG.publishableKey`; `anonKey` remains only as a legacy fallback.
 - Remote save/load failure still preserves the score in the existing monthly local fallback.
 - Updated new-game and ranking-service cache versions to `v1650`.
+
+## v166 unified game result modal fix
+- Fixed post-ranking replay modal remaining invisible because inline `display:none` was not cleared.
+- Applied one shared result modal stylesheet to all eight mini games.
+- Normalized result action and post-ranking card classes across legacy and new games.
+- Ranking refresh failure no longer blocks the replay confirmation flow.
+- Mobile: ranking review for 1.8 seconds, then return to the game and show replay.
+- PC: ranking view, then prepare the replay confirmation inside the game frame.

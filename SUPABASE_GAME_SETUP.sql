@@ -24,7 +24,7 @@ create policy "Anyone can submit game scores" on public.game_scores
   for insert to anon, authenticated with check (
     char_length(trim(nickname)) between 1 and 16
     and score between 0 and 3600000
-    and game_id in ('survival', 'drone_hunter', 'tank_battle', 'missile_defense','treasure-hunter','zombie-defense','portal-escape','hero-merge')
+    and game_id in ('survival', 'drone_hunter', 'tank_battle', 'missile_defense','treasure_hunter','zombie_defense','portal_escape','hero_merge')
   );
 
 -- Existing v47 scores automatically remain classified as 'survival'.

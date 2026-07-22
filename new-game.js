@@ -1,7 +1,6 @@
 (function(){
 'use strict';
 const game=document.body.dataset.game;
-const cfg=window.EZPK_SUPABASE_CONFIG||{};
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 let score=0,start=0,timer=null,nick='',cleanupGame=()=>{},fitCleanup=()=>{},currentLang=(window.EZPKLanguage?.get?.()||localStorage.getItem('ezpk-lang-v5')||'en'),soundOn=!(window.GameAudio?.isMuted?.()||false);
 
@@ -57,12 +56,14 @@ function renderBaseLibrary(){const root=$('#gameLibrary');if(!root)return;root.i
 // portal-escape, or hero-merge.
 const rankingService=window.EZPKGameRanking?.create({gameId:game,localPrefix:`ezpk-ranking-${game}-`});
 async function submit(){
- if(!rankingService){console.error(`[${game}] Shared ranking service is unavailable.`);return}
- await rankingService.submit(nick,score);
+ if(!rankingService){console.error(`[${game}] Shared ranking service is unavailable.`);return {remote:false}}
+ const result=await rankingService.submit(nick,score);
+ if(!result.remote&&result.error)console.error(`[${game}] Score was saved locally only.`,result.error);
  await loadRanking();
+ return result;
 }
 function best(rows){return rankingService.bestRows(rows)}
-async function loadRanking(){if(!window.EZPKRankingPanel||!rankingService)return;$('#rankingStatus').textContent=t().ui.loading;const result=await rankingService.load(),rows=result.rows;window.EZPKRankingPanel.renderRows(rows);$('#rankingStatus').textContent=rows.length?'':t().ui.empty;$('#rankingTitle').textContent=fmt(t().ui.rankTitle,{game:gameText()[0]});$('#rankingNote').textContent=t().ui.rankNote;$('#monthChip').textContent=result.monthKey}
+async function loadRanking(){if(!window.EZPKRankingPanel||!rankingService)return;const status=$('#rankingStatus');if(status)status.textContent=t().ui.loading;const result=await rankingService.load(),rows=result.rows;window.EZPKRankingPanel.renderRows(rows);if(status)status.textContent=rows.length?'':t().ui.empty;const title=$('#rankingTitle'),note=$('#rankingNote'),month=$('#monthChip');if(title)title.textContent=fmt(t().ui.rankTitle,{game:gameText()[0]});if(note)note.textContent=t().ui.rankNote;if(month)month.textContent=result.monthKey;return result}
 function update(){ $('#scoreValue').textContent=Math.max(0,Math.round(score)).toLocaleString(); if(start)$('#timeValue').textContent=((Date.now()-start)/1000).toFixed(1)+'s'}
 function resetRuntime(){cleanupGame();cleanupGame=()=>{};fitCleanup();fitCleanup=()=>{};clearInterval(timer);timer=null}
 function begin(){nick=$('#nickname').value.trim();if(!nick)return alert(t().ui.needNick);resetRuntime();window.EZPKGameViewport?.setPlaying(true);localStorage.setItem('ezpk-game-nickname',nick);score=0;start=Date.now();window.GameAudio?.play('start');$('#scoreLabel').textContent=gameText()[2];hideOverlay148($('#startOverlay'));hideOverlay148($('#resultOverlay'));hideOverlay148($('#postRankingOverlay'));timer=setInterval(update,100);build();update()}
@@ -160,7 +161,7 @@ function merge(){
  [1,1,2,2,1,1].forEach(v=>add(v));draw();setTimeout(()=>popup(fmt(t().ui.combo,{combo:1}),'good'),250);cleanupGame=()=>{ended=true;if(controls)controls.hidden=true;if(status){status.hidden=true;status.textContent='';delete status.dataset.tier;delete status.dataset.combo;}document.removeEventListener('keydown',keyHandler)};
 }
 function build(){({'treasure-hunter':treasure,'zombie-defense':zombies,'portal-escape':portal,'hero-merge':merge}[game])()}
-$('#startBtn').onclick=begin;$('#nickname').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();begin()}});$('#retryBtn').onclick=begin;$('#rankingBtn').onclick=async()=>{await window.EZPKGameResultFlow.showRanking({loadRanking,nickname:nick||localStorage.getItem('ezpk-game-nickname')||''})};if($('#replayBtn'))$('#replayBtn').onclick=begin;$('#refreshRanking').onclick=loadRanking;$('#soundBtn').onclick=()=>{const muted=window.GameAudio?.toggle?.()??soundOn;soundOn=!muted;$('#soundBtn').textContent=soundOn?'🔊':'🔇'};$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';
+$('#startBtn').onclick=begin;$('#nickname').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();begin()}});$('#retryBtn').onclick=begin;$('#rankingBtn').onclick=async()=>{if(window.EZPKGameResultFlow?.showRanking){await window.EZPKGameResultFlow.showRanking({loadRanking,nickname:nick||localStorage.getItem('ezpk-game-nickname')||''});}else{hideOverlay148($('#resultOverlay'));await loadRanking();window.EZPKRankingPanel?.focusPlayer(nick||localStorage.getItem('ezpk-game-nickname')||'');}};if($('#replayBtn'))$('#replayBtn').onclick=begin;$('#refreshRanking').onclick=loadRanking;$('#soundBtn').onclick=()=>{const muted=window.GameAudio?.toggle?.()??soundOn;soundOn=!muted;$('#soundBtn').textContent=soundOn?'🔊':'🔇'};$('#nickname').value=localStorage.getItem('ezpk-game-nickname')||'';
 window.addEventListener('ezpk-language-change',e=>applyLanguage(e.detail?.lang||window.EZPKLanguage?.get?.()||'en'));
 applyLanguage(currentLang);
 })();

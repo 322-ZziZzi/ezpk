@@ -1,0 +1,114 @@
+/* v166: one shared result / post-ranking modal for every mini game */
+#gameShell{position:relative}
+#resultOverlay,#postRankingOverlay{
+  position:absolute!important;
+  inset:0!important;
+  z-index:40!important;
+  display:grid;
+  place-items:center;
+  box-sizing:border-box;
+  padding:clamp(12px,3vw,24px)!important;
+  background:rgba(2,5,10,.82)!important;
+  backdrop-filter:blur(6px);
+}
+#resultOverlay[hidden],#postRankingOverlay[hidden]{display:none!important}
+#resultOverlay .result-card,
+#postRankingOverlay .post-ranking-card{
+  width:min(420px,100%)!important;
+  max-height:calc(100% - 4px);
+  overflow:auto;
+  box-sizing:border-box;
+  margin:0!important;
+  padding:clamp(22px,4vw,30px)!important;
+  border:1px solid rgba(216,169,40,.48)!important;
+  border-radius:18px!important;
+  background:rgba(10,15,23,.98)!important;
+  color:#fff!important;
+  text-align:center!important;
+  box-shadow:0 18px 55px rgba(0,0,0,.34);
+}
+#resultOverlay .result-label,
+#resultOverlay #resultLabel,
+#resultOverlay #resultTitle{
+  display:block;
+  margin:0 0 14px!important;
+  color:#fff!important;
+  font-size:clamp(19px,3.5vw,25px)!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  letter-spacing:.08em!important;
+  text-transform:uppercase;
+}
+#resultOverlay #finalScore{
+  display:block!important;
+  margin:0!important;
+  color:#f5c547!important;
+  font-size:clamp(44px,8vw,62px)!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  letter-spacing:-.03em!important;
+}
+#resultOverlay #finalScore::after{
+  content:'SCORE';
+  display:block;
+  margin-top:7px;
+  color:#8995a5;
+  font-size:11px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+#resultOverlay #resultText{
+  margin:18px auto 0!important;
+  color:#aab4c2!important;
+  font-size:14px!important;
+  line-height:1.6!important;
+}
+#resultOverlay .result-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin-top:20px!important;
+}
+#resultOverlay .result-actions button,
+#postRankingOverlay #replayBtn{
+  width:100%!important;
+  min-height:46px!important;
+  box-sizing:border-box;
+  margin:0!important;
+  padding:12px 14px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:#d8a928!important;
+  color:#080b10!important;
+  font-size:14px!important;
+  font-weight:900!important;
+}
+#resultOverlay .result-actions .secondary{
+  background:#202a38!important;
+  color:#fff!important;
+}
+#postRankingOverlay .ranking-check-icon{
+  display:grid!important;
+  place-items:center!important;
+  width:62px!important;
+  height:62px!important;
+  margin:0 auto 16px!important;
+  border-radius:50%!important;
+  background:rgba(216,169,40,.16)!important;
+  color:#f5c547!important;
+  font-size:32px!important;
+  font-weight:900!important;
+}
+#postRankingOverlay #rankingCheckedText{
+  margin:0 0 20px!important;
+  color:#fff!important;
+  font-size:18px!important;
+  line-height:1.5!important;
+  font-weight:800!important;
+}
+@media(max-width:620px){
+  #resultOverlay,#postRankingOverlay{padding:12px!important}
+  #resultOverlay .result-card,#postRankingOverlay .post-ranking-card{padding:22px 16px!important}
+  #resultOverlay .result-actions{grid-template-columns:1fr!important}
+}

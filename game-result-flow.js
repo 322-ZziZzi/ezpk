@@ -3,15 +3,24 @@
   const MOBILE_QUERY='(max-width: 980px)';
   const MOBILE_REVIEW_MS=1800;
   const PC_POPUP_DELAY_MS=420;
+  let pendingTimer=0;
 
   function setOverlay(el,visible){
     if(!el)return;
+    window.clearTimeout(pendingTimer);
     if(visible){
       el.hidden=false;
       el.removeAttribute('hidden');
+      /* Game scripts hide overlays with inline display:none/pointer-events:none. */
+      el.style.removeProperty('display');
+      el.style.removeProperty('pointer-events');
+      el.setAttribute('aria-hidden','false');
     }else{
       el.hidden=true;
       el.setAttribute('hidden','');
+      el.style.display='none';
+      el.style.pointerEvents='none';
+      el.setAttribute('aria-hidden','true');
     }
   }
 
@@ -36,11 +45,17 @@
     const confirmed=document.querySelector('#postRankingOverlay');
     const mobile=window.matchMedia(MOBILE_QUERY).matches;
 
+    window.clearTimeout(pendingTimer);
     setOverlay(result,false);
     setOverlay(start,false);
     setOverlay(confirmed,false);
 
-    if(typeof options.loadRanking==='function')await options.loadRanking();
+    try{
+      if(typeof options.loadRanking==='function')await options.loadRanking();
+    }catch(error){
+      console.error('[EZPK ranking view] ranking refresh failed:',error);
+      /* The replay flow must still continue even if remote ranking refresh fails. */
+    }
 
     const row=currentPlayerRow(options.nickname);
     if(panel){
@@ -62,14 +77,10 @@
     window.setTimeout(()=>panel&&panel.classList.remove('ranking-focus'),1500);
     window.setTimeout(()=>row&&row.classList.remove('current-player'),3000);
 
-    if(mobile){
-      window.setTimeout(()=>{
-        setOverlay(confirmed,true);
-        if(shell)shell.scrollIntoView({behavior:'smooth',block:'center'});
-      },MOBILE_REVIEW_MS);
-    }else{
-      window.setTimeout(()=>setOverlay(confirmed,true),PC_POPUP_DELAY_MS);
-    }
+    pendingTimer=window.setTimeout(()=>{
+      setOverlay(confirmed,true);
+      if(mobile&&shell)shell.scrollIntoView({behavior:'smooth',block:'center'});
+    },mobile?MOBILE_REVIEW_MS:PC_POPUP_DELAY_MS);
   }
 
   window.EZPKGameResultFlow={showRanking};
