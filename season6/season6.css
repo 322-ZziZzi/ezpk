@@ -142,3 +142,7 @@
 @media(max-width:620px){
   #latestView,#buildingGuideView,#heroInfoView{scroll-margin-top:132px}
 }
+
+/* v161 · second shared viewer in Latest Information */
+.latest-rules-frame{margin-top:20px}
+@media(max-width:620px){.latest-rules-frame{margin-top:12px}}
