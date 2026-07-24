@@ -9,7 +9,9 @@
     "TIGER VESSEL"
   ],
   "teams": {
-    "attack": [],
+    "attack": [
+      "TIGER VESSEL"
+    ],
     "defense": [],
     "support": []
   }
