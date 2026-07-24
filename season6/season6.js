@@ -98,17 +98,20 @@ let activeStrategyTeam='attack';
 function L(){return labels[lang]||labels.en}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 async function loadTeams(){
-  try{
-    const r=await fetch('../data/season6-teams.json?v='+Date.now(),{cache:'no-store'});
-    if(r.ok)teamData=await r.json();
-  }catch(e){console.error('Failed to load Season 6 teams:',e)}
+  const r=await fetch('../data/season6-teams.json?v='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error(`Season 6 team data HTTP ${r.status}`);
+  teamData=await r.json();
   renderTeams();
-  applySeason6Protection();
+}
+function getAssignedMemberName(value){
+  if(typeof value==='string')return value.trim();
+  if(value&&typeof value==='object')return String(value.nickname??value.name??value.player??'').trim();
+  return '';
 }
 function isValidAssignedMember(value){
-  const name=String(value??'').trim();
+  const name=getAssignedMemberName(value);
   if(!name)return false;
-  return !['-','tbd','none','empty','coming soon','준비중'].includes(name.toLowerCase());
+  return !new Set(['-','tbd','none','empty','coming soon','준비중','준비 중']).has(name.toLowerCase());
 }
 function getSeason6AssignedMemberCount(){
   const teams=teamData?.teams||{};
@@ -116,16 +119,40 @@ function getSeason6AssignedMemberCount(){
     .flatMap(key=>Array.isArray(teams[key])?teams[key]:[])
     .filter(isValidAssignedMember).length;
 }
-function showSeason6ContentWithoutAuth(){
+function setSeason6Visibility({gateVisible,contentVisible}){
   const gate=$('#season6Lock'),content=$('#season6Protected');
-  gate.hidden=true;content.hidden=false;
-  gate.setAttribute('aria-hidden','true');content.setAttribute('aria-hidden','false');
+  if(!gate||!content)return;
+  gate.hidden=!gateVisible;
+  content.hidden=!contentVisible;
+  gate.style.display=gateVisible?'':'none';
+  content.style.display=contentVisible?'':'none';
+  gate.setAttribute('aria-hidden',String(!gateVisible));
+  content.setAttribute('aria-hidden',String(!contentVisible));
+}
+function showSeason6Public(){
+  setSeason6Visibility({gateVisible:false,contentVisible:true});
   $('#season6LockError').textContent='';
 }
+function showSeason6Locked(){
+  setSeason6Visibility({gateVisible:true,contentVisible:false});
+  $('#season6Password').value='';
+  $('#season6LockError').textContent='';
+}
+function showSeason6Unlocked({animate=true}={}){
+  if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
+  setSeason6Visibility({gateVisible:false,contentVisible:true});
+  $('#season6LockError').textContent='';
+  const content=$('#season6Protected');
+  content.classList.remove('alliance-content-reveal');
+  if(animate){void content.offsetWidth;content.classList.add('alliance-content-reveal')}
+}
 function applySeason6Protection(){
-  if(getSeason6AssignedMemberCount()===0){showSeason6ContentWithoutAuth();return}
-  if(sessionStorage.getItem(AUTH_KEY)==='1')revealSeason6({animate:false,saveAuth:false});
-  else lockSeason6();
+  const memberCount=getSeason6AssignedMemberCount();
+  const authenticated=sessionStorage.getItem(AUTH_KEY)==='1';
+  console.info('[Season6 protection]',{memberCount,authenticated,teams:teamData?.teams});
+  if(memberCount===0){showSeason6Public();return}
+  if(authenticated){showSeason6Unlocked({animate:false});return}
+  showSeason6Locked();
 }
 function fitNames(){requestAnimationFrame(()=>{$$('.team-member-name').forEach(el=>{let size=13;el.style.fontSize=size+'px';while(size>9&&(el.scrollHeight>el.clientHeight+1||el.scrollWidth>el.clientWidth+1)){size-=.5;el.style.fontSize=size+'px'}})})}
 const teamIcons={
@@ -174,24 +201,15 @@ function renderSeason6Gate(){
   $('#season6Password').placeholder=t.placeholder;
   $('#season6UnlockBtn').textContent=t.unlock;
 }
-function revealSeason6({animate=true,saveAuth=true}={}){
-  if(saveAuth)sessionStorage.setItem(AUTH_KEY,'1');
-  if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
-  const gate=$('#season6Lock'),content=$('#season6Protected');
-  gate.hidden=true;content.hidden=false;
-  gate.setAttribute('aria-hidden','true');content.setAttribute('aria-hidden','false');
-  $('#season6LockError').textContent='';
-  content.classList.remove('alliance-content-reveal');
-  if(animate){void content.offsetWidth;content.classList.add('alliance-content-reveal')}
-}
-function lockSeason6(){
-  const gate=$('#season6Lock'),content=$('#season6Protected');
-  content.hidden=true;gate.hidden=false;
-  content.setAttribute('aria-hidden','true');gate.setAttribute('aria-hidden','false');
-  $('#season6Password').value='';
-  $('#season6LockError').textContent='';
+function submitSeason6Password(){
+  const input=$('#season6Password'),error=$('#season6LockError');
+  if(input.value!==ALLIANCE_PASSWORD){error.textContent=season6GateText().wrong;return}
+  sessionStorage.setItem(AUTH_KEY,'1');
+  error.textContent='';
+  input.value='';
+  showSeason6Unlocked({animate:true});
 }
 function render(){const c=D[lang]||D.en,l=L();renderSeason6Gate();document.documentElement.lang=lang;document.documentElement.dir=c.dir||'ltr';document.body.classList.toggle('rtl',(c.dir||'ltr')==='rtl');if($('#flag'))$('#flag').textContent=c.flag||'';if($('#lname'))$('#lname').textContent=c.name||'';$('#season6Img').src=(files[lang]||files.en)+'?v=1610';$('#season6RulesImg').src=(rulesFiles[lang]||rulesFiles.en)+'?v=1610';$('#season6RulesImg').alt='Season 6 rules guide';$('#seasonBuildingImg').src=(buildingFiles[lang]||buildingFiles.en)+'?v=1610';$('#seasonBuildingImg').alt=l.building;$('#seasonBattleMapImg').alt=l.battleMapTitle;$$('[data-k]').forEach(e=>{const k=e.dataset.k;if(c.ui?.[k]!=null)e.innerHTML=c.ui[k]});$('#latestInfoTitle').textContent=l.latest;$('#latestInfoLead').textContent=l.latestLead;$('#buildingGuideTitle').textContent=l.building;$('#buildingGuideLead').textContent=l.buildingLead;$('#battleMapTitle').textContent=l.battleMapTitle;$('#battleMapLead').textContent=l.battleMapLead;localStorage.setItem('ezpk-lang-v5',lang);renderHeroes();renderTeams();renderStrategy()}
 $$('[data-strategy-team]').forEach(btn=>btn.onclick=()=>{activeStrategyTeam=btn.dataset.strategyTeam;renderStrategy()});
-window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=labels[next]?next:'en';render()});$('#season6LockForm').addEventListener('submit',e=>{e.preventDefault();if($('#season6Password').value===ALLIANCE_PASSWORD)revealSeason6({animate:true,saveAuth:true});else $('#season6LockError').textContent=season6GateText().wrong});$$('[data-team-close]').forEach(el=>el.onclick=closeTeamImage);$('#teamImageClose').onclick=closeTeamImage;$('#teamImageDone').onclick=closeTeamImage;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#teamImageModal').hidden)closeTeamImage()});render();$('#season6Lock').hidden=true;$('#season6Protected').hidden=true;loadTeams();
+window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=labels[next]?next:'en';render()});$('#season6LockForm').addEventListener('submit',e=>{e.preventDefault();submitSeason6Password()});$$('[data-team-close]').forEach(el=>el.onclick=closeTeamImage);$('#teamImageClose').onclick=closeTeamImage;$('#teamImageDone').onclick=closeTeamImage;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#teamImageModal').hidden)closeTeamImage()});async function initializeSeason6(){setSeason6Visibility({gateVisible:false,contentVisible:false});try{await loadTeams();applySeason6Protection()}catch(error){console.error('Season 6 team data load failed:',error);showSeason6Locked()}try{render()}catch(error){console.error('Season 6 render failed:',error)}}initializeSeason6();
 })();
