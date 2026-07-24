@@ -205,3 +205,78 @@ nav a.active{color:#f5c547!important}
 .alliance-logout-btn{min-height:36px;padding:7px 14px;border:1px solid rgba(245,197,71,.65);border-radius:8px;background:rgba(245,197,71,.08);color:#f5c547;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:background .2s ease,border-color .2s ease,color .2s ease}
 .alliance-logout-btn:hover,.alliance-logout-btn:focus-visible{border-color:#f5c547;background:#f5c547;color:#111722}
 @media(max-width:620px){.alliance-logout-row{justify-content:center;margin-bottom:16px}}
+
+/* v177: alliance logout placement and stronger CTA styling */
+#season6Protected > .alliance-logout-row{
+  width:min(calc(100% - 40px),1280px);
+  margin:18px auto 0;
+  padding:0;
+}
+#bgbProtected > .alliance-logout-row{
+  width:min(calc(100% - 8vw),1400px);
+  margin:18px auto 0;
+  padding:0;
+}
+#requestProtected > .alliance-logout-row{
+  width:min(calc(100% - 8vw),1280px);
+  margin:18px auto 0;
+  padding:0;
+}
+.alliance-logout-btn{
+  min-height:40px;
+  padding:9px 18px;
+  border:1px solid #f5c547;
+  border-radius:9px;
+  background:#f5c547;
+  color:#111111;
+  font:inherit;
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  cursor:pointer;
+  box-shadow:0 8px 22px rgba(0,0,0,.28);
+  transition:background .18s ease,border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.alliance-logout-btn:hover,
+.alliance-logout-btn:focus-visible{
+  border-color:#ffd96a;
+  background:#ffd96a;
+  color:#111111;
+  transform:translateY(-1px);
+  box-shadow:0 11px 28px rgba(0,0,0,.34);
+}
+.alliance-logout-btn:active{
+  border-color:#e8b732;
+  background:#e8b732;
+  color:#111111;
+  transform:translateY(0);
+  box-shadow:0 5px 14px rgba(0,0,0,.26);
+}
+.alliance-logout-row:not([hidden]) + .season6-page .season6-content-section:first-child .section-title-block,
+.alliance-logout-row:not([hidden]) + .map-section .section-head,
+.alliance-logout-row:not([hidden]) + .request-hero{
+  padding-top:26px;
+}
+@media(max-width:620px){
+  #season6Protected > .alliance-logout-row,
+  #bgbProtected > .alliance-logout-row,
+  #requestProtected > .alliance-logout-row{
+    width:calc(100% - 24px);
+    margin:14px auto 0;
+    padding:0;
+    justify-content:center;
+  }
+  .alliance-logout-btn{
+    display:block;
+    width:100%;
+    min-height:46px;
+    padding:12px 16px;
+    text-align:center;
+    font-size:14px;
+  }
+  .alliance-logout-row:not([hidden]) + .season6-page .season6-content-section:first-child .section-title-block,
+  .alliance-logout-row:not([hidden]) + .map-section .section-head,
+  .alliance-logout-row:not([hidden]) + .request-hero{
+    padding-top:24px;
+  }
+}
