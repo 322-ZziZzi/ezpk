@@ -1,3 +1,11 @@
+# EZPK War Portal v170
+
+- Fixed the Season 6 mobile menu overlap that occurred only around the team assignment cards.
+- Scoped the shared sticky header styles from the global `header` element to `.site-header`.
+- Reset `.team-card-head` to a normal static card header so it cannot appear above the mobile navigation popup.
+- Updated CSS cache versions to ensure the fix loads immediately after deployment.
+- See `V170_CHANGELOG.txt` for details.
+
 # EZPK War Portal v169
 
 - Zombie Defense: clean external HUD, bomb pickups, reduced bomb scoring, bomb score/combo caps, and visual phase cues.
@@ -192,3 +200,7 @@ Based on v138.
 - Kept the shared header language selector above game overlays so it remains usable while result popups are open.
 - Standardized nickname input text as bold in every shared start popup.
 - Changed mobile result buttons from stacked rows to one horizontal row while keeping the popup inside the game frame with responsive sizing.
+
+
+## v171
+- Account Showcase registration inquiry updated with multilingual Discord and Ingame-DM copy controls.
