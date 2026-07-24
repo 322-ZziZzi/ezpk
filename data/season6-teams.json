@@ -1,13 +1,17 @@
 {
-  "lastUpdated": "",
+  "lastUpdated": "2026.07.24",
   "published": true,
   "supportPriority": [
     "defense",
     "attack"
   ],
-  "participants": [],
+  "participants": [
+    "TIGER VESSEL"
+  ],
   "teams": {
-    "attack": [],
+    "attack": [
+      "TIGER VESSEL"
+    ],
     "defense": [],
     "support": []
   }
