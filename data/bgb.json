@@ -3,104 +3,174 @@
   "teams": {
     "A": {
       "members": [
-        "・・HORANG",
         "TIGER VESSEL",
         "Ling² Kwong",
         "GB Bóngluxury",
-        "Uncle Uay Balam",
+        "GB MURAD1907",
         "daoxxxx",
         "Alliance Bot・・",
         "GB Trung Hi",
-        "horror_KW",
-        "Jem",
-        "GB Long Huy Diet",
-        "LaJin",
-        "SOS Lưu Đan",
-        "GB MURAD1907",
-        "OscarLui",
         "LU -",
         "i`m sleeping",
+        "SOS Lưu Đan",
+        "OscarLui",
+        "LaJin",
         "AK3",
+        "horror_KW",
         "Pro",
-        "GB Xukaluxury"
+        "Jem",
+        "Purple・・",
+        "Aikunlo",
+        "GB Xukaluxury",
+        "NOX"
       ],
       "locations": {
         "R1": [
           "TIGER VESSEL",
-          "i`m sleeping",
-          "Pro",
-          "・・HORANG"
+          "LaJin",
+          "Aikunlo",
+          "NOX"
         ],
         "R2": [
           "Ling² Kwong",
-          "SOS Lưu Đan",
-          "Jem",
+          "i`m sleeping",
+          "Purple・・",
           "GB Xukaluxury"
         ],
         "R3": [
           "GB Bóngluxury",
-          "OscarLui",
-          "GB Long Huy Diet"
+          "SOS Lưu Đan",
+          "Pro"
         ],
         "R4": [
           "daoxxxx",
-          "LU -",
-          "horror_KW"
+          "OscarLui",
+          "Jem"
         ],
         "R5": [
           "GB MURAD1907",
-          "GB Trung Hi",
-          "AK3"
+          "LU -",
+          "horror_KW"
         ],
         "R6": [
-          "Uncle Uay Balam",
           "Alliance Bot・・",
-          "LaJin"
+          "GB Trung Hi",
+          "AK3"
         ],
         "M1": [
           "daoxxxx",
-          "OscarLui",
-          "LaJin"
-        ],
-        "M2": [
-          "Alliance Bot・・",
           "SOS Lưu Đan",
           "AK3"
         ],
+        "M2": [
+          "GB Trung Hi",
+          "i`m sleeping",
+          "horror_KW"
+        ],
         "H1": [
           "GB MURAD1907",
-          "LU -",
-          "i`m sleeping"
+          "OscarLui",
+          "LaJin"
         ],
         "H2": [
-          "Uncle Uay Balam",
-          "GB Trung Hi",
-          "OscarLui"
+          "Alliance Bot・・",
+          "LU -",
+          "SOS Lưu Đan"
         ],
         "CENTER": [
           "TIGER VESSEL",
           "Ling² Kwong",
           "GB Bóngluxury",
           "GB MURAD1907",
-          "Uncle Uay Balam",
-          "GB Trung Hi"
+          "Alliance Bot・・",
+          "LU -"
         ]
       }
     },
     "B": {
-      "members": [],
+      "members": [
+        "YuaNNN",
+        "Chloae",
+        "deicide태클",
+        "GB Dương",
+        "LucaNoel17",
+        "Siggus",
+        "GB Chí Nguyễn",
+        "RoughRider25",
+        "Anubis X",
+        "GBmt nhokkk",
+        "TC Bang",
+        "Shindol",
+        "Katreeya",
+        "núp đi",
+        "・・HORANG",
+        "나이스한Ding",
+        "Heman0133",
+        "咸鸭蛋",
+        "mamimo",
+        "YourStef"
+      ],
       "locations": {
-        "R1": [],
-        "R2": [],
-        "R3": [],
-        "R4": [],
-        "R5": [],
-        "R6": [],
-        "M1": [],
-        "M2": [],
-        "H1": [],
-        "H2": [],
-        "CENTER": []
+        "R1": [
+          "Shindol",
+          "RoughRider25",
+          "Siggus",
+          "TC Bang"
+        ],
+        "R2": [
+          "Katreeya",
+          "GB Dương",
+          "GB Chí Nguyễn",
+          "GBmt nhokkk"
+        ],
+        "R3": [
+          "나이스한Ding",
+          "YuaNNN",
+          "Chloae"
+        ],
+        "R4": [
+          "・・HORANG",
+          "咸鸭蛋",
+          "LucaNoel17"
+        ],
+        "R5": [
+          "núp đi",
+          "mamimo",
+          "Anubis X"
+        ],
+        "R6": [
+          "Heman0133",
+          "YourStef",
+          "deicide태클"
+        ],
+        "M1": [
+          "・・HORANG",
+          "YuaNNN",
+          "Chloae"
+        ],
+        "M2": [
+          "YourStef",
+          "GB Dương",
+          "deicide태클"
+        ],
+        "H1": [
+          "núp đi",
+          "咸鸭蛋",
+          "RoughRider25"
+        ],
+        "H2": [
+          "Heman0133",
+          "mamimo",
+          "YuaNNN"
+        ],
+        "CENTER": [
+          "Shindol",
+          "Katreeya",
+          "나이스한Ding",
+          "núp đi",
+          "Heman0133",
+          "mamimo"
+        ]
       }
     }
   }
