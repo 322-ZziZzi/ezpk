@@ -2,19 +2,89 @@
   "lastUpdated": "2026.07.17",
   "teams": {
     "A": {
-      "members": [],
+      "members": [
+        "・・HORANG",
+        "TIGER VESSEL",
+        "Ling² Kwong",
+        "GB Bóngluxury",
+        "Uncle Uay Balam",
+        "daoxxxx",
+        "Alliance Bot・・",
+        "GB Trung Hi",
+        "horror_KW",
+        "Jem",
+        "GB Long Huy Diet",
+        "LaJin",
+        "SOS Lưu Đan",
+        "GB MURAD1907",
+        "OscarLui",
+        "LU -",
+        "i`m sleeping",
+        "AK3",
+        "Pro",
+        "GB Xukaluxury"
+      ],
       "locations": {
-        "R1": [],
-        "R2": [],
-        "R3": [],
-        "R4": [],
-        "R5": [],
-        "R6": [],
-        "M1": [],
-        "M2": [],
-        "H1": [],
-        "H2": [],
-        "CENTER": []
+        "R1": [
+          "TIGER VESSEL",
+          "i`m sleeping",
+          "Pro",
+          "・・HORANG"
+        ],
+        "R2": [
+          "Ling² Kwong",
+          "SOS Lưu Đan",
+          "Jem",
+          "GB Xukaluxury"
+        ],
+        "R3": [
+          "GB Bóngluxury",
+          "OscarLui",
+          "GB Long Huy Diet"
+        ],
+        "R4": [
+          "daoxxxx",
+          "LU -",
+          "horror_KW"
+        ],
+        "R5": [
+          "GB MURAD1907",
+          "GB Trung Hi",
+          "AK3"
+        ],
+        "R6": [
+          "Uncle Uay Balam",
+          "Alliance Bot・・",
+          "LaJin"
+        ],
+        "M1": [
+          "daoxxxx",
+          "OscarLui",
+          "LaJin"
+        ],
+        "M2": [
+          "Alliance Bot・・",
+          "SOS Lưu Đan",
+          "AK3"
+        ],
+        "H1": [
+          "GB MURAD1907",
+          "LU -",
+          "i`m sleeping"
+        ],
+        "H2": [
+          "Uncle Uay Balam",
+          "GB Trung Hi",
+          "OscarLui"
+        ],
+        "CENTER": [
+          "TIGER VESSEL",
+          "Ling² Kwong",
+          "GB Bóngluxury",
+          "GB MURAD1907",
+          "Uncle Uay Balam",
+          "GB Trung Hi"
+        ]
       }
     },
     "B": {
