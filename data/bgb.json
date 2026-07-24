@@ -2,175 +2,35 @@
   "lastUpdated": "2026.07.17",
   "teams": {
     "A": {
-      "members": [
-        "TIGER VESSEL",
-        "Ling² Kwong",
-        "GB Bóngluxury",
-        "GB MURAD1907",
-        "daoxxxx",
-        "Alliance Bot・・",
-        "GB Trung Hi",
-        "LU -",
-        "i`m sleeping",
-        "SOS Lưu Đan",
-        "OscarLui",
-        "LaJin",
-        "AK3",
-        "horror_KW",
-        "Pro",
-        "Jem",
-        "Purple・・",
-        "Aikunlo",
-        "GB Xukaluxury",
-        "NOX"
-      ],
+      "members": [],
       "locations": {
-        "R1": [
-          "TIGER VESSEL",
-          "LaJin",
-          "Aikunlo",
-          "NOX"
-        ],
-        "R2": [
-          "Ling² Kwong",
-          "i`m sleeping",
-          "Purple・・",
-          "GB Xukaluxury"
-        ],
-        "R3": [
-          "GB Bóngluxury",
-          "SOS Lưu Đan",
-          "Pro"
-        ],
-        "R4": [
-          "daoxxxx",
-          "OscarLui",
-          "Jem"
-        ],
-        "R5": [
-          "GB MURAD1907",
-          "LU -",
-          "horror_KW"
-        ],
-        "R6": [
-          "Alliance Bot・・",
-          "GB Trung Hi",
-          "AK3"
-        ],
-        "M1": [
-          "daoxxxx",
-          "SOS Lưu Đan",
-          "AK3"
-        ],
-        "M2": [
-          "GB Trung Hi",
-          "i`m sleeping",
-          "horror_KW"
-        ],
-        "H1": [
-          "GB MURAD1907",
-          "OscarLui",
-          "LaJin"
-        ],
-        "H2": [
-          "Alliance Bot・・",
-          "LU -",
-          "SOS Lưu Đan"
-        ],
-        "CENTER": [
-          "TIGER VESSEL",
-          "Ling² Kwong",
-          "GB Bóngluxury",
-          "GB MURAD1907",
-          "Alliance Bot・・",
-          "LU -"
-        ]
+        "R1": [],
+        "R2": [],
+        "R3": [],
+        "R4": [],
+        "R5": [],
+        "R6": [],
+        "M1": [],
+        "M2": [],
+        "H1": [],
+        "H2": [],
+        "CENTER": []
       }
     },
     "B": {
-      "members": [
-        "YuaNNN",
-        "Chloae",
-        "deicide태클",
-        "GB Dương",
-        "LucaNoel17",
-        "Siggus",
-        "GB Chí Nguyễn",
-        "RoughRider25",
-        "Anubis X",
-        "GBmt nhokkk",
-        "TC Bang",
-        "Shindol",
-        "Katreeya",
-        "núp đi",
-        "・・HORANG",
-        "나이스한Ding",
-        "Heman0133",
-        "咸鸭蛋",
-        "mamimo",
-        "YourStef"
-      ],
+      "members": [],
       "locations": {
-        "R1": [
-          "Shindol",
-          "RoughRider25",
-          "Siggus",
-          "TC Bang"
-        ],
-        "R2": [
-          "Katreeya",
-          "GB Dương",
-          "GB Chí Nguyễn",
-          "GBmt nhokkk"
-        ],
-        "R3": [
-          "나이스한Ding",
-          "YuaNNN",
-          "Chloae"
-        ],
-        "R4": [
-          "・・HORANG",
-          "咸鸭蛋",
-          "LucaNoel17"
-        ],
-        "R5": [
-          "núp đi",
-          "mamimo",
-          "Anubis X"
-        ],
-        "R6": [
-          "Heman0133",
-          "YourStef",
-          "deicide태클"
-        ],
-        "M1": [
-          "・・HORANG",
-          "YuaNNN",
-          "Chloae"
-        ],
-        "M2": [
-          "YourStef",
-          "GB Dương",
-          "deicide태클"
-        ],
-        "H1": [
-          "núp đi",
-          "咸鸭蛋",
-          "RoughRider25"
-        ],
-        "H2": [
-          "Heman0133",
-          "mamimo",
-          "YuaNNN"
-        ],
-        "CENTER": [
-          "Shindol",
-          "Katreeya",
-          "나이스한Ding",
-          "núp đi",
-          "Heman0133",
-          "mamimo"
-        ]
+        "R1": [],
+        "R2": [],
+        "R3": [],
+        "R4": [],
+        "R5": [],
+        "R6": [],
+        "M1": [],
+        "M2": [],
+        "H1": [],
+        "H2": [],
+        "CENTER": []
       }
     }
   }

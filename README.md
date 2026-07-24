@@ -204,3 +204,7 @@ Based on v138.
 
 ## v171
 - Account Showcase registration inquiry updated with multilingual Discord and Ingame-DM copy controls.
+
+
+## v174
+- Season 6 and BGB conditional alliance protection fixes. See `V174_CHANGELOG.txt`.
