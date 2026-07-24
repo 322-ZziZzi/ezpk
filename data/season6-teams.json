@@ -5,13 +5,9 @@
     "defense",
     "attack"
   ],
-  "participants": [
-    "TIGER VESSEL"
-  ],
+  "participants": [],
   "teams": {
-    "attack": [
-      "TIGER VESSEL"
-    ],
+    "attack": [],
     "defense": [],
     "support": []
   }
