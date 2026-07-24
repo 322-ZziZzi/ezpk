@@ -1,0 +1,11 @@
+EZPK War Portal v170
+
+Season 6 mobile team-assignment menu fix
+- Changed the global sticky `header` selector in style.css to `.site-header`.
+- Changed the mobile padding selector from `header` to `.site-header`.
+- Increased the shared site header stacking level to keep the navigation above page content.
+- Added `position: static`, `top: auto`, and `z-index: auto` to `.team-card-head`.
+- Prevented attack, defense, and support card headers from inheriting the shared sticky header behavior.
+- Updated style.css and season6.css cache query versions to v1700.
+
+All existing v169 features and data are preserved.

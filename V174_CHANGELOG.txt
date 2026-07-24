@@ -1,0 +1,16 @@
+EZPK War Portal v174
+
+- Fixed Season 6 conditional alliance protection.
+  - Team data loads before protection is evaluated.
+  - 0 assigned members: all Season 6 content is public.
+  - 1+ assigned members: all Season 6 subcontent is protected.
+- Restored v172 gate UX for Season 6.
+  - Password frame is removed after unlock.
+  - Content immediately replaces the gate without forced scrolling.
+  - Mobile focus/keyboard is released and reveal animation is retained.
+- Fixed BGB protection scope.
+  - The entire BGB page content (map, location guide, and team assignments) is protected as one unit.
+  - 0 assigned members: all BGB content is public.
+  - 1+ assigned members: all BGB content is protected.
+- Shared alliance authentication remains compatible with the request board.
+- Placeholder values such as blank, TBD, -, none, empty, and coming soon are not counted as assigned members.

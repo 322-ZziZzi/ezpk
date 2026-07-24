@@ -1,0 +1,10 @@
+EZPK War Portal v172
+
+- Unified alliance member password gate behavior for Season 6, BGB, and Request Board.
+- After a correct password, the password frame is removed from layout and protected content immediately replaces it.
+- The protected content starts from its introduction without requiring additional manual scrolling.
+- Mobile keyboard focus is cleared after successful authentication.
+- A subtle 0.25-second reveal animation is applied only immediately after password submission.
+- Existing shared session authentication key and multilingual labels are preserved.
+- Returning authenticated users see content directly without forced scrolling.
+- Added the shared member password gate to the Season 6 page using the existing 8-language translation data.

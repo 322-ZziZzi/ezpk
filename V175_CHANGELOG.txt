@@ -1,0 +1,11 @@
+EZPK War Portal v175
+
+- Fixed Season 6 conditional alliance password state management.
+- Password gate and protected content now start hidden until team data is loaded.
+- 0 assigned members: Season 6 content is public.
+- 1+ assigned members: full Season 6 content is protected.
+- Unified public / locked / unlocked display states.
+- Successful authentication immediately removes the gate and reveals content in place.
+- Removed duplicate or conflicting lock transitions.
+- Added robust member-name detection for string and object team records.
+- Added [hidden] CSS enforcement and cache version v1750.

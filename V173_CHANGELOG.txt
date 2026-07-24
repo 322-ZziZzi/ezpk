@@ -1,0 +1,5 @@
+v173 planned changes:
+- Auto enable alliance password for Season6/BGB when any team has >=1 real member.
+- Season6/BGB public when zero real members.
+- Requests board always protected.
+- Keep shared auth and v172 UX.

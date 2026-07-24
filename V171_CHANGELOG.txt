@@ -1,0 +1,9 @@
+EZPK War Portal v171
+
+- Updated the Account Showcase registration inquiry area.
+- Changed the heading to account registration inquiry for all servers.
+- Added separate Discord and Ingame-DM contact rows.
+- Added copy buttons for zzizzi_ and Alliance Bot • •.
+- Added multilingual labels and copy feedback for all 8 supported languages.
+- Preserved existing Account Showcase typography and visual style.
+- Based on v170; all existing features are retained.
