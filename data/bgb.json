@@ -2,19 +2,89 @@
   "lastUpdated": "2026.07.17",
   "teams": {
     "A": {
-      "members": [],
+      "members": [
+        "TIGER VESSEL",
+        "Siggus",
+        "deicide태클",
+        "GB Dương",
+        "--Jane Z",
+        "GB Mèo Méo Meo",
+        "Andrea •",
+        "・・QUEEN・・",
+        "Moldakill",
+        "GuidoBauz",
+        "Angellore",
+        "núp đi",
+        "・・HORANG",
+        "나이스한Ding",
+        "GB Xukaluxury",
+        "Pro",
+        "Jem",
+        "LaJin",
+        "GB Long Huy Diet",
+        "AK3"
+      ],
       "locations": {
-        "R1": [],
-        "R2": [],
-        "R3": [],
-        "R4": [],
-        "R5": [],
-        "R6": [],
-        "M1": [],
-        "M2": [],
-        "H1": [],
-        "H2": [],
-        "CENTER": []
+        "R1": [
+          "TIGER VESSEL",
+          "GuidoBauz",
+          "GB Dương",
+          "Siggus"
+        ],
+        "R2": [
+          "LaJin",
+          "Angellore",
+          "Moldakill",
+          "deicide태클"
+        ],
+        "R3": [
+          "AK3",
+          "núp đi",
+          "--Jane Z"
+        ],
+        "R4": [
+          "GB Long Huy Diet",
+          "・・HORANG",
+          "GB Mèo Méo Meo"
+        ],
+        "R5": [
+          "Jem",
+          "나이스한Ding",
+          "Andrea •"
+        ],
+        "R6": [
+          "Pro",
+          "GB Xukaluxury",
+          "・・QUEEN・・"
+        ],
+        "M1": [
+          "GB Long Huy Diet",
+          "núp đi",
+          "Moldakill"
+        ],
+        "M2": [
+          "GB Xukaluxury",
+          "Angellore",
+          "Andrea •"
+        ],
+        "H1": [
+          "Jem",
+          "・・HORANG",
+          "GuidoBauz"
+        ],
+        "H2": [
+          "Pro",
+          "나이스한Ding",
+          "núp đi"
+        ],
+        "CENTER": [
+          "TIGER VESSEL",
+          "LaJin",
+          "AK3",
+          "Jem",
+          "Pro",
+          "나이스한Ding"
+        ]
       }
     },
     "B": {
