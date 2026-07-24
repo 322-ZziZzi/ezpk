@@ -2,89 +2,19 @@
   "lastUpdated": "2026.07.17",
   "teams": {
     "A": {
-      "members": [
-        "TIGER VESSEL",
-        "Ling² Kwong",
-        "MonsteR",
-        "jerry1",
-        "Just A’",
-        "taiucing",
-        "Selenn£",
-        "Joja20",
-        "GB Trường •",
-        "Nolufff",
-        "El-doctor44",
-        "-RX-",
-        "wolfgrey2号",
-        "Bingodingo",
-        "Anubis X",
-        "Siggus",
-        "Chloae",
-        "RoughRider25",
-        "GB Chí Nguyễn",
-        "GBmt nhokkk"
-      ],
+      "members": [],
       "locations": {
-        "R1": [
-          "TIGER VESSEL",
-          "-RX-",
-          "taiucing",
-          "wolfgrey2号"
-        ],
-        "R2": [
-          "Ling² Kwong",
-          "Joja20",
-          "Bingodingo",
-          "Just A’"
-        ],
-        "R3": [
-          "RoughRider25",
-          "Nolufff",
-          "GB Trường •"
-        ],
-        "R4": [
-          "Chloae",
-          "El-doctor44",
-          "MonsteR"
-        ],
-        "R5": [
-          "GB Chí Nguyễn",
-          "GBmt nhokkk",
-          "jerry1"
-        ],
-        "R6": [
-          "Siggus",
-          "Anubis X",
-          "Selenn£"
-        ],
-        "M1": [
-          "Chloae",
-          "Nolufff",
-          "MonsteR"
-        ],
-        "M2": [
-          "Anubis X",
-          "Joja20",
-          "GB Trường •"
-        ],
-        "H1": [
-          "GB Chí Nguyễn",
-          "El-doctor44",
-          "-RX-"
-        ],
-        "H2": [
-          "Siggus",
-          "GBmt nhokkk",
-          "Nolufff"
-        ],
-        "CENTER": [
-          "TIGER VESSEL",
-          "Ling² Kwong",
-          "RoughRider25",
-          "GB Chí Nguyễn",
-          "Siggus",
-          "GBmt nhokkk"
-        ]
+        "R1": [],
+        "R2": [],
+        "R3": [],
+        "R4": [],
+        "R5": [],
+        "R6": [],
+        "M1": [],
+        "M2": [],
+        "H1": [],
+        "H2": [],
+        "CENTER": []
       }
     },
     "B": {
