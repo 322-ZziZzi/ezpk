@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const D=window.EZPK_DATA||{};let lang=localStorage.getItem('ezpk-lang-v5')||'en';if(!D[lang])lang='en';
+const D=window.EZPK_DATA||{};const ALLIANCE_PASSWORD='322EZPK',AUTH_KEY='ezpk-season6-auth';let lang=localStorage.getItem('ezpk-lang-v5')||'en';if(!D[lang])lang='en';
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const files={ko:'./season6-ko.webp',en:'./season6-en.webp',pt:'./season6-pt.webp',vi:'./season6-vi.webp',ar:'./season6-ar.webp',ja:'./season6-ja.webp',th:'./season6-th.webp','zh-tw':'./season6-zh-tw.webp'};
 const rulesFiles={ko:'./season6-rules-guide-ko.webp',en:'./season6-rules-guide-en.webp',pt:'./season6-rules-guide-pt.webp',vi:'./season6-rules-guide-vi.webp',ar:'./season6-rules-guide-ar.webp',ja:'./season6-rules-guide-ja.webp',th:'./season6-rules-guide-th.webp','zh-tw':'./season6-rules-guide-zh-tw.webp'};
@@ -124,7 +124,48 @@ function renderStrategy(){const l=L(),k=activeStrategyTeam,panel=$('#strategyPan
 function createTeamImage(k){const l=L(),names=teamData?.teams?.[k]||[],accent={attack:'#d85a5a',defense:'#5f8fe5',support:'#4fbd83'}[k]||'#d9bb65',cols=5,cellW=250,cellH=92,pad=70,headerH=230,noticeH=245,rows=Math.ceil(names.length/cols),w=pad*2+cols*cellW,h=headerH+noticeH+pad+Math.max(rows,1)*cellH+pad;const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#070b12';x.fillRect(0,0,w,h);x.strokeStyle=accent;x.lineWidth=3;x.strokeRect(24,24,w-48,h-48);x.textAlign='center';x.fillStyle=accent;x.font='700 25px Arial';x.fillText('SERVER 322 · EZPK ALLIANCE',w/2,72);x.fillStyle=accent;x.font='800 55px Arial';x.fillText(l[k],w/2,140);x.fillStyle='#aeb8c6';x.font='600 25px Arial';x.fillText(l.total(names.length),w/2,188);const ny=220;x.fillStyle='#101824';x.strokeStyle='#8b7336';x.lineWidth=2;x.beginPath();x.roundRect(pad,ny,w-pad*2,noticeH-30,18);x.fill();x.stroke();x.fillStyle='#e3ca79';x.font='900 32px Arial, sans-serif';x.fillText(l.noticeTitle,w/2,ny+52);x.fillStyle='#f1f4f8';x.font='700 22px Arial, sans-serif';[l.noticeLine1,l.noticeLine2,l.noticeLine3].forEach((line,i)=>x.fillText(line,w/2,ny+98+i*38));names.forEach((name,i)=>{const col=i%cols,row=Math.floor(i/cols),cx=pad+col*cellW,cy=headerH+noticeH+row*cellH;x.fillStyle='#101824';x.strokeStyle='#2d3a4f';x.lineWidth=2;x.beginPath();x.roundRect(cx+5,cy+5,cellW-10,cellH-10,10);x.fill();x.stroke();x.fillStyle='#f1f4f8';let fs=24;x.font=`700 ${fs}px Arial`;while(fs>15&&x.measureText(name).width>cellW-30){fs--;x.font=`700 ${fs}px Arial`}const words=String(name).split(' ');let lines=[name];if(x.measureText(name).width>cellW-30&&words.length>1){let a='',b='';for(const word of words){if(x.measureText((a+' '+word).trim()).width<=cellW-30)a=(a+' '+word).trim();else b=(b+' '+word).trim()}lines=[a,b].filter(Boolean)}if(lines.length===1)x.fillText(lines[0],cx+cellW/2,cy+56);else{const lh=fs+5;x.fillText(lines[0],cx+cellW/2,cy+45-lh/2);x.fillText(lines[1],cx+cellW/2,cy+45+lh/2)}});return c.toDataURL('image/png')}
 function openTeamImage(k){const l=L(),url=createTeamImage(k);$('#teamImageTitle').textContent=l[k];$('#teamImageGuideTitle').textContent=l.imageGuide;$('#teamImageGuideMobile').textContent=l.mobile;$('#teamImageGuidePc').textContent=l.pc;$('#teamImagePreview').src=url;$('#teamImageDone').textContent=l.close;$('#teamImageModal').hidden=false;document.body.classList.add('team-modal-open');setTimeout(()=>$('#teamImageClose').focus(),0)}
 function closeTeamImage(){$('#teamImageModal').hidden=true;$('#teamImagePreview').removeAttribute('src');document.body.classList.remove('team-modal-open')}
-function render(){const c=D[lang]||D.en,l=L();document.documentElement.lang=lang;document.documentElement.dir=c.dir||'ltr';document.body.classList.toggle('rtl',(c.dir||'ltr')==='rtl');if($('#flag'))$('#flag').textContent=c.flag||'';if($('#lname'))$('#lname').textContent=c.name||'';$('#season6Img').src=(files[lang]||files.en)+'?v=1610';$('#season6RulesImg').src=(rulesFiles[lang]||rulesFiles.en)+'?v=1610';$('#season6RulesImg').alt='Season 6 rules guide';$('#seasonBuildingImg').src=(buildingFiles[lang]||buildingFiles.en)+'?v=1610';$('#seasonBuildingImg').alt=l.building;$('#seasonBattleMapImg').alt=l.battleMapTitle;$$('[data-k]').forEach(e=>{const k=e.dataset.k;if(c.ui?.[k]!=null)e.innerHTML=c.ui[k]});$('#latestInfoTitle').textContent=l.latest;$('#latestInfoLead').textContent=l.latestLead;$('#buildingGuideTitle').textContent=l.building;$('#buildingGuideLead').textContent=l.buildingLead;$('#battleMapTitle').textContent=l.battleMapTitle;$('#battleMapLead').textContent=l.battleMapLead;localStorage.setItem('ezpk-lang-v5',lang);renderHeroes();renderTeams();renderStrategy()}
+function season6GateText(){
+  const ui=(D[lang]||D.en||{}).ui||{};
+  return {
+    section:ui.authSeason6Section||ui.season6Title||'SEASON 6',
+    title:ui.authMembersOnly||'MEMBERS ONLY',
+    lead:ui.authPrompt||ui.season6Lead||'Please enter the EZPK alliance password.',
+    password:ui.authPassword||ui.passwordLabel||'Password',
+    placeholder:ui.authPasswordPlaceholder||ui.passwordPlaceholder||'Enter alliance password',
+    unlock:ui.authOpenSeason6||ui.unlock||'Open Strategy',
+    wrong:ui.wrongPassword||'Incorrect password.'
+  };
+}
+function renderSeason6Gate(){
+  const t=season6GateText();
+  $('#season6LockSection').textContent=t.section;
+  $('#season6LockTitle').textContent=t.title;
+  $('#season6LockLead').textContent=t.lead;
+  $('#season6PasswordLabel').textContent=t.password;
+  $('#season6Password').placeholder=t.placeholder;
+  $('#season6UnlockBtn').textContent=t.unlock;
+}
+function revealSeason6({focusContent=false}={}){
+  sessionStorage.setItem(AUTH_KEY,'1');
+  if(document.activeElement instanceof HTMLElement)document.activeElement.blur();
+  const gate=$('#season6Lock'),content=$('#season6Protected');
+  gate.hidden=true;content.hidden=false;
+  $('#season6LockError').textContent='';
+  if(focusContent){
+    content.classList.remove('alliance-content-reveal');
+    void content.offsetWidth;
+    content.classList.add('alliance-content-reveal');
+    requestAnimationFrame(()=>window.scrollTo({top:content.getBoundingClientRect().top+window.scrollY-72,behavior:'auto'}));
+  }
+}
+function lockSeason6(){
+  sessionStorage.removeItem(AUTH_KEY);
+  $('#season6Protected').hidden=true;
+  $('#season6Lock').hidden=false;
+  $('#season6Password').value='';
+  $('#season6LockError').textContent='';
+}
+function render(){const c=D[lang]||D.en,l=L();renderSeason6Gate();document.documentElement.lang=lang;document.documentElement.dir=c.dir||'ltr';document.body.classList.toggle('rtl',(c.dir||'ltr')==='rtl');if($('#flag'))$('#flag').textContent=c.flag||'';if($('#lname'))$('#lname').textContent=c.name||'';$('#season6Img').src=(files[lang]||files.en)+'?v=1610';$('#season6RulesImg').src=(rulesFiles[lang]||rulesFiles.en)+'?v=1610';$('#season6RulesImg').alt='Season 6 rules guide';$('#seasonBuildingImg').src=(buildingFiles[lang]||buildingFiles.en)+'?v=1610';$('#seasonBuildingImg').alt=l.building;$('#seasonBattleMapImg').alt=l.battleMapTitle;$$('[data-k]').forEach(e=>{const k=e.dataset.k;if(c.ui?.[k]!=null)e.innerHTML=c.ui[k]});$('#latestInfoTitle').textContent=l.latest;$('#latestInfoLead').textContent=l.latestLead;$('#buildingGuideTitle').textContent=l.building;$('#buildingGuideLead').textContent=l.buildingLead;$('#battleMapTitle').textContent=l.battleMapTitle;$('#battleMapLead').textContent=l.battleMapLead;localStorage.setItem('ezpk-lang-v5',lang);renderHeroes();renderTeams();renderStrategy()}
 $$('[data-strategy-team]').forEach(btn=>btn.onclick=()=>{activeStrategyTeam=btn.dataset.strategyTeam;renderStrategy()});
-window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=labels[next]?next:'en';render()});$$('[data-team-close]').forEach(el=>el.onclick=closeTeamImage);$('#teamImageClose').onclick=closeTeamImage;$('#teamImageDone').onclick=closeTeamImage;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#teamImageModal').hidden)closeTeamImage()});render();loadTeams();
+window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=labels[next]?next:'en';render()});$('#season6LockForm').addEventListener('submit',e=>{e.preventDefault();if($('#season6Password').value===ALLIANCE_PASSWORD)revealSeason6({focusContent:true});else $('#season6LockError').textContent=season6GateText().wrong});$$('[data-team-close]').forEach(el=>el.onclick=closeTeamImage);$('#teamImageClose').onclick=closeTeamImage;$('#teamImageDone').onclick=closeTeamImage;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#teamImageModal').hidden)closeTeamImage()});render();if(sessionStorage.getItem(AUTH_KEY)==='1')revealSeason6();else lockSeason6();loadTeams();
 })();

@@ -22,7 +22,7 @@
 .team-card--attack{--team-accent:#d85a5a;--team-glow:rgba(216,90,90,.15)}
 .team-card--defense{--team-accent:#5f8fe5;--team-glow:rgba(95,143,229,.15)}
 .team-card--support{--team-accent:#4fbd83;--team-glow:rgba(79,189,131,.15)}
-.team-card-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 18px 18px;border-bottom:1px solid #222d3e;background:linear-gradient(90deg,var(--team-glow),rgba(7,11,18,0) 48%)}
+.team-card-head{position:static;top:auto;z-index:auto;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 18px 18px;border-bottom:1px solid #222d3e;background:linear-gradient(90deg,var(--team-glow),rgba(7,11,18,0) 48%)}
 .team-card-identity{display:flex;align-items:center;gap:13px;min-width:0}
 .team-card-icon{width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;border:1px solid var(--team-accent);border-radius:12px;background:var(--team-glow);color:var(--team-accent);box-shadow:0 0 20px var(--team-glow)}
 .team-card-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
