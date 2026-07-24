@@ -199,3 +199,9 @@ nav a.active{color:#f5c547!important}
 /* v172: alliance gate swaps directly to protected content */
 .alliance-content-reveal{animation:allianceContentReveal .25s ease-out both}
 @keyframes allianceContentReveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* v176: shared alliance logout row */
+.alliance-logout-row{display:flex;justify-content:flex-end;width:100%;margin:0 0 14px;padding:0 2px}
+.alliance-logout-btn{min-height:36px;padding:7px 14px;border:1px solid rgba(245,197,71,.65);border-radius:8px;background:rgba(245,197,71,.08);color:#f5c547;font:inherit;font-size:13px;font-weight:800;cursor:pointer;transition:background .2s ease,border-color .2s ease,color .2s ease}
+.alliance-logout-btn:hover,.alliance-logout-btn:focus-visible{border-color:#f5c547;background:#f5c547;color:#111722}
+@media(max-width:620px){.alliance-logout-row{justify-content:center;margin-bottom:16px}}
