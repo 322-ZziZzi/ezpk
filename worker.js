@@ -148,7 +148,7 @@ async function handleSetupAdmin(request, env, url) {
         role, status, must_change_password,
         nickname_updated_at, password_changed_at
       )
-      VALUES (?, ?, ?, 'pbkdf2-sha256', ?, ?, ?, ?, 'R4',
+      VALUES (?, ?, ?, 'pbkdf2-sha256', ?, ?, ?, ?, 'R5',
               'admin', 'active', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `).bind(
       adminLoginId,
@@ -330,7 +330,7 @@ async function handleLogin(request, env, url) {
       password_algorithm, password_iterations,
       nickname, power, industry_level, member_rank,
       role, status, must_change_password,
-      nickname_updated_at, created_at, updated_at,
+      nickname_change_count, nickname_updated_at, created_at, updated_at,
       last_login_at, password_changed_at
     FROM members
     WHERE login_id = ?
@@ -437,6 +437,7 @@ async function handleMemberMe(request, env) {
       m.role,
       m.status,
       m.must_change_password,
+      m.nickname_change_count,
       m.nickname_updated_at,
       m.created_at,
       m.updated_at,
@@ -467,6 +468,8 @@ async function handleMemberMe(request, env) {
   const cooldownDays = Number(
     (await getSetting(env.DB, "nickname_change_days")) || "7",
   );
+  const nicknameChangeCount = Number(record.nickname_change_count ?? 0);
+  const firstNicknameChangeFree = nicknameChangeCount === 0;
 
   return json({
     ok: true,
@@ -482,10 +485,11 @@ async function handleMemberMe(request, env) {
         status: record.status,
         mustChangePassword: Boolean(record.must_change_password),
         nicknameUpdatedAt: record.nickname_updated_at,
-        nicknameChangeAvailableAt: addDaysIso(
-          record.nickname_updated_at,
-          cooldownDays,
-        ),
+        nicknameChangeCount,
+        firstNicknameChangeFree,
+        nicknameChangeAvailableAt: firstNicknameChangeFree
+          ? null
+          : addDaysIso(record.nickname_updated_at, cooldownDays),
         createdAt: record.created_at,
         updatedAt: record.updated_at,
         lastLoginAt: record.last_login_at,
@@ -542,10 +546,17 @@ async function handleNicknameUpdate(request, env) {
   const cooldownDays = Number(
     (await getSetting(env.DB, "nickname_change_days")) || "7",
   );
-  const availableAt = addDaysIso(member.nickname_updated_at, cooldownDays);
+  const nicknameChangeCount = Number(member.nickname_change_count ?? 0);
+  const firstNicknameChangeFree = nicknameChangeCount === 0;
 
-  if (Date.now() < Date.parse(availableAt)) {
-    return jsonError("NICKNAME_CHANGE_COOLDOWN", 409, { availableAt });
+  if (!firstNicknameChangeFree) {
+    const availableAt = addDaysIso(member.nickname_updated_at, cooldownDays);
+    if (Date.now() < Date.parse(availableAt)) {
+      return jsonError("NICKNAME_CHANGE_COOLDOWN", 409, {
+        availableAt,
+        nicknameChangeCount,
+      });
+    }
   }
 
   await env.DB.batch([
@@ -559,7 +570,10 @@ async function handleNicknameUpdate(request, env) {
 
     env.DB.prepare(`
       UPDATE members
-      SET nickname = ?, nickname_updated_at = CURRENT_TIMESTAMP
+      SET
+        nickname = ?,
+        nickname_updated_at = CURRENT_TIMESTAMP,
+        nickname_change_count = nickname_change_count + 1
       WHERE id = ?
     `).bind(nickname, member.id),
   ]);
@@ -568,6 +582,8 @@ async function handleNicknameUpdate(request, env) {
     ok: true,
     data: {
       nickname,
+      nicknameChangeCount: nicknameChangeCount + 1,
+      firstChangeWasFree: firstNicknameChangeFree,
       nextChangeAvailableAt: addDaysIso(
         new Date().toISOString(),
         cooldownDays,
@@ -763,7 +779,7 @@ async function handlePublicMembers(url, env) {
   }
 
   const rank = url.searchParams.get("rank");
-  if (rank && isMemberRank(rank.toUpperCase())) {
+  if (rank && isAnyMemberRank(rank.toUpperCase())) {
     where.push("member_rank = ?");
     binds.push(rank.toUpperCase());
   }
@@ -868,6 +884,7 @@ async function requireOptionalMember(request, db, includePassword = false) {
       m.role,
       m.status,
       m.must_change_password,
+      m.nickname_change_count,
       m.nickname_updated_at,
       m.created_at,
       m.updated_at,
@@ -908,7 +925,7 @@ async function getMemberByLoginId(db, loginId) {
     SELECT
       id, login_id, nickname, power,
       industry_level, member_rank, role, status,
-      must_change_password, nickname_updated_at,
+      must_change_password, nickname_change_count, nickname_updated_at,
       created_at, updated_at, last_login_at,
       password_changed_at
     FROM members
@@ -1139,6 +1156,10 @@ function isMemberRank(value) {
   return /^R[1-4]$/.test(value);
 }
 
+function isAnyMemberRank(value) {
+  return /^R[1-5]$/.test(value);
+}
+
 function toPositiveInteger(value) {
   if (
     typeof value === "string" &&
@@ -1276,6 +1297,8 @@ function publicAuthenticatedMember(member) {
     role: member.role,
     status: member.status,
     mustChangePassword: Boolean(member.must_change_password),
+    nicknameChangeCount: Number(member.nickname_change_count ?? 0),
+    firstNicknameChangeFree: Number(member.nickname_change_count ?? 0) === 0,
     nicknameUpdatedAt: member.nickname_updated_at,
     createdAt: member.created_at,
     updatedAt: member.updated_at,

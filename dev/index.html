@@ -50,7 +50,7 @@
 
         <details>
           <summary>최초 관리자 생성</summary>
-          <p class="hint danger">관리자 생성 전용입니다. ADMIN_SETUP_KEY와 관리자 비밀번호를 입력하세요. 성공 후에는 setup key를 다시 노출하지 마세요.</p>
+          <p class="hint danger">관리자 생성 전용입니다. 생성되는 ezpk_admin 계정은 관리자 전용 R5로 저장됩니다. ADMIN_SETUP_KEY와 관리자 비밀번호를 입력하세요. 성공 후에는 setup key를 다시 노출하지 마세요.</p>
           <form id="adminForm" class="form-grid">
             <label>ADMIN_SETUP_KEY<input name="setupKey" type="password" autocomplete="off" required></label>
             <label>관리자 비밀번호<input name="password" type="password" autocomplete="new-password" required></label>
@@ -100,6 +100,7 @@
           <summary>닉네임 변경</summary>
           <form id="nicknameForm" class="form-grid compact">
             <label>새 닉네임<input name="nickname" value="NEW KUMA" required></label>
+            <p class="hint full">가입 후 첫 번째 닉네임 변경은 즉시 가능하며, 두 번째 변경부터 마지막 변경 시점 기준 7일 제한이 적용됩니다.</p>
             <button class="button full" type="submit">닉네임 변경</button>
           </form>
         </details>
