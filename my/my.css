@@ -69,3 +69,8 @@ html[dir="rtl"] .accordion-trigger,html[dir="rtl"] .form-stack label{text-align:
 .accordion-panel[hidden]{display:none!important}
 .accordion-trigger{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .accordion-trigger:focus-visible{outline:2px solid rgba(87,200,255,.55);outline-offset:-2px}
+
+.bgb-time-field .field-help{display:block;margin-top:-2px;color:#8190a3;font-size:.74rem;font-weight:600}
+.server-time-live{margin:3px 0 7px;color:#9eabbb;font-size:.74rem;font-weight:600}
+.server-time-live strong{color:#72d6ff}
+html[dir="rtl"] .server-time-live{text-align:right}

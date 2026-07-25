@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>MY PAGE · EZPK</title>
-  <link rel="stylesheet" href="../style.css?v=1880">
-  <link rel="stylesheet" href="./my.css?v=1870">
+  <link rel="stylesheet" href="../style.css?v=1891">
+  <link rel="stylesheet" href="./my.css?v=1891">
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
-  <script src="../shared-header.js?v=1880"></script>
+  <script src="../shared-header.js?v=1891"></script>
 
   <main class="my-shell" id="myPage">
     <section class="my-hero">
@@ -101,7 +101,12 @@
               <label><span data-i18n="seasonWar">시즌전 참여 가능</span>
                 <select name="seasonWarAvailable"><option value="">-</option><option value="1" data-i18n="yes">가능</option><option value="0" data-i18n="no">불가능</option></select>
               </label>
-              <label><span data-i18n="bgbHour">BGB 가능 시간</span><select name="bgbAvailableHour" id="bgbHourSelect"><option value="">-</option></select></label>
+              <label class="bgb-time-field">
+                <span data-i18n="bgbHour">BGB 가능 시간</span>
+                <small class="field-help" data-i18n="serverTimeBasis">서버 시간 기준</small>
+                <div class="server-time-live"><span data-i18n="currentServerTime">현재 서버 시간</span> <strong id="currentServerTime">--:--</strong></div>
+                <select name="bgbAvailableHour" id="bgbHourSelect"><option value="">-</option></select>
+              </label>
               <label><span>Discord</span><input name="discord" type="text" maxlength="100" autocomplete="off"></label>
               <label><span>Telegram</span><input name="telegram" type="text" maxlength="100" autocomplete="off"></label>
               <button class="form-submit" type="submit" data-i18n="saveSpecs">세부 스펙 저장</button>
@@ -150,6 +155,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="./my.js?v=1870"></script>
+  <script src="./my.js?v=1891"></script>
 </body>
 </html>

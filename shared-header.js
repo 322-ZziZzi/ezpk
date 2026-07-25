@@ -158,7 +158,11 @@
     <a href="${homeHref}" class="brand">★ <span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></span></a>
     <nav id="nav">
       <div class="mobile-account-slot" id="mobileAccountSlot" aria-live="polite"></div>
-      ${menuHtml}
+      <div class="desktop-nav-items" id="desktopNavItems">${menuHtml}</div>
+      <div class="nav-more" id="navMore" hidden>
+        <button id="navMoreButton" type="button" aria-haspopup="true" aria-expanded="false"></button>
+        <div id="navMoreMenu" hidden></div>
+      </div>
     </nav>
     <div class="header-account" id="desktopAccount" aria-live="polite">
       <span class="account-loading" data-account-label="loading"></span>
@@ -233,7 +237,67 @@
       const key = link.dataset.navKey;
       link.textContent = labels[key] || NAV_LABELS.en[key] || key;
     });
+    const moreButton = header.querySelector('#navMoreButton');
+    if (moreButton) {
+      const moreLabels = {ko:'더보기',en:'MORE',pt:'MAIS',vi:'THÊM',ar:'المزيد',ja:'その他',th:'เพิ่มเติม','zh-tw':'更多'};
+      moreButton.textContent = `${moreLabels[lang] || moreLabels.en} ▾`;
+    }
+    requestAnimationFrame(updateResponsiveNavigation);
   }
+
+
+  const responsiveNav = header.querySelector('#nav');
+  const desktopNavItems = header.querySelector('#desktopNavItems');
+  const navMore = header.querySelector('#navMore');
+  const navMoreButton = header.querySelector('#navMoreButton');
+  const navMoreMenu = header.querySelector('#navMoreMenu');
+  const navOrder = new Map(menuItems.map((item,index)=>[item.key,index]));
+
+  function closeMoreMenu() {
+    if (!navMoreButton || !navMoreMenu) return;
+    navMoreMenu.hidden = true;
+    navMoreButton.setAttribute('aria-expanded','false');
+  }
+
+  function restoreMoreLinks() {
+    if (!desktopNavItems || !navMoreMenu) return;
+    [...navMoreMenu.querySelectorAll('a[data-nav-key]')]
+      .sort((a,b)=>(navOrder.get(a.dataset.navKey) ?? 999)-(navOrder.get(b.dataset.navKey) ?? 999))
+      .forEach(link=>desktopNavItems.appendChild(link));
+  }
+
+  function updateResponsiveNavigation() {
+    if (!responsiveNav || !desktopNavItems || !navMore || !navMoreMenu) return;
+    restoreMoreLinks();
+    closeMoreMenu();
+
+    if (window.innerWidth <= 900) {
+      navMore.hidden = true;
+      return;
+    }
+
+    navMore.hidden = false;
+    navMore.style.visibility = 'hidden';
+    const available = Math.max(0, responsiveNav.clientWidth - navMore.offsetWidth - 8);
+    const links = [...desktopNavItems.querySelectorAll('a[data-nav-key]')];
+
+    while (links.length && desktopNavItems.scrollWidth > available) {
+      navMoreMenu.prepend(links.pop());
+    }
+
+    const hasOverflow = navMoreMenu.children.length > 0;
+    navMore.hidden = !hasOverflow;
+    navMore.style.visibility = '';
+    navMore.classList.toggle('active', Boolean(navMoreMenu.querySelector('.active,[aria-current="page"]')));
+  }
+
+  navMoreButton?.addEventListener('click', function(event) {
+    event.stopPropagation();
+    const willOpen = navMoreMenu.hidden;
+    navMoreMenu.hidden = !willOpen;
+    navMoreButton.setAttribute('aria-expanded', String(willOpen));
+  });
+  window.addEventListener('resize', updateResponsiveNavigation);
 
   function applyLanguage(lang, emit=true) {
     lang=normalizeLanguage(lang);
@@ -520,6 +584,14 @@
   });
 
   window.addEventListener('ezpk-open-login', openLogin);
+
+  document.addEventListener('click', function (event) {
+    if (navMore && !navMore.contains(event.target)) closeMoreMenu();
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') closeMoreMenu();
+  });
+  requestAnimationFrame(updateResponsiveNavigation);
 
   const initialLang = currentLanguage();
   applyLanguage(initialLang,false);
