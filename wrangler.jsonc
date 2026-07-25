@@ -4,6 +4,13 @@
   "main": "./worker.js",
   "compatibility_date": "2026-07-17",
 
+  "routes": [
+    {
+      "pattern": "ezpk322.com",
+      "custom_domain": true
+    }
+  ],
+
   "assets": {
     "directory": "./",
     "binding": "ASSETS",
@@ -17,5 +24,11 @@
       "database_id": "aaa29a3a-a221-47e3-a30f-9b4c624dcb56",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  }
 }
