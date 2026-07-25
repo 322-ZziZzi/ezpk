@@ -91,7 +91,11 @@
           <form id="profileForm" class="form-grid compact">
             <label>전투력<input name="power" type="number" min="1" value="190000000" required></label>
             <label>산업 레벨<select name="industryLevel"><option>I10</option><option>I9</option><option>I8</option></select></label>
-            <label>멤버 등급<select name="memberRank"><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select></label>
+            <label id="profileRankMemberField">멤버 등급<select id="profileMemberRank" name="memberRank"><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select></label>
+            <div id="profileRankAdminField" class="admin-rank-lock full" hidden>
+              <span class="admin-rank-badge">R5 · ADMINISTRATOR</span>
+              <span class="field-hint">관리자 전용 등급은 기본 프로필에서 변경되지 않습니다.</span>
+            </div>
             <button class="button full" type="submit">프로필 수정</button>
           </form>
         </details>

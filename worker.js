@@ -507,13 +507,17 @@ async function handleProfileUpdate(request, env) {
   const body = await readJson(request);
   const power = toPositiveInteger(body.power);
   const industryLevel = String(body.industryLevel ?? "").toUpperCase();
-  const memberRank = String(body.memberRank ?? "").toUpperCase();
+  const requestedRank = String(body.memberRank ?? "").toUpperCase();
 
-  if (
-    !power ||
-    !isIndustryLevel(industryLevel) ||
-    !isMemberRank(memberRank)
-  ) {
+  if (!power || !isIndustryLevel(industryLevel)) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  // R5 is administrator-only. An administrator's own profile update must
+  // never lower the stored rank because the public form only exposes R1-R4.
+  const memberRank = member.role === "admin" ? "R5" : requestedRank;
+
+  if (member.role !== "admin" && !isMemberRank(memberRank)) {
     return jsonError("VALIDATION_ERROR", 400);
   }
 
@@ -526,7 +530,12 @@ async function handleProfileUpdate(request, env) {
   return json({
     ok: true,
     data: {
-      profile: { power, industryLevel, memberRank },
+      profile: {
+        power,
+        industryLevel,
+        memberRank,
+        rankLocked: member.role === "admin",
+      },
     },
   });
 }

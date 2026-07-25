@@ -5,6 +5,28 @@ const dbStatus = document.querySelector('#dbStatus');
 const authStatus = document.querySelector('#authStatus');
 const latencyStatus = document.querySelector('#latencyStatus');
 const lastRequestStatus = document.querySelector('#lastRequestStatus');
+const profileRankMemberField = document.querySelector('#profileRankMemberField');
+const profileRankAdminField = document.querySelector('#profileRankAdminField');
+const profileMemberRank = document.querySelector('#profileMemberRank');
+let currentMember = null;
+
+function applyMemberToDeveloperCenter(member) {
+  currentMember = member || null;
+  const isAdmin = member?.role === 'admin';
+
+  if (profileRankMemberField) profileRankMemberField.hidden = isAdmin;
+  if (profileRankAdminField) profileRankAdminField.hidden = !isAdmin;
+
+  if (!isAdmin && profileMemberRank && member?.memberRank) {
+    profileMemberRank.value = member.memberRank;
+  }
+
+  if (member) {
+    authStatus.textContent = `${member.nickname} · ${member.memberRank} · ${member.role.toUpperCase()}`;
+  } else {
+    authStatus.textContent = '비로그인';
+  }
+}
 
 async function api(path, options = {}) {
   const started = performance.now();
@@ -64,7 +86,7 @@ async function quickCheck() {
   dbStatus.textContent = db.response.ok ? '정상' : '오류';
   const auth = await api('/api/auth/me');
   const authenticated = Boolean(auth.body?.data?.authenticated);
-  authStatus.textContent = authenticated ? `${auth.body.data.member.nickname} 로그인` : '비로그인';
+  applyMemberToDeveloperCenter(authenticated ? auth.body.data.member : null);
 }
 
 document.querySelector('#runQuickCheck').addEventListener('click', quickCheck);
@@ -84,12 +106,12 @@ document.querySelectorAll('[data-action]').forEach(button => {
     }
     if (action === 'auth-me') {
       const result = await api('/api/auth/me');
-      authStatus.textContent = result.body?.data?.authenticated ? `${result.body.data.member.nickname} 로그인` : '비로그인';
+      applyMemberToDeveloperCenter(result.body?.data?.authenticated ? result.body.data.member : null);
     }
     if (action === 'member-me') await api('/api/member/me');
     if (action === 'logout') {
       await api('/api/auth/logout', {method:'POST', body:'{}'});
-      authStatus.textContent = '비로그인';
+      applyMemberToDeveloperCenter(null);
     }
   });
 });
@@ -99,7 +121,7 @@ document.querySelector('#adminForm').addEventListener('submit', async event => {
   const data = formObject(event.currentTarget);
   data.power = Number(data.power);
   const result = await jsonPost('/api/setup/admin', data);
-  if (result.response.ok) authStatus.textContent = `${result.body?.data?.member?.nickname || '관리자'} 로그인`;
+  if (result.response.ok) applyMemberToDeveloperCenter(result.body?.data?.member || null);
 });
 
 document.querySelector('#signupForm').addEventListener('submit', async event => {
@@ -107,20 +129,31 @@ document.querySelector('#signupForm').addEventListener('submit', async event => 
   const data = formObject(event.currentTarget);
   data.power = Number(data.power);
   const result = await jsonPost('/api/auth/signup', data);
-  if (result.response.ok) authStatus.textContent = `${result.body?.data?.member?.nickname || '회원'} 로그인`;
+  if (result.response.ok) applyMemberToDeveloperCenter(result.body?.data?.member || null);
 });
 
 document.querySelector('#loginForm').addEventListener('submit', async event => {
   event.preventDefault();
   const result = await jsonPost('/api/auth/login', formObject(event.currentTarget));
-  if (result.response.ok) authStatus.textContent = `${result.body?.data?.member?.nickname || '회원'} 로그인`;
+  if (result.response.ok) applyMemberToDeveloperCenter(result.body?.data?.member || null);
 });
 
-document.querySelector('#profileForm').addEventListener('submit', event => {
+document.querySelector('#profileForm').addEventListener('submit', async event => {
   event.preventDefault();
   const data = formObject(event.currentTarget);
   data.power = Number(data.power);
-  jsonPost('/api/member/profile', data, 'PUT');
+
+  if (currentMember?.role === 'admin') {
+    delete data.memberRank;
+  }
+
+  const result = await jsonPost('/api/member/profile', data, 'PUT');
+  if (result.response.ok) {
+    const auth = await api('/api/auth/me');
+    applyMemberToDeveloperCenter(
+      auth.body?.data?.authenticated ? auth.body.data.member : null,
+    );
+  }
 });
 
 document.querySelector('#nicknameForm').addEventListener('submit', event => {
