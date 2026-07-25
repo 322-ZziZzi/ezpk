@@ -205,9 +205,15 @@
       </div>`;
   }
 
+  function goToMyPage(event) {
+    event.preventDefault();
+    window.location.href = `${base}/my/`;
+  }
+
   function bindAccountEvents(container) {
     container.querySelectorAll('[data-account-action]').forEach(function (button) {
       if (button.dataset.accountAction === 'logout') button.addEventListener('click', logout);
+      else if (button.dataset.accountAction === 'mypage') button.addEventListener('click', goToMyPage);
       else button.addEventListener('click', unavailable);
     });
 

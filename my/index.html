@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>MY PAGE · EZPK</title>
+  <link rel="stylesheet" href="../style.css?v=1720">
+  <link rel="stylesheet" href="./my.css?v=1850">
+</head>
+<body>
+  <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
+  <script src="../shared-header.js?v=1850"></script>
+
+  <main class="my-shell" id="myPage">
+    <section class="my-hero">
+      <p class="my-eyebrow">EZPK MEMBER CENTER</p>
+      <h1 data-i18n="title">마이페이지</h1>
+      <p data-i18n="subtitle">내 프로필과 계정 정보를 관리합니다.</p>
+    </section>
+
+    <section id="loadingPanel" class="state-panel">
+      <div class="spinner" aria-hidden="true"></div>
+      <p data-i18n="loading">회원 정보를 불러오는 중입니다.</p>
+    </section>
+
+    <section id="authRequiredPanel" class="state-panel" hidden>
+      <h2 data-i18n="loginRequired">로그인이 필요합니다.</h2>
+      <p data-i18n="loginRequiredBody">로그인 후 마이페이지를 이용할 수 있습니다.</p>
+      <a class="primary-link" href="../" data-i18n="goHome">홈으로 이동</a>
+    </section>
+
+    <div id="memberContent" hidden>
+      <section class="member-card" aria-label="Member summary">
+        <div class="member-avatar" aria-hidden="true">👤</div>
+        <div class="member-main">
+          <strong id="summaryNickname">-</strong>
+          <span id="summaryRole" class="role-badge">-</span>
+        </div>
+        <dl class="member-stats">
+          <div><dt data-i18n="power">전투력</dt><dd id="summaryPower">-</dd></div>
+          <div><dt data-i18n="industry">산업 레벨</dt><dd id="summaryIndustry">-</dd></div>
+        </dl>
+      </section>
+
+      <section class="accordion-list">
+        <article class="accordion-item is-open" data-section="profile">
+          <button class="accordion-trigger" type="button" aria-expanded="true">
+            <span><span aria-hidden="true">👤</span><span data-i18n="basicProfile">기본 프로필</span></span>
+            <span class="chevron">⌄</span>
+          </button>
+          <div class="accordion-panel">
+            <form id="profileForm" class="form-stack">
+              <label><span data-i18n="loginId">로그인 아이디</span><input id="profileLoginId" type="text" disabled></label>
+              <label><span data-i18n="nickname">닉네임</span><input id="profileNickname" type="text" disabled></label>
+              <label><span data-i18n="power">전투력</span><input name="power" type="number" min="1" inputmode="numeric" required></label>
+              <label><span data-i18n="industry">산업 레벨</span>
+                <select name="industryLevel" required>
+                  <option>I10</option><option>I9</option><option>I8</option><option>I7</option><option>I6</option>
+                  <option>I5</option><option>I4</option><option>I3</option><option>I2</option><option>I1</option>
+                </select>
+              </label>
+              <label><span data-i18n="memberRank">회원 등급</span>
+                <select name="memberRank" id="profileRank">
+                  <option>R4</option><option>R3</option><option>R2</option><option>R1</option>
+                </select>
+                <input id="adminRankDisplay" type="text" value="R5 · ADMINISTRATOR" disabled hidden>
+              </label>
+              <button class="form-submit" type="submit" data-i18n="saveProfile">기본 프로필 저장</button>
+            </form>
+          </div>
+        </article>
+
+        <article class="accordion-item" data-section="specs">
+          <button class="accordion-trigger" type="button" aria-expanded="false">
+            <span><span aria-hidden="true">🚜</span><span data-i18n="detailedSpecs">세부 스펙</span></span>
+            <span class="chevron">›</span>
+          </button>
+          <div class="accordion-panel" hidden>
+            <form id="specsForm" class="form-stack">
+              <fieldset>
+                <legend data-i18n="vehicle1">차량 1</legend>
+                <label><span data-i18n="class">병종</span>
+                  <select name="vehicle1Class"><option value="">-</option><option value="fighter">Fighter</option><option value="shooter">Shooter</option><option value="rider">Rider</option></select>
+                </label>
+                <div class="two-field">
+                  <label><span data-i18n="power">전투력</span><input name="vehicle1PowerValue" type="number" min="0" step="0.01" inputmode="decimal"></label>
+                  <label><span data-i18n="unit">단위</span><select name="vehicle1PowerUnit"><option value="">-</option><option>M</option><option>G</option></select></label>
+                </div>
+              </fieldset>
+              <fieldset>
+                <legend data-i18n="vehicle2">차량 2</legend>
+                <label><span data-i18n="class">병종</span>
+                  <select name="vehicle2Class"><option value="">-</option><option value="fighter">Fighter</option><option value="shooter">Shooter</option><option value="rider">Rider</option></select>
+                </label>
+                <div class="two-field">
+                  <label><span data-i18n="power">전투력</span><input name="vehicle2PowerValue" type="number" min="0" step="0.01" inputmode="decimal"></label>
+                  <label><span data-i18n="unit">단위</span><select name="vehicle2PowerUnit"><option value="">-</option><option>M</option><option>G</option></select></label>
+                </div>
+              </fieldset>
+              <label><span data-i18n="seasonWar">시즌전 참여 가능</span>
+                <select name="seasonWarAvailable"><option value="">-</option><option value="1" data-i18n="yes">가능</option><option value="0" data-i18n="no">불가능</option></select>
+              </label>
+              <label><span data-i18n="bgbHour">BGB 가능 시간</span><select name="bgbAvailableHour" id="bgbHourSelect"><option value="">-</option></select></label>
+              <label><span>Discord</span><input name="discord" type="text" maxlength="100" autocomplete="off"></label>
+              <label><span>Telegram</span><input name="telegram" type="text" maxlength="100" autocomplete="off"></label>
+              <button class="form-submit" type="submit" data-i18n="saveSpecs">세부 스펙 저장</button>
+            </form>
+          </div>
+        </article>
+
+        <article class="accordion-item" data-section="nickname">
+          <button class="accordion-trigger" type="button" aria-expanded="false">
+            <span><span aria-hidden="true">✏️</span><span data-i18n="changeNickname">닉네임 변경</span></span>
+            <span class="chevron">›</span>
+          </button>
+          <div class="accordion-panel" hidden>
+            <form id="nicknameForm" class="form-stack">
+              <div class="current-value"><span data-i18n="currentNickname">현재 닉네임</span><strong id="currentNickname">-</strong></div>
+              <div class="nickname-status">
+                <span data-i18n="changeStatus">변경 상태</span>
+                <strong id="nicknameBadge" class="status-badge available">🟢 지금 변경 가능</strong>
+              </div>
+              <div id="nextChangeRow" class="current-value" hidden>
+                <span data-i18n="nextAvailable">다음 변경 가능일</span><strong id="nextChangeAt">-</strong>
+              </div>
+              <label><span data-i18n="newNickname">새 닉네임</span><input id="nicknameInput" name="nickname" type="text" maxlength="64" required></label>
+              <button id="nicknameSubmit" class="form-submit" type="submit" data-i18n="changeNicknameButton">닉네임 변경</button>
+            </form>
+          </div>
+        </article>
+
+        <article class="accordion-item" data-section="password">
+          <button class="accordion-trigger" type="button" aria-expanded="false">
+            <span><span aria-hidden="true">🔒</span><span data-i18n="changePassword">비밀번호 변경</span></span>
+            <span class="chevron">›</span>
+          </button>
+          <div class="accordion-panel" hidden>
+            <form id="passwordForm" class="form-stack">
+              <label><span data-i18n="currentPassword">현재 비밀번호</span><input name="currentPassword" type="password" autocomplete="current-password" required></label>
+              <label><span data-i18n="newPassword">새 비밀번호</span><input name="newPassword" type="password" autocomplete="new-password" required></label>
+              <label><span data-i18n="confirmPassword">새 비밀번호 확인</span><input name="newPasswordConfirm" type="password" autocomplete="new-password" required></label>
+              <p class="form-note" data-i18n="passwordNote">비밀번호 변경 후 다시 로그인해야 합니다.</p>
+              <button class="form-submit" type="submit" data-i18n="changePasswordButton">비밀번호 변경</button>
+            </form>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="./my.js?v=1850"></script>
+</body>
+</html>
