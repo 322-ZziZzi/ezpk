@@ -1,18 +1,1336 @@
+const SESSION_COOKIE = "__Host-ezpk_session";
+const JSON_HEADERS = {
+  "content-type": "application/json; charset=utf-8",
+  "cache-control": "no-store",
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/api/db-test") {
-      const result = await env.DB
-        .prepare("SELECT key, value FROM settings ORDER BY key")
-        .all();
+    try {
+      if (!url.pathname.startsWith("/api/")) {
+        return env.ASSETS.fetch(request);
+      }
 
-      return Response.json({
-        ok: true,
-        settings: result.results
-      });
+      if (request.method === "OPTIONS") {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            "allow": "GET, POST, PUT, DELETE, OPTIONS",
+            "access-control-allow-origin": url.origin,
+            "access-control-allow-credentials": "true",
+            "access-control-allow-headers": "content-type",
+            "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "vary": "Origin",
+          },
+        });
+      }
+
+      enforceSameOrigin(request, url);
+
+      const route = `${request.method} ${url.pathname}`;
+
+      switch (route) {
+        case "GET /api/db-test":
+          return handleDbTest(env);
+
+        case "POST /api/setup/admin":
+          return handleSetupAdmin(request, env, url);
+
+        case "POST /api/auth/signup":
+          return handleSignup(request, env, url);
+
+        case "POST /api/auth/login":
+          return handleLogin(request, env, url);
+
+        case "POST /api/auth/logout":
+          return handleLogout(request, env);
+
+        case "GET /api/auth/me":
+          return handleAuthMe(request, env);
+
+        case "GET /api/member/me":
+          return handleMemberMe(request, env);
+
+        case "PUT /api/member/profile":
+          return handleProfileUpdate(request, env);
+
+        case "PUT /api/member/nickname":
+          return handleNicknameUpdate(request, env);
+
+        case "PUT /api/member/specs":
+          return handleSpecsUpdate(request, env);
+
+        case "PUT /api/member/password":
+          return handlePasswordUpdate(request, env);
+
+        case "GET /api/members":
+          return handlePublicMembers(url, env);
+
+        default:
+          return jsonError("NOT_FOUND", 404);
+      }
+    } catch (error) {
+      if (error instanceof HttpError) {
+        return jsonError(error.code, error.status);
+      }
+      console.error("EZPK API error:", error);
+      return jsonError("INTERNAL_ERROR", 500);
     }
-
-    return env.ASSETS.fetch(request);
-  }
+  },
 };
+
+// -----------------------------------------------------------------------------
+// API handlers
+// -----------------------------------------------------------------------------
+
+async function handleDbTest(env) {
+  const result = await env.DB
+    .prepare("SELECT key, value FROM settings ORDER BY key")
+    .all();
+
+  return json({
+    ok: true,
+    data: { settings: result.results ?? [] },
+  });
+}
+
+async function handleSetupAdmin(request, env, url) {
+  if (!env.ADMIN_SETUP_KEY) {
+    return jsonError("SETUP_NOT_CONFIGURED", 503);
+  }
+
+  const body = await readJson(request);
+  const setupKey = cleanString(body.setupKey, 256);
+  const password = String(body.password ?? "");
+  const passwordConfirm = String(body.passwordConfirm ?? "");
+  const nickname = cleanString(body.nickname, 64);
+  const power = toPositiveInteger(body.power);
+  const industryLevel = String(body.industryLevel ?? "").toUpperCase();
+
+  if (!setupKey || !constantTimeEqual(setupKey, env.ADMIN_SETUP_KEY)) {
+    return jsonError("INVALID_SETUP_KEY", 403);
+  }
+
+  if (!nickname || !power || !isIndustryLevel(industryLevel)) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  const passwordError = validatePassword(password, passwordConfirm);
+  if (passwordError) return jsonError(passwordError, 400);
+
+  const adminLoginId =
+    (await getSetting(env.DB, "primary_admin_login_id")) || "ezpk_admin";
+
+  const existing = await env.DB
+    .prepare("SELECT id FROM members WHERE login_id = ? LIMIT 1")
+    .bind(adminLoginId)
+    .first();
+
+  if (existing) {
+    return jsonError("ADMIN_ALREADY_EXISTS", 409);
+  }
+
+  const passwordData = await hashPassword(password);
+  const session = await createSessionData(env.DB);
+
+  await env.DB.batch([
+    env.DB.prepare(`
+      INSERT INTO members (
+        login_id, password_hash, password_salt,
+        password_algorithm, password_iterations,
+        nickname, power, industry_level, member_rank,
+        role, status, must_change_password,
+        nickname_updated_at, password_changed_at
+      )
+      VALUES (?, ?, ?, 'pbkdf2-sha256', ?, ?, ?, ?, 'R4',
+              'admin', 'active', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    `).bind(
+      adminLoginId,
+      passwordData.hash,
+      passwordData.salt,
+      passwordData.iterations,
+      nickname,
+      power,
+      industryLevel,
+    ),
+
+    env.DB.prepare(`
+      INSERT INTO member_specs (member_id)
+      SELECT id FROM members WHERE login_id = ?
+    `).bind(adminLoginId),
+
+    env.DB.prepare(`
+      INSERT INTO sessions (
+        member_id, token_hash, expires_at, user_agent
+      )
+      SELECT id, ?, ?, ?
+      FROM members
+      WHERE login_id = ?
+    `).bind(
+      session.tokenHash,
+      session.expiresAt,
+      cleanUserAgent(request),
+      adminLoginId,
+    ),
+  ]);
+
+  const member = await getMemberByLoginId(env.DB, adminLoginId);
+
+  return json(
+    {
+      ok: true,
+      data: {
+        member: publicAuthenticatedMember(member),
+      },
+    },
+    201,
+    { "set-cookie": buildSessionCookie(session.token, session.maxAge) },
+  );
+}
+
+async function handleSignup(request, env, url) {
+  const signupEnabled = await getSetting(env.DB, "member_signup_enabled");
+  if (signupEnabled !== "1") {
+    return jsonError("SIGNUP_DISABLED", 403);
+  }
+
+  const body = await readJson(request);
+  const loginId = normalizeLoginId(body.loginId);
+  const password = String(body.password ?? "");
+  const passwordConfirm = String(body.passwordConfirm ?? "");
+  const nickname = cleanString(body.nickname, 64);
+  const power = toPositiveInteger(body.power);
+  const industryLevel = String(body.industryLevel ?? "").toUpperCase();
+  const memberRank = String(body.memberRank ?? "").toUpperCase();
+  const allianceCode = cleanString(body.allianceCode, 100);
+
+  if (!isLoginId(loginId)) {
+    return jsonError("INVALID_LOGIN_ID", 400);
+  }
+
+  const reservedAdminId =
+    (await getSetting(env.DB, "primary_admin_login_id")) || "ezpk_admin";
+
+  if (loginId === reservedAdminId.toLowerCase()) {
+    return jsonError("LOGIN_ID_RESERVED", 409);
+  }
+
+  const passwordError = validatePassword(password, passwordConfirm);
+  if (passwordError) return jsonError(passwordError, 400);
+
+  if (
+    !nickname ||
+    !power ||
+    !isIndustryLevel(industryLevel) ||
+    !isMemberRank(memberRank)
+  ) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  const savedAllianceCode = await getSetting(env.DB, "alliance_join_code");
+  if (!savedAllianceCode || !constantTimeEqual(allianceCode, savedAllianceCode)) {
+    return jsonError("INVALID_ALLIANCE_CODE", 403);
+  }
+
+  const duplicate = await env.DB
+    .prepare("SELECT id FROM members WHERE login_id = ? LIMIT 1")
+    .bind(loginId)
+    .first();
+
+  if (duplicate) {
+    return jsonError("LOGIN_ID_TAKEN", 409);
+  }
+
+  const passwordData = await hashPassword(password);
+  const session = await createSessionData(env.DB);
+
+  try {
+    await env.DB.batch([
+      env.DB.prepare(`
+        INSERT INTO members (
+          login_id, password_hash, password_salt,
+          password_algorithm, password_iterations,
+          nickname, power, industry_level, member_rank,
+          role, status, must_change_password,
+          nickname_updated_at, password_changed_at
+        )
+        VALUES (?, ?, ?, 'pbkdf2-sha256', ?, ?, ?, ?, ?,
+                'member', 'active', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      `).bind(
+        loginId,
+        passwordData.hash,
+        passwordData.salt,
+        passwordData.iterations,
+        nickname,
+        power,
+        industryLevel,
+        memberRank,
+      ),
+
+      env.DB.prepare(`
+        INSERT INTO member_specs (member_id)
+        SELECT id FROM members WHERE login_id = ?
+      `).bind(loginId),
+
+      env.DB.prepare(`
+        INSERT INTO sessions (
+          member_id, token_hash, expires_at, user_agent
+        )
+        SELECT id, ?, ?, ?
+        FROM members
+        WHERE login_id = ?
+      `).bind(
+        session.tokenHash,
+        session.expiresAt,
+        cleanUserAgent(request),
+        loginId,
+      ),
+    ]);
+  } catch (error) {
+    if (String(error).toLowerCase().includes("unique")) {
+      return jsonError("LOGIN_ID_TAKEN", 409);
+    }
+    throw error;
+  }
+
+  const member = await getMemberByLoginId(env.DB, loginId);
+
+  return json(
+    {
+      ok: true,
+      data: { member: publicAuthenticatedMember(member) },
+    },
+    201,
+    { "set-cookie": buildSessionCookie(session.token, session.maxAge) },
+  );
+}
+
+async function handleLogin(request, env, url) {
+  const body = await readJson(request);
+  const loginId = normalizeLoginId(body.loginId);
+  const password = String(body.password ?? "");
+
+  if (!isLoginId(loginId) || !password) {
+    return jsonError("INVALID_LOGIN", 401);
+  }
+
+  const member = await env.DB.prepare(`
+    SELECT
+      id, login_id, password_hash, password_salt,
+      password_algorithm, password_iterations,
+      nickname, power, industry_level, member_rank,
+      role, status, must_change_password,
+      nickname_updated_at, created_at, updated_at,
+      last_login_at, password_changed_at
+    FROM members
+    WHERE login_id = ?
+    LIMIT 1
+  `).bind(loginId).first();
+
+  if (!member) return jsonError("INVALID_LOGIN", 401);
+  if (member.status === "suspended") {
+    return jsonError("ACCOUNT_SUSPENDED", 403);
+  }
+  if (member.status === "left") {
+    return jsonError("ACCOUNT_LEFT", 403);
+  }
+
+  const passwordValid = await verifyPassword(password, member);
+  if (!passwordValid) return jsonError("INVALID_LOGIN", 401);
+
+  const session = await createSessionData(env.DB);
+
+  await env.DB.batch([
+    env.DB.prepare(
+      "DELETE FROM sessions WHERE expires_at <= CURRENT_TIMESTAMP",
+    ),
+    env.DB.prepare(`
+      INSERT INTO sessions (
+        member_id, token_hash, expires_at, user_agent
+      )
+      VALUES (?, ?, ?, ?)
+    `).bind(
+      member.id,
+      session.tokenHash,
+      session.expiresAt,
+      cleanUserAgent(request),
+    ),
+    env.DB.prepare(`
+      UPDATE members
+      SET last_login_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(member.id),
+  ]);
+
+  member.last_login_at = new Date().toISOString();
+
+  return json(
+    {
+      ok: true,
+      data: { member: publicAuthenticatedMember(member) },
+    },
+    200,
+    { "set-cookie": buildSessionCookie(session.token, session.maxAge) },
+  );
+}
+
+async function handleLogout(request, env) {
+  const token = getCookie(request, SESSION_COOKIE);
+
+  if (token) {
+    const tokenHash = await sha256Hex(token);
+    await env.DB
+      .prepare("DELETE FROM sessions WHERE token_hash = ?")
+      .bind(tokenHash)
+      .run();
+  }
+
+  return json(
+    { ok: true, data: { loggedOut: true } },
+    200,
+    { "set-cookie": clearSessionCookie() },
+  );
+}
+
+async function handleAuthMe(request, env) {
+  const member = await requireOptionalMember(request, env.DB);
+
+  if (!member) {
+    return json({
+      ok: true,
+      data: { authenticated: false },
+    });
+  }
+
+  return json({
+    ok: true,
+    data: {
+      authenticated: true,
+      member: publicAuthenticatedMember(member),
+    },
+  });
+}
+
+async function handleMemberMe(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+
+  const record = await env.DB.prepare(`
+    SELECT
+      m.id,
+      m.login_id,
+      m.nickname,
+      m.power,
+      m.industry_level,
+      m.member_rank,
+      m.role,
+      m.status,
+      m.must_change_password,
+      m.nickname_updated_at,
+      m.created_at,
+      m.updated_at,
+      m.last_login_at,
+      m.password_changed_at,
+
+      s.vehicle1_class,
+      s.vehicle1_power_value,
+      s.vehicle1_power_unit,
+      s.vehicle1_power_normalized,
+      s.vehicle2_class,
+      s.vehicle2_power_value,
+      s.vehicle2_power_unit,
+      s.vehicle2_power_normalized,
+      s.season_war_available,
+      s.bgb_available_hour,
+      s.discord,
+      s.telegram,
+      s.created_at AS spec_created_at,
+      s.updated_at AS spec_updated_at
+    FROM members AS m
+    LEFT JOIN member_specs AS s
+      ON s.member_id = m.id
+    WHERE m.id = ?
+    LIMIT 1
+  `).bind(member.id).first();
+
+  const cooldownDays = Number(
+    (await getSetting(env.DB, "nickname_change_days")) || "7",
+  );
+
+  return json({
+    ok: true,
+    data: {
+      member: {
+        id: record.id,
+        loginId: record.login_id,
+        nickname: record.nickname,
+        power: record.power,
+        industryLevel: record.industry_level,
+        memberRank: record.member_rank,
+        role: record.role,
+        status: record.status,
+        mustChangePassword: Boolean(record.must_change_password),
+        nicknameUpdatedAt: record.nickname_updated_at,
+        nicknameChangeAvailableAt: addDaysIso(
+          record.nickname_updated_at,
+          cooldownDays,
+        ),
+        createdAt: record.created_at,
+        updatedAt: record.updated_at,
+        lastLoginAt: record.last_login_at,
+        passwordChangedAt: record.password_changed_at,
+      },
+      specs: specsResponse(record),
+    },
+  });
+}
+
+async function handleProfileUpdate(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+
+  const body = await readJson(request);
+  const power = toPositiveInteger(body.power);
+  const industryLevel = String(body.industryLevel ?? "").toUpperCase();
+  const memberRank = String(body.memberRank ?? "").toUpperCase();
+
+  if (
+    !power ||
+    !isIndustryLevel(industryLevel) ||
+    !isMemberRank(memberRank)
+  ) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  await env.DB.prepare(`
+    UPDATE members
+    SET power = ?, industry_level = ?, member_rank = ?
+    WHERE id = ?
+  `).bind(power, industryLevel, memberRank, member.id).run();
+
+  return json({
+    ok: true,
+    data: {
+      profile: { power, industryLevel, memberRank },
+    },
+  });
+}
+
+async function handleNicknameUpdate(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+
+  const body = await readJson(request);
+  const nickname = cleanString(body.nickname, 64);
+
+  if (!nickname) return jsonError("VALIDATION_ERROR", 400);
+  if (nickname === member.nickname) {
+    return jsonError("NICKNAME_UNCHANGED", 400);
+  }
+
+  const cooldownDays = Number(
+    (await getSetting(env.DB, "nickname_change_days")) || "7",
+  );
+  const availableAt = addDaysIso(member.nickname_updated_at, cooldownDays);
+
+  if (Date.now() < Date.parse(availableAt)) {
+    return jsonError("NICKNAME_CHANGE_COOLDOWN", 409, { availableAt });
+  }
+
+  await env.DB.batch([
+    env.DB.prepare(`
+      INSERT INTO member_nickname_history (
+        member_id, old_nickname, new_nickname,
+        changed_by, changed_by_member_id
+      )
+      VALUES (?, ?, ?, 'member', ?)
+    `).bind(member.id, member.nickname, nickname, member.id),
+
+    env.DB.prepare(`
+      UPDATE members
+      SET nickname = ?, nickname_updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(nickname, member.id),
+  ]);
+
+  return json({
+    ok: true,
+    data: {
+      nickname,
+      nextChangeAvailableAt: addDaysIso(
+        new Date().toISOString(),
+        cooldownDays,
+      ),
+    },
+  });
+}
+
+async function handleSpecsUpdate(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+
+  const body = await readJson(request);
+
+  const vehicle1Class = nullableEnum(
+    body.vehicle1Class,
+    ["fighter", "shooter", "rider"],
+  );
+  const vehicle1PowerValue = nullablePositiveNumber(body.vehicle1PowerValue);
+  const vehicle1PowerUnit = nullableEnum(body.vehicle1PowerUnit, ["M", "G"]);
+
+  const vehicle2Class = nullableEnum(
+    body.vehicle2Class,
+    ["fighter", "shooter", "rider"],
+  );
+  const vehicle2PowerValue = nullablePositiveNumber(body.vehicle2PowerValue);
+  const vehicle2PowerUnit = nullableEnum(body.vehicle2PowerUnit, ["M", "G"]);
+
+  const seasonWarAvailable = nullableBoolean(body.seasonWarAvailable);
+  const bgbAvailableHour = nullableHour(body.bgbAvailableHour);
+  const discord = nullableCleanString(body.discord, 100);
+  const telegram = nullableCleanString(body.telegram, 100);
+
+  if (
+    vehicle1Class === INVALID ||
+    vehicle1PowerValue === INVALID ||
+    vehicle1PowerUnit === INVALID ||
+    vehicle2Class === INVALID ||
+    vehicle2PowerValue === INVALID ||
+    vehicle2PowerUnit === INVALID ||
+    seasonWarAvailable === INVALID ||
+    bgbAvailableHour === INVALID ||
+    discord === INVALID ||
+    telegram === INVALID
+  ) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  if (
+    !vehicleGroupValid(
+      vehicle1Class,
+      vehicle1PowerValue,
+      vehicle1PowerUnit,
+    ) ||
+    !vehicleGroupValid(
+      vehicle2Class,
+      vehicle2PowerValue,
+      vehicle2PowerUnit,
+    )
+  ) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  await env.DB.prepare(`
+    INSERT INTO member_specs (
+      member_id,
+      vehicle1_class, vehicle1_power_value, vehicle1_power_unit,
+      vehicle2_class, vehicle2_power_value, vehicle2_power_unit,
+      season_war_available, bgb_available_hour,
+      discord, telegram
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(member_id) DO UPDATE SET
+      vehicle1_class = excluded.vehicle1_class,
+      vehicle1_power_value = excluded.vehicle1_power_value,
+      vehicle1_power_unit = excluded.vehicle1_power_unit,
+      vehicle2_class = excluded.vehicle2_class,
+      vehicle2_power_value = excluded.vehicle2_power_value,
+      vehicle2_power_unit = excluded.vehicle2_power_unit,
+      season_war_available = excluded.season_war_available,
+      bgb_available_hour = excluded.bgb_available_hour,
+      discord = excluded.discord,
+      telegram = excluded.telegram
+  `).bind(
+    member.id,
+    vehicle1Class,
+    vehicle1PowerValue,
+    vehicle1PowerUnit,
+    vehicle2Class,
+    vehicle2PowerValue,
+    vehicle2PowerUnit,
+    seasonWarAvailable,
+    bgbAvailableHour,
+    discord,
+    telegram,
+  ).run();
+
+  return json({
+    ok: true,
+    data: {
+      specs: {
+        vehicle1Class,
+        vehicle1PowerValue,
+        vehicle1PowerUnit,
+        vehicle2Class,
+        vehicle2PowerValue,
+        vehicle2PowerUnit,
+        seasonWarAvailable:
+          seasonWarAvailable === null
+            ? null
+            : Boolean(seasonWarAvailable),
+        bgbAvailableHour,
+        discord,
+        telegram,
+      },
+    },
+  });
+}
+
+async function handlePasswordUpdate(request, env) {
+  const member = await requireMember(request, env.DB, true);
+  if (member instanceof Response) return member;
+
+  const body = await readJson(request);
+  const currentPassword = String(body.currentPassword ?? "");
+  const newPassword = String(body.newPassword ?? "");
+  const newPasswordConfirm = String(body.newPasswordConfirm ?? "");
+
+  if (!currentPassword) {
+    return jsonError("CURRENT_PASSWORD_INCORRECT", 400);
+  }
+
+  const valid = await verifyPassword(currentPassword, member);
+  if (!valid) return jsonError("CURRENT_PASSWORD_INCORRECT", 403);
+
+  const passwordError = validatePassword(
+    newPassword,
+    newPasswordConfirm,
+  );
+  if (passwordError) return jsonError(passwordError, 400);
+
+  if (currentPassword === newPassword) {
+    return jsonError("PASSWORD_UNCHANGED", 400);
+  }
+
+  const passwordData = await hashPassword(newPassword);
+
+  await env.DB.batch([
+    env.DB.prepare(`
+      UPDATE members
+      SET
+        password_hash = ?,
+        password_salt = ?,
+        password_algorithm = 'pbkdf2-sha256',
+        password_iterations = ?,
+        password_changed_at = CURRENT_TIMESTAMP,
+        must_change_password = 0
+      WHERE id = ?
+    `).bind(
+      passwordData.hash,
+      passwordData.salt,
+      passwordData.iterations,
+      member.id,
+    ),
+    env.DB.prepare(
+      "DELETE FROM sessions WHERE member_id = ?",
+    ).bind(member.id),
+  ]);
+
+  return json(
+    {
+      ok: true,
+      data: { reauthenticationRequired: true },
+    },
+    200,
+    { "set-cookie": clearSessionCookie() },
+  );
+}
+
+async function handlePublicMembers(url, env) {
+  const page = clampInteger(url.searchParams.get("page"), 1, 100000, 1);
+  const limit = clampInteger(url.searchParams.get("limit"), 1, 100, 30);
+  const offset = (page - 1) * limit;
+
+  const where = [];
+  const binds = [];
+
+  const search = cleanString(url.searchParams.get("search"), 64);
+  if (search) {
+    where.push("nickname LIKE ? ESCAPE '\\'");
+    binds.push(`%${escapeLike(search)}%`);
+  }
+
+  const rank = url.searchParams.get("rank");
+  if (rank && isMemberRank(rank.toUpperCase())) {
+    where.push("member_rank = ?");
+    binds.push(rank.toUpperCase());
+  }
+
+  const industry = url.searchParams.get("industry");
+  if (industry && isIndustryLevel(industry.toUpperCase())) {
+    where.push("industry_level = ?");
+    binds.push(industry.toUpperCase());
+  }
+
+  const season = url.searchParams.get("seasonWar");
+  if (season === "1" || season === "0") {
+    where.push("season_war_available = ?");
+    binds.push(Number(season));
+  }
+
+  const bgbHour = url.searchParams.get("bgbHour");
+  if (bgbHour !== null && /^\d{1,2}$/.test(bgbHour)) {
+    const hour = Number(bgbHour);
+    if (hour >= 0 && hour <= 23) {
+      where.push("bgb_available_hour = ?");
+      binds.push(hour);
+    }
+  }
+
+  const vehicleClass = url.searchParams.get("vehicleClass");
+  if (["fighter", "shooter", "rider"].includes(vehicleClass)) {
+    where.push("(vehicle1_class = ? OR vehicle2_class = ?)");
+    binds.push(vehicleClass, vehicleClass);
+  }
+
+  const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
+  const sortMap = {
+    power_desc: "power DESC, id ASC",
+    power_asc: "power ASC, id ASC",
+    nickname_asc: "nickname COLLATE NOCASE ASC, id ASC",
+    nickname_desc: "nickname COLLATE NOCASE DESC, id ASC",
+    joined_desc: "joined_at DESC, id ASC",
+    updated_desc:
+      "COALESCE(spec_updated_at, basic_updated_at) DESC, id ASC",
+  };
+
+  const sort =
+    sortMap[url.searchParams.get("sort")] || sortMap.power_desc;
+
+  const countResult = await env.DB.prepare(`
+    SELECT COUNT(*) AS total
+    FROM public_members
+    ${whereSql}
+  `).bind(...binds).first();
+
+  const rows = await env.DB.prepare(`
+    SELECT *
+    FROM public_members
+    ${whereSql}
+    ORDER BY ${sort}
+    LIMIT ? OFFSET ?
+  `).bind(...binds, limit, offset).all();
+
+  const total = Number(countResult?.total ?? 0);
+
+  return json({
+    ok: true,
+    data: {
+      items: (rows.results ?? []).map(publicMemberRow),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+      },
+    },
+  });
+}
+
+// -----------------------------------------------------------------------------
+// Authentication and database helpers
+// -----------------------------------------------------------------------------
+
+async function requireOptionalMember(request, db, includePassword = false) {
+  const token = getCookie(request, SESSION_COOKIE);
+  if (!token) return null;
+
+  const tokenHash = await sha256Hex(token);
+  const passwordFields = includePassword
+    ? `,
+       m.password_hash,
+       m.password_salt,
+       m.password_algorithm,
+       m.password_iterations`
+    : "";
+
+  const member = await db.prepare(`
+    SELECT
+      m.id,
+      m.login_id,
+      m.nickname,
+      m.power,
+      m.industry_level,
+      m.member_rank,
+      m.role,
+      m.status,
+      m.must_change_password,
+      m.nickname_updated_at,
+      m.created_at,
+      m.updated_at,
+      m.last_login_at,
+      m.password_changed_at
+      ${passwordFields}
+    FROM sessions AS s
+    INNER JOIN members AS m
+      ON m.id = s.member_id
+    WHERE s.token_hash = ?
+      AND s.expires_at > CURRENT_TIMESTAMP
+      AND m.status = 'active'
+    LIMIT 1
+  `).bind(tokenHash).first();
+
+  if (!member) return null;
+
+  await db.prepare(`
+    UPDATE sessions
+    SET last_used_at = CURRENT_TIMESTAMP
+    WHERE token_hash = ?
+  `).bind(tokenHash).run();
+
+  return member;
+}
+
+async function requireMember(request, db, includePassword = false) {
+  const member = await requireOptionalMember(
+    request,
+    db,
+    includePassword,
+  );
+  return member || jsonError("UNAUTHORIZED", 401);
+}
+
+async function getMemberByLoginId(db, loginId) {
+  return db.prepare(`
+    SELECT
+      id, login_id, nickname, power,
+      industry_level, member_rank, role, status,
+      must_change_password, nickname_updated_at,
+      created_at, updated_at, last_login_at,
+      password_changed_at
+    FROM members
+    WHERE login_id = ?
+    LIMIT 1
+  `).bind(loginId).first();
+}
+
+async function getSetting(db, key) {
+  const row = await db
+    .prepare("SELECT value FROM settings WHERE key = ? LIMIT 1")
+    .bind(key)
+    .first();
+  return row?.value ?? null;
+}
+
+async function createSessionData(db) {
+  const durationDays = Number(
+    (await getSetting(db, "session_duration_days")) || "30",
+  );
+  const safeDays =
+    Number.isFinite(durationDays) && durationDays > 0
+      ? Math.min(durationDays, 365)
+      : 30;
+
+  const token = randomHex(32);
+  return {
+    token,
+    tokenHash: await sha256Hex(token),
+    expiresAt: new Date(
+      Date.now() + safeDays * 86400000,
+    ).toISOString(),
+    maxAge: safeDays * 86400,
+  };
+}
+
+// -----------------------------------------------------------------------------
+// Password and crypto helpers
+// -----------------------------------------------------------------------------
+
+async function hashPassword(password) {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const salt = bytesToHex(saltBytes);
+  const iterations = 210000;
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
+
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt: saltBytes,
+      iterations,
+    },
+    key,
+    256,
+  );
+
+  return {
+    hash: bytesToHex(new Uint8Array(bits)),
+    salt,
+    iterations,
+  };
+}
+
+async function verifyPassword(password, member) {
+  if (member.password_algorithm !== "pbkdf2-sha256") return false;
+
+  const saltBytes = hexToBytes(member.password_salt);
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
+
+  const bits = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      salt: saltBytes,
+      iterations: Number(member.password_iterations),
+    },
+    key,
+    256,
+  );
+
+  return constantTimeEqual(
+    bytesToHex(new Uint8Array(bits)),
+    member.password_hash,
+  );
+}
+
+async function sha256Hex(value) {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return bytesToHex(new Uint8Array(digest));
+}
+
+// -----------------------------------------------------------------------------
+// Request, response, cookie and validation helpers
+// -----------------------------------------------------------------------------
+
+function enforceSameOrigin(request, url) {
+  if (!["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) return;
+
+  const origin = request.headers.get("origin");
+  if (origin && origin !== url.origin) {
+    throw new HttpError("FORBIDDEN", 403);
+  }
+
+  const contentType = request.headers.get("content-type") || "";
+  if (!contentType.toLowerCase().startsWith("application/json")) {
+    throw new HttpError("UNSUPPORTED_MEDIA_TYPE", 415);
+  }
+}
+
+async function readJson(request) {
+  const length = Number(request.headers.get("content-length") || "0");
+  if (length > 32768) throw new HttpError("PAYLOAD_TOO_LARGE", 413);
+
+  try {
+    return await request.json();
+  } catch {
+    throw new HttpError("INVALID_JSON", 400);
+  }
+}
+
+function json(payload, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: {
+      ...JSON_HEADERS,
+      ...extraHeaders,
+    },
+  });
+}
+
+function jsonError(code, status, extra = {}) {
+  return json(
+    {
+      ok: false,
+      code,
+      ...extra,
+    },
+    status,
+  );
+}
+
+class HttpError extends Error {
+  constructor(code, status) {
+    super(code);
+    this.code = code;
+    this.status = status;
+  }
+}
+
+function getCookie(request, name) {
+  const cookieHeader = request.headers.get("cookie") || "";
+  for (const part of cookieHeader.split(";")) {
+    const [rawName, ...rest] = part.trim().split("=");
+    if (rawName === name) {
+      return decodeURIComponent(rest.join("="));
+    }
+  }
+  return null;
+}
+
+function buildSessionCookie(token, maxAge) {
+  return [
+    `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
+    "Path=/",
+    `Max-Age=${maxAge}`,
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+  ].join("; ");
+}
+
+function clearSessionCookie() {
+  return [
+    `${SESSION_COOKIE}=`,
+    "Path=/",
+    "Max-Age=0",
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+  ].join("; ");
+}
+
+function cleanUserAgent(request) {
+  return cleanString(request.headers.get("user-agent"), 500);
+}
+
+function normalizeLoginId(value) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function isLoginId(value) {
+  return /^[a-z0-9]{4,20}$/.test(value);
+}
+
+function validatePassword(password, passwordConfirm) {
+  if (password !== passwordConfirm) return "PASSWORD_CONFIRM_MISMATCH";
+  if (password.length < 8 || password.length > 128) {
+    return "INVALID_PASSWORD";
+  }
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+    return "INVALID_PASSWORD";
+  }
+  return null;
+}
+
+function isIndustryLevel(value) {
+  return /^I(?:10|[1-9])$/.test(value);
+}
+
+function isMemberRank(value) {
+  return /^R[1-4]$/.test(value);
+}
+
+function toPositiveInteger(value) {
+  if (
+    typeof value === "string" &&
+    !/^\d+$/.test(value.trim())
+  ) {
+    return null;
+  }
+
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number > 0
+    ? number
+    : null;
+}
+
+function cleanString(value, maxLength) {
+  if (value === null || value === undefined) return "";
+  const result = String(value).trim();
+  if (!result || result.length > maxLength) return "";
+  return result;
+}
+
+function nullableCleanString(value, maxLength) {
+  if (value === null || value === undefined || value === "") return null;
+  const result = String(value).trim();
+  if (result.length > maxLength) return INVALID;
+  return result || null;
+}
+
+const INVALID = Symbol("INVALID");
+
+function nullableEnum(value, allowed) {
+  if (value === null || value === undefined || value === "") return null;
+  const normalized = String(value);
+  return allowed.includes(normalized) ? normalized : INVALID;
+}
+
+function nullablePositiveNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : INVALID;
+}
+
+function nullableBoolean(value) {
+  if (value === null || value === undefined || value === "") return null;
+  if (value === true || value === 1 || value === "1") return 1;
+  if (value === false || value === 0 || value === "0") return 0;
+  return INVALID;
+}
+
+function nullableHour(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 0 && number <= 23
+    ? number
+    : INVALID;
+}
+
+function vehicleGroupValid(vehicleClass, powerValue, powerUnit) {
+  const values = [vehicleClass, powerValue, powerUnit];
+  return values.every((value) => value === null) ||
+    values.every((value) => value !== null);
+}
+
+function clampInteger(value, min, max, fallback) {
+  const number = Number(value);
+  if (!Number.isInteger(number)) return fallback;
+  return Math.min(max, Math.max(min, number));
+}
+
+function addDaysIso(dateValue, days) {
+  const base = Date.parse(dateValue);
+  const safeBase = Number.isFinite(base) ? base : Date.now();
+  return new Date(safeBase + days * 86400000).toISOString();
+}
+
+function randomHex(byteLength) {
+  return bytesToHex(
+    crypto.getRandomValues(new Uint8Array(byteLength)),
+  );
+}
+
+function bytesToHex(bytes) {
+  return [...bytes]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function hexToBytes(hex) {
+  if (!/^[0-9a-f]+$/i.test(hex) || hex.length % 2 !== 0) {
+    throw new Error("Invalid hex input");
+  }
+
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let index = 0; index < bytes.length; index += 1) {
+    bytes[index] = Number.parseInt(
+      hex.slice(index * 2, index * 2 + 2),
+      16,
+    );
+  }
+  return bytes;
+}
+
+function constantTimeEqual(left, right) {
+  const a = new TextEncoder().encode(String(left));
+  const b = new TextEncoder().encode(String(right));
+  const length = Math.max(a.length, b.length);
+  let difference = a.length ^ b.length;
+
+  for (let index = 0; index < length; index += 1) {
+    difference |= (a[index] ?? 0) ^ (b[index] ?? 0);
+  }
+
+  return difference === 0;
+}
+
+function escapeLike(value) {
+  return value
+    .replaceAll("\\", "\\\\")
+    .replaceAll("%", "\\%")
+    .replaceAll("_", "\\_");
+}
+
+// -----------------------------------------------------------------------------
+// Response mapping
+// -----------------------------------------------------------------------------
+
+function publicAuthenticatedMember(member) {
+  return {
+    id: member.id,
+    loginId: member.login_id,
+    nickname: member.nickname,
+    power: member.power,
+    industryLevel: member.industry_level,
+    memberRank: member.member_rank,
+    role: member.role,
+    status: member.status,
+    mustChangePassword: Boolean(member.must_change_password),
+    nicknameUpdatedAt: member.nickname_updated_at,
+    createdAt: member.created_at,
+    updatedAt: member.updated_at,
+    lastLoginAt: member.last_login_at,
+    passwordChangedAt: member.password_changed_at,
+  };
+}
+
+function specsResponse(row) {
+  const completed = Boolean(
+    row.vehicle1_class &&
+      row.vehicle1_power_value !== null &&
+      row.vehicle1_power_unit &&
+      row.vehicle2_class &&
+      row.vehicle2_power_value !== null &&
+      row.vehicle2_power_unit &&
+      row.season_war_available !== null &&
+      row.bgb_available_hour !== null,
+  );
+
+  return {
+    vehicle1Class: row.vehicle1_class,
+    vehicle1PowerValue: row.vehicle1_power_value,
+    vehicle1PowerUnit: row.vehicle1_power_unit,
+    vehicle1PowerNormalized: row.vehicle1_power_normalized,
+    vehicle2Class: row.vehicle2_class,
+    vehicle2PowerValue: row.vehicle2_power_value,
+    vehicle2PowerUnit: row.vehicle2_power_unit,
+    vehicle2PowerNormalized: row.vehicle2_power_normalized,
+    seasonWarAvailable:
+      row.season_war_available === null
+        ? null
+        : Boolean(row.season_war_available),
+    bgbAvailableHour: row.bgb_available_hour,
+    discord: row.discord,
+    telegram: row.telegram,
+    createdAt: row.spec_created_at,
+    updatedAt: row.spec_updated_at,
+    completed,
+  };
+}
+
+function publicMemberRow(row) {
+  return {
+    id: row.id,
+    nickname: row.nickname,
+    power: row.power,
+    industryLevel: row.industry_level,
+    memberRank: row.member_rank,
+    joinedAt: row.joined_at,
+    basicUpdatedAt: row.basic_updated_at,
+    vehicle1Class: row.vehicle1_class,
+    vehicle1PowerValue: row.vehicle1_power_value,
+    vehicle1PowerUnit: row.vehicle1_power_unit,
+    vehicle1PowerNormalized: row.vehicle1_power_normalized,
+    vehicle2Class: row.vehicle2_class,
+    vehicle2PowerValue: row.vehicle2_power_value,
+    vehicle2PowerUnit: row.vehicle2_power_unit,
+    vehicle2PowerNormalized: row.vehicle2_power_normalized,
+    seasonWarAvailable:
+      row.season_war_available === null
+        ? null
+        : Boolean(row.season_war_available),
+    bgbAvailableHour: row.bgb_available_hour,
+    specUpdatedAt: row.spec_updated_at,
+    specCompleted: Boolean(row.spec_completed),
+  };
+}
