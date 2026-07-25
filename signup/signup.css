@@ -29,3 +29,6 @@ html[dir="rtl"] .password-toggle{right:auto;left:5px}
   .signup-card{padding:28px}
   .two-column{grid-template-columns:1fr 1fr}
 }
+
+.field-help{display:block;margin-top:-2px;color:#8290a3;font-size:.73rem;font-weight:600;line-height:1.35}
+html[dir="rtl"] .field-help{text-align:right}

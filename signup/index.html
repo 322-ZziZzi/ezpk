@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>SIGN UP · EZPK</title>
-  <link rel="stylesheet" href="../style.css?v=1880">
-  <link rel="stylesheet" href="./signup.css?v=1860">
+  <link rel="stylesheet" href="../style.css?v=1891">
+  <link rel="stylesheet" href="./signup.css?v=1891">
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
-  <script src="../shared-header.js?v=1880"></script>
+  <script src="../shared-header.js?v=1891"></script>
 
   <main class="signup-shell">
     <section class="signup-hero">
@@ -51,12 +51,14 @@
         <label>
           <span data-i18n="nickname">닉네임</span>
           <input name="nickname" type="text" maxlength="64" autocomplete="nickname" required>
+          <small class="field-help" data-i18n="nicknameHelp">게임 닉네임</small>
         </label>
 
         <div class="two-column">
           <label>
             <span data-i18n="power">전투력</span>
-            <input name="power" type="number" min="1" inputmode="numeric" required>
+            <input name="power" type="text" inputmode="numeric" autocomplete="off" placeholder="123456789" required>
+            <small class="field-help" data-i18n="powerHelp">프로필에 표시된 수치</small>
           </label>
           <label>
             <span data-i18n="industry">산업 레벨</span>
@@ -77,6 +79,7 @@
         <label>
           <span data-i18n="joinCode">연맹 가입 코드</span>
           <input name="allianceCode" type="password" maxlength="100" autocomplete="off" required>
+          <small class="field-help" data-i18n="joinCodeHelp">R5 또는 R4에게 문의</small>
         </label>
 
         <p id="signupError" class="signup-error" role="alert" hidden></p>
@@ -91,6 +94,6 @@
   </main>
 
   <div id="signupToast" class="signup-toast" role="status" aria-live="polite" hidden></div>
-  <script src="./signup.js?v=1860"></script>
+  <script src="./signup.js?v=1891"></script>
 </body>
 </html>
