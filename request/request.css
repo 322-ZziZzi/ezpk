@@ -13,3 +13,9 @@ body{min-height:100vh}.request-main{min-height:calc(100vh - 72px)}.request-hero{
 .request-password-row input:focus{border-color:#f5c547;box-shadow:0 0 0 3px rgba(245,197,71,.11)}.request-password-row button{border:1px solid #f5c547;border-radius:12px;background:#f5c547;color:#101217;font-weight:900;cursor:pointer;padding:0 20px}
 .request-lock-error{min-height:20px;margin:10px 0 0;color:#ff7777;font-size:13px}.rtl .request-lock-form{text-align:right}
 @media(max-width:620px){.request-lock{padding:36px 20px;border-radius:18px}.request-password-row{flex-direction:column}.request-password-row button{height:48px}}
+
+.member-login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.member-login-actions button,.member-login-actions a{min-height:46px;display:grid;place-items:center;padding:0 16px;border-radius:11px;font-weight:900;text-decoration:none;cursor:pointer}
+.member-login-primary{border:0;background:#f5c547;color:#171000}
+.member-login-secondary{border:1px solid #ffffff22;background:#151e2c;color:#fff}
+@media(max-width:480px){.member-login-actions{grid-template-columns:1fr}}

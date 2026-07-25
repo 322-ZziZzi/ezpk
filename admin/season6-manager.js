@@ -1,5 +1,6 @@
 (()=>{
 const TEAM_META={attack:{label:'공격팀',ratio:.55},defense:{label:'방어팀',ratio:.25},support:{label:'지원팀',ratio:.20}};
+let mobileOpenTeam='attack';
 let s6={lastUpdated:'',published:false,supportPriority:['defense','attack'],participants:[],teams:{attack:[],defense:[],support:[]}},s6Sha='';
 const known=()=>new Map(membersData.members.map(m=>[m.nickname,m]));
 function normalize(d){
@@ -15,9 +16,12 @@ function normalize(d){
 }
 function targets(n){let a=Math.floor(n*.55),d=Math.floor(n*.25),u=Math.floor(n*.20),left=n-a-d-u;const order=['attack','defense','support'];let vals={attack:a,defense:d,support:u};for(let i=0;i<left;i++)vals[order[i%3]]++;return vals}
 function fmt(n){return Number(n||0).toLocaleString()}
-function stats(k){const map=known(),list=s6.teams[k],total=list.reduce((v,n)=>v+(map.get(n)?.power||0),0);return{count:list.length,total,avg:list.length?Math.round(total/list.length):0}}
+function industryValue(m){return Number(m?.ind||String(m?.industryLevel||'').replace(/^I/i,''))||0}
+function vehicle1Value(m){return Number(m?.vehicle1PowerNormalized||m?.vehicle1Power||0)||0}
+function stats(k){const map=known(),list=s6.teams[k],total=list.reduce((v,n)=>v+(map.get(n)?.power||0),0),vehicle1=list.reduce((v,n)=>v+vehicle1Value(map.get(n)),0),industry=list.reduce((v,n)=>v+industryValue(map.get(n)),0);return{count:list.length,total,vehicle1,industrySum:industry,industryAvg:list.length?industry/list.length:0,avg:list.length?Math.round(total/list.length):0}}
 function unassigned(){const assigned=new Set(Object.values(s6.teams).flat());return s6.participants.filter(n=>!assigned.has(n))}
-function listStats(list){const map=known(),total=list.reduce((v,n)=>v+(map.get(n)?.power||0),0);return{count:list.length,total}}
+function listStats(list){const map=known(),total=list.reduce((v,n)=>v+(map.get(n)?.power||0),0),vehicle1=list.reduce((v,n)=>v+vehicle1Value(map.get(n)),0),industry=list.reduce((v,n)=>v+industryValue(map.get(n)),0);return{count:list.length,total,vehicle1,industry}}
+function deviationText(value,target){if(!target)return '0.0%';const p=(value/target-1)*100;return `${p>=0?'+':''}${p.toFixed(1)}%`}
 function moveOptions(current){return `<option value="attack" ${current==='attack'?'selected':''}>공격팀</option><option value="defense" ${current==='defense'?'selected':''}>방어팀</option><option value="support" ${current==='support'?'selected':''}>지원팀</option><option value="none" ${current==='none'?'selected':''}>미배정</option>`}
 function memberRow(n,current){const mm=known().get(n);return `<label><span><b>${esc(n)}</b><small>${fmt(mm?.power||0)}</small></span><select data-s6-move="${esc(n)}">${moveOptions(current)}</select></label>`}
 function render(){
@@ -30,16 +34,31 @@ function render(){
   const t=targets(s6.participants.length),allStats=listStats(s6.participants),noneList=unassigned(),noneStats=listStats(noneList);
   $('#s6Summary').innerHTML=`
     <article class="s6-summary-total"><span>전체 인원</span><b>${allStats.count}</b><small>총 전투력 ${fmt(allStats.total)}</small></article>
-    ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-summary-${k}"><span>${m.label}</span><b>${st.count} / ${t[k]}</b><small>전투력 ${fmt(st.total)}</small></article>`}).join('')}
+    ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-summary-${k}"><span>${m.label}</span><b>${st.count} / ${t[k]}</b><small>전투력 ${fmt(st.total)} (${deviationText(st.total,allStats.total*m.ratio)})<br>1번 차량 ${fmt(st.vehicle1)} (${deviationText(st.vehicle1,allStats.vehicle1*m.ratio)})<br>산업 합계 ${st.industrySum.toFixed(1)} (${deviationText(st.industrySum,allStats.industry*m.ratio)})<br>평균 산업 I${st.industryAvg.toFixed(1)}</small></article>`}).join('')}
     <article class="s6-summary-none"><span>미배정</span><b>${noneStats.count} / 0</b><small>전투력 ${fmt(noneStats.total)}</small></article>`;
 
-  const teamCards=Object.entries(TEAM_META).map(([k,m])=>`<section class="s6-team-card s6-team-${k}"><header><div><span>${m.label}</span><b>${stats(k).count}명</b></div><small>총 전투력 ${fmt(stats(k).total)}</small></header><div>${s6.teams[k].map(n=>memberRow(n,k)).join('')||'<p class="s6-empty">배정된 멤버가 없습니다.</p>'}</div></section>`).join('');
+  const teamCards=Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k),open=mobileOpenTeam===k;return `<section class="s6-team-card s6-team-${k}${open?' is-mobile-open':''}"><button type="button" class="s6-team-toggle" data-s6-team-toggle="${k}" aria-expanded="${open}"><span><em>${m.label}</em><b>${st.count}명</b></span><small>전투력 ${fmt(st.total)} · 차량 ${fmt(st.vehicle1)} · 평균 I${st.industryAvg.toFixed(1)}</small><i aria-hidden="true">⌄</i></button><div class="s6-team-body">${s6.teams[k].map(n=>memberRow(n,k)).join('')||'<p class="s6-empty">배정된 멤버가 없습니다.</p>'}</div></section>`}).join('');
   const unassignedCard=`<section class="s6-team-card s6-unassigned-card"><header><div><span>미배정 명단</span><b>${noneStats.count}명</b></div><small>총 전투력 ${fmt(noneStats.total)}</small></header><p class="s6-unassigned-help">아직 팀이 지정되지 않은 인원입니다. 아래 선택 메뉴에서 바로 다른 팀으로 배정할 수 있습니다.</p><div>${noneList.map(n=>memberRow(n,'none')).join('')||'<p class="s6-empty">현재 미배정된 인원이 없습니다.</p>'}</div></section>`;
   $('#s6TeamGrid').innerHTML=teamCards+unassignedCard;
 
+  $$('[data-s6-team-toggle]').forEach(btn=>btn.onclick=()=>{mobileOpenTeam=mobileOpenTeam===btn.dataset.s6TeamToggle?'':btn.dataset.s6TeamToggle;render()});
   $$('[data-s6-move]').forEach(sel=>sel.onchange=()=>{const n=sel.dataset.s6Move;for(const k in s6.teams)s6.teams[k]=s6.teams[k].filter(v=>v!==n);if(sel.value!=='none')s6.teams[sel.value].push(n);render()});
 }
-function autoAssign(){if(!s6.participants.length){alert('참가자를 먼저 선택하세요.');return}const map=known(),sorted=s6.participants.map(n=>map.get(n)).filter(Boolean).sort((a,b)=>b.power-a.power),cap=targets(sorted.length),total=sorted.reduce((v,m)=>v+m.power,0),goal={attack:total*.55,defense:total*.25,support:total*.20};s6.teams={attack:[],defense:[],support:[]};const sums={attack:0,defense:0,support:0};for(const m of sorted){const available=Object.keys(cap).filter(k=>s6.teams[k].length<cap[k]);available.sort((x,y)=>(sums[x]/goal[x])-(sums[y]/goal[y]));const k=available[0];s6.teams[k].push(m.nickname);sums[k]+=m.power}render()}
+function autoAssign(){
+  if(!s6.participants.length){alert('참가자를 먼저 선택하세요.');return}
+  const map=known(),members=s6.participants.map(n=>map.get(n)).filter(Boolean),missing=members.filter(m=>vehicle1Value(m)<=0);
+  if(missing.length&&!confirm(`1번 차량 전투력이 입력되지 않은 참가자 ${missing.length}명은 0으로 계산됩니다. 계속하시겠습니까?`))return;
+  const cap=targets(members.length),ratio={attack:.55,defense:.25,support:.20};
+  const totals={power:members.reduce((v,m)=>v+Number(m.power||0),0),vehicle1:members.reduce((v,m)=>v+vehicle1Value(m),0),industry:members.reduce((v,m)=>v+industryValue(m),0)};
+  const max={power:Math.max(1,...members.map(m=>Number(m.power||0))),vehicle1:Math.max(1,...members.map(vehicle1Value)),industry:Math.max(1,...members.map(industryValue))};
+  const personal=m=>.40*(vehicle1Value(m)/max.vehicle1)+.25*(Number(m.power||0)/max.power)+.25*(industryValue(m)/max.industry);
+  const sorted=[...members].sort((a,b)=>personal(b)-personal(a)||String(a.nickname).localeCompare(String(b.nickname)));
+  const goal={},sums={attack:{count:0,power:0,vehicle1:0,industry:0},defense:{count:0,power:0,vehicle1:0,industry:0},support:{count:0,power:0,vehicle1:0,industry:0}};
+  Object.keys(ratio).forEach(k=>goal[k]={count:cap[k],power:totals.power*ratio[k],vehicle1:totals.vehicle1*ratio[k],industry:totals.industry*ratio[k]});
+  const dev=(v,t)=>t>0?Math.abs(v-t)/t:(v>0?1:0);s6.teams={attack:[],defense:[],support:[]};
+  for(const m of sorted){const choices=Object.keys(cap).filter(k=>sums[k].count<cap[k]);let best=choices[0],score=Infinity;for(const k of choices){const c={count:sums[k].count+1,power:sums[k].power+Number(m.power||0),vehicle1:sums[k].vehicle1+vehicle1Value(m),industry:sums[k].industry+industryValue(m)};const v=.40*dev(c.vehicle1,goal[k].vehicle1)+.25*dev(c.power,goal[k].power)+.25*dev(c.industry,goal[k].industry)+.10*dev(c.count,goal[k].count);if(v<score){score=v;best=k}}s6.teams[best].push(m.nickname);sums[best].count++;sums[best].power+=Number(m.power||0);sums[best].vehicle1+=vehicle1Value(m);sums[best].industry+=industryValue(m)}
+  render();
+}
 window.s6Manager={async loadLocal(){try{const r=await fetch('../data/season6-teams.json?v='+Date.now(),{cache:'no-store'});if(r.ok)s6=normalize(await r.json())}catch(e){}render()},async loadGithub(){const r=await githubGetFile('data/season6-teams.json');s6Sha=r.sha;s6=normalize(r.data);render()},async saveGithub(){s6.lastUpdated=$('#s6LastUpdated').value.trim()||todayKst();s6.published=true;if(!s6Sha){const r=await githubGetFile('data/season6-teams.json');s6Sha=r.sha}s6Sha=await githubPutFile('data/season6-teams.json',s6,s6Sha,`Update Season 6 teams ${s6.lastUpdated}`);render()},payload(){s6.lastUpdated=$('#s6LastUpdated').value.trim();s6.published=true;return s6},render};
 $('#s6Search').oninput=render;$('#s6SelectAll').onclick=()=>{s6.participants=membersData.members.map(m=>m.nickname);render()};$('#s6ClearParticipants').onclick=()=>{s6.participants=[];s6.teams={attack:[],defense:[],support:[]};render()};$('#s6AutoAssign').onclick=autoAssign;$('#s6ResetTeams').onclick=()=>{if(confirm('시즌6 팀 배정을 초기화할까요?')){s6.teams={attack:[],defense:[],support:[]};render()}};$('#downloadSeason6Json').onclick=()=>downloadJson(s6Manager.payload(),'season6-teams.json');
 const oldRenderAll=renderAll;renderAll=function(){oldRenderAll();render()};const oldLocal=loadLocal;loadLocal=async function(){await oldLocal();await s6Manager.loadLocal()};const oldGH=loadGithub;loadGithub=async function(){await oldGH();await s6Manager.loadGithub()};const oldSave=saveAllGithub;saveAllGithub=async function(){await oldSave();await s6Manager.saveGithub();setStatus('모든 데이터와 시즌6 팀 편성이 저장되었습니다.','ok')};

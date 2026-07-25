@@ -66,6 +66,9 @@ export default {
         case "GET /api/member/me":
           return handleMemberMe(request, env);
 
+        case "GET /api/member/content":
+          return handleMemberContentGet(request, url, env);
+
         case "PUT /api/member/profile":
           return handleProfileUpdate(request, env);
 
@@ -453,6 +456,25 @@ async function handleAuthMe(request, env) {
       member: publicAuthenticatedMember(member),
     },
   });
+}
+
+
+const MEMBER_CONTENT_PATHS = new Set([
+  "data/season6-teams.json",
+  "data/bgb.json",
+  "data/members.json"
+]);
+async function handleMemberContentGet(request, url, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+  const path = String(url.searchParams.get("path") || "").trim();
+  if (!MEMBER_CONTENT_PATHS.has(path)) return jsonError("CONTENT_PATH_NOT_ALLOWED", 400);
+  const assetUrl = new URL(`/${path}`, url.origin);
+  const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, { method:"GET" }));
+  if (!assetResponse.ok) return jsonError("CONTENT_NOT_FOUND", 404);
+  let content;
+  try { content = await assetResponse.json(); } catch (_) { return jsonError("CONTENT_INVALID", 500); }
+  return json({ ok:true, data:{ content } });
 }
 
 async function handleMemberMe(request, env) {

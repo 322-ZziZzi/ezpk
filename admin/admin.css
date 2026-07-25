@@ -272,3 +272,14 @@ body.admin-unlocked{overflow:auto}
 .admin-toast{position:fixed;right:20px;bottom:20px;z-index:500;max-width:min(360px,calc(100vw - 40px));padding:13px 16px;border:1px solid #ffffff22;border-radius:12px;background:#142019;color:#d9ffe6;box-shadow:0 18px 45px rgba(0,0,0,.45);font-weight:800}
 .admin-toast.error{background:#2a1517;color:#ffd8dc}
 @media(max-width:700px){.admin-api-card{align-items:stretch}.admin-api-card .connect-actions{width:100%}.admin-api-card .connect-actions button{flex:1}}
+
+
+/* v189-c Season 6 mobile readability */
+.s6-team-toggle{width:100%;padding:15px;border:0;border-bottom:1px solid #273246;background:transparent;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;cursor:pointer}
+.s6-team-toggle span{display:grid}.s6-team-toggle em{font-style:normal;color:#d9bb65;font-weight:800}.s6-team-toggle b{font-size:20px}.s6-team-toggle small{color:#9ca7b8}.s6-team-toggle i{font-style:normal;font-size:20px;transition:transform .16s ease}.s6-team-body{max-height:520px;overflow:auto}
+@media(min-width:701px){.s6-team-toggle i{display:none}}
+@media(max-width:700px){
+  .s6-team-grid{display:block!important}.s6-team-card{margin-top:10px}.s6-team-body{display:none;max-height:none}.s6-team-card.is-mobile-open .s6-team-body{display:block}.s6-team-card.is-mobile-open .s6-team-toggle i{transform:rotate(180deg)}
+  .s6-team-toggle{min-height:66px}.s6-team-toggle small{max-width:48%;text-align:right;line-height:1.45}.s6-team-card label{min-height:50px}.s6-team-card select{min-height:40px;max-width:120px}
+  .s6-tools{grid-template-columns:1fr 1fr!important}.s6-tools input{grid-column:1/-1}.s6-tools button{width:100%;min-height:46px}.s6-tools #s6AutoAssign{grid-column:1/2}.s6-tools #s6ResetTeams{grid-column:2/3}
+}

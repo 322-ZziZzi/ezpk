@@ -816,3 +816,33 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
   [data-shared-header] #nav>a,
   [data-shared-header] .desktop-nav-items>a{position:static!important;flex:none!important;transform:none!important}
 }
+
+
+/* v189-c mobile navigation touch UX */
+@media (max-width:900px){
+  [data-shared-header] #nav{gap:8px!important;padding-left:12px!important;padding-right:12px!important;padding-bottom:18px!important}
+  [data-shared-header] .desktop-nav-items{display:flex!important;flex-direction:column!important;gap:8px!important;width:100%!important}
+  [data-shared-header] .desktop-nav-items>a{
+    display:flex!important;align-items:center!important;min-height:48px!important;width:100%!important;
+    padding:11px 14px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:12px!important;
+    background:#101722!important;box-shadow:0 4px 14px rgba(0,0,0,.16)!important;
+    transition:transform .13s ease,background .13s ease,border-color .13s ease,box-shadow .13s ease!important;
+  }
+  [data-shared-header] .desktop-nav-items>a::before{width:24px;display:inline-grid;place-items:center;margin-right:9px;font-size:16px;opacity:.88}
+  [data-shared-header] .desktop-nav-items>a::after{content:'›';margin-left:auto;font-size:23px;line-height:1;color:#728096}
+  [data-shared-header] .desktop-nav-items>a[data-menu='home']::before{content:'⌂'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='seasonUpcoming']::before{content:'◆'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='seasonArchive']::before{content:'◇'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='members']::before{content:'♟'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='bgb']::before{content:'⚔'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='tip']::before{content:'✦'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='request']::before{content:'✉'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='accounts']::before{content:'▣'}
+  [data-shared-header] .desktop-nav-items>a[data-menu='game']::before{content:'🎮';font-size:15px}
+  [data-shared-header] .desktop-nav-items>a[data-menu='logo']::before{content:'★'}
+  [data-shared-header] .desktop-nav-items>a:active{transform:scale(.98)!important;background:#182233!important;border-color:#d9bb65!important;box-shadow:0 0 13px rgba(217,187,101,.19)!important}
+  [data-shared-header] .desktop-nav-items>a.active,[data-shared-header] .desktop-nav-items>a[aria-current='page']{background:#181c1d!important;border-color:#d9bb65!important;color:#f5c547!important}
+  [data-shared-header] .desktop-nav-items>a.active::before,[data-shared-header] .desktop-nav-items>a[aria-current='page']::before{color:#f5c547}
+  html[dir='rtl'] [data-shared-header] .desktop-nav-items>a::before{margin-right:0;margin-left:9px}
+  html[dir='rtl'] [data-shared-header] .desktop-nav-items>a::after{margin-left:0;margin-right:auto;transform:scaleX(-1)}
+}

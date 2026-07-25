@@ -3,32 +3,27 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b">
 <title>EZPK Request Board</title>
-<link rel="stylesheet" href="../style.css?v=1891"><link rel="stylesheet" href="request.css?v=1770">
+<link rel="stylesheet" href="../style.css?v=1893"><link rel="stylesheet" href="request.css?v=1770">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 </head>
 <body>
-<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="request"></header><script src="../shared-header.js?v=1892"></script>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="request"></header><script src="../shared-header.js?v=1893"></script>
 <main class="request-main">
-<section id="requestLock" class="member-gate-wrap">
+<section id="requestLock" class="member-gate-wrap" hidden>
   <div class="member-gate-card">
-    <div class="member-gate-icon" aria-hidden="true">🔒</div>
-    <span id="requestLockSection" class="member-gate-section"></span>
-    <h1 id="requestLockTitle" class="member-gate-title"></h1>
-    <p id="requestLockLead" class="member-gate-description"></p>
-    <form id="requestLockForm" class="member-gate-form">
-      <label for="alliancePassword" id="alliancePasswordLabel"></label>
-      <div class="member-gate-row">
-        <input id="alliancePassword" type="password" autocomplete="current-password" required>
-        <button id="requestUnlockBtn" type="submit"></button>
-      </div>
-      <p id="requestLockError" class="member-gate-error" role="alert"></p>
-    </form>
+    <div class="member-gate-icon" aria-hidden="true">🔐</div>
+    <span class="member-gate-section" data-member-gate-section></span>
+    <h1 class="member-gate-title" data-member-gate-title></h1>
+    <p class="member-gate-description" data-member-gate-lead></p>
+    <div class="member-login-actions">
+      <button type="button" class="member-login-primary" data-member-login></button>
+      <a class="member-login-secondary" href="../signup/" data-member-signup></a>
+    </div>
+    <p class="member-gate-error" data-member-gate-error role="alert"></p>
   </div>
 </section>
 <div id="requestProtected" hidden>
-    <div class="alliance-logout-row" data-alliance-logout-row hidden>
-      <button type="button" class="alliance-logout-btn" data-alliance-logout></button>
-    </div>
+    
 <section class="request-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 id="requestTitle"></h1><p id="requestLead"></p></section>
 <section class="request-layout">
   <div class="request-left-column">
@@ -55,5 +50,5 @@
 </div>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="footerText"></span></footer>
-<script src="../data.js?v=1530"></script><script src="../supabase-config.js?v=1530"></script><script src="request.js?v=1770"></script>
+<script src="../data.js?v=1530"></script><script src="../supabase-config.js?v=1530"></script><script src="request.js?v=1893"></script>
 </body></html>
