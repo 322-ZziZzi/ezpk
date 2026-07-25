@@ -375,9 +375,9 @@
     window.location.href = `${base}/signup/`;
   }
 
-  function adminUnavailable(event) {
+  function goToAdmin(event) {
     event.preventDefault();
-    alert(accountLabels().adminComing);
+    window.location.href = `${base}/admin/`;
   }
 
   async function logout(event) {
@@ -466,7 +466,7 @@
       else if (action === 'mypage') button.addEventListener('click', goToMyPage);
       else if (action === 'login') button.addEventListener('click', openLogin);
       else if (action === 'signup') button.addEventListener('click', goToSignup);
-      else if (action === 'admin') button.addEventListener('click', adminUnavailable);
+      else if (action === 'admin') button.addEventListener('click', goToAdmin);
     });
 
     const trigger = container.querySelector('.account-member-trigger');

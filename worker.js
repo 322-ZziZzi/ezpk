@@ -87,6 +87,12 @@ export default {
         case "POST /api/admin/members/bulk":
           return handleAdminMembersBulk(request, env);
 
+        case "GET /api/admin/content":
+          return handleAdminContentGet(request, url, env);
+
+        case "PUT /api/admin/content":
+          return handleAdminContentPut(request, env);
+
         default:
           return jsonError("NOT_FOUND", 404);
       }
@@ -993,6 +999,106 @@ async function createSessionData(db) {
   };
 }
 
+
+
+const ADMIN_CONTENT_PATHS = new Set([
+  "data/bgb.json",
+  "data/season6-teams.json",
+  "data/events.json",
+  "data/accounts.json",
+]);
+
+function getGithubConfig(env) {
+  return {
+    token: String(env.GITHUB_TOKEN || ""),
+    owner: String(env.GITHUB_OWNER || ""),
+    repo: String(env.GITHUB_REPO || ""),
+    branch: String(env.GITHUB_BRANCH || "main"),
+  };
+}
+
+function assertAdminContentPath(value) {
+  const path = String(value || "").trim();
+  if (!ADMIN_CONTENT_PATHS.has(path)) throw new HttpError(400, "CONTENT_PATH_NOT_ALLOWED");
+  return path;
+}
+
+function githubHeaders(config, withJson = false) {
+  return {
+    accept: "application/vnd.github+json",
+    authorization: `Bearer ${config.token}`,
+    "x-github-api-version": "2022-11-28",
+    "user-agent": "EZPK-Worker",
+    ...(withJson ? { "content-type": "application/json" } : {}),
+  };
+}
+
+function decodeBase64Utf8(value) {
+  const binary = atob(String(value || "").replace(/\n/g, ""));
+  return new TextDecoder().decode(Uint8Array.from(binary, char => char.charCodeAt(0)));
+}
+
+function encodeBase64Utf8(value) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary);
+}
+
+async function readGithubJson(env, path) {
+  const config = getGithubConfig(env);
+  if (!config.token || !config.owner || !config.repo) throw new HttpError(503, "GITHUB_NOT_CONFIGURED");
+  const endpoint = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/contents/${path}?ref=${encodeURIComponent(config.branch)}`;
+  const response = await fetch(endpoint, { headers: githubHeaders(config) });
+  if (response.status === 404) return { sha: "", content: null };
+  if (!response.ok) throw new HttpError(502, "GITHUB_READ_FAILED");
+  const body = await response.json();
+  try {
+    return { sha: body.sha || "", content: JSON.parse(decodeBase64Utf8(body.content)) };
+  } catch (_) {
+    throw new HttpError(502, "INVALID_JSON_CONTENT");
+  }
+}
+
+async function writeGithubJson(env, path, content, message) {
+  const config = getGithubConfig(env);
+  if (!config.token || !config.owner || !config.repo) throw new HttpError(503, "GITHUB_NOT_CONFIGURED");
+  const endpoint = `https://api.github.com/repos/${encodeURIComponent(config.owner)}/${encodeURIComponent(config.repo)}/contents/${path}`;
+  const send = async sha => {
+    const body = {
+      message: cleanString(message, 120) || `Update ${path}`,
+      content: encodeBase64Utf8(JSON.stringify(content, null, 2)),
+      branch: config.branch,
+    };
+    if (sha) body.sha = sha;
+    return fetch(endpoint, { method: "PUT", headers: githubHeaders(config, true), body: JSON.stringify(body) });
+  };
+  let latest = await readGithubJson(env, path);
+  let response = await send(latest.sha);
+  if (response.status === 409 || response.status === 422) {
+    latest = await readGithubJson(env, path);
+    response = await send(latest.sha);
+  }
+  if (!response.ok) throw new HttpError(502, "GITHUB_WRITE_FAILED");
+  const result = await response.json();
+  return { sha: result?.content?.sha || latest.sha || "" };
+}
+
+async function handleAdminContentGet(request, url, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const path = assertAdminContentPath(url.searchParams.get("path"));
+  return json({ ok: true, data: await readGithubJson(env, path) });
+}
+
+async function handleAdminContentPut(request, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const body = await readJson(request);
+  const path = assertAdminContentPath(body.path);
+  if (body.content === undefined || body.content === null) return jsonError("VALIDATION_ERROR", 400);
+  return json({ ok: true, data: await writeGithubJson(env, path, body.content, body.message) });
+}
 
 async function requireAdmin(request, db) {
   const member = await requireMember(request, db);
