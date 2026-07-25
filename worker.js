@@ -251,6 +251,15 @@ async function handleSignup(request, env, url) {
     return jsonError("LOGIN_ID_TAKEN", 409);
   }
 
+  const duplicateNickname = await env.DB
+    .prepare("SELECT id FROM members WHERE nickname = ? COLLATE NOCASE LIMIT 1")
+    .bind(nickname)
+    .first();
+
+  if (duplicateNickname) {
+    return jsonError("NICKNAME_TAKEN", 409);
+  }
+
   const passwordData = await hashPassword(password, env.PASSWORD_PEPPER);
   const session = await createSessionData(env.DB);
 
@@ -550,6 +559,15 @@ async function handleNicknameUpdate(request, env) {
   if (!nickname) return jsonError("VALIDATION_ERROR", 400);
   if (nickname === member.nickname) {
     return jsonError("NICKNAME_UNCHANGED", 400);
+  }
+
+  const duplicateNickname = await env.DB
+    .prepare("SELECT id FROM members WHERE nickname = ? COLLATE NOCASE AND id <> ? LIMIT 1")
+    .bind(nickname, member.id)
+    .first();
+
+  if (duplicateNickname) {
+    return jsonError("NICKNAME_TAKEN", 409);
   }
 
   const cooldownDays = Number(

@@ -62,3 +62,5 @@ html[dir="rtl"] .accordion-trigger,html[dir="rtl"] .form-stack label{text-align:
   #passwordForm label{grid-column:1/-1}
   .form-submit{width:min(320px,100%);justify-self:end}
 }
+
+.primary-link{border:0;font:inherit;cursor:pointer}

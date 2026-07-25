@@ -20,14 +20,110 @@
   };
 
   const ACCOUNT_LABELS = {
-    ko: { login:'로그인', signup:'회원가입', account:'계정', member:'멤버', administrator:'관리자', admin:'관리자', myPage:'마이페이지', logout:'로그아웃', unavailable:'다음 버전에서 제공됩니다.', loading:'확인 중' },
-    en: { login:'LOGIN', signup:'SIGN UP', account:'ACCOUNT', member:'MEMBER', administrator:'ADMINISTRATOR', admin:'ADMIN', myPage:'MY PAGE', logout:'LOGOUT', unavailable:'Available in the next version.', loading:'CHECKING' },
-    pt: { login:'ENTRAR', signup:'CADASTRAR', account:'CONTA', member:'MEMBRO', administrator:'ADMINISTRADOR', admin:'ADMIN', myPage:'MINHA PÁGINA', logout:'SAIR', unavailable:'Disponível na próxima versão.', loading:'VERIFICANDO' },
-    vi: { login:'ĐĂNG NHẬP', signup:'ĐĂNG KÝ', account:'TÀI KHOẢN', member:'THÀNH VIÊN', administrator:'QUẢN TRỊ VIÊN', admin:'QUẢN TRỊ', myPage:'TRANG CỦA TÔI', logout:'ĐĂNG XUẤT', unavailable:'Sẽ có trong phiên bản tiếp theo.', loading:'ĐANG KIỂM TRA' },
-    ar: { login:'تسجيل الدخول', signup:'إنشاء حساب', account:'الحساب', member:'عضو', administrator:'مسؤول', admin:'الإدارة', myPage:'صفحتي', logout:'تسجيل الخروج', unavailable:'متاح في الإصدار القادم.', loading:'جارٍ التحقق' },
-    ja: { login:'ログイン', signup:'新規登録', account:'アカウント', member:'メンバー', administrator:'管理者', admin:'管理', myPage:'マイページ', logout:'ログアウト', unavailable:'次のバージョンで提供されます。', loading:'確認中' },
-    th: { login:'เข้าสู่ระบบ', signup:'สมัครสมาชิก', account:'บัญชี', member:'สมาชิก', administrator:'ผู้ดูแลระบบ', admin:'ผู้ดูแล', myPage:'หน้าของฉัน', logout:'ออกจากระบบ', unavailable:'พร้อมใช้งานในเวอร์ชันถัดไป', loading:'กำลังตรวจสอบ' },
-    'zh-tw': { login:'登入', signup:'註冊', account:'帳號', member:'成員', administrator:'管理員', admin:'管理', myPage:'我的頁面', logout:'登出', unavailable:'將於下一版本提供。', loading:'確認中' }
+    ko: {
+      login:'로그인', signup:'회원가입', account:'계정', member:'멤버',
+      administrator:'관리자', admin:'관리자', myPage:'마이페이지', logout:'로그아웃',
+      loading:'확인 중', loginId:'아이디', password:'비밀번호',
+      noAccount:'계정이 없으신가요?', loginSuccess:'로그인되었습니다.',
+      logoutSuccess:'로그아웃되었습니다.',
+      invalidLogin:'아이디 또는 비밀번호가 올바르지 않습니다.',
+      suspended:'정지된 계정입니다.', left:'탈퇴 처리된 계정입니다.',
+      sessionExpired:'세션이 만료되었습니다. 다시 로그인해 주세요.',
+      requestFailed:'요청을 처리하지 못했습니다.',
+      close:'닫기', showPassword:'비밀번호 보기', hidePassword:'비밀번호 숨기기',
+      adminComing:'관리자 페이지는 다음 버전에서 제공됩니다.'
+    },
+    en: {
+      login:'LOGIN', signup:'SIGN UP', account:'ACCOUNT', member:'MEMBER',
+      administrator:'ADMINISTRATOR', admin:'ADMIN', myPage:'MY PAGE', logout:'LOGOUT',
+      loading:'CHECKING', loginId:'Login ID', password:'Password',
+      noAccount:'Do not have an account?', loginSuccess:'Logged in successfully.',
+      logoutSuccess:'Logged out successfully.',
+      invalidLogin:'Invalid login ID or password.',
+      suspended:'This account is suspended.', left:'This account has been closed.',
+      sessionExpired:'Your session has expired. Please log in again.',
+      requestFailed:'The request could not be completed.',
+      close:'Close', showPassword:'Show password', hidePassword:'Hide password',
+      adminComing:'The Admin page will be available in the next version.'
+    },
+    pt: {
+      login:'ENTRAR', signup:'CADASTRAR', account:'CONTA', member:'MEMBRO',
+      administrator:'ADMINISTRADOR', admin:'ADMIN', myPage:'MINHA PÁGINA', logout:'SAIR',
+      loading:'VERIFICANDO', loginId:'ID de login', password:'Senha',
+      noAccount:'Ainda não tem uma conta?', loginSuccess:'Login realizado.',
+      logoutSuccess:'Sessão encerrada.',
+      invalidLogin:'ID de login ou senha inválidos.',
+      suspended:'Esta conta está suspensa.', left:'Esta conta foi encerrada.',
+      sessionExpired:'Sua sessão expirou. Entre novamente.',
+      requestFailed:'Não foi possível concluir a solicitação.',
+      close:'Fechar', showPassword:'Mostrar senha', hidePassword:'Ocultar senha',
+      adminComing:'A página de administração estará disponível na próxima versão.'
+    },
+    vi: {
+      login:'ĐĂNG NHẬP', signup:'ĐĂNG KÝ', account:'TÀI KHOẢN', member:'THÀNH VIÊN',
+      administrator:'QUẢN TRỊ VIÊN', admin:'QUẢN TRỊ', myPage:'TRANG CỦA TÔI', logout:'ĐĂNG XUẤT',
+      loading:'ĐANG KIỂM TRA', loginId:'ID đăng nhập', password:'Mật khẩu',
+      noAccount:'Chưa có tài khoản?', loginSuccess:'Đăng nhập thành công.',
+      logoutSuccess:'Đã đăng xuất.',
+      invalidLogin:'ID đăng nhập hoặc mật khẩu không đúng.',
+      suspended:'Tài khoản này đã bị đình chỉ.', left:'Tài khoản này đã đóng.',
+      sessionExpired:'Phiên đã hết hạn. Vui lòng đăng nhập lại.',
+      requestFailed:'Không thể xử lý yêu cầu.',
+      close:'Đóng', showPassword:'Hiện mật khẩu', hidePassword:'Ẩn mật khẩu',
+      adminComing:'Trang quản trị sẽ có trong phiên bản tiếp theo.'
+    },
+    ar: {
+      login:'تسجيل الدخول', signup:'إنشاء حساب', account:'الحساب', member:'عضو',
+      administrator:'مسؤول', admin:'الإدارة', myPage:'صفحتي', logout:'تسجيل الخروج',
+      loading:'جارٍ التحقق', loginId:'معرّف الدخول', password:'كلمة المرور',
+      noAccount:'ليس لديك حساب؟', loginSuccess:'تم تسجيل الدخول.',
+      logoutSuccess:'تم تسجيل الخروج.',
+      invalidLogin:'معرّف تسجيل الدخول أو كلمة المرور غير صحيحة.',
+      suspended:'هذا الحساب موقوف.', left:'تم إغلاق هذا الحساب.',
+      sessionExpired:'انتهت الجلسة. يرجى تسجيل الدخول مجددًا.',
+      requestFailed:'تعذر تنفيذ الطلب.',
+      close:'إغلاق', showPassword:'إظهار كلمة المرور', hidePassword:'إخفاء كلمة المرور',
+      adminComing:'ستتوفر صفحة الإدارة في الإصدار القادم.'
+    },
+    ja: {
+      login:'ログイン', signup:'新規登録', account:'アカウント', member:'メンバー',
+      administrator:'管理者', admin:'管理', myPage:'マイページ', logout:'ログアウト',
+      loading:'確認中', loginId:'ログインID', password:'パスワード',
+      noAccount:'アカウントをお持ちでないですか？', loginSuccess:'ログインしました。',
+      logoutSuccess:'ログアウトしました。',
+      invalidLogin:'ログインIDまたはパスワードが正しくありません。',
+      suspended:'このアカウントは停止されています。', left:'このアカウントは退会済みです。',
+      sessionExpired:'セッションの有効期限が切れました。再度ログインしてください。',
+      requestFailed:'リクエストを処理できませんでした。',
+      close:'閉じる', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す',
+      adminComing:'管理ページは次のバージョンで提供されます。'
+    },
+    th: {
+      login:'เข้าสู่ระบบ', signup:'สมัครสมาชิก', account:'บัญชี', member:'สมาชิก',
+      administrator:'ผู้ดูแลระบบ', admin:'ผู้ดูแล', myPage:'หน้าของฉัน', logout:'ออกจากระบบ',
+      loading:'กำลังตรวจสอบ', loginId:'ไอดีเข้าสู่ระบบ', password:'รหัสผ่าน',
+      noAccount:'ยังไม่มีบัญชีใช่ไหม?', loginSuccess:'เข้าสู่ระบบแล้ว',
+      logoutSuccess:'ออกจากระบบแล้ว',
+      invalidLogin:'รหัสเข้าสู่ระบบหรือรหัสผ่านไม่ถูกต้อง',
+      suspended:'บัญชีนี้ถูกระงับ', left:'บัญชีนี้ถูกปิดแล้ว',
+      sessionExpired:'เซสชันหมดอายุ โปรดเข้าสู่ระบบอีกครั้ง',
+      requestFailed:'ไม่สามารถดำเนินการได้',
+      close:'ปิด', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน',
+      adminComing:'หน้าผู้ดูแลจะพร้อมใช้งานในเวอร์ชันถัดไป'
+    },
+    'zh-tw': {
+      login:'登入', signup:'註冊', account:'帳號', member:'成員',
+      administrator:'管理員', admin:'管理', myPage:'我的頁面', logout:'登出',
+      loading:'確認中', loginId:'登入 ID', password:'密碼',
+      noAccount:'還沒有帳號嗎？', loginSuccess:'登入成功。',
+      logoutSuccess:'已登出。',
+      invalidLogin:'登入 ID 或密碼不正確。',
+      suspended:'此帳號已停權。', left:'此帳號已關閉。',
+      sessionExpired:'工作階段已過期，請重新登入。',
+      requestFailed:'無法完成要求。',
+      close:'關閉', showPassword:'顯示密碼', hidePassword:'隱藏密碼',
+      adminComing:'管理頁面將於下一版本提供。'
+    }
   };
 
   const menuItems = [
@@ -85,6 +181,39 @@
     </div>
     <button id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
 
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="ezpk-auth-modal" id="ezpkLoginModal" hidden>
+      <div class="ezpk-auth-backdrop" data-auth-close></div>
+      <section class="ezpk-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="ezpkLoginTitle">
+        <button class="ezpk-auth-close" type="button" data-auth-close aria-label="Close">×</button>
+        <p class="ezpk-auth-eyebrow">EZPK MEMBER</p>
+        <h2 id="ezpkLoginTitle"></h2>
+        <form id="ezpkLoginForm" novalidate>
+          <label>
+            <span data-auth-text="loginId"></span>
+            <input name="loginId" type="text" minlength="4" maxlength="32"
+              autocomplete="username" autocapitalize="none" spellcheck="false" required>
+          </label>
+          <label>
+            <span data-auth-text="password"></span>
+            <div class="ezpk-password-field">
+              <input name="password" type="password" minlength="8" maxlength="128"
+                autocomplete="current-password" required>
+              <button type="button" class="ezpk-password-toggle" data-password-toggle></button>
+            </div>
+          </label>
+          <p class="ezpk-auth-error" id="ezpkLoginError" role="alert" hidden></p>
+          <button class="ezpk-auth-submit" type="submit"></button>
+        </form>
+        <div class="ezpk-auth-switch">
+          <span data-auth-text="noAccount"></span>
+          <a href="${base}/signup/" data-auth-text="signup"></a>
+        </div>
+      </section>
+    </div>
+    <div class="ezpk-global-toast" id="ezpkGlobalToast" role="status" aria-live="polite" hidden></div>
+  `);
+
   const META = {
     ko:['🇰🇷','한국어'], en:['🇺🇸','English'], pt:['🇧🇷','Português'], vi:['🇻🇳','Tiếng Việt'],
     ar:['🇸🇦','العربية'], ja:['🇯🇵','日本語'], th:['🇹🇭','ไทย'], 'zh-tw':['🇹🇼','繁體中文']
@@ -117,6 +246,7 @@
     document.body.classList.toggle('rtl',lang==='ar');
     localStorage.setItem(STORAGE_KEY,lang);
     renderAccount();
+    updateAuthModalLabels();
     if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang}}));
   }
 
@@ -126,10 +256,64 @@
     });
   }
 
-  function unavailable(event) {
+  const loginModal = document.querySelector('#ezpkLoginModal');
+  const loginForm = document.querySelector('#ezpkLoginForm');
+  const loginError = document.querySelector('#ezpkLoginError');
+  const globalToast = document.querySelector('#ezpkGlobalToast');
+
+  function showGlobalToast(message, type='success') {
+    globalToast.textContent = message;
+    globalToast.className = `ezpk-global-toast ${type}`;
+    globalToast.hidden = false;
+    clearTimeout(showGlobalToast.timer);
+    showGlobalToast.timer = setTimeout(function () {
+      globalToast.hidden = true;
+    }, 3000);
+  }
+
+  function updateAuthModalLabels() {
+    const labels = accountLabels();
+    document.querySelector('#ezpkLoginTitle').textContent = labels.login;
+    loginForm.querySelector('.ezpk-auth-submit').textContent = labels.login;
+    loginModal.querySelectorAll('[data-auth-text]').forEach(function (element) {
+      const key = element.dataset.authText;
+      element.textContent = labels[key] || key;
+    });
+    const toggle = loginForm.querySelector('[data-password-toggle]');
+    const password = loginForm.elements.password;
+    toggle.textContent = password.type === 'password' ? '◉' : '×';
+    toggle.setAttribute('aria-label', password.type === 'password' ? labels.showPassword : labels.hidePassword);
+    loginModal.querySelector('[data-auth-close]').setAttribute('aria-label', labels.close);
+  }
+
+  function openLogin(event) {
+    if (event) event.preventDefault();
+    closeMenus();
+    updateAuthModalLabels();
+    loginError.hidden = true;
+    loginError.textContent = '';
+    loginModal.hidden = false;
+    document.body.classList.add('auth-modal-open');
+    setTimeout(function () { loginForm.elements.loginId.focus(); }, 0);
+  }
+
+  function closeLogin() {
+    loginModal.hidden = true;
+    document.body.classList.remove('auth-modal-open');
+    loginForm.reset();
+    loginForm.elements.password.type = 'password';
+    loginError.hidden = true;
+    updateAuthModalLabels();
+  }
+
+  function goToSignup(event) {
     event.preventDefault();
-    window.dispatchEvent(new CustomEvent('ezpk-account-action', { detail: { action:event.currentTarget.dataset.accountAction } }));
-    alert(accountLabels().unavailable);
+    window.location.href = `${base}/signup/`;
+  }
+
+  function adminUnavailable(event) {
+    event.preventDefault();
+    alert(accountLabels().adminComing);
   }
 
   async function logout(event) {
@@ -148,6 +332,7 @@
     authLoaded = true;
     renderAccount();
     closeMenus();
+    showGlobalToast(accountLabels().logoutSuccess);
     window.dispatchEvent(new CustomEvent('ezpk-auth-change', { detail:authState }));
   }
 
@@ -212,9 +397,12 @@
 
   function bindAccountEvents(container) {
     container.querySelectorAll('[data-account-action]').forEach(function (button) {
-      if (button.dataset.accountAction === 'logout') button.addEventListener('click', logout);
-      else if (button.dataset.accountAction === 'mypage') button.addEventListener('click', goToMyPage);
-      else button.addEventListener('click', unavailable);
+      const action = button.dataset.accountAction;
+      if (action === 'logout') button.addEventListener('click', logout);
+      else if (action === 'mypage') button.addEventListener('click', goToMyPage);
+      else if (action === 'login') button.addEventListener('click', openLogin);
+      else if (action === 'signup') button.addEventListener('click', goToSignup);
+      else if (action === 'admin') button.addEventListener('click', adminUnavailable);
     });
 
     const trigger = container.querySelector('.account-member-trigger');
@@ -268,6 +456,71 @@
     header.querySelectorAll('.account-member-trigger').forEach(function (button) { button.setAttribute('aria-expanded','false'); });
   }
 
+  loginModal.querySelectorAll('[data-auth-close]').forEach(function (element) {
+    element.addEventListener('click', closeLogin);
+  });
+
+  loginForm.querySelector('[data-password-toggle]').addEventListener('click', function () {
+    const password = loginForm.elements.password;
+    password.type = password.type === 'password' ? 'text' : 'password';
+    updateAuthModalLabels();
+  });
+
+  loginForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const submit = loginForm.querySelector('.ezpk-auth-submit');
+    loginError.hidden = true;
+    submit.disabled = true;
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method:'POST',
+        credentials:'include',
+        headers:{'content-type':'application/json','accept':'application/json'},
+        body:JSON.stringify({
+          loginId:loginForm.elements.loginId.value,
+          password:loginForm.elements.password.value
+        })
+      });
+
+      let payload = null;
+      try { payload = await response.json(); } catch (_) {}
+
+      if (!response.ok || !payload?.ok) {
+        const code = payload?.code || 'REQUEST_FAILED';
+        const labels = accountLabels();
+        const message = code === 'ACCOUNT_SUSPENDED'
+          ? labels.suspended
+          : code === 'ACCOUNT_LEFT'
+            ? labels.left
+            : code === 'INVALID_LOGIN'
+              ? labels.invalidLogin
+              : labels.requestFailed;
+        loginError.textContent = message;
+        loginError.hidden = false;
+        return;
+      }
+
+      authState = { authenticated:true, member:payload.data.member };
+      authLoaded = true;
+      renderAccount();
+      closeLogin();
+      showGlobalToast(accountLabels().loginSuccess);
+      window.dispatchEvent(new CustomEvent('ezpk-auth-change', { detail:authState }));
+    } catch (_) {
+      loginError.textContent = accountLabels().requestFailed;
+      loginError.hidden = false;
+    } finally {
+      submit.disabled = false;
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && !loginModal.hidden) closeLogin();
+  });
+
+  window.addEventListener('ezpk-open-login', openLogin);
+
   const initialLang = currentLanguage();
   applyLanguage(initialLang,false);
 
@@ -318,6 +571,7 @@
     renderNavLabels,
     applyLanguage,
     refreshAuth:loadAuth,
+    openLogin:openLogin,
     getAuthState:function () { return authState; }
   };
 

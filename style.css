@@ -672,3 +672,37 @@ nav a.active{color:#f5c547!important}
     grid-template-columns:42px 42px minmax(0,1fr);
   }
 }
+
+
+/* EZPK v186 — shared authentication UI */
+.auth-modal-open{overflow:hidden}
+.ezpk-auth-modal[hidden],.ezpk-global-toast[hidden]{display:none!important}
+.ezpk-auth-modal{position:fixed;inset:0;z-index:20000;display:grid;place-items:center;padding:18px}
+.ezpk-auth-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.76);backdrop-filter:blur(6px)}
+.ezpk-auth-dialog{position:relative;z-index:1;width:min(430px,100%);padding:28px;border:1px solid #2b3545;border-radius:20px;background:linear-gradient(180deg,#121a26,#080d14);box-shadow:0 28px 80px rgba(0,0,0,.62);color:#f7f9fc}
+.ezpk-auth-close{position:absolute;top:10px;right:12px;width:40px;height:40px;border:0;background:transparent;color:#9ca9ba;font-size:28px;cursor:pointer}
+.ezpk-auth-eyebrow{margin:0 0 7px;color:#69d2ff;font-size:12px;font-weight:900;letter-spacing:.15em}
+.ezpk-auth-dialog h2{margin:0 0 22px;font-size:30px}
+#ezpkLoginForm{display:grid;gap:15px}
+#ezpkLoginForm label{display:grid;gap:7px;color:#c8d1df;font-size:13px;font-weight:800}
+#ezpkLoginForm input{width:100%;min-height:50px;padding:0 14px;border:1px solid #303c4e;border-radius:12px;background:#070c13;color:#fff;font:inherit;font-size:16px}
+#ezpkLoginForm input:focus{outline:2px solid rgba(91,205,255,.32);border-color:#63cffc}
+.ezpk-password-field{position:relative}
+.ezpk-password-field input{padding-right:54px!important}
+.ezpk-password-toggle{position:absolute;right:5px;top:5px;width:40px;height:40px;border:0;border-radius:9px;background:#172130;color:#a9b8ca;cursor:pointer;font-weight:900}
+.ezpk-auth-error{margin:0;padding:11px 12px;border:1px solid rgba(239,68,68,.38);border-radius:10px;background:rgba(239,68,68,.1);color:#ff9a9a;font-size:13px;line-height:1.45}
+.ezpk-auth-submit{min-height:50px;border:0;border-radius:12px;background:linear-gradient(135deg,#58ccff,#8982ff);color:#071019;font:inherit;font-weight:950;cursor:pointer}
+.ezpk-auth-submit:disabled{opacity:.55;cursor:wait}
+.ezpk-auth-switch{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:19px;color:#929fb1;font-size:13px}
+.ezpk-auth-switch a{color:#7bd9ff;font-weight:900;text-decoration:none}
+.ezpk-global-toast{position:fixed;left:50%;bottom:24px;z-index:21000;transform:translateX(-50%);width:min(420px,calc(100% - 28px));padding:13px 16px;border:1px solid rgba(34,197,94,.5);border-radius:12px;background:#121b27;color:#fff;text-align:center;font-weight:850;box-shadow:0 18px 48px rgba(0,0,0,.5)}
+.ezpk-global-toast.error{border-color:rgba(239,68,68,.55)}
+html[dir="rtl"] .ezpk-auth-close{right:auto;left:12px}
+html[dir="rtl"] .ezpk-password-field input{padding-right:14px!important;padding-left:54px!important}
+html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
+@media(max-width:640px){
+  .ezpk-auth-modal{padding:0;align-items:stretch}
+  .ezpk-auth-dialog{width:100%;min-height:100dvh;border:0;border-radius:0;padding:72px 20px 28px;overflow:auto}
+  .ezpk-auth-close{top:16px;right:16px}
+  html[dir="rtl"] .ezpk-auth-close{right:auto;left:16px}
+}
