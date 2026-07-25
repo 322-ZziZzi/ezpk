@@ -1,18 +1,15 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-
-  // Cloudflare Worker 이름
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ezpk",
-
-  // 현재 자동 배포에서 사용 중인 호환성 날짜
+  "main": "./worker.js",
   "compatibility_date": "2026-07-17",
 
-  // 현재 GitHub 저장소 루트 전체를 정적 자산으로 배포
   "assets": {
-    "directory": "./"
+    "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
   },
 
-  // EZPK 회원 시스템 D1 데이터베이스 바인딩
   "d1_databases": [
     {
       "binding": "DB",
