@@ -1,0 +1,18 @@
+EZPK v179-1 무료 플랜 적용 순서
+
+1. 아직 회원/관리자 데이터가 없다면 기존 ezpk-members D1을 삭제합니다.
+2. 같은 이름으로 새 D1을 생성합니다.
+3. d1-free-plan-installer 폴더의 01~39 SQL을 순서대로 실행합니다.
+4. 40~44 SQL로 설치 상태를 확인합니다.
+5. 새 D1 database_id를 wrangler.jsonc에 반영합니다.
+6. Cloudflare Worker Secret을 등록합니다.
+   - ADMIN_SETUP_KEY
+   - PASSWORD_PEPPER
+7. 이 ZIP 전체를 GitHub에 업로드하고 자동 배포합니다.
+8. /api/db-test가 정상인지 확인합니다.
+9. /api/setup/admin으로 ezpk_admin을 최초 생성합니다.
+
+PASSWORD_PEPPER 권장
+- 32자 이상의 무작위 문자열
+- GitHub 코드에 기록 금지
+- 회원 생성 후 변경/삭제/분실 금지

@@ -14,7 +14,8 @@
     {
       "binding": "DB",
       "database_name": "ezpk-members",
-      "database_id": "aaa29a3a-a221-47e3-a30f-9b4c624dcb56"
+      "database_id": "aaa29a3a-a221-47e3-a30f-9b4c624dcb56",
+      "migrations_dir": "migrations"
     }
   ]
 }

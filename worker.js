@@ -1,4 +1,5 @@
 const SESSION_COOKIE = "__Host-ezpk_session";
+const FREE_PLAN_PBKDF2_ITERATIONS = 10000;
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
   "cache-control": "no-store",
@@ -100,6 +101,9 @@ async function handleSetupAdmin(request, env, url) {
   if (!env.ADMIN_SETUP_KEY) {
     return jsonError("SETUP_NOT_CONFIGURED", 503);
   }
+  if (!env.PASSWORD_PEPPER) {
+    return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED", 503);
+  }
 
   const body = await readJson(request);
   const setupKey = cleanString(body.setupKey, 256);
@@ -132,7 +136,7 @@ async function handleSetupAdmin(request, env, url) {
     return jsonError("ADMIN_ALREADY_EXISTS", 409);
   }
 
-  const passwordData = await hashPassword(password);
+  const passwordData = await hashPassword(password, env.PASSWORD_PEPPER);
   const session = await createSessionData(env.DB);
 
   await env.DB.batch([
@@ -191,6 +195,10 @@ async function handleSetupAdmin(request, env, url) {
 }
 
 async function handleSignup(request, env, url) {
+  if (!env.PASSWORD_PEPPER) {
+    return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED", 503);
+  }
+
   const signupEnabled = await getSetting(env.DB, "member_signup_enabled");
   if (signupEnabled !== "1") {
     return jsonError("SIGNUP_DISABLED", 403);
@@ -243,7 +251,7 @@ async function handleSignup(request, env, url) {
     return jsonError("LOGIN_ID_TAKEN", 409);
   }
 
-  const passwordData = await hashPassword(password);
+  const passwordData = await hashPassword(password, env.PASSWORD_PEPPER);
   const session = await createSessionData(env.DB);
 
   try {
@@ -337,7 +345,8 @@ async function handleLogin(request, env, url) {
     return jsonError("ACCOUNT_LEFT", 403);
   }
 
-  const passwordValid = await verifyPassword(password, member);
+  if (!env.PASSWORD_PEPPER) return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED", 503);
+  const passwordValid = await verifyPassword(password, member, env.PASSWORD_PEPPER);
   if (!passwordValid) return jsonError("INVALID_LOGIN", 401);
 
   const session = await createSessionData(env.DB);
@@ -691,7 +700,8 @@ async function handlePasswordUpdate(request, env) {
     return jsonError("CURRENT_PASSWORD_INCORRECT", 400);
   }
 
-  const valid = await verifyPassword(currentPassword, member);
+  if (!env.PASSWORD_PEPPER) return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED", 503);
+  const valid = await verifyPassword(currentPassword, member, env.PASSWORD_PEPPER);
   if (!valid) return jsonError("CURRENT_PASSWORD_INCORRECT", 403);
 
   const passwordError = validatePassword(
@@ -704,7 +714,7 @@ async function handlePasswordUpdate(request, env) {
     return jsonError("PASSWORD_UNCHANGED", 400);
   }
 
-  const passwordData = await hashPassword(newPassword);
+  const passwordData = await hashPassword(newPassword, env.PASSWORD_PEPPER);
 
   await env.DB.batch([
     env.DB.prepare(`
@@ -939,14 +949,14 @@ async function createSessionData(db) {
 // Password and crypto helpers
 // -----------------------------------------------------------------------------
 
-async function hashPassword(password) {
+async function hashPassword(password, pepper) {
   const saltBytes = crypto.getRandomValues(new Uint8Array(16));
   const salt = bytesToHex(saltBytes);
-  const iterations = 210000;
+  const iterations = FREE_PLAN_PBKDF2_ITERATIONS;
 
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(password),
+    new TextEncoder().encode(`${password}${pepper}`),
     "PBKDF2",
     false,
     ["deriveBits"],
@@ -970,13 +980,13 @@ async function hashPassword(password) {
   };
 }
 
-async function verifyPassword(password, member) {
+async function verifyPassword(password, member, pepper) {
   if (member.password_algorithm !== "pbkdf2-sha256") return false;
 
   const saltBytes = hexToBytes(member.password_salt);
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(password),
+    new TextEncoder().encode(`${password}${pepper}`),
     "PBKDF2",
     false,
     ["deriveBits"],
