@@ -5,34 +5,29 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>Season 6 | 322 EZPK Alliance</title>
-  <link rel="stylesheet" href="../style.css?v=1891">
+  <link rel="stylesheet" href="../style.css?v=1893">
   <link rel="stylesheet" href="season6.css?v=1770">
   <link rel="stylesheet" href="../common-heading.css?v=1610">
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="seasonUpcoming"></header>
-<script src="../shared-header.js?v=1892"></script>
+<script src="../shared-header.js?v=1893"></script>
 <main>
-  <section id="season6Lock" class="member-gate-wrap" hidden aria-hidden="true">
-    <div class="member-gate-card">
-      <div class="member-gate-icon" aria-hidden="true">🔒</div>
-      <span id="season6LockSection" class="member-gate-section"></span>
-      <h1 id="season6LockTitle" class="member-gate-title"></h1>
-      <p id="season6LockLead" class="member-gate-description"></p>
-      <form id="season6LockForm" class="member-gate-form">
-        <label for="season6Password" id="season6PasswordLabel"></label>
-        <div class="member-gate-row">
-          <input id="season6Password" type="password" autocomplete="current-password" required>
-          <button id="season6UnlockBtn" type="submit"></button>
-        </div>
-        <p id="season6LockError" class="member-gate-error" role="alert"></p>
-      </form>
+  <section id="season6Lock" class="member-gate-wrap" hidden>
+  <div class="member-gate-card">
+    <div class="member-gate-icon" aria-hidden="true">🔐</div>
+    <span class="member-gate-section" data-member-gate-section></span>
+    <h1 class="member-gate-title" data-member-gate-title></h1>
+    <p class="member-gate-description" data-member-gate-lead></p>
+    <div class="member-login-actions">
+      <button type="button" class="member-login-primary" data-member-login></button>
+      <a class="member-login-secondary" href="../signup/" data-member-signup></a>
     </div>
-  </section>
-  <div id="season6Protected" hidden aria-hidden="true">
-    <div class="alliance-logout-row" data-alliance-logout-row hidden>
-      <button type="button" class="alliance-logout-btn" data-alliance-logout></button>
-    </div>
+    <p class="member-gate-error" data-member-gate-error role="alert"></p>
+  </div>
+</section>
+<div id="season6Protected" hidden aria-hidden="true">
+    
   <section class="season6-page">
     <section id="latestView" class="season6-content-section">
       <div class="section-title-block">
@@ -142,6 +137,6 @@
 </div>
 
 <script src="../data.js?v=1610"></script>
-<script src="season6.js?v=1770"></script>
+<script src="season6.js?v=1893"></script>
 </body>
 </html>

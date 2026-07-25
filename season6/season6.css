@@ -146,3 +146,9 @@
 /* v161 · second shared viewer in Latest Information */
 .latest-rules-frame{margin-top:20px}
 @media(max-width:620px){.latest-rules-frame{margin-top:12px}}
+
+.member-login-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.member-login-actions button,.member-login-actions a{min-height:46px;display:grid;place-items:center;padding:0 16px;border-radius:11px;font-weight:900;text-decoration:none;cursor:pointer}
+.member-login-primary{border:0;background:#f5c547;color:#171000}
+.member-login-secondary{border:1px solid #ffffff22;background:#151e2c;color:#fff}
+@media(max-width:480px){.member-login-actions{grid-template-columns:1fr}}
