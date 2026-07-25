@@ -32,6 +32,18 @@ export default {
 
       const route = `${request.method} ${url.pathname}`;
 
+      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history))?$/);
+      if (adminMemberMatch) {
+        const memberId = Number(adminMemberMatch[1]);
+        const action = adminMemberMatch[2] || "";
+        if (request.method === "GET" && !action) return handleAdminMemberDetail(request, memberId, env);
+        if (request.method === "GET" && action === "history") return handleAdminMemberHistory(request, memberId, env);
+        if (request.method === "PUT" && !action) return handleAdminMemberUpdate(request, memberId, env);
+        if (request.method === "PUT" && action === "memo") return handleAdminMemberMemo(request, memberId, env);
+        if (request.method === "POST" && action === "reset-password") return handleAdminMemberResetPassword(request, memberId, env);
+        if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
+      }
+
       switch (route) {
         case "GET /api/db-test":
           return handleDbTest(env);
@@ -68,6 +80,12 @@ export default {
 
         case "GET /api/members":
           return handlePublicMembers(url, env);
+
+        case "GET /api/admin/members":
+          return handleAdminMembers(request, url, env);
+
+        case "POST /api/admin/members/bulk":
+          return handleAdminMembersBulk(request, env);
 
         default:
           return jsonError("NOT_FOUND", 404);
@@ -973,6 +991,227 @@ async function createSessionData(db) {
     ).toISOString(),
     maxAge: safeDays * 86400,
   };
+}
+
+
+async function requireAdmin(request, db) {
+  const member = await requireMember(request, db);
+  if (member instanceof Response) return member;
+  if (member.role !== "admin" || member.member_rank !== "R5" || member.status !== "active") {
+    return jsonError("FORBIDDEN", 403);
+  }
+  return member;
+}
+
+function adminMemberRow(row) {
+  return {
+    id: row.id,
+    loginId: row.login_id,
+    nickname: row.nickname,
+    power: row.power,
+    industryLevel: row.industry_level,
+    memberRank: row.member_rank,
+    role: row.role,
+    status: row.status,
+    approvalStatus: row.approval_status || "approved",
+    mustChangePassword: Boolean(row.must_change_password),
+    nicknameChangeCount: Number(row.nickname_change_count || 0),
+    nicknameUpdatedAt: row.nickname_updated_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastLoginAt: row.last_login_at,
+    passwordChangedAt: row.password_changed_at,
+    vehicle1Class: row.vehicle1_class,
+    vehicle1PowerValue: row.vehicle1_power_value,
+    vehicle1PowerUnit: row.vehicle1_power_unit,
+    vehicle1PowerNormalized: row.vehicle1_power_normalized,
+    vehicle2Class: row.vehicle2_class,
+    vehicle2PowerValue: row.vehicle2_power_value,
+    vehicle2PowerUnit: row.vehicle2_power_unit,
+    vehicle2PowerNormalized: row.vehicle2_power_normalized,
+    seasonWarAvailable: row.season_war_available === null ? null : Boolean(row.season_war_available),
+    bgbAvailableHour: row.bgb_available_hour,
+    discord: row.discord,
+    telegram: row.telegram,
+    adminMemo: row.admin_memo || "",
+    memoUpdatedAt: row.memo_updated_at,
+  };
+}
+
+async function handleAdminMembers(request, url, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+
+  const q = cleanString(url.searchParams.get("q"), 64);
+  const rank = String(url.searchParams.get("rank") || "").toUpperCase();
+  const industry = String(url.searchParams.get("industry") || "").toUpperCase();
+  const sortKey = url.searchParams.get("sort") || "created_desc";
+  const page = Math.max(1, Number(url.searchParams.get("page") || 1));
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit") || 50)));
+  const offset = (page - 1) * limit;
+
+  const where = [];
+  const binds = [];
+  if (q) { where.push("m.nickname LIKE ? COLLATE NOCASE"); binds.push(`%${q}%`); }
+  if (isAnyMemberRank(rank)) { where.push("m.member_rank = ?"); binds.push(rank); }
+  if (isIndustryLevel(industry)) { where.push("m.industry_level = ?"); binds.push(industry); }
+  const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+  const sortMap = {
+    created_desc: "m.created_at DESC",
+    power_desc: "m.power DESC",
+    power_asc: "m.power ASC",
+    vehicle1_desc: "COALESCE(s.vehicle1_power_normalized,0) DESC",
+    nickname_asc: "m.nickname COLLATE NOCASE ASC",
+  };
+  const orderBy = sortMap[sortKey] || sortMap.created_desc;
+
+  const countRow = await env.DB.prepare(`SELECT COUNT(*) AS total FROM members m ${whereSql}`)
+    .bind(...binds).first();
+  const stats = await env.DB.prepare(`
+    SELECT COUNT(*) AS total,
+      SUM(CASE WHEN status='active' THEN 1 ELSE 0 END) AS active,
+      SUM(CASE WHEN status='suspended' THEN 1 ELSE 0 END) AS suspended,
+      SUM(CASE WHEN status='left' THEN 1 ELSE 0 END) AS left_count
+    FROM members
+  `).first();
+
+  const rows = await env.DB.prepare(`
+    SELECT m.*, s.vehicle1_class, s.vehicle1_power_value, s.vehicle1_power_unit,
+      s.vehicle1_power_normalized, s.vehicle2_class, s.vehicle2_power_value,
+      s.vehicle2_power_unit, s.vehicle2_power_normalized, s.season_war_available,
+      s.bgb_available_hour, s.discord, s.telegram,
+      am.memo AS admin_memo, am.updated_at AS memo_updated_at
+    FROM members m
+    LEFT JOIN member_specs s ON s.member_id=m.id
+    LEFT JOIN member_admin_memos am ON am.member_id=m.id
+    ${whereSql}
+    ORDER BY ${orderBy}
+    LIMIT ? OFFSET ?
+  `).bind(...binds, limit, offset).all();
+
+  return json({ok:true,data:{
+    items:(rows.results||[]).map(adminMemberRow),
+    stats:{total:Number(stats?.total||0),active:Number(stats?.active||0),suspended:Number(stats?.suspended||0),left:Number(stats?.left_count||0)},
+    pagination:{page,limit,total:Number(countRow?.total||0),totalPages:Math.ceil(Number(countRow?.total||0)/limit)}
+  }});
+}
+
+async function handleAdminMemberDetail(request, memberId, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const row = await env.DB.prepare(`
+    SELECT m.*, s.vehicle1_class, s.vehicle1_power_value, s.vehicle1_power_unit,
+      s.vehicle1_power_normalized, s.vehicle2_class, s.vehicle2_power_value,
+      s.vehicle2_power_unit, s.vehicle2_power_normalized, s.season_war_available,
+      s.bgb_available_hour, s.discord, s.telegram,
+      am.memo AS admin_memo, am.updated_at AS memo_updated_at
+    FROM members m
+    LEFT JOIN member_specs s ON s.member_id=m.id
+    LEFT JOIN member_admin_memos am ON am.member_id=m.id
+    WHERE m.id=? LIMIT 1
+  `).bind(memberId).first();
+  if (!row) return jsonError("MEMBER_NOT_FOUND",404);
+  const history = await env.DB.prepare(`
+    SELECT old_nickname,new_nickname,changed_by,changed_at
+    FROM member_nickname_history WHERE member_id=?
+    ORDER BY changed_at DESC LIMIT 100
+  `).bind(memberId).all();
+  return json({ok:true,data:{member:adminMemberRow(row),nicknameHistory:history.results||[]}});
+}
+
+async function handleAdminMemberHistory(request, memberId, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const rows=await env.DB.prepare(`
+    SELECT old_nickname,new_nickname,changed_by,changed_at
+    FROM member_nickname_history WHERE member_id=?
+    ORDER BY changed_at DESC LIMIT 200
+  `).bind(memberId).all();
+  return json({ok:true,data:{items:rows.results||[]}});
+}
+
+async function handleAdminMemberUpdate(request, memberId, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const target = await env.DB.prepare("SELECT * FROM members WHERE id=?").bind(memberId).first();
+  if (!target) return jsonError("MEMBER_NOT_FOUND",404);
+  const body=await readJson(request);
+  const nickname=cleanString(body.nickname,64);
+  const power=toPositiveInteger(body.power);
+  const industry=String(body.industryLevel||"").toUpperCase();
+  const rank=String(body.memberRank||"").toUpperCase();
+  const status=String(body.status||"");
+  if(!nickname||!power||!isIndustryLevel(industry)||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
+  if(target.role==="admin" && (rank!=="R5" || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
+  if(dupe) return jsonError("NICKNAME_TAKEN",409);
+  const batch=[];
+  if(nickname!==target.nickname){
+    batch.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) VALUES(?,?,?,'admin',?)`).bind(memberId,target.nickname,nickname,admin.id));
+  }
+  batch.push(env.DB.prepare(`UPDATE members SET nickname=?,power=?,industry_level=?,member_rank=?,status=? WHERE id=?`).bind(nickname,power,industry,rank,status,memberId));
+  await env.DB.batch(batch);
+  return json({ok:true,data:{updated:true}});
+}
+
+async function handleAdminMemberMemo(request, memberId, env) {
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const body=await readJson(request);
+  const memo=String(body.memo??"").trim();
+  if(memo.length>1000)return jsonError("VALIDATION_ERROR",400);
+  await env.DB.prepare(`
+    INSERT INTO member_admin_memos(member_id,memo,updated_at,updated_by_member_id)
+    VALUES(?,?,CURRENT_TIMESTAMP,?)
+    ON CONFLICT(member_id) DO UPDATE SET memo=excluded.memo,updated_at=CURRENT_TIMESTAMP,updated_by_member_id=excluded.updated_by_member_id
+  `).bind(memberId,memo,admin.id).run();
+  return json({ok:true,data:{memo}});
+}
+
+async function handleAdminMembersBulk(request, env) {
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const body=await readJson(request);
+  const ids=Array.isArray(body.memberIds)?[...new Set(body.memberIds.map(Number).filter(Number.isInteger))]:[];
+  if(!ids.length||ids.length>300)return jsonError("VALIDATION_ERROR",400);
+  const field=String(body.field||"");
+  const value=String(body.value||"").toUpperCase();
+  const placeholders=ids.map(()=>"?").join(",");
+  if(field==="memberRank"&&!isAnyMemberRank(value))return jsonError("VALIDATION_ERROR",400);
+  if(field==="industryLevel"&&!isIndustryLevel(value))return jsonError("VALIDATION_ERROR",400);
+  if(field==="status"&&!["ACTIVE","SUSPENDED","LEFT"].includes(value))return jsonError("VALIDATION_ERROR",400);
+  const protectedRow=await env.DB.prepare(`SELECT id FROM members WHERE id IN (${placeholders}) AND role='admin' LIMIT 1`).bind(...ids).first();
+  if(protectedRow)return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  const column=field==="memberRank"?"member_rank":field==="industryLevel"?"industry_level":field==="status"?"status":null;
+  if(!column)return jsonError("VALIDATION_ERROR",400);
+  await env.DB.prepare(`UPDATE members SET ${column}=? WHERE id IN (${placeholders})`).bind(field==="status"?value.toLowerCase():value,...ids).run();
+  return json({ok:true,data:{updated:ids.length}});
+}
+
+async function handleAdminMemberResetPassword(request, memberId, env) {
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  if(!env.PASSWORD_PEPPER)return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED",503);
+  const target=await env.DB.prepare("SELECT role FROM members WHERE id=?").bind(memberId).first();
+  if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  if(target.role==="admin")return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  const temporary=`EZ${randomHex(5)}9a`;
+  const data=await hashPassword(temporary,env.PASSWORD_PEPPER);
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE members SET password_hash=?,password_salt=?,password_iterations=?,must_change_password=1,password_changed_at=CURRENT_TIMESTAMP WHERE id=?`).bind(data.hash,data.salt,data.iterations,memberId),
+    env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId)
+  ]);
+  return json({ok:true,data:{temporaryPassword:temporary}});
+}
+
+async function handleAdminMemberDelete(request, memberId, env) {
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const target=await env.DB.prepare("SELECT role FROM members WHERE id=?").bind(memberId).first();
+  if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  if(target.role==="admin")return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  await env.DB.prepare("DELETE FROM members WHERE id=?").bind(memberId).run();
+  return json({ok:true,data:{deleted:true}});
 }
 
 // -----------------------------------------------------------------------------

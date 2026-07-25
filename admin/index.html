@@ -5,23 +5,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
-  <link rel="stylesheet" href="../style.css?v=1870">
-  <link rel="stylesheet" href="admin.css?v=1280">
+  <link rel="stylesheet" href="../style.css?v=1880">
+  <link rel="stylesheet" href="admin.css?v=1880">
+  <link rel="stylesheet" href="member-manager-v188.css?v=1880">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 </head>
 <body>
 <section id="adminLogin" class="admin-login-screen">
-  <form id="adminLoginForm" class="admin-login-card" autocomplete="off">
+  <div class="admin-login-card">
     <div class="login-mark">★</div>
     <span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span>
-    <h1>ADMIN LOGIN</h1>
-    <p>관리자 비밀번호를 입력하세요.</p>
-    <label>비밀번호
-      <input id="adminPassword" type="password" autocomplete="current-password" placeholder="Password" required>
-    </label>
-    <button id="adminLoginButton" type="submit" class="primary">관리자 로그인</button>
-    <div id="loginStatus" class="login-status" aria-live="polite"></div>
-  </form>
+    <h1>R5 ADMIN ACCESS</h1>
+    <p id="loginStatus">R5 관리자 세션을 확인하고 있습니다.</p>
+    <button id="adminLoginButton" type="button" class="primary">LOGIN</button>
+    <a href="../" class="secondary admin-home-link">PORTAL</a>
+  </div>
 </section>
 <div id="adminApp" hidden>
 <header class="admin-header">
@@ -51,10 +49,66 @@
     <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="season6Panel">Season 6 Manager</button><button data-panel="eventsPanel">Event Manager</button><button data-panel="requestsPanel">Request Manager</button><button data-panel="accountsPanel">Account Manager</button></div>
 
     <div id="membersPanel" class="admin-panel active">
-      <div class="manager-tools"><input id="search" type="search" placeholder="닉네임 검색"><select id="rank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><button id="addMember">+ 멤버 추가</button><button id="importExcel">↑ Excel 가져오기</button><button id="exportExcel">↓ Excel 다운로드</button><button id="downloadJson">↓ JSON 백업</button><input id="excelFile" type="file" accept=".xlsx,.xls" hidden></div>
-      <div class="update-row"><label>멤버 목록 업데이트<input id="lastUpdated" type="text" placeholder="2026.07.17"></label><span id="count"></span></div>
-      <div class="table-wrap"><table><thead><tr><th>Rank</th><th>Nickname</th><th>IND.</th><th>Power</th><th></th></tr></thead><tbody id="memberRows"></tbody></table></div>
+  <section class="v188-member-manager">
+    <div class="v188-stats" id="memberStats">
+      <article><span>전체 회원</span><strong data-stat="total">0</strong></article>
+      <article><span>활성 회원</span><strong data-stat="active">0</strong></article>
+      <article><span>정지 회원</span><strong data-stat="suspended">0</strong></article>
+      <article><span>탈퇴 회원</span><strong data-stat="left">0</strong></article>
     </div>
+
+    <div class="v188-toolbar">
+      <input id="memberSearchV188" type="search" placeholder="닉네임 검색">
+      <select id="memberRankV188"><option value="">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select>
+      <select id="memberIndustryV188"><option value="">전체 산업</option><option>I10</option><option>I9</option><option>I8</option><option>I7</option><option>I6</option><option>I5</option><option>I4</option><option>I3</option><option>I2</option><option>I1</option></select>
+      <select id="memberSortV188">
+        <option value="created_desc">최근 가입순</option>
+        <option value="power_desc">전투력 높은 순</option>
+        <option value="power_asc">전투력 낮은 순</option>
+        <option value="vehicle1_desc">1번 차량 파워 높은 순</option>
+        <option value="nickname_asc">닉네임순</option>
+      </select>
+      <button id="memberRefreshV188" class="secondary" type="button">↻ 새로고침</button>
+      <button id="memberExportV188" class="secondary" type="button">↓ Excel</button>
+    </div>
+
+    <div id="memberBulkBarV188" class="v188-bulk" hidden>
+      <strong><span id="memberSelectedCountV188">0</span>명 선택</strong>
+      <select id="memberBulkFieldV188">
+        <option value="memberRank">등급 변경</option>
+        <option value="industryLevel">산업 변경</option>
+        <option value="status">상태 변경</option>
+      </select>
+      <select id="memberBulkValueV188"></select>
+      <button id="memberBulkApplyV188" class="primary" type="button">적용</button>
+      <button id="memberBulkCancelV188" class="secondary" type="button">선택 해제</button>
+    </div>
+
+    <div class="v188-layout">
+      <section class="v188-list-pane">
+        <div class="v188-table-wrap">
+          <table class="v188-member-table">
+            <thead><tr><th><input id="memberSelectAllV188" type="checkbox"></th><th>닉네임</th><th>등급</th><th>산업</th><th>전투력</th><th>1번 차량 파워</th></tr></thead>
+            <tbody id="memberRowsV188"></tbody>
+          </table>
+        </div>
+        <div id="memberCardsV188" class="v188-member-cards"></div>
+        <nav class="v188-pagination"><button id="memberPrevV188" type="button">‹</button><strong id="memberPageV188">1 / 1</strong><button id="memberNextV188" type="button">›</button></nav>
+      </section>
+
+      <aside id="memberDetailV188" class="v188-detail-pane">
+        <div class="v188-detail-empty">회원을 선택하세요.</div>
+      </aside>
+    </div>
+  </section>
+
+  <div hidden>
+    <input id="search"><select id="rank"><option value="ALL"></option></select>
+    <button id="addMember"></button><button id="importExcel"></button><button id="exportExcel"></button>
+    <button id="downloadJson"></button><input id="excelFile" type="file"><input id="lastUpdated"><span id="count"></span>
+    <table><tbody id="memberRows"></tbody></table>
+  </div>
+</div>
 
     <div id="bgbPanel" class="admin-panel">
       <div class="bgb-manager-head"><div><h2>BGB Team Manager</h2><p>최종 참전 멤버 20명을 선택한 뒤 자동 배정 버튼을 누르세요.</p></div><label>BGB 업데이트<input id="bgbLastUpdated" type="text" placeholder="2026.07.17"></label></div>
@@ -151,6 +205,7 @@
 </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1530"></script><script src="admin.js?v=1530"></script><script src="season6-manager.js?v=1530"></script><script src="accounts-manager.js?v=1530"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1880"></script><script src="admin.js?v=1880"></script><script src="season6-manager.js?v=1880"></script><script src="accounts-manager.js?v=1880"></script>
+<script src="member-manager-v188.js?v=1880"></script>
 </body>
 </html>

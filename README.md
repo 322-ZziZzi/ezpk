@@ -1,3 +1,5 @@
+# EZPK v188 — D1 Admin Member Manager
+
 # EZPK v187 — D1 Member List Integration & UI Fixes
 
 # EZPK v186 — Login & Sign Up System

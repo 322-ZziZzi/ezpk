@@ -2,57 +2,45 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>S
 
 // v17: initialize the login gate before the rest of the admin manager.
 // This keeps login functional even if a later manager feature raises an error.
-const ADMIN_PASSWORD='322ezpk';
 window.EZPK_ADMIN_PASSWORD='';
-function showAdminApp(){
-  sessionStorage.setItem('ezpk-admin-auth','1');
-  const login=document.getElementById('adminLogin');
-  const app=document.getElementById('adminApp');
-  if(login) login.hidden=true;
-  if(app) app.hidden=false;
-  document.body.classList.add('admin-unlocked');
-}
-function showAdminLogin(){
-  sessionStorage.removeItem('ezpk-admin-auth');
-  const login=document.getElementById('adminLogin');
-  const app=document.getElementById('adminApp');
-  if(app) app.hidden=true;
-  if(login) login.hidden=false;
-  document.body.classList.remove('admin-unlocked');
-  const input=document.getElementById('adminPassword');
+async function verifyAdminSession(){
   const status=document.getElementById('loginStatus');
-  if(input) input.value='';
-  if(status) status.textContent='';
-  setTimeout(()=>input?.focus(),0);
-}
-function initAdminLoginGate(){
-  const form=document.getElementById('adminLoginForm');
-  const input=document.getElementById('adminPassword');
-  const status=document.getElementById('loginStatus');
-  const logout=document.getElementById('adminLogout');
-  if(!form||!input) return;
-  form.addEventListener('submit',event=>{
-    event.preventDefault();
-    if(input.value.trim()===ADMIN_PASSWORD){
-      if(status) status.textContent='';
-      showAdminApp();
-      // Initialize manager data only after successful login.
-      try{ restoreToken(); }catch(_e){}
-      if(typeof loadLocal==='function') loadLocal().catch(e=>setStatus(e.message,'error'));
-    }else{
-      if(status) status.textContent='비밀번호가 올바르지 않습니다.';
-      input.focus();
-      input.select();
+  try{
+    const response=await fetch('/api/auth/me',{credentials:'include',headers:{accept:'application/json'},cache:'no-store'});
+    const payload=await response.json().catch(()=>null);
+    const member=payload?.data?.member;
+    if(response.ok&&payload?.ok&&member?.role==='admin'&&member?.memberRank==='R5'&&member?.status==='active'){
+      document.getElementById('adminLogin').hidden=true;
+      document.getElementById('adminApp').hidden=false;
+      document.body.classList.add('admin-unlocked');
+      try{restoreToken()}catch(_e){}
+      await loadLocal();
+      window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
+      return true;
     }
-  });
-  logout?.addEventListener('click',showAdminLogin);
-  if(sessionStorage.getItem('ezpk-admin-auth')==='1'){
-    showAdminApp();
-  }else{
-    showAdminLogin();
+    document.getElementById('adminLogin').hidden=false;
+    document.getElementById('adminApp').hidden=true;
+    document.body.classList.remove('admin-unlocked');
+    if(status)status.textContent='R5 관리자 로그인이 필요합니다.';
+    return false;
+  }catch(error){
+    if(status)status.textContent='관리자 세션을 확인하지 못했습니다.';
+    return false;
   }
 }
-if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
+function initAdminLoginGate(){
+  document.getElementById('adminLoginButton')?.addEventListener('click',()=>{
+    if(window.EZPKSharedHeader?.openLogin)window.EZPKSharedHeader.openLogin();
+    else window.location.href='../';
+  });
+  document.getElementById('adminLogout')?.addEventListener('click',async()=>{
+    await fetch('/api/auth/logout',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'}).catch(()=>{});
+    location.reload();
+  });
+  window.addEventListener('ezpk-auth-change',verifyAdminSession);
+  verifyAdminSession();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
 
 // v73: mobile-only collapsible admin navigation.
@@ -119,17 +107,42 @@ function syncEventsFromForm(){
 }
 function cfg(){return{owner:$('#owner').value.trim(),repo:$('#repo').value.trim(),branch:$('#branch').value.trim()||'main',token:$('#token').value.trim()}}
 function setStatus(msg,type=''){const e=$('#status');e.textContent=msg;e.className='status '+type}
-function normalizeMember(m){return{rank:String(m.rank||m.Rank||'R1').toUpperCase(),nickname:String(m.nickname||m.Nickname||'').trim(),ind:Number(m.ind??m.IND??m['Shelter Level']??0),power:Number(String(m.power??m['Combat Power']??0).replaceAll(',',''))}}
+function normalizeMember(m){return{id:Number(m.id||0),rank:String(m.memberRank||m.rank||m.Rank||'R1').toUpperCase(),nickname:String(m.nickname||m.Nickname||'').trim(),ind:Number(String(m.industryLevel||m.ind||m.IND||m['Shelter Level']||0).replace(/^I/i,'')),power:Number(String(m.power??m['Combat Power']??0).replaceAll(',','')),vehicle1PowerNormalized:Number(m.vehicle1PowerNormalized||0),vehicle1PowerValue:m.vehicle1PowerValue??null,vehicle1PowerUnit:m.vehicle1PowerUnit||'',status:m.status||'active',raw:m}}
 function uniqKnown(list){const known=new Set(membersData.members.map(m=>m.nickname));return [...new Set((Array.isArray(list)?list:[]).map(String))].filter(n=>known.has(n))}
 function normalizeBgb(d){const out=blankBgb();out.lastUpdated=String(d?.lastUpdated||'');if(d?.teams){TEAM_KEYS.forEach(t=>{out.teams[t].members=uniqKnown(d.teams?.[t]?.members);LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=uniqKnown(d.teams?.[t]?.locations?.[c]).filter(n=>out.teams[t].members.includes(n)))})}else if(d?.locations){out.teams.A.members=uniqKnown(Object.values(d.locations).flat());LOCATIONS.forEach(([c])=>out.teams.A.locations[c]=uniqKnown(d.locations[c]))}return out}
 function rememberToken(){const key='ezpk-admin-token';if($('#rememberToken').checked)localStorage.setItem(key,$('#token').value.trim());else localStorage.removeItem(key)}
 function restoreToken(){const token=localStorage.getItem('ezpk-admin-token');if(token){$('#token').value=token;$('#rememberToken').checked=true}}
-async function loadLocal(){const [mr,br,er]=await Promise.all([fetch('../data/members.json?v='+Date.now(),{cache:'no-store'}),fetch('../data/bgb.json?v='+Date.now(),{cache:'no-store'}),fetch('../data/events.json?v='+Date.now(),{cache:'no-store'})]);if(!mr.ok||!br.ok||!er.ok)throw new Error('현재 홈페이지 데이터를 불러오지 못했습니다.');membersData=await mr.json();membersData.members=(membersData.members||[]).map(normalizeMember);bgbData=normalizeBgb(await br.json());eventsData=normalizeEvents(await er.json());syncInputs();renderAll()}
+async function fetchAllAdminMembers(){
+  let page=1,totalPages=1,items=[];
+  do{
+    const response=await fetch(`/api/admin/members?page=${page}&limit=100&sort=power_desc`,{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});
+    const payload=await response.json().catch(()=>null);
+    if(!response.ok||!payload?.ok)throw new Error(payload?.code||'관리자 회원 데이터를 불러오지 못했습니다.');
+    items.push(...(payload.data.items||[]));
+    totalPages=Math.max(1,Number(payload.data.pagination?.totalPages||1));
+    page+=1;
+  }while(page<=totalPages);
+  return items;
+}
+async function loadLocal(){
+  const [adminMembers,br,er]=await Promise.all([
+    fetchAllAdminMembers(),
+    fetch('../data/bgb.json?v='+Date.now(),{cache:'no-store'}),
+    fetch('../data/events.json?v='+Date.now(),{cache:'no-store'})
+  ]);
+  if(!br.ok||!er.ok)throw new Error('현재 홈페이지 운영 데이터를 불러오지 못했습니다.');
+  membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
+  bgbData=normalizeBgb(await br.json());
+  eventsData=normalizeEvents(await er.json());
+  syncInputs();
+  renderAll();
+  window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
+}
 function syncInputs(){$('#lastUpdated').value=membersData.lastUpdated||'';$('#bgbLastUpdated').value=bgbData.lastUpdated||'';$('#eventsLastUpdated').value=eventsData.lastUpdated||''}
 function filteredMembers(){const q=$('#search').value.trim().toLowerCase(),rank=$('#rank').value;return membersData.members.map((m,i)=>({...m,_i:i})).filter(m=>(rank==='ALL'||m.rank===rank)&&m.nickname.toLowerCase().includes(q))}
 function replaceNicknameEverywhere(oldName,newName){TEAM_KEYS.forEach(t=>{const team=bgbData.teams[t];team.members=team.members.map(n=>n===oldName?newName:n);for(const c in team.locations)team.locations[c]=team.locations[c].map(n=>n===oldName?newName:n)})}
 function removeNicknameEverywhere(name){TEAM_KEYS.forEach(t=>{const team=bgbData.teams[t];team.members=team.members.filter(n=>n!==name);for(const c in team.locations)team.locations[c]=team.locations[c].filter(n=>n!==name)})}
-function renderMembers(){const list=filteredMembers();$('#count').textContent=`표시 ${list.length}명 / 전체 ${membersData.members.length}명`;$('#memberRows').innerHTML=list.map(m=>`<tr data-i="${m._i}"><td class="rank-cell"><select data-f="rank">${['R5','R4','R3','R2','R1'].map(r=>`<option ${r===m.rank?'selected':''}>${r}</option>`).join('')}</select></td><td><input data-f="nickname" value="${esc(m.nickname)}"></td><td class="ind-cell"><input data-f="ind" type="number" min="0" value="${m.ind}"></td><td class="power-cell"><input data-f="power" inputmode="numeric" value="${m.power}"></td><td><button class="remove">삭제</button></td></tr>`).join('');$$('#memberRows tr').forEach(tr=>{const i=Number(tr.dataset.i);tr.querySelectorAll('[data-f]').forEach(el=>el.onchange=()=>{const f=el.dataset.f,old=membersData.members[i][f],val=(f==='ind'||f==='power')?Number(String(el.value).replaceAll(',','')):el.value.trim();membersData.members[i][f]=val;if(f==='nickname'&&old!==val)replaceNicknameEverywhere(old,val);tr.classList.add('dirty');renderBgbAll()});tr.querySelector('.remove').onclick=()=>{const name=membersData.members[i].nickname;if(confirm(`${name} 멤버를 삭제할까요?`)){membersData.members.splice(i,1);removeNicknameEverywhere(name);renderAll()}}})}
+function renderMembers(){window.EZPKMemberManagerV188?.renderFromShared?.(membersData.members)}
 function currentTeam(){return bgbData.teams[selectedTeam]}
 function otherTeam(){return bgbData.teams[selectedTeam==='A'?'B':'A']}
 function lineupVisibleMembers(){const q=$('#lineupSearch').value.trim().toLowerCase(),rank=$('#lineupRank').value,sort=$('#lineupSort').value;const list=membersData.members.filter(m=>(rank==='ALL'||m.rank===rank)&&m.nickname.toLowerCase().includes(q));if(sort==='ind-desc')list.sort((a,b)=>b.ind-a.ind||b.power-a.power);else if(sort==='name-asc')list.sort((a,b)=>a.nickname.localeCompare(b.nickname));else list.sort((a,b)=>b.power-a.power);return list}
@@ -232,17 +245,42 @@ async function githubPutFile(path,payload,sha,message){
   const saved=await r.json();
   return saved.content&&saved.content.sha?saved.content.sha:latestSha;
 }
-async function loadGithub(){rememberToken();const [m,b,e]=await Promise.all([githubGetFile('data/members.json'),githubGetFile('data/bgb.json'),githubGetFile('data/events.json')]);memberSha=m.sha;bgbSha=b.sha;eventsSha=e.sha;membersData=m.data;membersData.members=(membersData.members||[]).map(normalizeMember);bgbData=normalizeBgb(b.data);eventsData=normalizeEvents(e.data);syncInputs();renderAll()}
-async function saveAllGithub(){rememberToken();if(!memberSha){const m=await githubGetFile('data/members.json');memberSha=m.sha}if(!bgbSha){const b=await githubGetFile('data/bgb.json');bgbSha=b.sha}if(!eventsSha){const e=await githubGetFile('data/events.json');eventsSha=e.sha}const date=todayKst(),mp=membersPayload(),bp=bgbPayload(),ep=eventsPayload();if(!mp.lastUpdated)mp.lastUpdated=date;if(!bp.lastUpdated)bp.lastUpdated=date;if(!ep.lastUpdated)ep.lastUpdated=date;TEAM_KEYS.forEach(t=>{if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`)});ep.events.forEach((e,i)=>{if(!e.enabled)return;if(!e.title||!e.start||!e.end)throw new Error(`EVENT ${i+1}: 활성화된 이벤트는 이벤트명, 시작시간, 종료시간이 모두 필요합니다.`);const startDate=parseEventDate(e.start),endDate=parseEventDate(e.end);if(!startDate||!endDate)throw new Error(`EVENT ${i+1}: 시간을 24시간 형식(HH:mm)으로 정확히 입력해 주세요. 예: 19:00`);if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`)});memberSha=await githubPutFile('data/members.json',mp,memberSha,`Update EZPK members ${mp.lastUpdated}`);bgbSha=await githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`);eventsSha=await githubPutFile('data/events.json',ep,eventsSha,`Update EZPK events ${ep.lastUpdated}`);membersData=mp;bgbData=normalizeBgb(bp);eventsData=normalizeEvents(ep);syncInputs();renderAll();setStatus('멤버 정보, BGB 편성, 이벤트 일정 저장 완료. GitHub Pages 반영까지 보통 1~3분 정도 걸립니다.','ok')}
+async function loadGithub(){
+  rememberToken();
+  const [adminMembers,b,e]=await Promise.all([
+    fetchAllAdminMembers(),
+    githubGetFile('data/bgb.json'),
+    githubGetFile('data/events.json')
+  ]);
+  bgbSha=b.sha;eventsSha=e.sha;
+  membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
+  bgbData=normalizeBgb(b.data);eventsData=normalizeEvents(e.data);
+  syncInputs();renderAll();
+  window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
+}
+async function saveAllGithub(){
+  rememberToken();
+  if(!bgbSha){const b=await githubGetFile('data/bgb.json');bgbSha=b.sha}
+  if(!eventsSha){const e=await githubGetFile('data/events.json');eventsSha=e.sha}
+  const date=todayKst(),bp=bgbPayload(),ep=eventsPayload();
+  if(!bp.lastUpdated)bp.lastUpdated=date;
+  if(!ep.lastUpdated)ep.lastUpdated=date;
+  TEAM_KEYS.forEach(t=>{if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`)});
+  ep.events.forEach((e,i)=>{if(!e.enabled)return;if(!e.title||!e.start||!e.end)throw new Error(`EVENT ${i+1}: 활성화된 이벤트는 이벤트명, 시작시간, 종료시간이 모두 필요합니다.`);const startDate=parseEventDate(e.start),endDate=parseEventDate(e.end);if(!startDate||!endDate)throw new Error(`EVENT ${i+1}: 시간을 정확히 입력해 주세요.`);if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`)});
+  bgbSha=await githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`);
+  eventsSha=await githubPutFile('data/events.json',ep,eventsSha,`Update EZPK events ${ep.lastUpdated}`);
+  bgbData=normalizeBgb(bp);eventsData=normalizeEvents(ep);syncInputs();renderAll();
+  setStatus('BGB 편성과 이벤트 일정 저장 완료. 회원 정보는 D1에 즉시 저장됩니다.','ok')
+}
 function exportExcel(){if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}const rows=membersData.members.map((m,i)=>({No:i+1,Rank:m.rank,Nickname:m.nickname,IND:m.ind,'Combat Power':m.power}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EZPK Members');XLSX.writeFile(wb,`EZPK_Member_List_${($('#lastUpdated').value||'backup').replaceAll('.','-')}.xlsx`)}
-function importExcel(file){const reader=new FileReader();reader.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''}),members=rows.map(normalizeMember).filter(m=>m.nickname);if(!members.length){alert('유효한 멤버 데이터가 없습니다.');return}membersData.members=members;bgbData=normalizeBgb(bgbData);renderAll();setStatus(`Excel에서 ${members.length}명을 불러왔습니다. 모든 변경사항 저장을 눌러 GitHub에 반영하세요.`,'ok')};reader.readAsArrayBuffer(file)}
+function importExcel(){alert('Excel 가져오기는 v188에서 제거되었습니다.')} 
 function downloadJson(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
 $$('.admin-tabs button').forEach(btn=>btn.onclick=()=>{$$('.admin-tabs button').forEach(b=>b.classList.remove('active'));$$('.admin-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('#'+btn.dataset.panel).classList.add('active')});
 $$('#bgbTeamTabs button').forEach(btn=>btn.onclick=()=>{selectedTeam=btn.dataset.team;selectedLocation='R1';$('#autoSummary').innerHTML='';renderBgbAll()});
-$('#search').oninput=renderMembers;$('#rank').onchange=renderMembers;$('#lineupSearch').oninput=renderLineup;$('#lineupRank').onchange=renderLineup;$('#lineupSort').onchange=renderLineup;$('#assignmentSearch').oninput=renderAssignments;
-$('#addMember').onclick=()=>{membersData.members.unshift({rank:'R1',nickname:'New Member',ind:0,power:0});renderAll()};
-$('#exportExcel').onclick=exportExcel;$('#importExcel').onclick=()=>$('#excelFile').click();$('#excelFile').onchange=e=>e.target.files[0]&&importExcel(e.target.files[0]);
-$('#downloadJson').onclick=()=>downloadJson(membersPayload(),'members.json');$('#downloadBgbJson').onclick=()=>downloadJson(bgbPayload(),'bgb.json');
+$('#search')&&($('#search').oninput=renderMembers);$('#rank')&&($('#rank').onchange=renderMembers);$('#lineupSearch').oninput=renderLineup;$('#lineupRank').onchange=renderLineup;$('#lineupSort').onchange=renderLineup;$('#assignmentSearch').oninput=renderAssignments;
+$('#addMember')&&($('#addMember').onclick=()=>{});
+$('#exportExcel')&&($('#exportExcel').onclick=exportExcel);
+$('#downloadJson')&&($('#downloadJson').onclick=()=>{});$('#downloadBgbJson').onclick=()=>downloadJson(bgbPayload(),'bgb.json');
 $('#autoAssign').onclick=autoAssign;$('#clearTeam').onclick=()=>{if(confirm(`${selectedTeam} TEAM 명단과 모든 위치 배정을 초기화할까요?`)){currentTeam().members=[];currentTeam().locations=blankLocations();$('#autoSummary').innerHTML='';renderBgbAll()}};
 $('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const set=new Set(currentTeam().locations[selectedLocation]);assignmentVisibleMembers().forEach(m=>set.add(m.nickname));currentTeam().locations[selectedLocation]=[...set];renderLocationButtons();renderAssignments()};
 $('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments()};

@@ -724,3 +724,15 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
     line-height:1.35;
   }
 }
+
+/* v188: definitive mobile account nickname clipping repair */
+@media (max-width:900px){
+  .mobile-menu.open{padding-top:max(26px,env(safe-area-inset-top))!important;overflow-y:auto!important}
+  .mobile-account-slot{padding-top:18px!important;min-height:92px!important;overflow:visible!important;align-items:flex-start!important}
+  .mobile-account-profile{min-height:76px!important;padding:22px 10px 14px!important;overflow:visible!important;align-items:flex-start!important;transform:none!important;margin-top:0!important}
+  .mobile-account-profile strong{
+    min-height:1.55em!important;line-height:1.5!important;padding:3px 0 1px!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+    transform:none!important;margin-top:0!important;
+  }
+}
