@@ -817,27 +817,6 @@ async function handlePublicMembers(url, env) {
     binds.push(industry.toUpperCase());
   }
 
-  const season = url.searchParams.get("seasonWar");
-  if (season === "1" || season === "0") {
-    where.push("season_war_available = ?");
-    binds.push(Number(season));
-  }
-
-  const bgbHour = url.searchParams.get("bgbHour");
-  if (bgbHour !== null && /^\d{1,2}$/.test(bgbHour)) {
-    const hour = Number(bgbHour);
-    if (hour >= 0 && hour <= 23) {
-      where.push("bgb_available_hour = ?");
-      binds.push(hour);
-    }
-  }
-
-  const vehicleClass = url.searchParams.get("vehicleClass");
-  if (["fighter", "shooter", "rider"].includes(vehicleClass)) {
-    where.push("(vehicle1_class = ? OR vehicle2_class = ?)");
-    binds.push(vehicleClass, vehicleClass);
-  }
-
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
   const sortMap = {
@@ -860,7 +839,14 @@ async function handlePublicMembers(url, env) {
   `).bind(...binds).first();
 
   const rows = await env.DB.prepare(`
-    SELECT *
+    SELECT
+      id,
+      nickname,
+      power,
+      industry_level,
+      member_rank,
+      joined_at,
+      basic_updated_at
     FROM public_members
     ${whereSql}
     ORDER BY ${sort}
@@ -1377,20 +1363,5 @@ function publicMemberRow(row) {
     memberRank: row.member_rank,
     joinedAt: row.joined_at,
     basicUpdatedAt: row.basic_updated_at,
-    vehicle1Class: row.vehicle1_class,
-    vehicle1PowerValue: row.vehicle1_power_value,
-    vehicle1PowerUnit: row.vehicle1_power_unit,
-    vehicle1PowerNormalized: row.vehicle1_power_normalized,
-    vehicle2Class: row.vehicle2_class,
-    vehicle2PowerValue: row.vehicle2_power_value,
-    vehicle2PowerUnit: row.vehicle2_power_unit,
-    vehicle2PowerNormalized: row.vehicle2_power_normalized,
-    seasonWarAvailable:
-      row.season_war_available === null
-        ? null
-        : Boolean(row.season_war_available),
-    bgbAvailableHour: row.bgb_available_hour,
-    specUpdatedAt: row.spec_updated_at,
-    specCompleted: Boolean(row.spec_completed),
   };
 }

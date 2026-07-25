@@ -6,5 +6,70 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),fmt=n=>n
 function ui(){const c=window.EZPK_DATA[lang],t=T[lang];document.documentElement.lang=lang;document.documentElement.dir=c.dir;document.body.classList.toggle('rtl',c.dir==='rtl');$('#flag').textContent=c.flag;$('#lname').textContent=c.name;$$('[data-k]').forEach(e=>{if(c.ui[e.dataset.k]!=null)e.textContent=c.ui[e.dataset.k]});$('#membersTitle').textContent=t.title;$('#membersLead').textContent=t.lead;$('#totalLabel').textContent=t.total;$('#totalPowerLabel').textContent=t.tp;$('#avgPowerLabel').textContent=t.avg;$('#memberSearch').placeholder=t.search;$('#rankFilter').innerHTML=`<option value="ALL">${t.all}</option>${['R5','R4','R3','R2','R1'].map(r=>`<option value="${r}">${r} · ${ROLES[r]}</option>`).join('')}`;$('#mobileSortLabel').textContent=t.sortLabel;$('#sortMembers').innerHTML=`<option value="rank">${t.rank}</option><option value="high">${t.high}</option><option value="low">${t.low}</option><option value="level">${t.level}</option><option value="name">${t.name}</option>`;$('#emptyState').textContent=t.empty;$('#memberFooter').textContent=t.footer;$('#updatedLabel').textContent=t.updated;$('#updatedDate').textContent=LAST_UPDATED+' KST';updateSummary();localStorage.setItem('ezpk-lang-v5',lang);render()}
 function updateSummary(){const sum=MEMBERS.reduce((a,m)=>a+m.power,0);$('#totalMembers').textContent=MEMBERS.length;$('#totalPower').textContent=compact(sum);$('#avgPower').textContent=MEMBERS.length?compact(Math.round(sum/MEMBERS.length)):'0'}
 function render(){const t=T[lang],isMobile=window.matchMedia('(max-width:620px)').matches;if(isMobile){$('#memberSearch').value='';$('#rankFilter').value='ALL';}const q=$('#memberSearch').value.trim().toLocaleLowerCase(),rf=isMobile?'ALL':$('#rankFilter').value,sort=$('#sortMembers').value;let list=MEMBERS.filter(m=>(rf==='ALL'||m.rank===rf)&&m.nickname.toLocaleLowerCase().includes(q));list=[...list].sort((a,b)=>sort==='high'?b.power-a.power:sort==='low'?a.power-b.power:sort==='level'?(b.ind-a.ind||b.power-a.power):sort==='name'?a.nickname.localeCompare(b.nickname):(ORDER[b.rank]-ORDER[a.rank]||b.power-a.power));visibleMembers=list;const groups=['R5','R4','R3','R2','R1'].map(r=>{const arr=list.filter(m=>m.rank===r);if(!arr.length)return'';return `<section class="rank-group"><button class="rank-head" aria-expanded="true"><div class="rank-title"><span class="rank-badge">${r}</span><div><h2>${ROLES[r]}</h2><small>${r}</small></div></div><div class="rank-count"><strong>${arr.length}</strong><span class="label">${t.member}</span><span class="rank-arrow">⌃</span></div></button><div class="rank-list">${arr.map((m,i)=>`<article class="member-card"><div class="member-index">${String(i+1).padStart(2,'0')}</div><div><h3 class="member-name">${esc(m.nickname)}</h3><div class="member-meta"><span>${t.shelter} <b>${m.ind}</b></span><span>${t.power} <b>${fmt(m.power)}</b></span></div></div><div class="power-chip">${compact(m.power)}</div></article>`).join('')}</div></section>`}).join('');$('#memberGroups').innerHTML=groups;$('#emptyState').hidden=!!list.length;$$('.rank-head').forEach(b=>b.onclick=()=>{const g=b.closest('.rank-group'),l=g.querySelector('.rank-list'),open=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',String(!open));l.hidden=open;g.classList.toggle('collapsed',open)})}
-async function loadMembers(){try{const res=await fetch('../data/members.json?v=81',{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);const data=await res.json();MEMBERS=Array.isArray(data.members)?data.members:[];LAST_UPDATED=data.lastUpdated||'-';visibleMembers=[...MEMBERS];ui()}catch(err){console.error(err);$('#memberGroups').innerHTML=`<div class="empty-state">${T[lang].loadError}</div>`}}
+function mapApiMember(item){
+  const industryText=String(item?.industryLevel||'').toUpperCase();
+  const industryNumber=Number(industryText.replace(/^I/,''));
+  return {
+    rank:String(item?.memberRank||'R1').toUpperCase(),
+    nickname:String(item?.nickname||''),
+    ind:Number.isFinite(industryNumber)?industryNumber:0,
+    power:Number(item?.power||0),
+    updatedAt:item?.basicUpdatedAt||item?.joinedAt||null
+  };
+}
+function formatUpdatedDate(value){
+  if(!value)return'-';
+  const date=new Date(value);
+  if(Number.isNaN(date.getTime()))return String(value);
+  return new Intl.DateTimeFormat('en-CA',{
+    timeZone:'Asia/Seoul',
+    year:'numeric',
+    month:'2-digit',
+    day:'2-digit'
+  }).format(date);
+}
+async function fetchMemberPage(page){
+  const res=await fetch(`/api/members?page=${page}&limit=100&sort=power_desc`,{
+    cache:'no-store',
+    credentials:'include',
+    headers:{accept:'application/json'}
+  });
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  const payload=await res.json();
+  if(!payload?.ok)throw new Error(payload?.code||'MEMBER_API_ERROR');
+  return payload.data||{};
+}
+async function loadMembers(){
+  try{
+    const first=await fetchMemberPage(1);
+    const totalPages=Math.max(1,Number(first.pagination?.totalPages||0));
+    let items=Array.isArray(first.items)?[...first.items]:[];
+    if(totalPages>1){
+      const remaining=await Promise.all(
+        Array.from({length:totalPages-1},(_,index)=>fetchMemberPage(index+2))
+      );
+      remaining.forEach(pageData=>{
+        if(Array.isArray(pageData.items))items.push(...pageData.items);
+      });
+    }
+    MEMBERS=items.map(mapApiMember).filter(member=>
+      member.nickname&&ORDER[member.rank]&&Number.isFinite(member.power)
+    );
+    const newest=MEMBERS.reduce((latest,member)=>{
+      const time=member.updatedAt?Date.parse(member.updatedAt):NaN;
+      return Number.isFinite(time)&&time>latest?time:latest;
+    },0);
+    LAST_UPDATED=newest?formatUpdatedDate(newest):'-';
+    visibleMembers=[...MEMBERS];
+    ui();
+  }catch(err){
+    console.error(err);
+    MEMBERS=[];
+    visibleMembers=[];
+    updateSummary();
+    $('#memberGroups').innerHTML=`<div class="empty-state">${T[lang].loadError}</div>`;
+    $('#emptyState').hidden=true;
+    $('#updatedDate').textContent='-';
+  }
+}
 window.addEventListener('ezpk-language-change',e=>{const next=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';lang=T[next]?next:'en';ui()});$('#memberSearch').oninput=render;$('#rankFilter').onchange=render;$('#sortMembers').onchange=render;window.addEventListener('resize',render);loadMembers();

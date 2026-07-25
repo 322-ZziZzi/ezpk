@@ -706,3 +706,21 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
   .ezpk-auth-close{top:16px;right:16px}
   html[dir="rtl"] .ezpk-auth-close{right:auto;left:16px}
 }
+
+/* v187: mobile account profile top clipping fix */
+@media (max-width:900px){
+  .mobile-account-slot{
+    padding-top:8px;
+    overflow:visible;
+  }
+  .mobile-account-profile{
+    padding:16px 10px 12px;
+    overflow:visible;
+  }
+  .mobile-account-profile strong{
+    display:block;
+    padding-top:2px;
+    overflow:hidden;
+    line-height:1.35;
+  }
+}

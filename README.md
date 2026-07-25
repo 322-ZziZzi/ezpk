@@ -1,3 +1,5 @@
+# EZPK v187 — D1 Member List Integration & UI Fixes
+
 # EZPK v186 — Login & Sign Up System
 
 # EZPK v184 — Common Login Frame

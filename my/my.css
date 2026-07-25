@@ -64,3 +64,8 @@ html[dir="rtl"] .accordion-trigger,html[dir="rtl"] .form-stack label{text-align:
 }
 
 .primary-link{border:0;font:inherit;cursor:pointer}
+
+/* v187: reliable accordion visibility and touch behavior */
+.accordion-panel[hidden]{display:none!important}
+.accordion-trigger{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.accordion-trigger:focus-visible{outline:2px solid rgba(87,200,255,.55);outline-offset:-2px}

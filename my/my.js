@@ -121,18 +121,33 @@
     }
   }
 
-  document.querySelectorAll(".accordion-trigger").forEach(trigger => {
-    trigger.addEventListener("click", () => {
-      document.querySelectorAll(".accordion-item").forEach(item => {
-        const own = item.contains(trigger);
-        item.classList.toggle("is-open", own);
-        const panel = $(".accordion-panel", item);
-        const button = $(".accordion-trigger", item);
-        panel.hidden = !own;
-        button.setAttribute("aria-expanded", String(own));
-        $(".chevron", item).textContent = own ? "⌄" : "›";
-      });
+  const accordionList = document.querySelector(".accordion-list");
+
+  function setAccordionState(item, open) {
+    const panel = item.querySelector(".accordion-panel");
+    const button = item.querySelector(".accordion-trigger");
+    const chevron = item.querySelector(".chevron");
+    item.classList.toggle("is-open", open);
+    panel.hidden = !open;
+    button.setAttribute("aria-expanded", String(open));
+    chevron.textContent = open ? "⌄" : "›";
+  }
+
+  accordionList.addEventListener("click", event => {
+    const trigger = event.target.closest(".accordion-trigger");
+    if (!trigger || !accordionList.contains(trigger)) return;
+
+    event.preventDefault();
+    const selectedItem = trigger.closest(".accordion-item");
+    const willOpen = trigger.getAttribute("aria-expanded") !== "true";
+
+    accordionList.querySelectorAll(".accordion-item").forEach(item => {
+      setAccordionState(item, item === selectedItem ? willOpen : false);
     });
+  });
+
+  accordionList.querySelectorAll(".accordion-item").forEach((item, index) => {
+    setAccordionState(item, index === 0);
   });
 
   for (let hour=0; hour<24; hour++) {
