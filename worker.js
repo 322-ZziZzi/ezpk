@@ -1117,7 +1117,7 @@ function normalizeLoginId(value) {
 }
 
 function isLoginId(value) {
-  return /^[a-z0-9]{4,20}$/.test(value);
+  return /^(?=.{4,32}$)[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?$/.test(value);
 }
 
 function validatePassword(password, passwordConfirm) {

@@ -65,7 +65,7 @@
         <details>
           <summary>회원가입</summary>
           <form id="signupForm" class="form-grid">
-            <label>로그인 아이디<input name="loginId" value="test322" required></label>
+            <label>로그인 아이디 <span class="field-hint">(영문 소문자·숫자·_·-·. / 4~32자)</span><input name="loginId" value="test322" pattern="[a-z0-9][a-z0-9._-]{2,30}[a-z0-9]" required></label>
             <label>비밀번호<input name="password" type="password" value="testpass123" required></label>
             <label>비밀번호 확인<input name="passwordConfirm" type="password" value="testpass123" required></label>
             <label>닉네임<input name="nickname" value="TEST MEMBER" required></label>
@@ -80,7 +80,7 @@
         <details>
           <summary>로그인</summary>
           <form id="loginForm" class="form-grid compact">
-            <label>로그인 아이디<input name="loginId" value="test322" required></label>
+            <label>로그인 아이디 <span class="field-hint">(영문 소문자·숫자·_·-·. / 4~32자)</span><input name="loginId" value="test322" pattern="[a-z0-9][a-z0-9._-]{2,30}[a-z0-9]" required></label>
             <label>비밀번호<input name="password" type="password" value="testpass123" required></label>
             <button class="button primary full" type="submit">로그인</button>
           </form>

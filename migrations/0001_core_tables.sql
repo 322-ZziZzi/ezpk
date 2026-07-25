@@ -4,9 +4,11 @@ CREATE TABLE IF NOT EXISTS members (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   login_id TEXT NOT NULL COLLATE NOCASE UNIQUE
     CHECK (
-      length(login_id) BETWEEN 4 AND 20
+      length(login_id) BETWEEN 4 AND 32
       AND login_id = lower(login_id)
-      AND login_id NOT GLOB '*[^a-z0-9]*'
+      AND login_id NOT GLOB '*[^a-z0-9._-]*'
+      AND substr(login_id, 1, 1) GLOB '[a-z0-9]'
+      AND substr(login_id, -1, 1) GLOB '[a-z0-9]'
     ),
   password_hash TEXT NOT NULL
     CHECK (length(password_hash) BETWEEN 32 AND 512),
