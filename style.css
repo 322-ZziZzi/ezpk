@@ -1170,3 +1170,48 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
 @media(max-width:900px){
   [data-shared-header]{z-index:1000!important}
 }
+
+/* v195: unified desktop auth/language controls and guest mobile account actions */
+@media (min-width:901px){
+  .site-header .header-account .account-button,
+  .site-header .lang > #langBtn{
+    height:42px!important;
+    min-height:42px!important;
+    border-radius:10px!important;
+    padding:0 16px!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+    font-size:11px!important;
+    font-weight:900!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+  .site-header .header-account .account-button{min-width:88px!important}
+  .site-header .lang > #langBtn{min-width:104px!important}
+  .site-header .header-account{gap:8px}
+  .site-header .account-login{margin-right:0!important}
+}
+@media (max-width:900px){
+  .ezpk-mobile-drawer .mobile-account-actions--guest{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+    width:100%!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-actions--guest button{
+    width:100%!important;
+    min-width:0!important;
+    min-height:48px!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-actions--guest .mobile-account-signup{
+    color:#171000!important;
+    background:#f5c547!important;
+    border-color:#f5c547!important;
+  }
+}
+[data-menu][hidden],
+.ezpk-mobile-drawer .mobile-menu-list>a[hidden],
+[data-shared-header] .desktop-nav-items>a[hidden],
+[data-shared-header] #navMoreMenu>a[hidden]{display:none!important}

@@ -11,6 +11,9 @@ export default {
 
     try {
       if (!url.pathname.startsWith("/api/")) {
+        if (request.method === "GET" && (url.pathname === "/data/bgb.json" || url.pathname === "/data/season6-teams.json")) {
+          return handleConditionalStrategyAsset(request, url, env);
+        }
         return env.ASSETS.fetch(request);
       }
 
@@ -78,6 +81,9 @@ export default {
 
         case "GET /api/auth/me":
           return handleAuthMe(request, env);
+
+        case "GET /api/public/strategy-access":
+          return handlePublicStrategyAccess(env, url);
 
         case "GET /api/member/me":
           return handleMemberMe(request, env);
@@ -462,6 +468,75 @@ async function handleLogout(request, env) {
     200,
     { "set-cookie": clearSessionCookie() },
   );
+}
+
+
+function validAssignedName(value) {
+  const name = typeof value === "string"
+    ? value.trim()
+    : value && typeof value === "object"
+      ? String(value.nickname ?? value.name ?? value.player ?? "").trim()
+      : "";
+  if (!name) return false;
+  return !new Set(["-", "tbd", "none", "empty", "coming soon", "준비중", "준비 중"]).has(name.toLowerCase());
+}
+
+function bgbAssignmentCount(data) {
+  const teams = data?.teams || {};
+  const names = [];
+  for (const key of ["A", "B"]) {
+    const team = teams[key] || {};
+    if (Array.isArray(team.members)) names.push(...team.members);
+    if (team.locations && typeof team.locations === "object") {
+      for (const list of Object.values(team.locations)) if (Array.isArray(list)) names.push(...list);
+    }
+  }
+  return names.filter(validAssignedName).length;
+}
+
+function season6AssignmentCount(data) {
+  const teams = data?.teams || {};
+  return ["attack", "defense", "support"]
+    .flatMap((key) => Array.isArray(teams[key]) ? teams[key] : [])
+    .filter(validAssignedName).length;
+}
+
+async function readStrategyAsset(env, origin, path) {
+  const response = await env.ASSETS.fetch(new Request(new URL(`/${path}`, origin), { method:"GET" }));
+  if (!response.ok) throw new HttpError(404, "CONTENT_NOT_FOUND");
+  try { return await response.json(); }
+  catch (_) { throw new HttpError(500, "CONTENT_INVALID"); }
+}
+
+async function strategyAccessState(env, origin) {
+  const [bgb, season6] = await Promise.all([
+    readStrategyAsset(env, origin, "data/bgb.json"),
+    readStrategyAsset(env, origin, "data/season6-teams.json"),
+  ]);
+  const bgbAssignedCount = bgbAssignmentCount(bgb);
+  const season6AssignedCount = season6AssignmentCount(season6);
+  return {
+    bgbAssignedCount,
+    season6AssignedCount,
+    bgbLocked: bgbAssignedCount > 0,
+    season6Locked: season6AssignedCount > 0,
+  };
+}
+
+async function handlePublicStrategyAccess(env, url) {
+  const state = await strategyAccessState(env, url.origin);
+  return json({ ok:true, data:state });
+}
+
+async function handleConditionalStrategyAsset(request, url, env) {
+  const isBgb = url.pathname === "/data/bgb.json";
+  const state = await strategyAccessState(env, url.origin);
+  const locked = isBgb ? state.bgbLocked : state.season6Locked;
+  if (locked) {
+    const member = await requireMember(request, env.DB);
+    if (member instanceof Response) return member;
+  }
+  return env.ASSETS.fetch(request);
 }
 
 async function handleAuthMe(request, env) {

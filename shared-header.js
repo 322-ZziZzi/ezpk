@@ -149,7 +149,8 @@
       `data-menu="${item.key}"`,
       `data-nav-key="${item.key}"`,
       classes ? `class="${classes}"` : '',
-      isActive ? 'aria-current="page"' : ''
+      isActive ? 'aria-current="page"' : '',
+      (item.key === 'bgb' || item.key === 'seasonUpcoming') ? 'hidden' : ''
     ].filter(Boolean).join(' ');
     return `<a ${attrs}></a>`;
   }).join('');
@@ -231,6 +232,41 @@
   const SUPPORTED_LANGS=Object.freeze(['ko','en','pt','vi','ar','ja','th','zh-tw']);
   let authState = { authenticated:false, member:null };
   let authLoaded = false;
+  let strategyAccess = { loaded:false, bgbLocked:false, season6Locked:false };
+
+  function activeMemberSignedIn() {
+    return Boolean(authLoaded && authState.authenticated && authState.member && authState.member.status === 'active');
+  }
+
+  function applyStrategyMenuVisibility() {
+    const memberCanSeeAll = activeMemberSignedIn();
+    document.querySelectorAll('[data-menu="bgb"]').forEach(function (link) {
+      link.hidden = !strategyAccess.loaded || Boolean(strategyAccess.bgbLocked && !memberCanSeeAll);
+    });
+    document.querySelectorAll('[data-menu="seasonUpcoming"]').forEach(function (link) {
+      link.hidden = !strategyAccess.loaded || Boolean(strategyAccess.season6Locked && !memberCanSeeAll);
+    });
+    requestAnimationFrame(updateResponsiveNavigation);
+  }
+
+  async function loadStrategyAccess() {
+    try {
+      const response = await fetch('/api/public/strategy-access?v=' + Date.now(), {
+        method:'GET', credentials:'include', headers:{accept:'application/json'}, cache:'no-store'
+      });
+      const payload = await response.json();
+      if (response.ok && payload?.ok) {
+        strategyAccess = {
+          loaded:true,
+          bgbLocked:Boolean(payload.data?.bgbLocked),
+          season6Locked:Boolean(payload.data?.season6Locked)
+        };
+      }
+    } catch (_) {
+      strategyAccess.loaded = false;
+    }
+    applyStrategyMenuVisibility();
+  }
 
   function normalizeLanguage(lang) { return SUPPORTED_LANGS.includes(lang) ? lang : 'en'; }
   function currentLanguage() { return normalizeLanguage(localStorage.getItem(STORAGE_KEY) || 'en'); }
@@ -413,7 +449,12 @@
 
     if (!authState.authenticated || !authState.member) {
       if (mobile) {
-        return '';
+        return `
+          <div class="mobile-account-actions mobile-account-actions--guest">
+            <button type="button" data-account-action="login">${safeText(labels.login)}</button>
+            <button type="button" class="mobile-account-signup" data-account-action="signup">${safeText(labels.signup)}</button>
+          </div>
+          <div class="mobile-account-divider"></div>`;
       }
       return `
         <button type="button" class="account-button account-login" data-account-action="login">${safeText(labels.login)}</button>
@@ -489,6 +530,7 @@
     mobile.innerHTML = accountMarkup(true);
     bindAccountEvents(desktop);
     bindAccountEvents(mobile);
+    applyStrategyMenuVisibility();
     if (mobileDrawer && mobileDrawer.classList.contains('open')) resetMobileDrawerScroll();
   }
 
@@ -699,5 +741,6 @@
     getAuthState:function () { return authState; }
   };
 
+  loadStrategyAccess();
   loadAuth();
 })();
