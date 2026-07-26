@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>MY PAGE · EZPK</title>
   <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="./my.css?v=2210">
+  <link rel="stylesheet" href="./my.css?v=2230">
 
 <style>
 @media (min-width:901px){
@@ -41,7 +41,7 @@
 
     <div id="memberContent" hidden>
       <section class="member-card" aria-label="Member summary">
-        <div class="member-avatar" aria-hidden="true">👤</div>
+        <div id="summaryAvatar" class="member-avatar rank-r1" aria-hidden="true"><span class="rank-member-icon"></span></div>
         <div class="member-main">
           <strong id="summaryNickname">-</strong>
           <span id="summaryRole" class="role-badge">-</span>
@@ -55,7 +55,7 @@
       <section class="accordion-list">
         <article class="accordion-item is-open" data-section="profile">
           <button class="accordion-trigger" type="button" aria-expanded="true">
-            <span><span aria-hidden="true">👤</span><span data-i18n="basicProfile">기본 프로필</span></span>
+            <span><span id="profileMemberIcon" class="accordion-member-icon rank-r1" aria-hidden="true"><span class="rank-member-icon"></span></span><span data-i18n="basicProfile">기본 프로필</span></span>
             <span class="chevron">⌄</span>
           </button>
           <div class="accordion-panel">
@@ -81,7 +81,7 @@
               </label>
               <label class="industry-level-field"><span data-i18n="industry">산업 레벨</span>
                 <select name="industryLevel" required>
-                  <option value="I10">i10</option><option value="I9">i9</option><option value="I8">i8</option><option value="I7">i7</option><option value="I6">i6</option>
+                  <option value="" disabled selected>-</option><option value="I10">i10</option><option value="I9">i9</option><option value="I8">i8</option><option value="I7">i7</option><option value="I6">i6</option>
                   <option value="I5">i5</option><option value="I4">i4</option><option value="I3">i3</option><option value="I2">i2</option><option value="I1">i1</option>
                 </select>
               </label>
@@ -174,6 +174,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="../vehicle-power.js?v=1970"></script>
-  <script src="./my.js?v=2210"></script>
+  <script src="./my.js?v=2230"></script>
 </body>
 </html>

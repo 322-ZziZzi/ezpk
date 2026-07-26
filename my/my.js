@@ -19,6 +19,31 @@
 
   function normalize(value){ return LANGS.includes(value) ? value : "en"; }
   function t(key){ return (T[lang] && T[lang][key]) || T.en[key] || key; }
+
+  const RANK_TITLES = Object.freeze({
+    R1: "Reserve",
+    R2: "Support",
+    R3: "Core",
+    R4: "Officer",
+    R5: "Leader"
+  });
+
+  function normalizeMemberRank(value){
+    const rank = String(value || "R1").toUpperCase();
+    return Object.prototype.hasOwnProperty.call(RANK_TITLES, rank) ? rank : "R1";
+  }
+
+  function rankLabel(value){
+    const rank = normalizeMemberRank(value);
+    return `${rank} · ${RANK_TITLES[rank]}`;
+  }
+
+  function applyRankStyle(element, value){
+    if (!element) return;
+    const rank = normalizeMemberRank(value);
+    element.classList.remove("rank-r1", "rank-r2", "rank-r3", "rank-r4", "rank-r5");
+    element.classList.add(`rank-${rank.toLowerCase()}`);
+  }
   function applyLanguage(next){
     lang = normalize(next);
     document.documentElement.lang = lang === "zh-tw" ? "zh-Hant" : lang;
@@ -75,19 +100,21 @@
     if (!memberData) return;
     const m = memberData.member, s = memberData.specs || {};
     $("#summaryNickname").textContent = m.nickname;
-    $("#summaryPower").textContent = formatPower(m.power);
-    $("#summaryIndustry").textContent = m.industryLevel;
+    const profileRegistered = m.profileSpecsRegistered !== false && m.power != null && m.industryLevel;
+    $("#summaryPower").textContent = profileRegistered ? formatPower(m.power) : "-";
+    $("#summaryIndustry").textContent = profileRegistered ? m.industryLevel : "-";
     const role = $("#summaryRole");
-    role.textContent = `${m.memberRank} · ${m.role === "admin" ? t("administrator") : t("member")}`;
-    role.classList.toggle("admin", m.role === "admin");
+    role.textContent = rankLabel(m.memberRank);
+    role.classList.toggle("admin", normalizeMemberRank(m.memberRank) === "R5");
+    applyRankStyle(role, m.memberRank);
+    applyRankStyle($("#summaryAvatar"), m.memberRank);
+    applyRankStyle($("#profileMemberIcon"), m.memberRank);
     $("#profileLoginId").value = m.loginId;
     $("#profileNickname").value = m.nickname;
     const profilePowerInput = $("#specsProfilePower");
-    if (profilePowerInput) profilePowerInput.value = formatPowerInput(m.power);
-    setValue($("#specsForm"),"industryLevel",m.industryLevel);
-    $("#profileRankDisplay").value = m.role === "admin"
-      ? `${m.memberRank} · ${t("administrator")}`
-      : m.memberRank;
+    if (profilePowerInput) profilePowerInput.value = profileRegistered ? formatPowerInput(m.power) : "";
+    setValue($("#specsForm"),"industryLevel",profileRegistered ? m.industryLevel : "");
+    $("#profileRankDisplay").value = rankLabel(m.memberRank);
     setValue($("#specsForm"),"vehicle1Class",s.vehicle1Class);
     setValue($("#specsForm"),"vehicle1PowerValue",s.vehicle1PowerValue);
     setValue($("#specsForm"),"vehicle1PowerUnit",s.vehicle1PowerUnit);
@@ -222,6 +249,7 @@
       });
       memberData.member.power = payload.data.profile.power;
       memberData.member.industryLevel = payload.data.profile.industryLevel;
+      memberData.member.profileSpecsRegistered = true;
       memberData.specs = {...memberData.specs, ...payload.data.specs};
       renderMember();
       showToast(t("saved"));

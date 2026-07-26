@@ -288,8 +288,10 @@ async function handleSignup(request, env, url) {
   const password = String(body.password ?? "");
   const passwordConfirm = String(body.passwordConfirm ?? "");
   const nickname = cleanString(body.nickname, 64);
-  const power = toPositiveInteger(body.power);
-  const industryLevel = String(body.industryLevel ?? "").toUpperCase();
+  // v223: Power and industry level are registered later from My Page.
+  // Legacy NOT NULL constraints use internal placeholders until the profile is saved.
+  const power = 1;
+  const industryLevel = "I1";
   // v220: New members always start at R1. Client-provided rank values are ignored.
   const memberRank = "R1";
   const allianceCode = cleanString(body.allianceCode, 100);
@@ -308,11 +310,7 @@ async function handleSignup(request, env, url) {
   const passwordError = validatePassword(password, passwordConfirm);
   if (passwordError) return jsonError(passwordError, 400);
 
-  if (
-    !nickname ||
-    !power ||
-    !isIndustryLevel(industryLevel)
-  ) {
+  if (!nickname) {
     return jsonError("VALIDATION_ERROR", 400);
   }
 
@@ -366,8 +364,8 @@ async function handleSignup(request, env, url) {
       ),
 
       env.DB.prepare(`
-        INSERT INTO member_specs (member_id)
-        SELECT id FROM members WHERE login_id = ?
+        INSERT INTO member_specs (member_id, profile_specs_registered)
+        SELECT id, 0 FROM members WHERE login_id = ?
       `).bind(loginId),
 
       env.DB.prepare(`
@@ -632,6 +630,7 @@ async function handleMemberMe(request, env) {
       s.bgb_available_hour,
       s.discord,
       s.telegram,
+      COALESCE(s.profile_specs_registered, 1) AS profile_specs_registered,
       s.created_at AS spec_created_at,
       s.updated_at AS spec_updated_at
     FROM members AS m
@@ -654,8 +653,9 @@ async function handleMemberMe(request, env) {
         id: record.id,
         loginId: record.login_id,
         nickname: record.nickname,
-        power: record.power,
-        industryLevel: record.industry_level,
+        power: record.profile_specs_registered ? record.power : null,
+        industryLevel: record.profile_specs_registered ? record.industry_level : null,
+        profileSpecsRegistered: Boolean(record.profile_specs_registered),
         memberRank: record.member_rank,
         role: record.role,
         status: record.status,
@@ -849,14 +849,15 @@ async function handleSpecsUpdate(request, env) {
     `).bind(power, industryLevel, member.id),
     env.DB.prepare(`
       INSERT INTO member_specs (
-        member_id,
+        member_id, profile_specs_registered,
         vehicle1_class, vehicle1_power_value, vehicle1_power_unit,
         vehicle2_class, vehicle2_power_value, vehicle2_power_unit,
         season_war_available, bgb_available_hour,
         discord, telegram
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(member_id) DO UPDATE SET
+        profile_specs_registered = 1,
         vehicle1_class = excluded.vehicle1_class,
         vehicle1_power_value = excluded.vehicle1_power_value,
         vehicle1_power_unit = excluded.vehicle1_power_unit,
@@ -981,32 +982,31 @@ async function handlePublicMembers(url, env) {
 
   const search = cleanString(url.searchParams.get("search"), 64);
   if (search) {
-    where.push("nickname LIKE ? ESCAPE '\\'");
+    where.push("m.nickname LIKE ? ESCAPE '\\'");
     binds.push(`%${escapeLike(search)}%`);
   }
 
   const rank = url.searchParams.get("rank");
   if (rank && isAnyMemberRank(rank.toUpperCase())) {
-    where.push("member_rank = ?");
+    where.push("m.member_rank = ?");
     binds.push(rank.toUpperCase());
   }
 
   const industry = url.searchParams.get("industry");
   if (industry && isIndustryLevel(industry.toUpperCase())) {
-    where.push("industry_level = ?");
+    where.push("m.industry_level = ?");
     binds.push(industry.toUpperCase());
   }
 
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
   const sortMap = {
-    power_desc: "power DESC, id ASC",
-    power_asc: "power ASC, id ASC",
-    nickname_asc: "nickname COLLATE NOCASE ASC, id ASC",
-    nickname_desc: "nickname COLLATE NOCASE DESC, id ASC",
-    joined_desc: "joined_at DESC, id ASC",
-    updated_desc:
-      "COALESCE(spec_updated_at, basic_updated_at) DESC, id ASC",
+    power_desc: "CASE WHEN COALESCE(s.profile_specs_registered,1)=1 THEN 0 ELSE 1 END ASC, m.power DESC, m.id ASC",
+    power_asc: "CASE WHEN COALESCE(s.profile_specs_registered,1)=1 THEN 0 ELSE 1 END ASC, m.power ASC, m.id ASC",
+    nickname_asc: "m.nickname COLLATE NOCASE ASC, m.id ASC",
+    nickname_desc: "m.nickname COLLATE NOCASE DESC, m.id ASC",
+    joined_desc: "m.created_at DESC, m.id ASC",
+    updated_desc: "COALESCE(s.updated_at, m.updated_at) DESC, m.id ASC",
   };
 
   const sort =
@@ -1014,21 +1014,24 @@ async function handlePublicMembers(url, env) {
 
   const countResult = await env.DB.prepare(`
     SELECT COUNT(*) AS total
-    FROM public_members
-    ${whereSql}
+    FROM members m
+    LEFT JOIN member_specs s ON s.member_id = m.id
+    ${whereSql ? whereSql + " AND m.status = 'active'" : "WHERE m.status = 'active'"}
   `).bind(...binds).first();
 
   const rows = await env.DB.prepare(`
     SELECT
-      id,
-      nickname,
-      power,
-      industry_level,
-      member_rank,
-      joined_at,
-      basic_updated_at
-    FROM public_members
-    ${whereSql}
+      m.id AS id,
+      m.nickname AS nickname,
+      CASE WHEN COALESCE(s.profile_specs_registered, 1) = 1 THEN m.power ELSE NULL END AS power,
+      CASE WHEN COALESCE(s.profile_specs_registered, 1) = 1 THEN m.industry_level ELSE NULL END AS industry_level,
+      m.member_rank AS member_rank,
+      m.created_at AS joined_at,
+      m.updated_at AS basic_updated_at,
+      COALESCE(s.profile_specs_registered, 1) AS profile_specs_registered
+    FROM members m
+    LEFT JOIN member_specs s ON s.member_id = m.id
+    ${whereSql ? whereSql + " AND m.status = 'active'" : "WHERE m.status = 'active'"}
     ORDER BY ${sort}
     LIMIT ? OFFSET ?
   `).bind(...binds, limit, offset).all();
@@ -2015,6 +2018,7 @@ function specsResponse(row) {
   );
 
   return {
+    profileSpecsRegistered: Boolean(row.profile_specs_registered),
     vehicle1Class: row.vehicle1_class,
     vehicle1PowerValue: row.vehicle1_power_value,
     vehicle1PowerUnit: row.vehicle1_power_unit,
@@ -2037,11 +2041,13 @@ function specsResponse(row) {
 }
 
 function publicMemberRow(row) {
+  const registered = Boolean(row.profile_specs_registered);
   return {
     id: row.id,
     nickname: row.nickname,
-    power: row.power,
-    industryLevel: row.industry_level,
+    power: registered ? row.power : null,
+    industryLevel: registered ? row.industry_level : null,
+    profileSpecsRegistered: registered,
     memberRank: row.member_rank,
     joinedAt: row.joined_at,
     basicUpdatedAt: row.basic_updated_at,

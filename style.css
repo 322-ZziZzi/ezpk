@@ -327,11 +327,16 @@ nav a.active{color:#f5c547!important}
 }
 .account-login{
   margin-right:7px;
-}
-.account-signup{
   color:#171000;
   background:#f5c547;
   border-color:#f5c547;
+  font-weight:700;
+}
+.account-signup{
+  color:#171000;
+  background:#fff;
+  border-color:#fff;
+  font-weight:700;
 }
 .account-button:hover,
 .account-button:focus-visible,
@@ -1205,14 +1210,15 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
     min-width:0!important;
     min-height:48px!important;
   }
-  /* v196: guest-only paired gold authentication buttons */
+  /* v223: login is primary gold, sign-up is secondary white */
   .ezpk-mobile-drawer .mobile-account-actions--guest button{
     color:#171000!important;
-    background:#f5c547!important;
-    border-color:#f5c547!important;
+    font-weight:700!important;
     text-align:center!important;
     justify-content:center!important;
   }
+  .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action="login"]{background:#f5c547!important;border-color:#f5c547!important;}
+  .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action="signup"]{background:#fff!important;border-color:#fff!important;}
 }
 [data-menu][hidden],
 .ezpk-mobile-drawer .mobile-menu-list>a[hidden],
@@ -1241,6 +1247,9 @@ color:#171000;
 font-weight:700;
 }
 .account-signup{
+color:#171000;
+background:#fff;
+border-color:#fff;
 font-weight:700;
 }
 }
