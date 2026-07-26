@@ -197,6 +197,14 @@
     event.preventDefault();
     const f = event.currentTarget;
     const nullableNumber = value => value === "" ? null : Number(value);
+    const powerFields = [
+      [f.elements.vehicle1PowerValue.value, f.elements.vehicle1PowerUnit.value],
+      [f.elements.vehicle2PowerValue.value, f.elements.vehicle2PowerUnit.value],
+    ];
+    if (powerFields.some(([value,unit]) => !window.EZPKVehiclePower?.isValidInput(value,unit,2))) {
+      showToast(t("validation"),"error");
+      return;
+    }
     try {
       const payload = await api("/api/member/specs", {
         method:"PUT",

@@ -775,14 +775,14 @@ async function handleSpecsUpdate(request, env) {
     body.vehicle1Class,
     ["fighter", "shooter", "rider"],
   );
-  const vehicle1PowerValue = nullablePositiveNumber(body.vehicle1PowerValue);
+  const vehicle1PowerValue = nullableVehiclePowerValue(body.vehicle1PowerValue);
   const vehicle1PowerUnit = nullableEnum(body.vehicle1PowerUnit, ["M", "G"]);
 
   const vehicle2Class = nullableEnum(
     body.vehicle2Class,
     ["fighter", "shooter", "rider"],
   );
-  const vehicle2PowerValue = nullablePositiveNumber(body.vehicle2PowerValue);
+  const vehicle2PowerValue = nullableVehiclePowerValue(body.vehicle2PowerValue);
   const vehicle2PowerUnit = nullableEnum(body.vehicle2PowerUnit, ["M", "G"]);
 
   const seasonWarAvailable = nullableBoolean(body.seasonWarAvailable);
@@ -1798,6 +1798,14 @@ function nullableEnum(value, allowed) {
 function nullablePositiveNumber(value) {
   if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : INVALID;
+}
+
+function nullableVehiclePowerValue(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const text = String(value).trim();
+  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) return INVALID;
+  const number = Number(text);
   return Number.isFinite(number) && number > 0 ? number : INVALID;
 }
 

@@ -4,7 +4,7 @@
   const $=s=>document.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   const fmt=n=>Number(n||0).toLocaleString("ko-KR");
-  const vehicle=m=>m.vehicle1PowerValue==null?"-":`${Number(m.vehicle1PowerValue).toLocaleString("ko-KR",{maximumFractionDigits:2})}${m.vehicle1PowerUnit||""}`;
+  const vehicle=(m,vehicleNumber=1)=>window.EZPKVehiclePower?.formatMember(m,vehicleNumber)??"-";
   const date=v=>v?new Intl.DateTimeFormat("ko-KR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v)):"-";
   async function api(path,options={}){
     const res=await fetch(path,{credentials:"include",headers:{accept:"application/json",...(options.body?{"content-type":"application/json"}:{})},...options});
@@ -96,7 +96,7 @@
       </div></details>
       <details><summary>세부 스펙</summary><div class="v188-info-grid">
         <span>1번 차량<b>${esc(m.vehicle1Class||"-")} · ${esc(vehicle(m))}</b></span>
-        <span>2번 차량<b>${esc(m.vehicle2Class||"-")} · ${m.vehicle2PowerValue==null?"-":esc(`${m.vehicle2PowerValue}${m.vehicle2PowerUnit||""}`)}</b></span>
+        <span>2번 차량<b>${esc(m.vehicle2Class||"-")} · ${esc(vehicle(m,2))}</b></span>
         <span>Season War<b>${m.seasonWarAvailable==null?"-":m.seasonWarAvailable?"가능":"불가능"}</b></span>
         <span>BGB<b>${m.bgbAvailableHour==null?"-":String(m.bgbAvailableHour).padStart(2,"0")+":00"}</b></span>
         <span>Discord<b>${esc(m.discord||"-")}</b></span><span>Telegram<b>${esc(m.telegram||"-")}</b></span>
