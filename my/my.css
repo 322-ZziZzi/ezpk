@@ -74,3 +74,4 @@ html[dir="rtl"] .accordion-trigger,html[dir="rtl"] .form-stack label{text-align:
 .server-time-live{margin:3px 0 7px;color:#9eabbb;font-size:.74rem;font-weight:600}
 .server-time-live strong{color:#72d6ff}
 html[dir="rtl"] .server-time-live{text-align:right}
+.my-request-list{display:grid;gap:10px;margin-bottom:14px}.my-request-item{padding:13px;border:1px solid #ffffff17;border-radius:12px;background:#080d14}.my-request-item strong{display:block;margin-bottom:5px}.my-request-item span{font-size:12px;color:#8e9bad}.my-request-item .answered{color:#70ee9d}.my-request-board-link{text-decoration:none;text-align:center;display:block}

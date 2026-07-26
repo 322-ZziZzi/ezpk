@@ -44,6 +44,22 @@ export default {
         if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
       }
 
+      const requestMatch = url.pathname.match(/^\/api\/requests\/(\d+)$/);
+      if (requestMatch) {
+        const requestId = Number(requestMatch[1]);
+        if (request.method === "PUT") return handleRequestUpdate(request, requestId, env);
+        if (request.method === "DELETE") return handleRequestDelete(request, requestId, env);
+      }
+
+      const adminRequestMatch = url.pathname.match(/^\/api\/admin\/requests\/(\d+)(?:\/(answer))?$/);
+      if (adminRequestMatch) {
+        const requestId = Number(adminRequestMatch[1]);
+        const action = adminRequestMatch[2] || "";
+        if (request.method === "PUT" && action === "answer") return handleAdminRequestAnswer(request, requestId, env);
+        if (request.method === "PUT" && !action) return handleAdminRequestUpdate(request, requestId, env);
+        if (request.method === "DELETE" && !action) return handleAdminRequestDelete(request, requestId, env);
+      }
+
       switch (route) {
         case "GET /api/db-test":
           return handleDbTest(env);
@@ -95,6 +111,15 @@ export default {
 
         case "PUT /api/admin/content":
           return handleAdminContentPut(request, env);
+
+        case "GET /api/requests":
+          return handleRequestsList(request, url, env);
+
+        case "POST /api/requests":
+          return handleRequestCreate(request, env);
+
+        case "GET /api/admin/requests":
+          return handleAdminRequestsList(request, url, env);
 
         default:
           return jsonError("NOT_FOUND", 404);
@@ -913,6 +938,125 @@ async function handlePublicMembers(url, env) {
       },
     },
   });
+}
+
+
+// -----------------------------------------------------------------------------
+// v190-b Request Board handlers
+// -----------------------------------------------------------------------------
+
+function requestRow(row, viewerId = 0, isAdmin = false) {
+  return {
+    id: Number(row.id),
+    title: row.title || "",
+    message: row.message || "",
+    authorNickname: row.current_nickname || row.author_nickname_snapshot || "Former member",
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    answer: row.admin_answer || "",
+    answeredAt: row.answered_at,
+    answeredBy: row.answered_by_nickname || "",
+    answered: Boolean(row.admin_answer),
+    canEdit: isAdmin || Number(row.member_id) === Number(viewerId),
+    canDelete: isAdmin || Number(row.member_id) === Number(viewerId),
+    legacy: Boolean(row.is_legacy),
+  };
+}
+
+async function handleRequestsList(request, url, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+  const page = Math.max(1, Math.floor(Number(url.searchParams.get("page") || 1)));
+  const limit = Math.max(1, Math.min(50, Math.floor(Number(url.searchParams.get("limit") || 15))));
+  const mine = url.searchParams.get("mine") === "1";
+  const where = mine ? "WHERE r.member_id = ?" : "";
+  const binds = mine ? [member.id] : [];
+  const totalRow = await env.DB.prepare(`SELECT COUNT(*) AS total FROM member_requests r ${where}`).bind(...binds).first();
+  const rows = await env.DB.prepare(`
+    SELECT r.*, m.nickname AS current_nickname, a.nickname AS answered_by_nickname
+    FROM member_requests r
+    LEFT JOIN members m ON m.id = r.member_id
+    LEFT JOIN members a ON a.id = r.answered_by_member_id
+    ${where}
+    ORDER BY datetime(r.created_at) DESC, r.id DESC
+    LIMIT ? OFFSET ?
+  `).bind(...binds, limit, (page - 1) * limit).all();
+  const total = Number(totalRow?.total || 0);
+  return json({ok:true,data:{items:(rows.results||[]).map(r=>requestRow(r,member.id,member.role==="admin")),pagination:{page,limit,total,totalPages:total?Math.ceil(total/limit):0}}});
+}
+
+async function handleRequestCreate(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+  const body = await readJson(request);
+  const title = cleanString(body.title, 120);
+  const message = cleanString(body.message, 3000);
+  if (!title || !message) return jsonError("VALIDATION_ERROR", 400);
+  const result = await env.DB.prepare(`
+    INSERT INTO member_requests(member_id, author_nickname_snapshot, title, message)
+    VALUES(?,?,?,?)
+  `).bind(member.id, member.nickname, title, message).run();
+  return json({ok:true,data:{id:Number(result.meta?.last_row_id || 0)}},201);
+}
+
+async function getRequestRecord(db, id) {
+  return db.prepare(`SELECT * FROM member_requests WHERE id=? LIMIT 1`).bind(id).first();
+}
+
+async function handleRequestUpdate(request, requestId, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+  const row = await getRequestRecord(env.DB, requestId);
+  if (!row) return jsonError("REQUEST_NOT_FOUND",404);
+  if (member.role !== "admin" && Number(row.member_id)!==Number(member.id)) return jsonError("FORBIDDEN",403);
+  const body=await readJson(request);
+  const title=cleanString(body.title,120), message=cleanString(body.message,3000);
+  if(!title||!message)return jsonError("VALIDATION_ERROR",400);
+  await env.DB.prepare(`UPDATE member_requests SET title=?,message=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(title,message,requestId).run();
+  return json({ok:true});
+}
+
+async function handleRequestDelete(request, requestId, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+  const row=await getRequestRecord(env.DB,requestId);
+  if(!row)return jsonError("REQUEST_NOT_FOUND",404);
+  if(member.role!=="admin"&&Number(row.member_id)!==Number(member.id))return jsonError("FORBIDDEN",403);
+  await env.DB.prepare(`DELETE FROM member_requests WHERE id=?`).bind(requestId).run();
+  return json({ok:true});
+}
+
+async function handleAdminRequestsList(request, url, env) {
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const page=Math.max(1,Math.floor(Number(url.searchParams.get("page")||1)));
+  const limit=Math.max(1,Math.min(50,Math.floor(Number(url.searchParams.get("limit")||15))));
+  const totalRow=await env.DB.prepare(`SELECT COUNT(*) AS total FROM member_requests`).first();
+  const rows=await env.DB.prepare(`
+    SELECT r.*,m.nickname AS current_nickname,a.nickname AS answered_by_nickname
+    FROM member_requests r LEFT JOIN members m ON m.id=r.member_id
+    LEFT JOIN members a ON a.id=r.answered_by_member_id
+    ORDER BY datetime(r.created_at) DESC,r.id DESC LIMIT ? OFFSET ?
+  `).bind(limit,(page-1)*limit).all();
+  const total=Number(totalRow?.total||0);
+  return json({ok:true,data:{items:(rows.results||[]).map(r=>requestRow(r,admin.id,true)),pagination:{page,limit,total,totalPages:total?Math.ceil(total/limit):0}}});
+}
+
+async function handleAdminRequestAnswer(request, requestId, env) {
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const row=await getRequestRecord(env.DB,requestId);if(!row)return jsonError("REQUEST_NOT_FOUND",404);
+  const body=await readJson(request);const answer=cleanString(body.answer,5000);
+  if(!answer)return jsonError("VALIDATION_ERROR",400);
+  await env.DB.prepare(`UPDATE member_requests SET admin_answer=?,answered_at=CURRENT_TIMESTAMP,answered_by_member_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(answer,admin.id,requestId).run();
+  return json({ok:true});
+}
+
+async function handleAdminRequestUpdate(request, requestId, env) {
+  return handleRequestUpdate(request,requestId,env);
+}
+async function handleAdminRequestDelete(request, requestId, env) {
+  return handleRequestDelete(request,requestId,env);
 }
 
 // -----------------------------------------------------------------------------

@@ -216,3 +216,9 @@ Based on v138.
 
 ## v174
 - Season 6 and BGB conditional alliance protection fixes. See `V174_CHANGELOG.txt`.
+
+
+## v190-b deployment
+Run the D1 migration before deployment:
+`npx wrangler d1 migrations apply ezpk-db --remote`
+Then deploy with `npx wrangler deploy`.

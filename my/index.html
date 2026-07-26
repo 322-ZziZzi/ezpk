@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>MY PAGE · EZPK</title>
   <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="./my.css?v=1891">
+  <link rel="stylesheet" href="./my.css?v=1902">
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
@@ -135,6 +135,17 @@
           </div>
         </article>
 
+        <article class="accordion-item" data-section="requests">
+          <button class="accordion-trigger" type="button" aria-expanded="false">
+            <span><span aria-hidden="true">📝</span><span id="myRequestsLabel">내 요청글</span></span>
+            <span class="chevron">›</span>
+          </button>
+          <div class="accordion-panel" hidden>
+            <div id="myRequestsList" class="my-request-list"></div>
+            <a id="myRequestsOpenBoard" class="form-submit my-request-board-link" href="../request/">요청 게시판 열기</a>
+          </div>
+        </article>
+
         <article class="accordion-item" data-section="password">
           <button class="accordion-trigger" type="button" aria-expanded="false">
             <span><span aria-hidden="true">🔒</span><span data-i18n="changePassword">비밀번호 변경</span></span>
@@ -155,6 +166,6 @@
   </main>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="./my.js?v=1891"></script>
+  <script src="./my.js?v=1902"></script>
 </body>
 </html>
