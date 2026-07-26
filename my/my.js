@@ -272,16 +272,13 @@
     button.disabled = true;
     try {
       await api("/api/member/specs", {method:"DELETE"});
-      memberData.member.power = null;
-      memberData.member.industryLevel = null;
-      memberData.member.profileSpecsRegistered = false;
-      memberData.specs = {};
-      const specsForm = $("#specsForm");
-      specsForm.reset();
+
+      // v227: re-fetch the authoritative server state after reset instead of
+      // relying only on locally mutated values. This keeps the form, member
+      // summary, Member List data and DB state in sync.
+      const refreshed = await api("/api/member/me");
+      memberData = refreshed.data;
       renderMember();
-      // v225: keep profile CP and industry visibly in their unregistered '-' state.
-      setValue(specsForm, "power", "");
-      setValue(specsForm, "industryLevel", "");
       showToast(t("resetDone"));
     } catch (e) {
       console.error("[DELETE /api/member/specs]", { code:e.code, payload:e.payload, error:e });

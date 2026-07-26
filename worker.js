@@ -1726,9 +1726,13 @@ function enforceSameOrigin(request, url) {
     throw new HttpError("FORBIDDEN", 403);
   }
 
-  const contentType = request.headers.get("content-type") || "";
-  if (!contentType.toLowerCase().startsWith("application/json")) {
-    throw new HttpError("UNSUPPORTED_MEDIA_TYPE", 415);
+  // v227: only methods that are expected to carry a JSON request body
+  // require Content-Type: application/json. Body-less DELETE requests are valid.
+  if (["POST", "PUT", "PATCH"].includes(request.method)) {
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.toLowerCase().startsWith("application/json")) {
+      throw new HttpError("UNSUPPORTED_MEDIA_TYPE", 415);
+    }
   }
 }
 
