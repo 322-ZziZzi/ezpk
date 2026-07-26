@@ -60,7 +60,16 @@ function initAdminMobileMenu(){
     button.setAttribute('aria-label',willOpen?'관리자 메뉴 닫기':'관리자 메뉴 열기');
     button.textContent=willOpen?'✕':'☰';
   });
-  nav.querySelectorAll('a,button').forEach(item=>item.addEventListener('click',closeMenu));
+  nav.querySelectorAll('[data-admin-panel]').forEach(item=>item.addEventListener('click',()=>{
+    const panelId=item.dataset.adminPanel;
+    const tab=document.querySelector(`.admin-tabs button[data-panel="${panelId}"]`);
+    if(tab){
+      tab.click();
+      document.querySelector('.manager-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    closeMenu();
+  }));
+  nav.querySelectorAll('a').forEach(item=>item.addEventListener('click',closeMenu));
   window.addEventListener('resize',()=>{if(window.innerWidth>900)closeMenu()});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminMobileMenu,{once:true});

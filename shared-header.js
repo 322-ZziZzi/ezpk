@@ -9,14 +9,14 @@
   const activeMenu = header.dataset.activeMenu || '';
 
   const NAV_LABELS = {
-    ko: { home:'홈', seasonUpcoming:'시즌 6 (준비중)', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팁', request:'요청 게시판', accounts:'계정 마켓', game:'🎮 미니게임', logo:'로고' },
-    en: { home:'HOME', seasonUpcoming:'SEASON 6 (COMING SOON)', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TIP', request:'REQUEST', accounts:'ACCOUNT MARKET', game:'🎮 MINI GAME', logo:'LOGO' },
-    pt: { home:'INÍCIO', seasonUpcoming:'TEMPORADA 6 (EM BREVE)', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'DICAS', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'🎮 MINI GAME', logo:'LOGO' },
-    vi: { home:'TRANG CHỦ', seasonUpcoming:'MÙA 6 (SẮP RA MẮT)', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'MẸO', request:'YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'🎮 MINI GAME', logo:'LOGO' },
-    ar: { home:'الرئيسية', seasonUpcoming:'الموسم 6 (قريبًا)', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'الطلبات', accounts:'سوق الحسابات', game:'🎮 الألعاب المصغرة', logo:'الشعار' },
-    ja: { home:'ホーム', seasonUpcoming:'シーズン6（準備中）', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト', accounts:'アカウントマーケット', game:'🎮 ミニゲーム', logo:'ロゴ' },
-    th: { home:'หน้าแรก', seasonUpcoming:'ซีซัน 6 (เร็ว ๆ นี้)', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'คำขอ', accounts:'ตลาดบัญชี', game:'🎮 มินิเกม', logo:'โลโก้' },
-    'zh-tw': { home:'首頁', seasonUpcoming:'第 6 賽季（準備中）', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'提示', request:'留言板', accounts:'帳號市集', game:'🎮 小遊戲', logo:'標誌' }
+    ko: { home:'홈', seasonUpcoming:'시즌 6 (준비중)', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팀', request:'요청 게시판', accounts:'계정 마켓', game:'🎮 미니게임', logo:'로고' },
+    en: { home:'HOME', seasonUpcoming:'SEASON 6 (COMING SOON)', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TEAM', request:'REQUEST', accounts:'ACCOUNT MARKET', game:'🎮 MINI GAME', logo:'LOGO' },
+    pt: { home:'INÍCIO', seasonUpcoming:'TEMPORADA 6 (EM BREVE)', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'EQUIPE', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'🎮 MINI GAME', logo:'LOGO' },
+    vi: { home:'TRANG CHỦ', seasonUpcoming:'MÙA 6 (SẮP RA MẮT)', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'ĐỘI', request:'YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'🎮 MINI GAME', logo:'LOGO' },
+    ar: { home:'الرئيسية', seasonUpcoming:'الموسم 6 (قريبًا)', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'الفريق', request:'الطلبات', accounts:'سوق الحسابات', game:'🎮 الألعاب المصغرة', logo:'الشعار' },
+    ja: { home:'ホーム', seasonUpcoming:'シーズン6（準備中）', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'チーム', request:'リクエスト', accounts:'アカウントマーケット', game:'🎮 ミニゲーム', logo:'ロゴ' },
+    th: { home:'หน้าแรก', seasonUpcoming:'ซีซัน 6 (เร็ว ๆ นี้)', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'ทีม', request:'คำขอ', accounts:'ตลาดบัญชี', game:'🎮 มินิเกม', logo:'โลโก้' },
+    'zh-tw': { home:'首頁', seasonUpcoming:'第 6 賽季（準備中）', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'隊伍', request:'留言板', accounts:'帳號市集', game:'🎮 小遊戲', logo:'標誌' }
   };
 
   const ACCOUNT_LABELS = {
@@ -408,11 +408,7 @@
 
     if (!authState.authenticated || !authState.member) {
       if (mobile) {
-        return `
-          <div class="mobile-account-heading">${safeText(labels.account)}</div>
-          <button type="button" class="mobile-account-action" data-account-action="login">${safeText(labels.login)}</button>
-          <button type="button" class="mobile-account-action mobile-account-primary" data-account-action="signup">${safeText(labels.signup)}</button>
-          <div class="mobile-account-divider"></div>`;
+        return '';
       }
       return `
         <button type="button" class="account-button account-login" data-account-action="login">${safeText(labels.login)}</button>

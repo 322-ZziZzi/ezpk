@@ -31,17 +31,17 @@ function render(){
   $('#s6ParticipantList').innerHTML=membersData.members.filter(m=>m.nickname.toLowerCase().includes(q)).sort((a,b)=>b.power-a.power).map(m=>`<label class="s6-person"><input type="checkbox" data-s6-participant="${esc(m.nickname)}" ${ps.has(m.nickname)?'checked':''}><span><b>${esc(m.nickname)}</b><small>${m.rank} · ${fmt(m.power)}</small></span></label>`).join('');
   $$('[data-s6-participant]').forEach(x=>x.onchange=()=>{const n=x.dataset.s6Participant;if(x.checked&&!s6.participants.includes(n))s6.participants.push(n);if(!x.checked){s6.participants=s6.participants.filter(v=>v!==n);for(const k in s6.teams)s6.teams[k]=s6.teams[k].filter(v=>v!==n)}render()});
 
-  const t=targets(s6.participants.length),allStats=listStats(s6.participants),noneList=unassigned(),noneStats=listStats(noneList);
+  const allStats=listStats(s6.participants),noneList=unassigned(),noneStats=listStats(noneList);
   $('#s6Summary').innerHTML=`
     <article class="s6-summary-total"><span>전체 인원</span><b>${allStats.count}</b></article>
-    ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-summary-${k}"><span>${m.label}</span><b>${st.count} / ${t[k]}</b></article>`}).join('')}
+    ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-summary-${k}"><span>${m.label}</span><b>${st.count}</b></article>`}).join('')}
     <article class="s6-summary-none"><span>미배정</span><b>${noneStats.count}</b></article>`;
 
   const statsContent=document.querySelector('#s6StatsContent');
   if(statsContent){
     statsContent.innerHTML=`
       <article class="s6-stat-card s6-stat-total"><h4>전체</h4><dl><div><dt>참가 인원</dt><dd>${allStats.count}명</dd></div><div><dt>총 전투력</dt><dd>${fmt(allStats.total)}</dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(allStats.vehicle1)}</dd></div><div><dt>산업 합계</dt><dd>${allStats.industry.toFixed(1)}</dd></div></dl></article>
-      ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-stat-card s6-stat-${k}"><h4>${m.label}</h4><dl><div><dt>인원</dt><dd>${st.count} / ${t[k]}</dd></div><div><dt>총 전투력</dt><dd>${fmt(st.total)} <small>${deviationText(st.total,allStats.total*m.ratio)}</small></dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(st.vehicle1)} <small>${deviationText(st.vehicle1,allStats.vehicle1*m.ratio)}</small></dd></div><div><dt>산업 합계</dt><dd>${st.industrySum.toFixed(1)} <small>${deviationText(st.industrySum,allStats.industry*m.ratio)}</small></dd></div><div><dt>평균 산업</dt><dd>I${st.industryAvg.toFixed(1)}</dd></div></dl></article>`}).join('')}
+      ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-stat-card s6-stat-${k}"><h4>${m.label}</h4><dl><div><dt>인원</dt><dd>${st.count}명</dd></div><div><dt>총 전투력</dt><dd>${fmt(st.total)} <small>${deviationText(st.total,allStats.total*m.ratio)}</small></dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(st.vehicle1)} <small>${deviationText(st.vehicle1,allStats.vehicle1*m.ratio)}</small></dd></div><div><dt>산업 합계</dt><dd>${st.industrySum.toFixed(1)} <small>${deviationText(st.industrySum,allStats.industry*m.ratio)}</small></dd></div><div><dt>평균 산업</dt><dd>I${st.industryAvg.toFixed(1)}</dd></div></dl></article>`}).join('')}
       <article class="s6-stat-card s6-stat-none"><h4>미배정</h4><dl><div><dt>인원</dt><dd>${noneStats.count}명</dd></div><div><dt>총 전투력</dt><dd>${fmt(noneStats.total)}</dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(noneStats.vehicle1)}</dd></div><div><dt>산업 합계</dt><dd>${noneStats.industry.toFixed(1)}</dd></div></dl></article>`;
   }
 

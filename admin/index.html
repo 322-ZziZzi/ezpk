@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
   <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="admin.css?v=1892">
-  <link rel="stylesheet" href="member-manager-v188.css?v=1892">
-  <link rel="stylesheet" href="../common-heading.css?v=1020">
+  <link rel="stylesheet" href="admin.css?v=1910">
+  <link rel="stylesheet" href="member-manager-v188.css?v=1910">
+  <link rel="stylesheet" href="../common-heading.css?v=1910">
 </head>
 <body>
 <header class="site-header admin-auth-host" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
@@ -23,15 +23,22 @@
   </div>
 </section>
 <div id="adminApp" hidden>
-<header class="admin-header">
+<header class="admin-header" aria-label="관리자 모바일 메뉴">
   <div class="admin-header-row">
-    <a href="../" class="brand">★ <span><b>322 EZPK</b><small>ADMIN MANAGER</small></span></a>
     <button id="adminMenuButton" class="admin-menu-button" type="button" aria-expanded="false" aria-controls="adminNav" aria-label="관리자 메뉴 열기">☰</button>
   </div>
-  <nav id="adminNav" class="admin-nav"><a href="../">PORTAL</a><a href="../members/">MEMBERS</a><a href="../bgb/">BGB</a><a href="../tip/">TIP</a><a href="../request/">REQUEST</a><button id="adminLogout" type="button">LOGOUT</button></nav>
+  <nav id="adminNav" class="admin-nav">
+    <a href="../">HOME</a>
+    <button type="button" data-admin-panel="membersPanel">MEMBERS</button>
+    <button type="button" data-admin-panel="bgbPanel">BGB</button>
+    <button type="button" data-admin-panel="season6Panel">SEASON 6</button>
+    <button type="button" data-admin-panel="eventsPanel">EVENT</button>
+    <button type="button" data-admin-panel="requestsPanel">REQUEST</button>
+    <button type="button" data-admin-panel="accountsPanel">ACCOUNT</button>
+  </nav>
 </header>
 <main class="admin-main">
-  <section class="admin-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1>EZPK ADMIN</h1><p>멤버 정보, BGB A/B TEAM 편성, 이벤트 일정을 관리하고 GitHub에 영구 저장합니다.</p></section>
+  <section class="admin-hero"><span class="eyebrow">EZPK ALLIANCE</span><h1>ADMIN</h1><p>관리자 페이지에서 EZPK 운영 데이터를 수정하세요.</p></section>
   <section class="connect-card admin-api-card">
     <div>
       <h2>관리자 운영 데이터</h2>
@@ -154,7 +161,6 @@
       <div class="s6-manager-head"><div><h2>Season 6 Manager</h2><p>참가자를 선택하고 팀을 자동으로 편성합니다.</p></div><label>팀 편성 업데이트<input id="s6LastUpdated" type="text" placeholder="2026.07.20"></label></div>
       <div class="s6-summary" id="s6Summary"></div>
       <details class="s6-stats-panel" id="s6StatsPanel"><summary>팀 통계 보기</summary><div id="s6StatsContent" class="s6-stats-content"></div></details>
-      <div class="s6-priority"><strong>지원팀 지원 우선순위</strong><span>1순위 방어팀</span><span>2순위 공격팀</span></div>
       <div class="manager-tools s6-tools"><input id="s6Search" type="search" placeholder="닉네임 검색"><button id="s6SelectAll" type="button">전체 참가</button><button id="s6ClearParticipants" type="button">전체 해제</button><button id="s6AutoAssign" class="primary" type="button">자동 배정</button><button id="s6ResetTeams" class="danger" type="button">팀 배정 초기화</button></div>
       <div id="s6ParticipantList" class="s6-participant-list"></div>
       <div class="s6-team-grid" id="s6TeamGrid"></div>
@@ -204,9 +210,9 @@
   </section>
 </main>
 </div>
-<script src="../shared-header.js?v=1893"></script>
+<script src="../shared-header.js?v=1910"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=1893"></script><script src="season6-manager.js?v=1892"></script><script src="accounts-manager.js?v=1892"></script>
-<script src="member-manager-v188.js?v=1892"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=1910"></script><script src="season6-manager.js?v=1910"></script><script src="accounts-manager.js?v=1910"></script>
+<script src="member-manager-v188.js?v=1910"></script>
 </body>
 </html>

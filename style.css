@@ -860,3 +860,78 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
   html[dir='rtl'] [data-shared-header] .desktop-nav-items>a{text-align:right!important}
   html[dir='rtl'] [data-shared-header] .desktop-nav-items>a::after{margin-left:0!important;margin-right:auto!important;transform:scaleX(-1)!important}
 }
+
+
+/* v191: stable mobile account section and card navigation */
+@media(max-width:900px){
+  [data-shared-header] #nav{
+    display:none!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:0!important;
+    max-height:calc(100dvh - 72px)!important;
+    padding:0 12px 20px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+  [data-shared-header] #nav.open{display:flex!important}
+  [data-shared-header] .mobile-account-slot:empty{display:none!important}
+  [data-shared-header] .mobile-account-slot:not(:empty){
+    display:block!important;
+    flex:0 0 auto!important;
+    width:100%!important;
+    padding:max(22px,env(safe-area-inset-top)) 8px 10px!important;
+    margin:0!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+  [data-shared-header] .mobile-account-profile{
+    min-height:0!important;
+    padding:0 4px 14px!important;
+  }
+  [data-shared-header] .mobile-account-profile strong{
+    min-height:0!important;
+    padding:0!important;
+    line-height:1.45!important;
+  }
+  [data-shared-header] .mobile-account-actions{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:4px!important;
+    padding:0!important;
+  }
+  [data-shared-header] .mobile-account-actions button{
+    width:100%!important;
+    min-height:42px!important;
+    padding:9px 4px!important;
+    border:0!important;
+    background:transparent!important;
+    color:#d6deea!important;
+    text-align:left!important;
+  }
+  [data-shared-header] .mobile-account-divider{margin:8px 0 14px!important}
+  [data-shared-header] .desktop-nav-items{
+    display:flex!important;
+    flex-direction:column!important;
+    flex:0 0 auto!important;
+    gap:8px!important;
+    width:100%!important;
+  }
+  [data-shared-header] .desktop-nav-items>a{
+    flex:0 0 auto!important;
+    min-width:0!important;
+    width:100%!important;
+    padding:11px 16px 11px 20px!important;
+  }
+  [data-shared-header] .desktop-nav-items>a:not([data-menu='game'])::before{content:none!important;display:none!important}
+  [data-shared-header] .desktop-nav-items>a[data-menu='game']::before{content:none!important;display:none!important}
+  [data-shared-header] .desktop-nav-items>a::after{
+    content:'›'!important;
+    position:static!important;
+    margin-left:auto!important;
+    opacity:1!important;
+    background:none!important;
+    box-shadow:none!important;
+    animation:none!important;
+  }
+}
