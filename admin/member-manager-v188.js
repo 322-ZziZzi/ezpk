@@ -88,7 +88,13 @@
       <details open><summary>기본 프로필</summary><div class="v188-detail-grid">
         <label>닉네임<input name="nickname" value="${esc(m.nickname)}"></label>
         <label>로그인 ID<input value="${esc(m.loginId)}" disabled></label>
-        <label>등급<select name="memberRank">${["R5","R4","R3","R2","R1"].map(v=>`<option ${v===m.memberRank?"selected":""}>${v}</option>`).join("")}</select></label>
+        <label>등급<select name="memberRank">
+<option selected>R1</option>
+<option>R2</option>
+<option>R3</option>
+<option>R4</option>
+<option>R5</option>
+</select></label>
         <label>산업<select name="industryLevel">${["I10","I9","I8","I7","I6","I5","I4","I3","I2","I1"].map(v=>`<option ${v===m.industryLevel?"selected":""}>${v}</option>`).join("")}</select></label>
         <label>전투력<input name="power" type="number" min="1" value="${m.power}"></label>
         <label>상태<select name="status">${["active","suspended","left"].map(v=>`<option ${v===m.status?"selected":""} value="${v}">${v}</option>`).join("")}</select></label>

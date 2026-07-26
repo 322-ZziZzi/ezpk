@@ -6,6 +6,15 @@
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>EZPK Developer Center</title>
   <link rel="stylesheet" href="./dev.css">
+
+<style>
+@media (min-width:901px){
+.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
+}
+@media (max-width:900px){
+.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
+}
+</style>
 </head>
 <body>
   <main class="shell">
@@ -71,7 +80,13 @@
             <label>닉네임<input name="nickname" value="TEST MEMBER" required></label>
             <label>전투력<input name="power" type="number" min="1" value="123456789" required></label>
             <label>산업 레벨<select name="industryLevel"><option>I10</option><option>I9</option><option>I8</option><option>I7</option><option>I6</option><option>I5</option><option>I4</option><option>I3</option><option>I2</option><option>I1</option></select></label>
-            <label>멤버 등급<select name="memberRank"><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select></label>
+            <label>멤버 등급<select name="memberRank">
+<option selected>R1</option>
+<option>R2</option>
+<option>R3</option>
+<option>R4</option>
+<option>R5</option>
+</select></label>
             <label>연맹 코드<input name="allianceCode" value="00322" required></label>
             <button class="button primary full" type="submit">테스트 회원가입</button>
           </form>
@@ -91,7 +106,13 @@
           <form id="profileForm" class="form-grid compact">
             <label>전투력<input name="power" type="number" min="1" value="190000000" required></label>
             <label>산업 레벨<select name="industryLevel"><option>I10</option><option>I9</option><option>I8</option></select></label>
-            <label id="profileRankMemberField">멤버 등급<select id="profileMemberRank" name="memberRank"><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select></label>
+            <label id="profileRankMemberField">멤버 등급<select id="profileMemberRank" name="memberRank">
+<option selected>R1</option>
+<option>R2</option>
+<option>R3</option>
+<option>R4</option>
+<option>R5</option>
+</select></label>
             <div id="profileRankAdminField" class="admin-rank-lock full" hidden>
               <span class="admin-rank-badge">R5 · ADMINISTRATOR</span>
               <span class="field-hint">관리자 전용 등급은 기본 프로필에서 변경되지 않습니다.</span>
