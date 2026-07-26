@@ -33,12 +33,20 @@ function render(){
 
   const t=targets(s6.participants.length),allStats=listStats(s6.participants),noneList=unassigned(),noneStats=listStats(noneList);
   $('#s6Summary').innerHTML=`
-    <article class="s6-summary-total"><span>전체 인원</span><b>${allStats.count}</b><small>총 전투력 ${fmt(allStats.total)}</small></article>
-    ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-summary-${k}"><span>${m.label}</span><b>${st.count} / ${t[k]}</b><small>전투력 ${fmt(st.total)} (${deviationText(st.total,allStats.total*m.ratio)})<br>1번 차량 ${fmt(st.vehicle1)} (${deviationText(st.vehicle1,allStats.vehicle1*m.ratio)})<br>산업 합계 ${st.industrySum.toFixed(1)} (${deviationText(st.industrySum,allStats.industry*m.ratio)})<br>평균 산업 I${st.industryAvg.toFixed(1)}</small></article>`}).join('')}
-    <article class="s6-summary-none"><span>미배정</span><b>${noneStats.count} / 0</b><small>전투력 ${fmt(noneStats.total)}</small></article>`;
+    <article class="s6-summary-total"><span>전체 인원</span><b>${allStats.count}</b></article>
+    ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-summary-${k}"><span>${m.label}</span><b>${st.count} / ${t[k]}</b></article>`}).join('')}
+    <article class="s6-summary-none"><span>미배정</span><b>${noneStats.count}</b></article>`;
 
-  const teamCards=Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k),open=mobileOpenTeam===k;return `<section class="s6-team-card s6-team-${k}${open?' is-mobile-open':''}"><button type="button" class="s6-team-toggle" data-s6-team-toggle="${k}" aria-expanded="${open}"><span><em>${m.label}</em><b>${st.count}명</b></span><small>전투력 ${fmt(st.total)} · 차량 ${fmt(st.vehicle1)} · 평균 I${st.industryAvg.toFixed(1)}</small><i aria-hidden="true">⌄</i></button><div class="s6-team-body">${s6.teams[k].map(n=>memberRow(n,k)).join('')||'<p class="s6-empty">배정된 멤버가 없습니다.</p>'}</div></section>`}).join('');
-  const unassignedCard=`<section class="s6-team-card s6-unassigned-card"><header><div><span>미배정 명단</span><b>${noneStats.count}명</b></div><small>총 전투력 ${fmt(noneStats.total)}</small></header><p class="s6-unassigned-help">아직 팀이 지정되지 않은 인원입니다. 아래 선택 메뉴에서 바로 다른 팀으로 배정할 수 있습니다.</p><div>${noneList.map(n=>memberRow(n,'none')).join('')||'<p class="s6-empty">현재 미배정된 인원이 없습니다.</p>'}</div></section>`;
+  const statsContent=document.querySelector('#s6StatsContent');
+  if(statsContent){
+    statsContent.innerHTML=`
+      <article class="s6-stat-card s6-stat-total"><h4>전체</h4><dl><div><dt>참가 인원</dt><dd>${allStats.count}명</dd></div><div><dt>총 전투력</dt><dd>${fmt(allStats.total)}</dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(allStats.vehicle1)}</dd></div><div><dt>산업 합계</dt><dd>${allStats.industry.toFixed(1)}</dd></div></dl></article>
+      ${Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k);return `<article class="s6-stat-card s6-stat-${k}"><h4>${m.label}</h4><dl><div><dt>인원</dt><dd>${st.count} / ${t[k]}</dd></div><div><dt>총 전투력</dt><dd>${fmt(st.total)} <small>${deviationText(st.total,allStats.total*m.ratio)}</small></dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(st.vehicle1)} <small>${deviationText(st.vehicle1,allStats.vehicle1*m.ratio)}</small></dd></div><div><dt>산업 합계</dt><dd>${st.industrySum.toFixed(1)} <small>${deviationText(st.industrySum,allStats.industry*m.ratio)}</small></dd></div><div><dt>평균 산업</dt><dd>I${st.industryAvg.toFixed(1)}</dd></div></dl></article>`}).join('')}
+      <article class="s6-stat-card s6-stat-none"><h4>미배정</h4><dl><div><dt>인원</dt><dd>${noneStats.count}명</dd></div><div><dt>총 전투력</dt><dd>${fmt(noneStats.total)}</dd></div><div><dt>1번 차량 전투력</dt><dd>${fmt(noneStats.vehicle1)}</dd></div><div><dt>산업 합계</dt><dd>${noneStats.industry.toFixed(1)}</dd></div></dl></article>`;
+  }
+
+  const teamCards=Object.entries(TEAM_META).map(([k,m])=>{const st=stats(k),open=mobileOpenTeam===k;return `<section class="s6-team-card s6-team-${k}${open?' is-mobile-open':''}"><button type="button" class="s6-team-toggle" data-s6-team-toggle="${k}" aria-expanded="${open}"><span><em>${m.label}</em><b>${st.count}명</b></span><i aria-hidden="true">⌄</i></button><div class="s6-team-body">${s6.teams[k].map(n=>memberRow(n,k)).join('')||'<p class="s6-empty">배정된 멤버가 없습니다.</p>'}</div></section>`}).join('');
+  const unassignedCard=`<section class="s6-team-card s6-unassigned-card"><header><div><span>미배정 명단</span><b>${noneStats.count}명</b></div></header><p class="s6-unassigned-help">아직 팀이 지정되지 않은 인원입니다. 아래 선택 메뉴에서 바로 다른 팀으로 배정할 수 있습니다.</p><div>${noneList.map(n=>memberRow(n,'none')).join('')||'<p class="s6-empty">현재 미배정된 인원이 없습니다.</p>'}</div></section>`;
   $('#s6TeamGrid').innerHTML=teamCards+unassignedCard;
 
   $$('[data-s6-team-toggle]').forEach(btn=>btn.onclick=()=>{mobileOpenTeam=mobileOpenTeam===btn.dataset.s6TeamToggle?'':btn.dataset.s6TeamToggle;render()});

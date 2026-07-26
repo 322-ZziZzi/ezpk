@@ -846,3 +846,17 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
   html[dir='rtl'] [data-shared-header] .desktop-nav-items>a::before{margin-right:0;margin-left:9px}
   html[dir='rtl'] [data-shared-header] .desktop-nav-items>a::after{margin-left:0;margin-right:auto;transform:scaleX(-1)}
 }
+
+
+/* v190-a: simplified mobile shared navigation */
+@media(max-width:900px){
+  [data-shared-header] .desktop-nav-items>a{padding-left:20px!important;padding-right:16px!important;justify-content:flex-start!important;text-align:left!important}
+  [data-shared-header] .desktop-nav-items>a::after{content:'›'!important;margin-left:auto!important;font-size:23px!important;line-height:1!important;color:#728096!important;position:static!important;inset:auto!important;width:auto!important;height:auto!important;opacity:1!important;box-shadow:none!important;background:none!important;animation:none!important;transform:none!important;filter:none!important}
+  [data-shared-header] .desktop-nav-items>a:not(.nav-account-shine)::before{content:none!important;display:none!important}
+  [data-shared-header] .desktop-nav-items>a[data-menu='game']::before{content:none!important;display:none!important}
+  [data-shared-header] a.nav-account-shine{animation:ezpkAccountShinePulse 3.6s ease-in-out infinite!important}
+  [data-shared-header] a.nav-account-shine::before{width:34%!important;animation-duration:3.6s!important;filter:blur(.1px) drop-shadow(0 0 5px rgba(255,229,137,.55))!important}
+  [data-shared-header] a.nav-account-shine.active{border-color:#d9bb65!important;color:#f5c547!important}
+  html[dir='rtl'] [data-shared-header] .desktop-nav-items>a{text-align:right!important}
+  html[dir='rtl'] [data-shared-header] .desktop-nav-items>a::after{margin-left:0!important;margin-right:auto!important;transform:scaleX(-1)!important}
+}

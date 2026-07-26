@@ -283,3 +283,31 @@ body.admin-unlocked{overflow:auto}
   .s6-team-toggle{min-height:66px}.s6-team-toggle small{max-width:48%;text-align:right;line-height:1.45}.s6-team-card label{min-height:50px}.s6-team-card select{min-height:40px;max-width:120px}
   .s6-tools{grid-template-columns:1fr 1fr!important}.s6-tools input{grid-column:1/-1}.s6-tools button{width:100%;min-height:46px}.s6-tools #s6AutoAssign{grid-column:1/2}.s6-tools #s6ResetTeams{grid-column:2/3}
 }
+
+
+/* v190-a: Season 6 Manager concise operation UI */
+.s6-summary article{min-height:104px;align-content:center}
+.s6-summary article small{display:none}
+.s6-stats-panel{margin:-2px 0 16px;border:1px solid #273246;border-radius:14px;background:#0b1019;overflow:hidden}
+.s6-stats-panel>summary{position:relative;padding:14px 46px 14px 16px;color:#d9bb65;font-weight:900;cursor:pointer;list-style:none;user-select:none}
+.s6-stats-panel>summary::-webkit-details-marker{display:none}
+.s6-stats-panel>summary::after{content:'⌄';position:absolute;right:17px;top:50%;transform:translateY(-50%);font-size:20px;transition:transform .16s ease}
+.s6-stats-panel[open]>summary::after{transform:translateY(-50%) rotate(180deg)}
+.s6-stats-panel[open]>summary{border-bottom:1px solid #273246}
+.s6-stats-content{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px}
+.s6-stat-card{padding:14px;border:1px solid #273246;border-radius:12px;background:#0c111b}
+.s6-stat-card h4{margin:0 0 10px;color:#d9bb65}
+.s6-stat-card dl{margin:0}.s6-stat-card dl div{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #ffffff0b}.s6-stat-card dl div:last-child{border-bottom:0}
+.s6-stat-card dt{color:#8f9bad}.s6-stat-card dd{margin:0;text-align:right;font-weight:800}.s6-stat-card dd small{display:block;color:#aab4c5;font-weight:600}
+.s6-team-toggle{justify-content:space-between}.s6-team-toggle>small{display:none!important}
+.s6-tools button{min-width:150px}
+@media(min-width:701px){
+  .s6-tools{grid-template-columns:minmax(220px,1fr) repeat(4,150px)!important}
+  .s6-tools button{width:150px!important;min-width:150px!important;padding-inline:10px!important}
+}
+@media(max-width:1100px){.s6-stats-content{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){
+  .s6-stats-content{grid-template-columns:1fr}
+  .s6-publish-row #downloadSeason6Json{display:none!important}
+  .s6-publish-row{margin-top:14px}
+}
