@@ -1,6 +1,7 @@
 (() => {
   const grid = document.getElementById('eventScheduleGrid');
   const empty = document.getElementById('eventScheduleEmpty');
+  const section = document.querySelector('.schedule-section');
   if (!grid) return;
   let scheduleData = { events: [] };
   let timer = null;
@@ -37,11 +38,20 @@
   function render(){
     const ui = currentUi();
     const now=new Date();
-    const events=(scheduleData.events||[]).filter(e=>e&&e.enabled&&e.title&&e.start&&e.end).slice(0,9);
-    empty.hidden=events.length>0;
-    empty.textContent=ui.scheduleEmpty || fallback.scheduleEmpty;
-    grid.innerHTML=events.map((event,index)=>{
-      const info=stateOf(event,now);
+    const events=(scheduleData.events||[])
+      .filter(e=>e&&e.enabled&&e.title&&e.start&&e.end)
+      .map(event=>({event,info:stateOf(event,now)}))
+      .filter(item=>item.info.state==='upcoming'||item.info.state==='live')
+      .slice(0,9);
+    if(!events.length){
+      grid.innerHTML='';
+      if(empty) empty.hidden=true;
+      if(section) section.hidden=true;
+      return;
+    }
+    if(section) section.hidden=false;
+    if(empty) empty.hidden=true;
+    grid.innerHTML=events.map(({event,info},index)=>{
       let badge=ui.scheduleUpcoming || fallback.scheduleUpcoming;
       let timerText='',timerLabel=ui.scheduleStartIn || fallback.scheduleStartIn;
       if(info.state==='upcoming') timerText=countdown(info.start-now);

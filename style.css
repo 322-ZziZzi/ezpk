@@ -1244,3 +1244,6 @@ font-weight:700;
 font-weight:700;
 }
 }
+
+/* v218: dynamic home sections stay out of layout until valid data is available */
+.home-vote-section[hidden],.schedule-section[hidden]{display:none!important}

@@ -686,3 +686,47 @@ body.admin-unlocked{overflow:auto}
     text-align:center;
   }
 }
+
+/* v217: Season 6 Manager VOTE result import */
+@media(min-width:761px){
+  .s6-tools{
+    grid-template-columns:minmax(220px,1fr) repeat(5,150px)!important;
+  }
+  .s6-tools button{
+    width:150px!important;
+    min-width:150px!important;
+  }
+}
+.s6-vote-source{
+  margin:10px 0 16px;
+  padding:12px 14px;
+  border:1px solid rgba(245,197,71,.28);
+  border-radius:11px;
+  background:rgba(245,197,71,.06);
+  color:#cbd4df;
+  font-size:13px;
+}
+.s6-vote-source b{color:#f5c547}
+.s6-vote-modal[hidden]{display:none}
+.s6-vote-modal{position:fixed;inset:0;z-index:3200;display:grid;place-items:center;padding:18px}
+.s6-vote-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(4px)}
+.s6-vote-modal-card{position:relative;width:min(560px,94vw);max-height:90vh;overflow:auto;padding:20px;border:1px solid rgba(245,197,71,.34);border-radius:16px;background:#0d131d;box-shadow:0 30px 90px rgba(0,0,0,.7)}
+.s6-vote-modal-card h3{margin:0 0 16px;color:#f5c547}
+.s6-vote-modal-card label{display:grid;gap:7px;margin-bottom:14px;color:#9ba7b8;font-size:12px;font-weight:800}
+.s6-vote-modal-card select{width:100%;height:45px;padding:0 12px;border:1px solid #ffffff1c;border-radius:10px;background:#121a27;color:#fff}
+.s6-vote-options{display:grid;gap:8px;margin:8px 0 18px}
+.s6-vote-option{display:flex!important;grid-template-columns:none!important;align-items:center;gap:10px;margin:0!important;padding:12px;border:1px solid #ffffff14;border-radius:10px;background:#111923;color:#d6dde7!important;font-size:14px!important;cursor:pointer}
+.s6-vote-option:has(input:checked){border-color:#f5c54788;background:#f5c5470c}
+.s6-vote-option input{accent-color:#f5c547}
+.s6-vote-option small{margin-left:auto;color:#7e8a9b}
+.s6-vote-modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.s6-vote-modal-actions button{min-height:46px;border:1px solid #ffffff1c;border-radius:10px;background:#172231;color:#fff;font-weight:900;cursor:pointer}
+.s6-vote-modal-actions .primary{background:#f5c547!important;color:#171000!important}
+.s6-vote-empty{padding:18px;text-align:center;color:#8995a6}
+@media(max-width:760px){
+  .s6-tools{grid-template-columns:1fr 1fr!important}
+  .s6-tools input{grid-column:1/-1!important}
+  .s6-tools #s6LoadVote{grid-column:1/-1!important}
+  .s6-tools #s6SelectAll,.s6-tools #s6ClearParticipants,.s6-tools #s6AutoAssign,.s6-tools #s6ResetTeams{grid-column:auto!important}
+  .s6-vote-modal-actions{grid-template-columns:1fr}
+}
