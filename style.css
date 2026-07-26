@@ -1218,3 +1218,29 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
 .ezpk-mobile-drawer .mobile-menu-list>a[hidden],
 [data-shared-header] .desktop-nav-items>a[hidden],
 [data-shared-header] #navMoreMenu>a[hidden]{display:none!important}
+
+
+/* V201 header buttons */
+@media (min-width:901px){
+.header-account{display:flex;align-items:center;gap:8px;}
+.account-button,
+.lang #langBtn{
+width:120px;
+min-width:120px;
+height:40px;
+display:flex;
+align-items:center;
+justify-content:center;
+box-sizing:border-box;
+}
+.account-login{
+margin-right:0;
+background:#f5c547;
+border-color:#f5c547;
+color:#171000;
+font-weight:700;
+}
+.account-signup{
+font-weight:700;
+}
+}

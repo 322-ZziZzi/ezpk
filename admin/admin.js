@@ -188,13 +188,13 @@ function assignMh(sorted){
   // M1 leader: 4th. M2 leader: 7th. Rankings 15-20 are excluded from M/H assignments.
   // The 4th and 7th ranked members are not assigned to H1/H2.
   return {
-    M1:[3,9,12].map(i=>sorted[i].nickname),    // 4th, 10th, 13th
-    M2:[6,10,13].map(i=>sorted[i].nickname),   // 7th, 11th, 14th
-    H1:[4,8,11].map(i=>sorted[i].nickname),    // 5th, 9th, 12th
-    H2:[5,7,9].map(i=>sorted[i].nickname)      // 6th, 8th, 10th
+    M1:[3,9,14].map(i=>sorted[i].nickname),    // 4th,10th,15th
+    M2:[4,8,13].map(i=>sorted[i].nickname),    // 5th,9th,14th
+    H1:[5,7,12].map(i=>sorted[i].nickname),    // 6th,8th,13th
+    H2:[6,10,11].map(i=>sorted[i].nickname)    // 7th,11th,12th
   };
 }
-function autoAssign(){const team=currentTeam();if(team.members.length!==20){alert(`${selectedTeam} TEAM 최종 참전 멤버를 정확히 20명 선택해야 합니다.`);return}const sorted=team.members.map(n=>membersData.members.find(m=>m.nickname===n)).filter(Boolean).sort(compareVehiclePriority);if(sorted.length!==20){alert('멤버 데이터가 올바르지 않습니다. Member Manager를 확인하세요.');return}const r=assignRefineries(sorted),mh=assignMh(sorted);Object.assign(team.locations,r,mh,{CENTER:[0,1,2,4,5,7].map(i=>sorted[i].nickname)});const totals=code=>(team.locations[code]||[]).reduce((s,n)=>s+powerOf(n),0);$('#autoSummary').innerHTML=`<strong>${selectedTeam} TEAM 자동 배정 완료</strong><span>R1~R6 전투력 범위: ${Math.min(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()} ~ ${Math.max(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()}</span><span>M1 4·10·13위 · M2 7·11·14위 · H1 5·9·12위 · H2 6·8·10위 · CENTER 1·2·3·5·6·8위 · M/H 15~20위 제외</span>`;renderLocationButtons();renderAssignments()}
+function autoAssign(){const team=currentTeam();if(team.members.length!==20){alert(`${selectedTeam} TEAM 최종 참전 멤버를 정확히 20명 선택해야 합니다.`);return}const sorted=team.members.map(n=>membersData.members.find(m=>m.nickname===n)).filter(Boolean).sort(compareVehiclePriority);if(sorted.length!==20){alert('멤버 데이터가 올바르지 않습니다. Member Manager를 확인하세요.');return}const r=assignRefineries(sorted),mh=assignMh(sorted);Object.assign(team.locations,r,mh,{CENTER:[0,1,2,3,4,5,6].map(i=>sorted[i].nickname)});const totals=code=>(team.locations[code]||[]).reduce((s,n)=>s+powerOf(n),0);$('#autoSummary').innerHTML=`<strong>${selectedTeam} TEAM 자동 배정 완료</strong><span>R1~R6 전투력 범위: ${Math.min(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()} ~ ${Math.max(...['R1','R2','R3','R4','R5','R6'].map(totals)).toLocaleString()}</span><span>M1 4·10·15위 · M2 5·9·14위 · H1 6·8·13위 · H2 7·11·12위 · CENTER 1~7위</span>`;renderLocationButtons();renderAssignments()}
 function renderBgbAll(){renderTeamTabs();renderLineup();renderFinalPreview();renderLocationButtons();renderAssignments()}
 function renderEvents(){
   const grid=$('#eventAdminGrid');
