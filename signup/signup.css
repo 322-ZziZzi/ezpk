@@ -32,3 +32,11 @@ html[dir="rtl"] .password-toggle{right:auto;left:5px}
 
 .field-help{display:block;margin-top:-2px;color:#8290a3;font-size:.73rem;font-weight:600;line-height:1.35}
 html[dir="rtl"] .field-help{text-align:right}
+
+/* v207: keep the shared desktop login/sign-up controls bold on the signup page */
+@media (min-width:901px){
+  .site-header .header-account .account-login,
+  .site-header .header-account .account-signup{
+    font-weight:700!important;
+  }
+}
