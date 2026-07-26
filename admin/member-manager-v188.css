@@ -46,3 +46,31 @@
  .v188-detail-grid,.v188-info-grid{grid-template-columns:1fr}.v188-bulk{flex-wrap:wrap}
 }
 @media(max-width:480px){.v188-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.v188-toolbar input{grid-column:1/-1}.v188-toolbar button,.v188-toolbar select{font-size:13px}.v188-card-grid{grid-template-columns:1fr 1fr}.v188-stats article{padding:12px}.v188-stats strong{font-size:21px}}
+
+
+/* v193: keep Member Manager pagination on one horizontal row on mobile */
+@media(max-width:900px){
+  .v188-pagination{
+    display:flex!important;
+    flex-direction:row!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:14px!important;
+    width:100%!important;
+  }
+  .v188-pagination button{
+    flex:0 0 42px!important;
+    width:42px!important;
+    min-width:42px!important;
+    max-width:42px!important;
+    height:42px!important;
+  }
+  .v188-pagination strong{
+    display:block!important;
+    flex:0 0 72px!important;
+    min-width:72px!important;
+    text-align:center!important;
+    white-space:nowrap!important;
+  }
+}

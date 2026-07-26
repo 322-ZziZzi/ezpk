@@ -935,3 +935,83 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
     animation:none!important;
   }
 }
+
+
+/* v193: mobile drawer clipping fix + unified account/menu flow */
+@media(max-width:900px){
+  :root{--ezpk-mobile-header-height:68px}
+  [data-shared-header] #nav{
+    position:fixed!important;
+    top:var(--ezpk-mobile-header-height)!important;
+    left:12px!important;
+    right:12px!important;
+    bottom:0!important;
+    width:auto!important;
+    height:calc(100dvh - var(--ezpk-mobile-header-height))!important;
+    max-height:none!important;
+    box-sizing:border-box!important;
+    padding:20px 12px calc(28px + env(safe-area-inset-bottom))!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    scroll-padding-top:20px!important;
+  }
+  [data-shared-header] #nav.open{display:flex!important}
+  [data-shared-header] .mobile-account-slot,
+  [data-shared-header] .mobile-account-profile,
+  [data-shared-header] .mobile-account-actions,
+  [data-shared-header] .mobile-account-divider,
+  [data-shared-header] .desktop-nav-items{
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    float:none!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  [data-shared-header] .mobile-account-slot:not(:empty){
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    padding:0 8px 10px!important;
+    margin:0!important;
+    flex:0 0 auto!important;
+  }
+  [data-shared-header] .mobile-account-profile{
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    padding:0 4px 14px!important;
+    margin:0!important;
+  }
+  [data-shared-header] .mobile-account-profile strong{
+    display:block!important;
+    width:100%!important;
+    min-height:0!important;
+    padding:0!important;
+    margin:0!important;
+    line-height:1.45!important;
+  }
+  [data-shared-header] .mobile-account-actions{
+    width:100%!important;
+    padding:0!important;
+    margin:0!important;
+  }
+  [data-shared-header] .mobile-account-divider{
+    display:block!important;
+    width:100%!important;
+    height:1px!important;
+    margin:10px 0 16px!important;
+    background:#ffffff12!important;
+  }
+  [data-shared-header] .mobile-account-slot:empty + .desktop-nav-items{
+    margin-top:0!important;
+  }
+  [data-shared-header] .desktop-nav-items{
+    width:100%!important;
+    flex:0 0 auto!important;
+  }
+  body.ezpk-mobile-menu-open{overflow:hidden!important}
+}
