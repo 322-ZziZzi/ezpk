@@ -87,7 +87,6 @@
           nickname:form.elements.nickname.value,
           power:Number(form.elements.power.dataset.raw || form.elements.power.value.replace(/\D/g, "")),
           industryLevel:form.elements.industryLevel.value,
-          memberRank:form.elements.memberRank.value,
           allianceCode:form.elements.allianceCode.value
         })
       });
