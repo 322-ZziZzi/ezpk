@@ -1267,3 +1267,18 @@ font-weight:700;
 }
 .site-header .header-account .account-login{background:#f5c547!important;border-color:#f5c547!important;color:#171000!important}
 .site-header .header-account .account-signup{background:#fff!important;border-color:#fff!important;color:#171000!important}
+
+
+/* v225: force visibly bold login/sign-up labels on every shared-header page. */
+.site-header button.account-button[data-account-action="login"],
+.site-header button.account-button[data-account-action="signup"],
+.site-header button.account-login,
+.site-header button.account-signup,
+.ezpk-mobile-drawer button[data-account-action="login"],
+.ezpk-mobile-drawer button[data-account-action="signup"]{
+  font-family:Arial,"Noto Sans KR",sans-serif!important;
+  font-weight:900!important;
+  font-synthesis:weight!important;
+  -webkit-font-smoothing:antialiased;
+  text-shadow:.22px 0 currentColor,-.22px 0 currentColor!important;
+}

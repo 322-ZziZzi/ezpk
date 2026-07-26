@@ -276,8 +276,12 @@
       memberData.member.industryLevel = null;
       memberData.member.profileSpecsRegistered = false;
       memberData.specs = {};
-      $("#specsForm").reset();
+      const specsForm = $("#specsForm");
+      specsForm.reset();
       renderMember();
+      // v225: keep profile CP and industry visibly in their unregistered '-' state.
+      setValue(specsForm, "power", "");
+      setValue(specsForm, "industryLevel", "");
       showToast(t("resetDone"));
     } catch (e) {
       showToast(t("failed"),"error");
