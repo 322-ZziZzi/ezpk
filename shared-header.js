@@ -134,7 +134,6 @@
     { key: 'bgb', href: `${base}/bgb/` },
     { key: 'tip', href: `${base}/tip/` },
     { key: 'request', href: `${base}/request/` },
-    { key: 'vote', href: `${base}/vote/` },
     { key: 'accounts', href: `${base}/accounts/` },
     { key: 'game', href: `${base}/game/` },
     { key: 'logo', href: `${base}/logo/` }
