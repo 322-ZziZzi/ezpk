@@ -475,3 +475,167 @@ body.admin-unlocked{overflow:auto}
     text-align: center;
   }
 }
+
+
+/* v214: Admin top actions and Account Manager common button system */
+.admin-api-card .connect-actions{
+  display:grid;
+  grid-template-columns:repeat(2,160px);
+  gap:10px;
+}
+.admin-api-card .connect-actions button{
+  width:160px;
+  min-width:160px;
+  min-height:46px;
+  padding:0 16px;
+  border:1px solid #d8aa32;
+  border-radius:10px;
+  background:#f5c547!important;
+  color:#171000!important;
+  font-weight:700;
+  line-height:1;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  transition:filter .16s ease,transform .08s ease,box-shadow .16s ease;
+}
+.admin-api-card .connect-actions button:hover{filter:brightness(1.07);box-shadow:0 8px 22px rgba(245,197,71,.18)}
+.admin-api-card .connect-actions button:active{transform:translateY(1px);filter:brightness(.96)}
+
+/* Account Manager shared action-button geometry */
+#accountsPanel{
+  --account-action-width:140px;
+  --account-action-height:44px;
+  --account-action-radius:10px;
+}
+#accountsPanel .account-page-link,
+#accountsPanel .template-actions button,
+#accountsPanel #parseAccountTemplate,
+#accountsPanel .account-form-actions button,
+#accountsPanel #downloadAccountsJson,
+#accountsPanel .account-admin-actions button,
+#accountsPanel .admin-account-image-modal article>.secondary{
+  box-sizing:border-box;
+  min-height:var(--account-action-height);
+  height:var(--account-action-height);
+  padding:0 14px;
+  border:1px solid #d8aa32;
+  border-radius:var(--account-action-radius);
+  background:#f5c547!important;
+  color:#171000!important;
+  font:inherit;
+  font-weight:700;
+  line-height:1;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:filter .16s ease,transform .08s ease,box-shadow .16s ease;
+}
+#accountsPanel .account-page-link:hover,
+#accountsPanel .template-actions button:hover,
+#accountsPanel #parseAccountTemplate:hover,
+#accountsPanel .account-form-actions button:hover,
+#accountsPanel #downloadAccountsJson:hover,
+#accountsPanel .account-admin-actions button:hover,
+#accountsPanel .admin-account-image-modal article>.secondary:hover{
+  filter:brightness(1.07);
+  box-shadow:0 8px 22px rgba(245,197,71,.16);
+}
+#accountsPanel .account-page-link:active,
+#accountsPanel .template-actions button:active,
+#accountsPanel #parseAccountTemplate:active,
+#accountsPanel .account-form-actions button:active,
+#accountsPanel #downloadAccountsJson:active,
+#accountsPanel .account-admin-actions button:active,
+#accountsPanel .admin-account-image-modal article>.secondary:active{
+  transform:translateY(1px);
+  filter:brightness(.96);
+}
+#accountsPanel .account-admin-actions button.danger,
+#accountsPanel .account-admin-actions .danger{
+  border-color:#8b3434;
+  background:#481919!important;
+  color:#ffb4b4!important;
+}
+#accountsPanel button:disabled,
+#accountsPanel .account-page-link[aria-disabled="true"]{
+  opacity:.42;
+  cursor:not-allowed;
+  filter:saturate(.45);
+  box-shadow:none;
+  transform:none;
+}
+
+/* PC: all Account Manager action buttons use one fixed width */
+@media (min-width:901px){
+  #accountsPanel .account-page-link,
+  #accountsPanel .template-actions button,
+  #accountsPanel #parseAccountTemplate,
+  #accountsPanel .account-form-actions button,
+  #accountsPanel #downloadAccountsJson,
+  #accountsPanel .account-admin-actions button{
+    width:var(--account-action-width);
+    min-width:var(--account-action-width);
+    flex:0 0 var(--account-action-width);
+  }
+  #accountsPanel .template-actions,
+  #accountsPanel .account-form-actions,
+  #accountsPanel .account-admin-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+}
+
+/* Mobile: common touch size and equal widths by group */
+@media (max-width:900px){
+  .admin-api-card .connect-actions{
+    width:100%;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .admin-api-card .connect-actions button{
+    width:100%;
+    min-width:0;
+  }
+  #accountsPanel .account-page-link,
+  #accountsPanel #parseAccountTemplate,
+  #accountsPanel #downloadAccountsJson{
+    width:100%;
+    min-width:0;
+  }
+  #accountsPanel .template-actions,
+  #accountsPanel .account-form-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    width:100%;
+  }
+  #accountsPanel .template-actions button,
+  #accountsPanel .account-form-actions button{
+    width:100%;
+    min-width:0;
+  }
+  #accountsPanel .account-admin-item.expanded .account-admin-actions{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:7px;
+    width:100%;
+  }
+  #accountsPanel .account-admin-actions button{
+    width:100%;
+    min-width:0;
+    padding-inline:6px;
+  }
+}
+@media (max-width:420px){
+  .admin-api-card .connect-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #accountsPanel .template-actions,
+  #accountsPanel .account-form-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #accountsPanel .account-admin-actions button{font-size:13px}
+}

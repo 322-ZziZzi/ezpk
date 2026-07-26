@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
   <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="admin.css?v=2130">
+  <link rel="stylesheet" href="admin.css?v=2140">
   <link rel="stylesheet" href="member-manager-v188.css?v=1920">
   <link rel="stylesheet" href="../common-heading.css?v=1920">
 
@@ -54,8 +54,8 @@
       <p class="help">GitHub 인증 정보는 Cloudflare Worker Secret에 보관됩니다. 브라우저에는 토큰이 저장되지 않습니다.</p>
     </div>
     <div class="connect-actions">
-      <button id="loadGithub" class="secondary" type="button">↻ 운영 데이터 새로고침</button>
-      <button id="saveAllGithub" class="primary" type="button">모든 변경사항 저장</button>
+      <button id="loadGithub" class="secondary" type="button">↻ 새로고침</button>
+      <button id="saveAllGithub" class="primary" type="button">저장</button>
     </div>
     <div id="status" class="status" aria-live="polite"></div>
   </section>
@@ -195,8 +195,8 @@
 
     <div id="accountsPanel" class="admin-panel">
       <div class="account-admin-head"><div><h2>Account Manager</h2><p>Discord로 받은 표준 양식을 붙여넣어 계정 정보를 등록하고 관리합니다.</p></div><a class="secondary account-page-link" href="../accounts/" target="_blank">Account Showcase 열기</a></div>
-      <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식과 게시 옵션 안내를 함께 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요. 하단 안내문은 붙여넣기 분석 시 자동으로 제외됩니다.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">COPY TEMPLATE</button><button id="downloadAccountTemplate" type="button">DOWNLOAD TEMPLATE</button></div><div id="templateActionStatus" class="mini-status"></div></section>
-      <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">PARSE TEMPLATE</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">RESET</button><button id="registerAccount" class="primary" type="button">REGISTER ACCOUNT</button></div></section></div>
+      <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식과 게시 옵션 안내를 함께 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요. 하단 안내문은 붙여넣기 분석 시 자동으로 제외됩니다.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">복사하기</button><button id="downloadAccountTemplate" type="button">다운로드</button></div><div id="templateActionStatus" class="mini-status"></div></section>
+      <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">붙여넣기</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">초기화</button><button id="registerAccount" class="primary" type="button">등록</button></div></section></div>
       <section class="account-list-admin">
   <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · Premium 0개</p></div><button id="downloadAccountsJson" type="button">↓ Accounts JSON 백업</button></div>
   <div class="account-mobile-tabs" role="tablist" aria-label="계정 게시 유형">
