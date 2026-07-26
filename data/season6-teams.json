@@ -1,14 +1,21 @@
 {
-  "lastUpdated": "",
+  "lastUpdated": "2026.07.25",
   "published": true,
   "supportPriority": [
     "defense",
     "attack"
   ],
-  "participants": [],
+  "participants": [
+    "Alliance Bot••",
+    "ezpk test1"
+  ],
   "teams": {
-    "attack": [],
-    "defense": [],
+    "attack": [
+      "Alliance Bot••"
+    ],
+    "defense": [
+      "ezpk test1"
+    ],
     "support": []
   }
 }
