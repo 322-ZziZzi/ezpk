@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const state={items:[],stats:{},page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",industry:"",sort:"created_desc",longPress:null};
+  const state={items:[],stats:{},page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",industry:"",sort:"created_desc",limit:10,longPress:null};
   const $=s=>document.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   const fmt=n=>Number(n||0).toLocaleString("ko-KR");
@@ -13,7 +13,7 @@
     return body.data;
   }
   function params(){
-    const p=new URLSearchParams({page:String(state.page),limit:"50",sort:state.sort});
+    const p=new URLSearchParams({page:String(state.page),limit:String(state.limit),sort:state.sort});
     if(state.query)p.set("q",state.query);
     if(state.rank)p.set("rank",state.rank);
     if(state.industry)p.set("industry",state.industry);
@@ -43,9 +43,9 @@
   }
   function card(m){
     const selected=state.selected.has(m.id)?"selected":"";
-    return `<article class="v188-member-card ${selected}" data-id="${m.id}" tabindex="0">
+    return `<article class="v188-member-card ${selected}" data-id="${m.id}" tabindex="0" aria-label="${esc(m.nickname)} 상세 열기">
       <div class="v188-card-top"><strong>${esc(m.nickname)}</strong><span>${esc(m.memberRank)} · ${esc(m.industryLevel)}</span></div>
-      <div class="v188-card-grid"><span>전투력<b>${fmt(m.power)}</b></span><span>1번 차량<b>${esc(vehicle(m))}</b></span></div>
+      <div class="v188-card-grid"><span>전투력<b>${fmt(m.power)}</b></span><span>1번 차량 파워<b>${esc(vehicle(m))}</b></span></div>
       <i class="v188-card-check">✓</i>
     </article>`;
   }
@@ -157,6 +157,7 @@
     $("#memberRankV188").onchange=e=>{state.rank=e.target.value;load(true)};
     $("#memberIndustryV188").onchange=e=>{state.industry=e.target.value;load(true)};
     $("#memberSortV188").onchange=e=>{state.sort=e.target.value;load(true)};
+    $("#memberLimitV188").onchange=e=>{state.limit=Math.max(10,Number(e.target.value)||10);load(true)};
     $("#memberRefreshV188").onclick=()=>load();
     $("#memberExportV188").onclick=exportExcel;
     $("#memberPrevV188").onclick=()=>{if(state.page>1){state.page--;load()}};
