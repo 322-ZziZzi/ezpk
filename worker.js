@@ -291,10 +291,10 @@ async function handleSignup(request, env, url) {
   const password = String(body.password ?? "");
   const passwordConfirm = String(body.passwordConfirm ?? "");
   const nickname = cleanString(body.nickname, 64);
-  // v223: Power and industry level are registered later from My Page.
-  // Legacy NOT NULL constraints use internal placeholders until the profile is saved.
-  const power = 1;
-  const industryLevel = "I1";
+  // v226: Power and industry level are registered later from My Page.
+  // NULL is the canonical unregistered state.
+  const power = null;
+  const industryLevel = null;
   // v220: New members always start at R1. Client-provided rank values are ignored.
   const memberRank = "R1";
   const allianceCode = cleanString(body.allianceCode, 100);
@@ -656,9 +656,9 @@ async function handleMemberMe(request, env) {
         id: record.id,
         loginId: record.login_id,
         nickname: record.nickname,
-        power: record.profile_specs_registered ? record.power : null,
-        industryLevel: record.profile_specs_registered ? record.industry_level : null,
-        profileSpecsRegistered: Boolean(record.profile_specs_registered),
+        power: record.power ?? null,
+        industryLevel: record.industry_level ?? null,
+        profileSpecsRegistered: record.power !== null && record.industry_level !== null,
         memberRank: record.member_rank,
         role: record.role,
         status: record.status,
@@ -787,31 +787,36 @@ async function handleSpecsReset(request, env) {
   const member = await requireMember(request, env.DB);
   if (member instanceof Response) return member;
 
-  await env.DB.batch([
-    env.DB.prepare(`
-      UPDATE members
-      SET power = 1, industry_level = 'I1'
-      WHERE id = ?
-    `).bind(member.id),
-    env.DB.prepare(`
-      INSERT INTO member_specs (member_id, profile_specs_registered)
-      VALUES (?, 0)
-      ON CONFLICT(member_id) DO UPDATE SET
-        profile_specs_registered = 0,
-        vehicle1_class = NULL,
-        vehicle1_power_value = NULL,
-        vehicle1_power_unit = NULL,
-        vehicle1_power_normalized = NULL,
-        vehicle2_class = NULL,
-        vehicle2_power_value = NULL,
-        vehicle2_power_unit = NULL,
-        vehicle2_power_normalized = NULL,
-        season_war_available = NULL,
-        bgb_available_hour = NULL,
-        discord = NULL,
-        telegram = NULL
-    `).bind(member.id),
-  ]);
+  try {
+    await env.DB.batch([
+      env.DB.prepare(`
+        UPDATE members
+        SET power = NULL, industry_level = NULL
+        WHERE id = ?
+      `).bind(member.id),
+      env.DB.prepare(`
+        INSERT INTO member_specs (member_id, profile_specs_registered)
+        VALUES (?, 0)
+        ON CONFLICT(member_id) DO UPDATE SET
+          profile_specs_registered = 0,
+          vehicle1_class = NULL,
+          vehicle1_power_value = NULL,
+          vehicle1_power_unit = NULL,
+          vehicle1_power_normalized = NULL,
+          vehicle2_class = NULL,
+          vehicle2_power_value = NULL,
+          vehicle2_power_unit = NULL,
+          vehicle2_power_normalized = NULL,
+          season_war_available = NULL,
+          bgb_available_hour = NULL,
+          discord = NULL,
+          telegram = NULL
+      `).bind(member.id),
+    ]);
+  } catch (error) {
+    console.error("SPEC_RESET_DB_ERROR", { memberId: member.id, error });
+    return jsonError("SPEC_RESET_DB_ERROR", 500);
+  }
 
   return json({ok:true,data:{profile:{power:null,industryLevel:null,profileSpecsRegistered:false},specs:{}}});
 }
@@ -1038,8 +1043,8 @@ async function handlePublicMembers(url, env) {
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
   const sortMap = {
-    power_desc: "CASE WHEN COALESCE(s.profile_specs_registered,1)=1 THEN 0 ELSE 1 END ASC, m.power DESC, m.id ASC",
-    power_asc: "CASE WHEN COALESCE(s.profile_specs_registered,1)=1 THEN 0 ELSE 1 END ASC, m.power ASC, m.id ASC",
+    power_desc: "CASE WHEN m.power IS NULL THEN 1 ELSE 0 END ASC, m.power DESC, m.id ASC",
+    power_asc: "CASE WHEN m.power IS NULL THEN 1 ELSE 0 END ASC, m.power ASC, m.id ASC",
     nickname_asc: "m.nickname COLLATE NOCASE ASC, m.id ASC",
     nickname_desc: "m.nickname COLLATE NOCASE DESC, m.id ASC",
     joined_desc: "m.created_at DESC, m.id ASC",
@@ -1060,8 +1065,8 @@ async function handlePublicMembers(url, env) {
     SELECT
       m.id AS id,
       m.nickname AS nickname,
-      CASE WHEN COALESCE(s.profile_specs_registered, 1) = 1 THEN m.power ELSE NULL END AS power,
-      CASE WHEN COALESCE(s.profile_specs_registered, 1) = 1 THEN m.industry_level ELSE NULL END AS industry_level,
+      m.power AS power,
+      m.industry_level AS industry_level,
       m.member_rank AS member_rank,
       m.created_at AS joined_at,
       m.updated_at AS basic_updated_at,
@@ -1558,11 +1563,13 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   if (!target) return jsonError("MEMBER_NOT_FOUND",404);
   const body=await readJson(request);
   const nickname=cleanString(body.nickname,64);
-  const power=toPositiveInteger(body.power);
-  const industry=String(body.industryLevel||"").toUpperCase();
+  const powerInput = body.power;
+  const industryInput = body.industryLevel;
+  const power = powerInput === null || powerInput === "" ? null : toPositiveInteger(powerInput);
+  const industry = industryInput === null || industryInput === "" ? null : String(industryInput).toUpperCase();
   const rank=String(body.memberRank||"").toUpperCase();
   const status=String(body.status||"");
-  if(!nickname||!power||!isIndustryLevel(industry)||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
+  if(!nickname||(powerInput !== null && powerInput !== "" && !power)||(industryInput !== null && industryInput !== "" && !isIndustryLevel(industry))||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
   if(target.role==="admin" && (rank!=="R5" || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
   const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
   if(dupe) return jsonError("NICKNAME_TAKEN",409);
@@ -2055,7 +2062,7 @@ function specsResponse(row) {
   );
 
   return {
-    profileSpecsRegistered: Boolean(row.profile_specs_registered),
+    profileSpecsRegistered: row.power !== null && row.industry_level !== null,
     vehicle1Class: row.vehicle1_class,
     vehicle1PowerValue: row.vehicle1_power_value,
     vehicle1PowerUnit: row.vehicle1_power_unit,
@@ -2078,12 +2085,12 @@ function specsResponse(row) {
 }
 
 function publicMemberRow(row) {
-  const registered = Boolean(row.profile_specs_registered);
+  const registered = row.power !== null && row.industry_level !== null;
   return {
     id: row.id,
     nickname: row.nickname,
-    power: registered ? row.power : null,
-    industryLevel: registered ? row.industry_level : null,
+    power: row.power ?? null,
+    industryLevel: row.industry_level ?? null,
     profileSpecsRegistered: registered,
     memberRank: row.member_rank,
     joinedAt: row.joined_at,

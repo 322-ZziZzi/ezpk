@@ -226,3 +226,13 @@ Then deploy with `npx wrangler deploy`.
 
 ## v224
 See `V224_CHANGELOG.txt` for the finalized profile and Member List UX changes.
+
+
+## v226
+- Added D1 migration `0014_v226_nullable_profile_fields.sql`.
+- `members.power` and `members.industry_level` now allow NULL as the real unregistered state.
+- New signups and profile resets store NULL instead of placeholder values `1 / I1`.
+- Existing placeholder records are converted to NULL only when `profile_specs_registered = 0`.
+- Member List display, sorting, and registration status now use the actual NULL values.
+- Profile reset failures return `SPEC_RESET_DB_ERROR`; My Page logs the API details and shows the error code.
+- Apply the remote migration before deploying the Worker: `npx wrangler d1 migrations apply DB --remote`.

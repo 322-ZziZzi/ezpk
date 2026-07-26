@@ -284,7 +284,9 @@
       setValue(specsForm, "industryLevel", "");
       showToast(t("resetDone"));
     } catch (e) {
-      showToast(t("failed"),"error");
+      console.error("[DELETE /api/member/specs]", { code:e.code, payload:e.payload, error:e });
+      const code = e.code && e.code !== "REQUEST_FAILED" ? ` (${e.code})` : "";
+      showToast(`${t("failed")}${code}`,"error");
     } finally {
       button.disabled = false;
     }
