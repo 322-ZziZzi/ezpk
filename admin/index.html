@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK Admin Manager</title>
   <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="admin.css?v=2140">
+  <link rel="stylesheet" href="admin.css?v=2150">
   <link rel="stylesheet" href="member-manager-v188.css?v=1920">
   <link rel="stylesheet" href="../common-heading.css?v=1920">
 
@@ -194,11 +194,11 @@
     </div>
 
     <div id="accountsPanel" class="admin-panel">
-      <div class="account-admin-head"><div><h2>Account Manager</h2><p>Discord로 받은 표준 양식을 붙여넣어 계정 정보를 등록하고 관리합니다.</p></div><a class="secondary account-page-link" href="../accounts/" target="_blank">Account Showcase 열기</a></div>
-      <section class="template-download-card"><div><strong>ACCOUNT REGISTRATION TEMPLATE</strong><p>최신 영문 표준 양식과 게시 옵션 안내를 함께 복사하거나 TXT 파일로 내려받아 Discord로 전달하세요. 하단 안내문은 붙여넣기 분석 시 자동으로 제외됩니다.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">복사하기</button><button id="downloadAccountTemplate" type="button">다운로드</button></div><div id="templateActionStatus" class="mini-status"></div></section>
+      <div class="account-admin-head"><div><h2>Account Manager</h2><p>판매 계정의 정보를 등록하고 관리합니다.</p></div></div>
+      <section class="template-download-card"><div><strong>템플릿</strong><p>1. 표준 템플릿을 계정 판매자에게 전달하세요.<br>2. 전달받은 템플릿을 붙여넣으세요.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">복사하기</button><button id="downloadAccountTemplate" type="button">다운로드</button></div><div id="templateActionStatus" class="mini-status"></div></section>
       <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">붙여넣기</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">초기화</button><button id="registerAccount" class="primary" type="button">등록</button></div></section></div>
       <section class="account-list-admin">
-  <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · Premium 0개</p></div><button id="downloadAccountsJson" type="button">↓ Accounts JSON 백업</button></div>
+  <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · Premium 0개</p></div></div>
   <div class="account-mobile-tabs" role="tablist" aria-label="계정 게시 유형">
     <button type="button" data-account-tab="all" class="active">전체 <b id="accountTabAllCount">0</b></button>
     <button type="button" data-account-tab="premium">⭐ Premium <b id="accountTabPremiumCount">0</b></button>
@@ -218,6 +218,7 @@
     <button id="accountNextPage" type="button" aria-label="다음 페이지"><span>다음</span> ›</button>
   </nav>
 </section>
+<div class="account-backup-actions"><button id="downloadAccountsJson" type="button">↓ Account JSON 백업</button></div>
 <div id="adminAccountImageModal" class="admin-account-image-modal" hidden><div class="admin-image-backdrop" data-admin-image-close></div><article><header><h3>ACCOUNT IMAGE</h3><button type="button" data-admin-image-close>×</button></header><div><img id="adminAccountImagePreview" alt="Account image preview"></div><p>모바일에서는 이미지를 길게 눌러 저장할 수 있습니다.</p><button class="secondary" type="button" data-admin-image-close>CLOSE</button></article></div>
     </div>
 
@@ -227,7 +228,7 @@
 <script src="../shared-header.js?v=1940"></script>
 <script src="../vehicle-power.js?v=1970"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=1910"></script><script src="season6-manager.js?v=1910"></script><script src="accounts-manager.js?v=1910"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=1910"></script><script src="season6-manager.js?v=1910"></script><script src="accounts-manager.js?v=2150"></script>
 <script src="member-manager-v188.js?v=1920"></script>
 </body>
 </html>
