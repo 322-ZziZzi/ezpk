@@ -75,16 +75,9 @@
     $("#profileNickname").value = m.nickname;
     setValue($("#profileForm"),"power",m.power);
     setValue($("#profileForm"),"industryLevel",m.industryLevel);
-    if (m.role === "admin") {
-      $("#profileRank").hidden = true;
-      $("#profileRank").disabled = true;
-      $("#adminRankDisplay").hidden = false;
-    } else {
-      $("#profileRank").hidden = false;
-      $("#profileRank").disabled = false;
-      $("#adminRankDisplay").hidden = true;
-      setValue($("#profileForm"),"memberRank",m.memberRank);
-    }
+    $("#profileRankDisplay").value = m.role === "admin"
+      ? `${m.memberRank} · ${t("administrator")}`
+      : m.memberRank;
     setValue($("#specsForm"),"vehicle1Class",s.vehicle1Class);
     setValue($("#specsForm"),"vehicle1PowerValue",s.vehicle1PowerValue);
     setValue($("#specsForm"),"vehicle1PowerUnit",s.vehicle1PowerUnit);
@@ -181,8 +174,7 @@
         method:"PUT",
         body:JSON.stringify({
           power:Number(f.elements.power.value),
-          industryLevel:f.elements.industryLevel.value,
-          memberRank:m.role === "admin" ? "R5" : f.elements.memberRank.value
+          industryLevel:f.elements.industryLevel.value
         })
       });
       m.power = payload.data.profile.power;

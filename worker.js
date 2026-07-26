@@ -290,7 +290,8 @@ async function handleSignup(request, env, url) {
   const nickname = cleanString(body.nickname, 64);
   const power = toPositiveInteger(body.power);
   const industryLevel = String(body.industryLevel ?? "").toUpperCase();
-  const memberRank = String(body.memberRank ?? "").toUpperCase();
+  // v220: New members always start at R1. Client-provided rank values are ignored.
+  const memberRank = "R1";
   const allianceCode = cleanString(body.allianceCode, 100);
 
   if (!isLoginId(loginId)) {
@@ -310,8 +311,7 @@ async function handleSignup(request, env, url) {
   if (
     !nickname ||
     !power ||
-    !isIndustryLevel(industryLevel) ||
-    !isMemberRank(memberRank)
+    !isIndustryLevel(industryLevel)
   ) {
     return jsonError("VALIDATION_ERROR", 400);
   }
@@ -683,25 +683,18 @@ async function handleProfileUpdate(request, env) {
   const body = await readJson(request);
   const power = toPositiveInteger(body.power);
   const industryLevel = String(body.industryLevel ?? "").toUpperCase();
-  const requestedRank = String(body.memberRank ?? "").toUpperCase();
 
   if (!power || !isIndustryLevel(industryLevel)) {
     return jsonError("VALIDATION_ERROR", 400);
   }
 
-  // R5 is administrator-only. An administrator's own profile update must
-  // never lower the stored rank because the public form only exposes R1-R4.
-  const memberRank = member.role === "admin" ? "R5" : requestedRank;
-
-  if (member.role !== "admin" && !isMemberRank(memberRank)) {
-    return jsonError("VALIDATION_ERROR", 400);
-  }
-
+  // v220: Member rank is read-only on My Page. Rank changes are allowed only
+  // through the R5-only admin member manager, so any client-provided rank is ignored.
   await env.DB.prepare(`
     UPDATE members
-    SET power = ?, industry_level = ?, member_rank = ?
+    SET power = ?, industry_level = ?
     WHERE id = ?
-  `).bind(power, industryLevel, memberRank, member.id).run();
+  `).bind(power, industryLevel, member.id).run();
 
   return json({
     ok: true,
@@ -709,8 +702,8 @@ async function handleProfileUpdate(request, env) {
       profile: {
         power,
         industryLevel,
-        memberRank,
-        rankLocked: member.role === "admin",
+        memberRank: member.member_rank,
+        rankLocked: true,
       },
     },
   });
