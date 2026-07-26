@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>MY PAGE · EZPK</title>
-  <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="./my.css?v=2230">
+  <link rel="stylesheet" href="../style.css?v=2240">
+  <link rel="stylesheet" href="./my.css?v=2240">
 
 <style>
 @media (min-width:901px){
@@ -19,7 +19,7 @@
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
-  <script src="../shared-header.js?v=1940"></script>
+  <script src="../shared-header.js?v=2240"></script>
 
   <main class="my-shell" id="myPage">
     <section class="my-hero">
@@ -116,7 +116,10 @@
               </label>
               <label><span data-i18n="discordOptional">Discord (선택사항)</span><input name="discord" type="text" maxlength="100" autocomplete="off"></label>
               <label><span data-i18n="telegramOptional">Telegram (선택사항)</span><input name="telegram" type="text" maxlength="100" autocomplete="off"></label>
-              <button class="form-submit" type="submit" data-i18n="saveSpecs">세부 스펙 저장</button>
+              <div class="spec-action-row">
+                <button class="form-submit spec-save-button" type="submit" data-i18n="saveSpecs">저장</button>
+                <button class="form-submit secondary-action spec-reset-button" id="specsResetButton" type="button" data-i18n="resetSpecs">초기화</button>
+              </div>
             </form>
           </div>
         </article>
@@ -136,6 +139,7 @@
               <div id="nextChangeRow" class="current-value" hidden>
                 <span data-i18n="nextAvailable">다음 변경 가능일</span><strong id="nextChangeAt">-</strong>
               </div>
+              <p class="form-note nickname-change-note" data-i18n="nicknameChangeNote">닉네임 변경 후 7일 동안 다시 변경할 수 없습니다.</p>
               <label><span data-i18n="newNickname">새 닉네임</span><input id="nicknameInput" name="nickname" type="text" maxlength="64" required></label>
               <button id="nicknameSubmit" class="form-submit" type="submit" data-i18n="changeNicknameButton">닉네임 변경</button>
             </form>
@@ -171,6 +175,16 @@
       </section>
     </div>
   </main>
+  <dialog id="specsResetDialog" class="confirm-dialog" aria-labelledby="specsResetTitle">
+    <form method="dialog" class="confirm-dialog-card">
+      <p id="specsResetTitle" data-i18n="resetConfirm">세부 스펙을 모두 초기화하시겠습니까?</p>
+      <div class="confirm-dialog-actions">
+        <button class="dialog-button dialog-cancel" value="cancel" data-i18n="cancel">취소</button>
+        <button class="dialog-button dialog-danger" id="specsResetConfirm" value="default" type="button" data-i18n="resetSpecs">초기화</button>
+      </div>
+    </form>
+  </dialog>
+
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="../vehicle-power.js?v=1970"></script>

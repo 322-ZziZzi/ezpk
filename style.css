@@ -1256,3 +1256,14 @@ font-weight:700;
 
 /* v218: dynamic home sections stay out of layout until valid data is available */
 .home-vote-section[hidden],.schedule-section[hidden]{display:none!important}
+
+
+/* v224: shared login/sign-up typography and CTA colors across every page */
+.site-header .header-account .account-button,
+.site-header .header-account .account-login,
+.site-header .header-account .account-signup{
+  font-family:inherit!important;
+  font-weight:900!important;
+}
+.site-header .header-account .account-login{background:#f5c547!important;border-color:#f5c547!important;color:#171000!important}
+.site-header .header-account .account-signup{background:#fff!important;border-color:#fff!important;color:#171000!important}

@@ -222,3 +222,7 @@ Based on v138.
 Run the D1 migration before deployment:
 `npx wrangler d1 migrations apply ezpk-db --remote`
 Then deploy with `npx wrangler deploy`.
+
+
+## v224
+See `V224_CHANGELOG.txt` for the finalized profile and Member List UX changes.

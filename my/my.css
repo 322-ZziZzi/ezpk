@@ -116,3 +116,25 @@ html[dir="rtl"] .server-time-live{text-align:right}
 .member-avatar.rank-r3,.accordion-member-icon.rank-r3{color:#5da9ff}
 .member-avatar.rank-r4,.accordion-member-icon.rank-r4{color:#b983ff}
 .member-avatar.rank-r5,.accordion-member-icon.rank-r5{color:#ffd45c}
+
+
+/* v224: detailed-spec save/reset actions and confirmation dialog */
+.spec-action-row{display:grid;grid-template-columns:1fr;gap:11px;grid-column:1/-1}
+.spec-action-row .form-submit{width:100%;justify-self:stretch}
+.secondary-action{background:#fff;color:#171000;border:1px solid #fff}
+.nickname-change-note{grid-column:1/-1}
+.confirm-dialog{width:min(430px,calc(100% - 28px));padding:0;border:1px solid #2a3546;border-radius:18px;background:#0d141e;color:#fff;box-shadow:0 24px 70px rgba(0,0,0,.65)}
+.confirm-dialog::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
+.confirm-dialog-card{padding:22px;margin:0}
+.confirm-dialog-card p{margin:0 0 20px;text-align:center;font-weight:800;line-height:1.55}
+.confirm-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dialog-button{min-height:48px;border-radius:12px;font:inherit;font-weight:900;cursor:pointer}
+.dialog-cancel{border:1px solid #fff;background:#fff;color:#171000}
+.dialog-danger{border:1px solid #ef4444;background:#ef4444;color:#fff}
+@media(min-width:760px){
+  .spec-action-row{grid-template-columns:1fr 1fr;gap:14px}
+  .spec-action-row .form-submit{width:100%;justify-self:stretch}
+}
+@media(max-width:759px){
+  .confirm-dialog-actions{grid-template-columns:1fr 1fr;gap:11px}
+}

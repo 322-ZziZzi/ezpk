@@ -115,6 +115,9 @@ export default {
         case "PUT /api/member/specs":
           return handleSpecsUpdate(request, env);
 
+        case "DELETE /api/member/specs":
+          return handleSpecsReset(request, env);
+
         case "PUT /api/member/password":
           return handlePasswordUpdate(request, env);
 
@@ -777,6 +780,40 @@ async function handleNicknameUpdate(request, env) {
       ),
     },
   });
+}
+
+
+async function handleSpecsReset(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
+
+  await env.DB.batch([
+    env.DB.prepare(`
+      UPDATE members
+      SET power = 1, industry_level = 'I1'
+      WHERE id = ?
+    `).bind(member.id),
+    env.DB.prepare(`
+      INSERT INTO member_specs (member_id, profile_specs_registered)
+      VALUES (?, 0)
+      ON CONFLICT(member_id) DO UPDATE SET
+        profile_specs_registered = 0,
+        vehicle1_class = NULL,
+        vehicle1_power_value = NULL,
+        vehicle1_power_unit = NULL,
+        vehicle1_power_normalized = NULL,
+        vehicle2_class = NULL,
+        vehicle2_power_value = NULL,
+        vehicle2_power_unit = NULL,
+        vehicle2_power_normalized = NULL,
+        season_war_available = NULL,
+        bgb_available_hour = NULL,
+        discord = NULL,
+        telegram = NULL
+    `).bind(member.id),
+  ]);
+
+  return json({ok:true,data:{profile:{power:null,industryLevel:null,profileSpecsRegistered:false},specs:{}}});
 }
 
 async function handleSpecsUpdate(request, env) {
