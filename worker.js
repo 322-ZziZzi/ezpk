@@ -785,6 +785,9 @@ async function handleSpecsUpdate(request, env) {
 
   const body = await readJson(request);
 
+  const power = toPositiveInteger(body.power);
+  const industryLevel = String(body.industryLevel ?? "").toUpperCase();
+
   const vehicle1Class = nullableEnum(
     body.vehicle1Class,
     ["fighter", "shooter", "rider"],
@@ -805,6 +808,8 @@ async function handleSpecsUpdate(request, env) {
   const telegram = nullableCleanString(body.telegram, 100);
 
   if (
+    !power ||
+    !isIndustryLevel(industryLevel) ||
     vehicle1Class === INVALID ||
     vehicle1PowerValue === INVALID ||
     vehicle1PowerUnit === INVALID ||
@@ -834,43 +839,58 @@ async function handleSpecsUpdate(request, env) {
     return jsonError("VALIDATION_ERROR", 400);
   }
 
-  await env.DB.prepare(`
-    INSERT INTO member_specs (
-      member_id,
-      vehicle1_class, vehicle1_power_value, vehicle1_power_unit,
-      vehicle2_class, vehicle2_power_value, vehicle2_power_unit,
-      season_war_available, bgb_available_hour,
-      discord, telegram
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(member_id) DO UPDATE SET
-      vehicle1_class = excluded.vehicle1_class,
-      vehicle1_power_value = excluded.vehicle1_power_value,
-      vehicle1_power_unit = excluded.vehicle1_power_unit,
-      vehicle2_class = excluded.vehicle2_class,
-      vehicle2_power_value = excluded.vehicle2_power_value,
-      vehicle2_power_unit = excluded.vehicle2_power_unit,
-      season_war_available = excluded.season_war_available,
-      bgb_available_hour = excluded.bgb_available_hour,
-      discord = excluded.discord,
-      telegram = excluded.telegram
-  `).bind(
-    member.id,
-    vehicle1Class,
-    vehicle1PowerValue,
-    vehicle1PowerUnit,
-    vehicle2Class,
-    vehicle2PowerValue,
-    vehicle2PowerUnit,
-    seasonWarAvailable,
-    bgbAvailableHour,
-    discord,
-    telegram,
-  ).run();
+  // v221: Power and industry level are edited together with the detailed specs.
+  // Keep the existing database columns, but save both tables from one My Page action.
+  await env.DB.batch([
+    env.DB.prepare(`
+      UPDATE members
+      SET power = ?, industry_level = ?
+      WHERE id = ?
+    `).bind(power, industryLevel, member.id),
+    env.DB.prepare(`
+      INSERT INTO member_specs (
+        member_id,
+        vehicle1_class, vehicle1_power_value, vehicle1_power_unit,
+        vehicle2_class, vehicle2_power_value, vehicle2_power_unit,
+        season_war_available, bgb_available_hour,
+        discord, telegram
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(member_id) DO UPDATE SET
+        vehicle1_class = excluded.vehicle1_class,
+        vehicle1_power_value = excluded.vehicle1_power_value,
+        vehicle1_power_unit = excluded.vehicle1_power_unit,
+        vehicle2_class = excluded.vehicle2_class,
+        vehicle2_power_value = excluded.vehicle2_power_value,
+        vehicle2_power_unit = excluded.vehicle2_power_unit,
+        season_war_available = excluded.season_war_available,
+        bgb_available_hour = excluded.bgb_available_hour,
+        discord = excluded.discord,
+        telegram = excluded.telegram
+    `).bind(
+      member.id,
+      vehicle1Class,
+      vehicle1PowerValue,
+      vehicle1PowerUnit,
+      vehicle2Class,
+      vehicle2PowerValue,
+      vehicle2PowerUnit,
+      seasonWarAvailable,
+      bgbAvailableHour,
+      discord,
+      telegram,
+    ),
+  ]);
 
   return json({
     ok: true,
     data: {
+      profile: {
+        power,
+        industryLevel,
+        memberRank: member.member_rank,
+        rankLocked: true,
+      },
       specs: {
         vehicle1Class,
         vehicle1PowerValue,

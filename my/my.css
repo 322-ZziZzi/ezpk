@@ -56,7 +56,6 @@ html[dir="rtl"] .accordion-trigger,html[dir="rtl"] .form-stack label{text-align:
   .accordion-panel{padding:0 22px 22px}
   .form-stack{grid-template-columns:1fr 1fr;gap:16px}
   .form-stack>label,.form-stack>fieldset,.form-stack>.current-value,.form-stack>.nickname-status,.form-stack>.form-note,.form-stack>.form-submit{grid-column:1/-1}
-  #profileForm label:nth-of-type(3),#profileForm label:nth-of-type(4){grid-column:auto}
   #specsForm fieldset{grid-column:auto}
   /* v209: desktop detailed-spec availability fields use one full-width row each. */
   #specsForm .season-war-field,

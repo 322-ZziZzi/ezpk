@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>MY PAGE · EZPK</title>
   <link rel="stylesheet" href="../style.css?v=1893">
-  <link rel="stylesheet" href="./my.css?v=2100">
+  <link rel="stylesheet" href="./my.css?v=2210">
 
 <style>
 @media (min-width:901px){
@@ -59,21 +59,13 @@
             <span class="chevron">⌄</span>
           </button>
           <div class="accordion-panel">
-            <form id="profileForm" class="form-stack">
+            <div id="profileForm" class="form-stack profile-readonly">
               <label><span data-i18n="loginId">로그인 아이디</span><input id="profileLoginId" type="text" disabled></label>
               <label><span data-i18n="nickname">닉네임</span><input id="profileNickname" type="text" disabled></label>
-              <label><span data-i18n="power">전투력</span><input name="power" type="number" min="1" inputmode="numeric" required></label>
-              <label><span data-i18n="industry">산업 레벨</span>
-                <select name="industryLevel" required>
-                  <option>I10</option><option>I9</option><option>I8</option><option>I7</option><option>I6</option>
-                  <option>I5</option><option>I4</option><option>I3</option><option>I2</option><option>I1</option>
-                </select>
-              </label>
               <label><span data-i18n="memberRank">회원 등급</span>
                 <input id="profileRankDisplay" type="text" value="R1" disabled aria-readonly="true">
               </label>
-              <button class="form-submit" type="submit" data-i18n="saveProfile">기본 프로필 저장</button>
-            </form>
+            </div>
           </div>
         </article>
 
@@ -84,6 +76,15 @@
           </button>
           <div class="accordion-panel" hidden>
             <form id="specsForm" class="form-stack">
+              <label class="profile-power-field"><span data-i18n="profilePower">전투력 (프로필에 표시된 수치)</span>
+                <input id="specsProfilePower" name="power" type="text" inputmode="numeric" autocomplete="off" required>
+              </label>
+              <label class="industry-level-field"><span data-i18n="industry">산업 레벨</span>
+                <select name="industryLevel" required>
+                  <option value="I10">i10</option><option value="I9">i9</option><option value="I8">i8</option><option value="I7">i7</option><option value="I6">i6</option>
+                  <option value="I5">i5</option><option value="I4">i4</option><option value="I3">i3</option><option value="I2">i2</option><option value="I1">i1</option>
+                </select>
+              </label>
               <fieldset>
                 <legend data-i18n="vehicle1">차량 1</legend>
                 <label><span data-i18n="class">병종</span>
@@ -173,6 +174,6 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="../vehicle-power.js?v=1970"></script>
-  <script src="./my.js?v=2120"></script>
+  <script src="./my.js?v=2210"></script>
 </body>
 </html>
