@@ -97,11 +97,21 @@ let teamData={lastUpdated:'',teams:{attack:[],defense:[],support:[]}};
 let activeStrategyTeam='attack';
 function L(){return labels[lang]||labels.en}
 function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-async function loadTeams(){
-  const r=await fetch('/api/member/content?path='+encodeURIComponent('data/season6-teams.json')+'&v='+Date.now(),{cache:'no-store',credentials:'include',headers:{accept:'application/json'}});
+async function loadTeams(protectedMode=false){
+  const url=protectedMode
+    ? '/api/member/content?path='+encodeURIComponent('data/season6-teams.json')+'&v='+Date.now()
+    : '../data/season6-teams.json?v='+Date.now();
+  const r=await fetch(url,{cache:'no-store',credentials:'include',headers:{accept:'application/json'}});
   if(!r.ok)throw new Error(`Season 6 team data HTTP ${r.status}`);
-  teamData=await r.json();
+  const payload=await r.json();
+  teamData=payload?.data?.content||payload;
   renderTeams();
+}
+async function getSeason6AccessState(){
+  const r=await fetch('/api/public/strategy-access?v='+Date.now(),{cache:'no-store',credentials:'include',headers:{accept:'application/json'}});
+  if(!r.ok)throw new Error(`Strategy access HTTP ${r.status}`);
+  const payload=await r.json();
+  return payload?.data||{season6Locked:true};
 }
 function getAssignedMemberName(value){
   if(typeof value==='string')return value.trim();
@@ -174,7 +184,7 @@ th:{section:'ซีซัน 6',title:'สำหรับสมาชิกพ�
 function memberGateText(){return MEMBER_GATE_TEXT[lang]||MEMBER_GATE_TEXT.en}
 function renderSeason6Gate(){const t=memberGateText();const gate=$('#season6Lock');gate.querySelector('[data-member-gate-section]').textContent=t.section;gate.querySelector('[data-member-gate-title]').textContent=t.title;gate.querySelector('[data-member-gate-lead]').textContent=t.lead;gate.querySelector('[data-member-login]').textContent=t.login;gate.querySelector('[data-member-signup]').textContent=t.signup}
 function activeMember(state){return Boolean(state?.authenticated&&state?.member&&state.member.status==='active')}
-async function applyMemberAccess(state){renderSeason6Gate();if(!activeMember(state)){setSeason6Visibility({gateVisible:true,contentVisible:false});return}try{await loadTeams();showSeason6Unlocked({animate:true});render()}catch(error){console.error(error);setSeason6Visibility({gateVisible:true,contentVisible:false});const el=$('#season6Lock [data-member-gate-error]');if(el)el.textContent=memberGateText().blocked}}
+async function applyMemberAccess(state){renderSeason6Gate();try{const access=await getSeason6AccessState();const locked=Boolean(access.season6Locked);if(locked&&!activeMember(state)){setSeason6Visibility({gateVisible:true,contentVisible:false});return}await loadTeams(locked);showSeason6Unlocked({animate:true});render()}catch(error){console.error(error);setSeason6Visibility({gateVisible:true,contentVisible:false});const el=$('#season6Lock [data-member-gate-error]');if(el)el.textContent=memberGateText().blocked}}
 function render(){const c=D[lang]||D.en,l=L();renderSeason6Gate();document.documentElement.lang=lang;document.documentElement.dir=c.dir||'ltr';document.body.classList.toggle('rtl',(c.dir||'ltr')==='rtl');if($('#flag'))$('#flag').textContent=c.flag||'';if($('#lname'))$('#lname').textContent=c.name||'';$('#season6Img').src=(files[lang]||files.en)+'?v=1610';$('#season6RulesImg').src=(rulesFiles[lang]||rulesFiles.en)+'?v=1610';$('#season6RulesImg').alt='Season 6 rules guide';$('#seasonBuildingImg').src=(buildingFiles[lang]||buildingFiles.en)+'?v=1610';$('#seasonBuildingImg').alt=l.building;$('#seasonBattleMapImg').alt=l.battleMapTitle;$$('[data-k]').forEach(e=>{const k=e.dataset.k;if(c.ui?.[k]!=null)e.innerHTML=c.ui[k]});$('#latestInfoTitle').textContent=l.latest;$('#latestInfoLead').textContent=l.latestLead;$('#buildingGuideTitle').textContent=l.building;$('#buildingGuideLead').textContent=l.buildingLead;$('#battleMapTitle').textContent=l.battleMapTitle;$('#battleMapLead').textContent=l.battleMapLead;localStorage.setItem('ezpk-lang-v5',lang);renderHeroes();renderTeams();renderStrategy()}
 $$('[data-strategy-team]').forEach(btn=>btn.onclick=()=>{activeStrategyTeam=btn.dataset.strategyTeam;renderStrategy()});
 $('#season6Lock [data-member-login]').addEventListener('click',()=>window.EZPKMemberAuth?.openLogin());
