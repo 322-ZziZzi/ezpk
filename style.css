@@ -1205,10 +1205,13 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
     min-width:0!important;
     min-height:48px!important;
   }
-  .ezpk-mobile-drawer .mobile-account-actions--guest .mobile-account-signup{
+  /* v196: guest-only paired gold authentication buttons */
+  .ezpk-mobile-drawer .mobile-account-actions--guest button{
     color:#171000!important;
     background:#f5c547!important;
     border-color:#f5c547!important;
+    text-align:center!important;
+    justify-content:center!important;
   }
 }
 [data-menu][hidden],
