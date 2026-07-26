@@ -424,3 +424,9 @@ body.admin-unlocked{overflow:auto}
 }
 
 @media(min-width:761px){.auto-actions button{width:150px;flex:0 0 150px}}
+
+
+/* v205: mobile BGB backup button hidden */
+@media(max-width:760px){
+  .bgb-backup-actions{display:none!important}
+}

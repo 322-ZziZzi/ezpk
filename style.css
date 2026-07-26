@@ -1159,7 +1159,7 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
     animation:none!important;
   }
   .ezpk-mobile-drawer .mobile-menu-list>a:not(.nav-account-shine)::before{content:none!important;display:none!important}
-  .ezpk-mobile-drawer .mobile-menu-list>a[data-menu='game']::before{content:'🎮'!important;display:inline-block!important;margin-right:8px!important}
+  .ezpk-mobile-drawer .mobile-menu-list>a[data-menu='game']::before{content:none!important;display:none!important;margin-right:0!important}
   .ezpk-mobile-drawer .mobile-menu-list>a.nav-account-shine{animation:ezpkAccountShinePulse 3.6s ease-in-out infinite!important}
   .ezpk-mobile-drawer .mobile-menu-list>a.active{border-color:#d9bb65!important;color:#f5c547!important}
   html[dir='rtl'] .ezpk-mobile-drawer .mobile-account-actions button,
