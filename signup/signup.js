@@ -58,13 +58,6 @@
     else window.dispatchEvent(new CustomEvent("ezpk-open-login"));
   });
 
-  const powerInput = form.elements.power;
-  powerInput.addEventListener("input", () => {
-    const digits = powerInput.value.replace(/\D/g, "").slice(0, 15);
-    powerInput.dataset.raw = digits;
-    powerInput.value = digits ? Number(digits).toLocaleString("en-US") : "";
-  });
-
   form.addEventListener("submit", async event => {
     event.preventDefault();
     errorBox.hidden = true;
@@ -85,8 +78,6 @@
           password:form.elements.password.value,
           passwordConfirm:form.elements.passwordConfirm.value,
           nickname:form.elements.nickname.value,
-          power:Number(form.elements.power.dataset.raw || form.elements.power.value.replace(/\D/g, "")),
-          industryLevel:form.elements.industryLevel.value,
           allianceCode:form.elements.allianceCode.value
         })
       });
