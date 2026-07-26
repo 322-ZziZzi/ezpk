@@ -1015,3 +1015,158 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
   }
   body.ezpk-mobile-menu-open{overflow:hidden!important}
 }
+
+/* v194: independent mobile drawer — definitive clipping fix */
+.ezpk-mobile-drawer{display:none}
+@media(max-width:900px){
+  :root{--ezpk-mobile-header-height:68px}
+  [data-shared-header] #nav{display:none!important}
+
+  .ezpk-mobile-drawer{
+    display:block;
+    position:fixed;
+    inset:0;
+    z-index:999;
+    visibility:hidden;
+    opacity:0;
+    pointer-events:none;
+    transform:translateX(100%);
+    transition:transform .22s ease,opacity .18s ease,visibility 0s linear .22s;
+    background:#0b111b;
+    box-sizing:border-box;
+    overflow:hidden;
+  }
+  .ezpk-mobile-drawer.open{
+    visibility:visible;
+    opacity:1;
+    pointer-events:auto;
+    transform:translateX(0);
+    transition:transform .22s ease,opacity .18s ease;
+  }
+  .ezpk-mobile-drawer-scroll{
+    position:absolute;
+    inset:0;
+    box-sizing:border-box;
+    padding:calc(var(--ezpk-mobile-header-height) + 18px) 16px calc(28px + env(safe-area-inset-bottom));
+    overflow-x:hidden;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-gutter:stable;
+  }
+  .ezpk-mobile-drawer .mobile-account-slot,
+  .ezpk-mobile-drawer .mobile-account-profile,
+  .ezpk-mobile-drawer .mobile-account-actions,
+  .ezpk-mobile-drawer .mobile-account-divider,
+  .ezpk-mobile-drawer .mobile-menu-list,
+  .ezpk-mobile-drawer .mobile-menu-list>a{
+    position:static!important;
+    inset:auto!important;
+    float:none!important;
+    transform:none!important;
+    max-height:none!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-slot:empty{display:none!important}
+  .ezpk-mobile-drawer .mobile-account-slot:not(:empty){
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0 8px 10px!important;
+    overflow:visible!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-profile{
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0 4px 14px!important;
+    overflow:visible!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-profile strong{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    line-height:1.45!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-actions{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:4px!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-actions button{
+    width:100%!important;
+    min-height:42px!important;
+    margin:0!important;
+    padding:9px 4px!important;
+    border:0!important;
+    background:transparent!important;
+    color:#d6deea!important;
+    text-align:left!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-divider{
+    display:block!important;
+    width:100%!important;
+    height:1px!important;
+    margin:10px 0 16px!important;
+    background:#ffffff12!important;
+    overflow:visible!important;
+  }
+  .ezpk-mobile-drawer .mobile-menu-list{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+  }
+  .ezpk-mobile-drawer .mobile-menu-list>a{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:64px!important;
+    margin:0!important;
+    padding:11px 16px 11px 20px!important;
+    border:1px solid #263246!important;
+    border-radius:16px!important;
+    background:#101824!important;
+    color:#c8d1df!important;
+    text-decoration:none!important;
+    text-align:left!important;
+    box-sizing:border-box!important;
+  }
+  .ezpk-mobile-drawer .mobile-menu-list>a::after{
+    content:'›'!important;
+    margin-left:auto!important;
+    position:static!important;
+    font-size:23px!important;
+    line-height:1!important;
+    color:#728096!important;
+    opacity:1!important;
+    background:none!important;
+    box-shadow:none!important;
+    animation:none!important;
+  }
+  .ezpk-mobile-drawer .mobile-menu-list>a:not(.nav-account-shine)::before{content:none!important;display:none!important}
+  .ezpk-mobile-drawer .mobile-menu-list>a[data-menu='game']::before{content:'🎮'!important;display:inline-block!important;margin-right:8px!important}
+  .ezpk-mobile-drawer .mobile-menu-list>a.nav-account-shine{animation:ezpkAccountShinePulse 3.6s ease-in-out infinite!important}
+  .ezpk-mobile-drawer .mobile-menu-list>a.active{border-color:#d9bb65!important;color:#f5c547!important}
+  html[dir='rtl'] .ezpk-mobile-drawer .mobile-account-actions button,
+  html[dir='rtl'] .ezpk-mobile-drawer .mobile-menu-list>a{text-align:right!important}
+  html[dir='rtl'] .ezpk-mobile-drawer .mobile-menu-list>a::after{margin-left:0!important;margin-right:auto!important;transform:scaleX(-1)!important}
+  body.ezpk-mobile-menu-open{overflow:hidden!important}
+}
+@media(max-width:900px){
+  [data-shared-header]{z-index:1000!important}
+}

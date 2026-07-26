@@ -157,7 +157,6 @@
   header.innerHTML = `
     <a href="${homeHref}" class="brand">★ <span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></span></a>
     <nav id="nav">
-      <div class="mobile-account-slot" id="mobileAccountSlot" aria-live="polite"></div>
       <div class="desktop-nav-items" id="desktopNavItems">${menuHtml}</div>
       <div class="nav-more" id="navMore" hidden>
         <button id="navMoreButton" type="button" aria-haspopup="true" aria-expanded="false"></button>
@@ -186,6 +185,12 @@
     <button id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
 
   document.body.insertAdjacentHTML('beforeend', `
+    <aside class="ezpk-mobile-drawer" id="ezpkMobileDrawer" aria-hidden="true">
+      <div class="ezpk-mobile-drawer-scroll" id="ezpkMobileDrawerScroll">
+        <section class="mobile-account-slot" id="mobileDrawerAccount" aria-live="polite"></section>
+        <nav class="mobile-menu-list" id="mobileDrawerItems">${menuHtml}</nav>
+      </div>
+    </aside>
     <div class="ezpk-auth-modal" id="ezpkLoginModal" hidden>
       <div class="ezpk-auth-backdrop" data-auth-close></div>
       <section class="ezpk-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="ezpkLoginTitle">
@@ -233,7 +238,7 @@
 
   function renderNavLabels(lang) {
     const labels = NAV_LABELS[lang] || NAV_LABELS.en;
-    header.querySelectorAll('[data-nav-key]').forEach(function (link) {
+    document.querySelectorAll('[data-nav-key]').forEach(function (link) {
       const key = link.dataset.navKey;
       link.textContent = labels[key] || NAV_LABELS.en[key] || key;
     });
@@ -479,11 +484,12 @@
 
   function renderAccount() {
     const desktop = header.querySelector('#desktopAccount');
-    const mobile = header.querySelector('#mobileAccountSlot');
+    const mobile = document.querySelector('#mobileDrawerAccount');
     desktop.innerHTML = accountMarkup(false);
     mobile.innerHTML = accountMarkup(true);
     bindAccountEvents(desktop);
     bindAccountEvents(mobile);
+    if (mobileDrawer && mobileDrawer.classList.contains('open')) resetMobileDrawerScroll();
   }
 
   window.EZPKMemberAuth = {
@@ -515,9 +521,14 @@
   function closeMenus() {
     const langMenu = header.querySelector('#langMenu');
     const nav = header.querySelector('#nav');
+    const drawer = document.querySelector('#ezpkMobileDrawer');
     const menuBtn = header.querySelector('#menuBtn');
     if (langMenu) langMenu.hidden = true;
     if (nav) nav.classList.remove('open');
+    if (drawer) {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden','true');
+    }
     document.body.classList.remove('ezpk-mobile-menu-open');
     if (menuBtn) menuBtn.setAttribute('aria-expanded','false');
     header.querySelectorAll('.account-menu').forEach(function (menu) { menu.hidden = true; });
@@ -597,20 +608,34 @@
   });
   requestAnimationFrame(updateResponsiveNavigation);
 
+  const mobileDrawer = document.querySelector('#ezpkMobileDrawer');
+  const mobileDrawerScroll = document.querySelector('#ezpkMobileDrawerScroll');
+
   function syncMobileDrawerMetrics() {
     if (window.innerWidth > 900) return;
     const rect = header.getBoundingClientRect();
-    const headerHeight = Math.max(0, Math.round(rect.bottom));
-    document.documentElement.style.setProperty('--ezpk-mobile-header-height', `${headerHeight}px`);
+    const headerBottom = Math.max(0, Math.round(rect.bottom));
+    document.documentElement.style.setProperty('--ezpk-mobile-header-height', `${headerBottom}px`);
+  }
+
+  function resetMobileDrawerScroll() {
+    if (!mobileDrawerScroll) return;
+    mobileDrawerScroll.scrollTop = 0;
+    requestAnimationFrame(function () {
+      mobileDrawerScroll.scrollTop = 0;
+      requestAnimationFrame(function () { mobileDrawerScroll.scrollTop = 0; });
+    });
   }
 
   function setMobileMenuOpen(open) {
-    document.body.classList.toggle('ezpk-mobile-menu-open', Boolean(open));
-    if (open) {
+    const next = Boolean(open);
+    document.body.classList.toggle('ezpk-mobile-menu-open', next);
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.toggle('open', next);
+    mobileDrawer.setAttribute('aria-hidden', String(!next));
+    if (next) {
       syncMobileDrawerMetrics();
-      requestAnimationFrame(function () {
-        nav.scrollTop = 0;
-      });
+      resetMobileDrawerScroll();
     }
   }
 
@@ -644,23 +669,21 @@
   const nav=header.querySelector('#nav');
   menuBtn.addEventListener('click',function(e){
     e.stopPropagation();
-    const willOpen = !nav.classList.contains('open');
+    const willOpen = !mobileDrawer.classList.contains('open');
     closeMenus();
-    nav.classList.toggle('open', willOpen);
     setMobileMenuOpen(willOpen);
     menuBtn.setAttribute('aria-expanded',String(willOpen));
   });
-  nav.querySelectorAll('a').forEach(function (link) {
+  mobileDrawer.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () {
-      nav.classList.remove('open');
       setMobileMenuOpen(false);
       menuBtn.setAttribute('aria-expanded','false');
     });
   });
 
   document.addEventListener('click',function(e){
-    if (!header.contains(e.target)) closeMenus();
-    else if (!header.querySelector('.lang').contains(e.target)) {
+    if (!header.contains(e.target) && !mobileDrawer.contains(e.target)) closeMenus();
+    else if (header.contains(e.target) && !header.querySelector('.lang').contains(e.target)) {
       langMenu.hidden=true;
       langBtn.setAttribute('aria-expanded','false');
     }
