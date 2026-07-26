@@ -430,3 +430,48 @@ body.admin-unlocked{overflow:auto}
 @media(max-width:760px){
   .bgb-backup-actions{display:none!important}
 }
+
+/* v213: Account Manager mobile pagination - one row below the account list */
+@media (max-width: 900px) {
+  .account-admin-pagination {
+    position: static;
+    inset: auto;
+    bottom: auto;
+    z-index: auto;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+    margin: 18px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .account-admin-pagination button {
+    flex: 0 0 42px;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .account-admin-pagination button span {
+    display: none;
+  }
+
+  .account-admin-pagination strong {
+    flex: 0 0 auto;
+    min-width: 64px;
+    text-align: center;
+  }
+}
