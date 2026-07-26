@@ -35,6 +35,21 @@ export default {
 
       const route = `${request.method} ${url.pathname}`;
 
+      const voteRespondMatch = url.pathname.match(/^\/api\/votes\/(\d+)\/respond$/);
+      if (voteRespondMatch && request.method === "POST") return handleVoteRespond(request, Number(voteRespondMatch[1]), env);
+      const adminVoteMatch = url.pathname.match(/^\/api\/admin\/votes\/(\d+)(?:\/(end|results))?$/);
+      if (adminVoteMatch) {
+        const voteId = Number(adminVoteMatch[1]);
+        const action = adminVoteMatch[2] || "";
+        if (request.method === "GET" && action === "results") return handleAdminVoteResults(request, voteId, env);
+        if (request.method === "POST" && action === "end") return handleAdminVoteEnd(request, voteId, env);
+        if (request.method === "PUT" && !action) return handleAdminVoteUpdate(request, voteId, env);
+        if (request.method === "DELETE" && !action) return handleAdminVoteDelete(request, voteId, env);
+      }
+      const voteExclusionMatch = url.pathname.match(/^\/api\/admin\/votes\/exclusions\/(\d+)$/);
+      if (voteExclusionMatch && request.method === "PUT") return handleVoteExclusion(request, Number(voteExclusionMatch[1]), env);
+
+
       const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history))?$/);
       if (adminMemberMatch) {
         const memberId = Number(adminMemberMatch[1]);
@@ -103,6 +118,12 @@ export default {
         case "PUT /api/member/password":
           return handlePasswordUpdate(request, env);
 
+        case "GET /api/votes/active":
+          return handleActiveVotes(request, env);
+        case "GET /api/admin/votes":
+          return handleAdminVotes(request, env);
+        case "POST /api/admin/votes":
+          return handleAdminVoteCreate(request, env);
         case "GET /api/members":
           return handlePublicMembers(url, env);
 
@@ -1841,6 +1862,60 @@ function addDaysIso(dateValue, days) {
   const safeBase = Number.isFinite(base) ? base : Date.now();
   return new Date(safeBase + days * 86400000).toISOString();
 }
+
+
+// -----------------------------------------------------------------------------
+// v216 VOTE system
+// -----------------------------------------------------------------------------
+async function requireVoteAdmin(request, env) {
+  const member = await requireMember(request, env.DB, true);
+  if (member instanceof Response) return member;
+  if (member.role !== "admin" || member.member_rank !== "R5" || member.status !== "active") throw new HttpError(403, "FORBIDDEN");
+  return member;
+}
+function voteStatus(row, now = new Date()) {
+  if (row.status === "ended") return "ended";
+  if (row.starts_at && new Date(row.starts_at) > now) return "scheduled";
+  if (row.ends_at && new Date(row.ends_at) <= now) return "ended";
+  return "active";
+}
+async function loadVoteOptions(db, voteId) {
+  const rows = await db.prepare("SELECT id,label,description,sort_order FROM vote_options WHERE vote_id=? ORDER BY sort_order,id").bind(voteId).all();
+  return rows.results || [];
+}
+async function handleActiveVotes(request, env) {
+  const member = await requireOptionalMember(request, env.DB);
+  const rows = await env.DB.prepare("SELECT * FROM votes WHERE status <> 'ended' ORDER BY created_at DESC").all();
+  const votes=[];
+  for (const row of rows.results||[]) {
+    const status=voteStatus(row); if(status!=="active") continue;
+    const options=await loadVoteOptions(env.DB,row.id);
+    let answers=[];
+    if(member){const a=await env.DB.prepare("SELECT vro.option_id FROM vote_responses vr JOIN vote_response_options vro ON vro.response_id=vr.id WHERE vr.vote_id=? AND vr.member_id=?").bind(row.id,member.id).all();answers=(a.results||[]).map(x=>x.option_id)}
+    let totalVoters=0, counts=new Map();
+    if(row.show_results){const c=await env.DB.prepare("SELECT vro.option_id,COUNT(*) votes FROM vote_response_options vro JOIN vote_responses vr ON vr.id=vro.response_id WHERE vr.vote_id=? GROUP BY vro.option_id").bind(row.id).all();for(const x of c.results||[])counts.set(x.option_id,x.votes);const t=await env.DB.prepare("SELECT COUNT(*) total FROM vote_responses WHERE vote_id=?").bind(row.id).first();totalVoters=Number(t?.total||0)}
+    votes.push({id:row.id,title:row.title,description:row.description,voteType:row.vote_type,status,startsAt:row.starts_at,endsAt:row.ends_at,showResults:Boolean(row.show_results),myAnswers:answers,totalVoters,options:options.map(o=>({id:o.id,label:o.label,description:o.description,votes:Number(counts.get(o.id)||0)}))});
+  }
+  return json({ok:true,data:{authenticated:Boolean(member),votes}});
+}
+async function handleVoteRespond(request, voteId, env) {
+  const member=await requireMember(request,env.DB); if(member instanceof Response)return member; const body=await readJson(request); const ids=[...new Set((Array.isArray(body.voteAnswers)?body.voteAnswers:[]).map(Number).filter(Number.isInteger))];
+  const vote=await env.DB.prepare("SELECT * FROM votes WHERE id=?").bind(voteId).first(); if(!vote)throw new HttpError(404,"VOTE_NOT_FOUND"); if(voteStatus(vote)!=="active")throw new HttpError(409,"VOTE_NOT_ACTIVE");
+  const valid=await env.DB.prepare("SELECT id FROM vote_options WHERE vote_id=?").bind(voteId).all(); const set=new Set((valid.results||[]).map(x=>x.id)); if(ids.some(id=>!set.has(id)))throw new HttpError(400,"INVALID_VOTE_OPTION"); if(vote.vote_type==='single'&&ids.length>1)throw new HttpError(400,"SINGLE_CHOICE_ONLY");
+  await env.DB.prepare("INSERT INTO vote_responses(vote_id,member_id) VALUES(?,?) ON CONFLICT(vote_id,member_id) DO UPDATE SET updated_at=CURRENT_TIMESTAMP").bind(voteId,member.id).run(); const response=await env.DB.prepare("SELECT id FROM vote_responses WHERE vote_id=? AND member_id=?").bind(voteId,member.id).first(); await env.DB.prepare("DELETE FROM vote_response_options WHERE response_id=?").bind(response.id).run(); for(const id of ids)await env.DB.prepare("INSERT INTO vote_response_options(response_id,option_id) VALUES(?,?)").bind(response.id,id).run();
+  return json({ok:true,data:{voteId,voteAnswers:ids}});
+}
+function normalizeVoteBody(body){const type=body.voteType==='multiple'?'multiple':'single';const options=(Array.isArray(body.options)?body.options:[]).map((o,i)=>({label:String(o.label||'').trim().slice(0,80),description:String(o.description||'').trim().slice(0,160),sortOrder:i})).filter(o=>o.label);if(!String(body.title||'').trim()||options.length<2)throw new HttpError(400,"INVALID_VOTE");return{title:String(body.title).trim().slice(0,120),description:String(body.description||'').trim().slice(0,400),voteType:type,startsAt:body.startsAt||null,endsAt:body.endsAt||null,showResults:body.showResults?1:0,options}}
+async function handleAdminVotes(request, env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;const rows=await env.DB.prepare("SELECT v.*,(SELECT COUNT(*) FROM vote_responses r WHERE r.vote_id=v.id) response_count FROM votes v ORDER BY v.created_at DESC").all();const votes=[];for(const r of rows.results||[])votes.push({id:r.id,title:r.title,description:r.description,voteType:r.vote_type,status:voteStatus(r),startsAt:r.starts_at,endsAt:r.ends_at,showResults:Boolean(r.show_results),responseCount:Number(r.response_count||0),options:await loadVoteOptions(env.DB,r.id)});const current=votes.find(v=>v.status==='active');let currentMissing=0;if(current){const total=await env.DB.prepare("SELECT COUNT(*) total FROM members WHERE status='active'").first();currentMissing=Math.max(0,Number(total?.total||0)-current.responseCount)}const risk=await env.DB.prepare("SELECT COUNT(*) total FROM vote_member_states WHERE consecutive_missed_votes>=3").first();return json({ok:true,data:{votes,summary:{active:votes.filter(v=>v.status==='active').length,ended:votes.filter(v=>v.status==='ended').length,currentMissing,risk:Number(risk?.total||0)}}})}
+async function replaceVoteOptions(db,voteId,options){await db.prepare("DELETE FROM vote_options WHERE vote_id=?").bind(voteId).run();for(const o of options)await db.prepare("INSERT INTO vote_options(vote_id,label,description,sort_order) VALUES(?,?,?,?)").bind(voteId,o.label,o.description,o.sortOrder).run()}
+async function handleAdminVoteCreate(request,env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;const v=normalizeVoteBody(await readJson(request));const status=v.startsAt&&new Date(v.startsAt)>new Date()?'scheduled':'active';const r=await env.DB.prepare("INSERT INTO votes(title,description,vote_type,status,starts_at,ends_at,show_results,created_by) VALUES(?,?,?,?,?,?,?,?)").bind(v.title,v.description,v.voteType,status,v.startsAt,v.endsAt,v.showResults,admin.id).run();await replaceVoteOptions(env.DB,r.meta.last_row_id,v.options);return json({ok:true,data:{id:r.meta.last_row_id}})}
+async function handleAdminVoteUpdate(request,voteId,env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;const v=normalizeVoteBody(await readJson(request));const old=await env.DB.prepare("SELECT status FROM votes WHERE id=?").bind(voteId).first();if(!old)throw new HttpError(404,"VOTE_NOT_FOUND");await env.DB.prepare("UPDATE votes SET title=?,description=?,vote_type=?,starts_at=?,ends_at=?,show_results=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(v.title,v.description,v.voteType,v.startsAt,v.endsAt,v.showResults,voteId).run();const count=await env.DB.prepare("SELECT COUNT(*) total FROM vote_responses WHERE vote_id=?").bind(voteId).first();if(Number(count?.total||0)===0)await replaceVoteOptions(env.DB,voteId,v.options);return json({ok:true,data:{id:voteId}})}
+async function handleAdminVoteEnd(request,voteId,env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;const vote=await env.DB.prepare("SELECT * FROM votes WHERE id=?").bind(voteId).first();if(!vote)throw new HttpError(404,"VOTE_NOT_FOUND");if(vote.status==='ended')return json({ok:true,data:{id:voteId}});const eligible=await env.DB.prepare("SELECT id FROM members WHERE status='active'").all();for(const m of eligible.results||[])await env.DB.prepare("INSERT OR IGNORE INTO vote_eligible_members(vote_id,member_id) VALUES(?,?)").bind(voteId,m.id).run();const responded=await env.DB.prepare("SELECT member_id FROM vote_responses WHERE vote_id=? AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vote_responses.id)").bind(voteId).all();const resp=new Set((responded.results||[]).map(x=>x.member_id));const excluded=await env.DB.prepare("SELECT member_id FROM vote_member_exclusions WHERE excluded=1").all();const exc=new Set((excluded.results||[]).map(x=>x.member_id));for(const m of eligible.results||[]){if(exc.has(m.id))continue;if(resp.has(m.id))await env.DB.prepare("INSERT INTO vote_member_states(member_id,consecutive_missed_votes,last_vote_id,last_vote_status) VALUES(?,0,?,'voted') ON CONFLICT(member_id) DO UPDATE SET consecutive_missed_votes=0,last_vote_id=excluded.last_vote_id,last_vote_status='voted',updated_at=CURRENT_TIMESTAMP").bind(m.id,voteId).run();else await env.DB.prepare("INSERT INTO vote_member_states(member_id,consecutive_missed_votes,last_vote_id,last_vote_status) VALUES(?,1,?,'missed') ON CONFLICT(member_id) DO UPDATE SET consecutive_missed_votes=consecutive_missed_votes+1,last_vote_id=excluded.last_vote_id,last_vote_status='missed',updated_at=CURRENT_TIMESTAMP").bind(m.id,voteId).run()}
+await env.DB.prepare("UPDATE votes SET status='ended',ended_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(voteId).run();return json({ok:true,data:{id:voteId}})}
+async function handleAdminVoteDelete(request,voteId,env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;await env.DB.prepare("DELETE FROM votes WHERE id=?").bind(voteId).run();return json({ok:true,data:{id:voteId}})}
+async function handleAdminVoteResults(request,voteId,env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;const vote=await env.DB.prepare("SELECT * FROM votes WHERE id=?").bind(voteId).first();if(!vote)throw new HttpError(404,"VOTE_NOT_FOUND");const opts=await loadVoteOptions(env.DB,voteId);const options=[];for(const o of opts){const rows=await env.DB.prepare("SELECT m.id,m.nickname,m.member_rank,vr.updated_at,COALESCE(e.excluded,0) excluded FROM vote_response_options vro JOIN vote_responses vr ON vr.id=vro.response_id JOIN members m ON m.id=vr.member_id LEFT JOIN vote_member_exclusions e ON e.member_id=m.id WHERE vr.vote_id=? AND vro.option_id=? ORDER BY m.member_rank DESC,m.nickname").bind(voteId,o.id).all();options.push({id:o.id,label:o.label,description:o.description,members:(rows.results||[]).map(x=>({id:x.id,nickname:x.nickname,memberRank:x.member_rank,updatedAt:x.updated_at,excluded:Boolean(x.excluded)}))})}
+const eligible=await env.DB.prepare("SELECT m.id,m.nickname,m.member_rank,COALESCE(s.consecutive_missed_votes,0) consecutive_missed_votes,COALESCE(e.excluded,0) excluded FROM members m LEFT JOIN vote_member_states s ON s.member_id=m.id LEFT JOIN vote_member_exclusions e ON e.member_id=m.id WHERE m.status='active' ORDER BY consecutive_missed_votes DESC,m.nickname").all();const responded=await env.DB.prepare("SELECT member_id FROM vote_responses WHERE vote_id=? AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vote_responses.id)").bind(voteId).all();const set=new Set((responded.results||[]).map(x=>x.member_id));const mapped=(eligible.results||[]).map(x=>({id:x.id,nickname:x.nickname,memberRank:x.member_rank,consecutiveMissedVotes:Number(x.consecutive_missed_votes||0),excluded:Boolean(x.excluded)}));return json({ok:true,data:{vote:{id:vote.id,title:vote.title,status:voteStatus(vote)},options,missing:mapped.filter(x=>!set.has(x.id)),streaks:mapped}})}
+async function handleVoteExclusion(request,memberId,env){const admin=await requireVoteAdmin(request,env);if(admin instanceof Response)return admin;const b=await readJson(request);const excluded=b.excluded?1:0;if(excluded)await env.DB.prepare("INSERT INTO vote_member_exclusions(member_id,excluded,reason) VALUES(?,?,?) ON CONFLICT(member_id) DO UPDATE SET excluded=excluded.excluded,reason=excluded.reason,updated_at=CURRENT_TIMESTAMP").bind(memberId,1,String(b.reason||'')).run();else await env.DB.prepare("DELETE FROM vote_member_exclusions WHERE member_id=?").bind(memberId).run();return json({ok:true,data:{memberId,excluded:Boolean(excluded)}})}
 
 function randomHex(byteLength) {
   return bytesToHex(
