@@ -7,6 +7,15 @@
   <title>SIGN UP · EZPK</title>
   <link rel="stylesheet" href="../style.css?v=1893">
   <link rel="stylesheet" href="./signup.css?v=1891">
+
+<style>
+@media (min-width:901px){
+.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
+}
+@media (max-width:900px){
+.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
+}
+</style>
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
@@ -72,8 +81,12 @@
         <label>
           <span data-i18n="rank">회원 등급</span>
           <select name="memberRank" required>
-            <option>R4</option><option>R3</option><option>R2</option><option>R1</option>
-          </select>
+<option selected>R1</option>
+<option>R2</option>
+<option>R3</option>
+<option>R4</option>
+<option>R5</option>
+</select>
         </label>
 
         <label>
