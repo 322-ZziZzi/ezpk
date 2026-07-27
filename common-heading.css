@@ -20,6 +20,7 @@
   .team-section-head,
   .tip-hero,
   .vote-home-heading,
+  .vote-hero,
   .schedule-section > .head
 ){
   text-align:center !important;
@@ -38,6 +39,7 @@
   .team-section-head,
   .tip-hero,
   .vote-home-heading,
+  .vote-hero,
   .schedule-section > .head
 ) > :is(span,.eyebrow,.logo-kicker){
   display:inline-block !important;
@@ -66,6 +68,7 @@
   .team-section-head,
   .tip-hero,
   .vote-home-heading,
+  .vote-hero,
   .schedule-section > .head
 ) > :is(h1,h2){
   margin:0 !important;
@@ -92,6 +95,7 @@
   .team-section-head,
   .tip-hero,
   .vote-home-heading,
+  .vote-hero,
   .schedule-section > .head
 ) > p{
   width:min(760px,100%) !important;
@@ -114,7 +118,7 @@
 }
 
 /* RTL keeps hierarchy while respecting reading direction */
-.rtl :is(.admin-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.schedule-section > .head){
+.rtl :is(.admin-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
   direction:rtl;
   text-align:center !important;
 }

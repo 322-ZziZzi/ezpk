@@ -123,6 +123,8 @@ export default {
         case "PUT /api/member/password":
           return handlePasswordUpdate(request, env);
 
+        case "GET /api/votes":
+          return handleMemberVotes(request, env);
         case "GET /api/votes/active":
           return handleActiveVotes(request, env);
         case "GET /api/admin/votes":
@@ -1989,6 +1991,43 @@ async function loadVoteOptions(db, voteId) {
   const rows = await db.prepare("SELECT id,label,description,sort_order FROM vote_options WHERE vote_id=? ORDER BY sort_order,id").bind(voteId).all();
   return rows.results || [];
 }
+async function loadMemberVoteView(db, row, member, status) {
+  const options = await loadVoteOptions(db, row.id);
+  const answerRows = status === "active" ? await db.prepare("SELECT vro.option_id FROM vote_responses vr JOIN vote_response_options vro ON vro.response_id=vr.id WHERE vr.vote_id=? AND vr.member_id=?").bind(row.id, member.id).all() : {results:[]};
+  const countRows = await db.prepare("SELECT vro.option_id,COUNT(DISTINCT vr.member_id) votes FROM vote_response_options vro JOIN vote_responses vr ON vr.id=vro.response_id WHERE vr.vote_id=? GROUP BY vro.option_id").bind(row.id).all();
+  const countMap = new Map((countRows.results||[]).map(x=>[x.option_id,Number(x.votes||0)]));
+  const respondedRows = await db.prepare("SELECT DISTINCT m.id,m.nickname FROM vote_responses vr JOIN members m ON m.id=vr.member_id WHERE vr.vote_id=? AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id) ORDER BY m.nickname COLLATE NOCASE").bind(row.id).all();
+  const participants = (respondedRows.results||[]).map(x=>({id:x.id,nickname:x.nickname}));
+  let eligibleRows;
+  if (status === "ended") {
+    const snap = await db.prepare("SELECT m.id,m.nickname FROM vote_eligible_members vem JOIN members m ON m.id=vem.member_id WHERE vem.vote_id=? ORDER BY m.nickname COLLATE NOCASE").bind(row.id).all();
+    eligibleRows = (snap.results||[]).length ? snap : await db.prepare("SELECT id,nickname FROM members WHERE status='active' ORDER BY nickname COLLATE NOCASE").all();
+  } else {
+    eligibleRows = await db.prepare("SELECT id,nickname FROM members WHERE status='active' ORDER BY nickname COLLATE NOCASE").all();
+  }
+  const participantIds = new Set(participants.map(x=>x.id));
+  const missing = (eligibleRows.results||[]).filter(x=>!participantIds.has(x.id)).map(x=>({id:x.id,nickname:x.nickname}));
+  return {
+    id:row.id,title:row.title,description:row.description,voteType:row.vote_type,status,
+    startsAt:row.starts_at,endsAt:row.ends_at,endedAt:row.ended_at,resultsVisible:Boolean(row.show_results),
+    myAnswers:(answerRows.results||[]).map(x=>x.option_id),participantCount:participants.length,missingCount:missing.length,
+    participants:participants.map(x=>x.nickname),missing:missing.map(x=>x.nickname),
+    options:options.map(o=>({id:o.id,label:o.label,description:o.description,votes:Number(countMap.get(o.id)||0)}))
+  };
+}
+async function handleMemberVotes(request, env) {
+  const member = await requireMember(request, env.DB); if (member instanceof Response) return member;
+  const rows = await env.DB.prepare("SELECT * FROM votes ORDER BY COALESCE(ended_at,ends_at,created_at) DESC, id DESC").all();
+  const activeVotes=[], endedVotes=[];
+  for (const row of rows.results||[]) {
+    const status = voteStatus(row);
+    if (status === "scheduled") continue;
+    const item = await loadMemberVoteView(env.DB,row,member,status);
+    if (status === "active") activeVotes.push(item); else endedVotes.push(item);
+  }
+  return json({ok:true,data:{activeVotes,recentEnded:endedVotes.slice(0,3),olderEnded:endedVotes.slice(3)}});
+}
+
 async function handleActiveVotes(request, env) {
   const member = await requireOptionalMember(request, env.DB);
   const rows = await env.DB.prepare("SELECT * FROM votes WHERE status <> 'ended' ORDER BY created_at DESC").all();

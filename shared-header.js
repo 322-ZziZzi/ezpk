@@ -128,6 +128,7 @@
 
   const menuItems = [
     { key: 'home', href: homeHref },
+    { key: 'vote', href: `${base}/vote/` },
     { key: 'seasonUpcoming', href: `${base}/season6/` },
     { key: 'seasonArchive', href: `${base}/season5/` },
     { key: 'members', href: `${base}/members/` },
