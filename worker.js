@@ -123,6 +123,15 @@ export default {
         case "PUT /api/member/password":
           return handlePasswordUpdate(request, env);
 
+        case "GET /api/events":
+          return handleEventsGet(env);
+
+        case "GET /api/admin/events":
+          return handleAdminEventsGet(request, env);
+
+        case "PUT /api/admin/events":
+          return handleAdminEventsPut(request, env);
+
         case "GET /api/votes":
           return handleMemberVotes(request, env);
         case "GET /api/votes/active":
@@ -1406,6 +1415,114 @@ async function writeGithubJson(env, path, content, message) {
   if (!response.ok) throw new HttpError(502, "GITHUB_WRITE_FAILED");
   const result = await response.json();
   return { sha: result?.content?.sha || latest.sha || "" };
+}
+
+
+function blankEventSchedulePayload() {
+  return {
+    lastUpdated: "",
+    timezone: "UTC-02:00",
+    timezoneLabel: "ST",
+    events: Array.from({ length: 9 }, () => ({
+      title: "", start: "", end: "", enabled: false, important: false,
+    })),
+  };
+}
+
+async function readEventScheduleFromD1(db) {
+  const [meta, rows] = await Promise.all([
+    db.prepare("SELECT last_updated, timezone, timezone_label FROM event_schedule_meta WHERE id = 1").first(),
+    db.prepare("SELECT slot_no, title, starts_at, ends_at, enabled, important FROM events ORDER BY slot_no ASC").all(),
+  ]);
+  const payload = blankEventSchedulePayload();
+  if (meta) {
+    payload.lastUpdated = meta.last_updated || "";
+    payload.timezone = meta.timezone || "UTC-02:00";
+    payload.timezoneLabel = meta.timezone_label || "ST";
+  }
+  for (const row of rows.results || []) {
+    const index = Number(row.slot_no) - 1;
+    if (index < 0 || index >= 9) continue;
+    payload.events[index] = {
+      title: row.title || "",
+      start: row.starts_at || "",
+      end: row.ends_at || "",
+      enabled: Boolean(row.enabled),
+      important: Boolean(row.important),
+    };
+  }
+  return payload;
+}
+
+function normalizeAdminEventSchedule(body) {
+  const payload = blankEventSchedulePayload();
+  payload.lastUpdated = cleanString(body?.lastUpdated, 32);
+  payload.timezone = cleanString(body?.timezone, 32) || "UTC-02:00";
+  payload.timezoneLabel = cleanString(body?.timezoneLabel, 16) || "ST";
+  const source = Array.isArray(body?.events) ? body.events : [];
+  for (let i = 0; i < 9; i += 1) {
+    const item = source[i] || {};
+    const event = {
+      title: cleanString(item.title, 60),
+      start: cleanString(item.start, 40),
+      end: cleanString(item.end, 40),
+      enabled: Boolean(item.enabled),
+      important: Boolean(item.important),
+    };
+    if (event.enabled) {
+      if (!event.title || !event.start || !event.end) throw new HttpError(400, "VALIDATION_ERROR");
+      const startMs = Date.parse(event.start);
+      const endMs = Date.parse(event.end);
+      if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs <= startMs) {
+        throw new HttpError(400, "INVALID_EVENT_TIME");
+      }
+    }
+    payload.events[i] = event;
+  }
+  return payload;
+}
+
+async function handleEventsGet(env) {
+  const payload = await readEventScheduleFromD1(env.DB);
+  return json({ ok: true, data: payload }, 200, { "cache-control": "no-store" });
+}
+
+async function handleAdminEventsGet(request, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  return json({ ok: true, data: await readEventScheduleFromD1(env.DB) });
+}
+
+async function handleAdminEventsPut(request, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const payload = normalizeAdminEventSchedule(await readJson(request));
+  const statements = [
+    env.DB.prepare(`
+      INSERT INTO event_schedule_meta(id,last_updated,timezone,timezone_label,updated_at)
+      VALUES(1,?,?,?,CURRENT_TIMESTAMP)
+      ON CONFLICT(id) DO UPDATE SET
+        last_updated=excluded.last_updated,
+        timezone=excluded.timezone,
+        timezone_label=excluded.timezone_label,
+        updated_at=CURRENT_TIMESTAMP
+    `).bind(payload.lastUpdated, payload.timezone, payload.timezoneLabel),
+  ];
+  payload.events.forEach((event, index) => {
+    statements.push(env.DB.prepare(`
+      INSERT INTO events(slot_no,title,starts_at,ends_at,enabled,important,updated_at)
+      VALUES(?,?,?,?,?,?,CURRENT_TIMESTAMP)
+      ON CONFLICT(slot_no) DO UPDATE SET
+        title=excluded.title,
+        starts_at=excluded.starts_at,
+        ends_at=excluded.ends_at,
+        enabled=excluded.enabled,
+        important=excluded.important,
+        updated_at=CURRENT_TIMESTAMP
+    `).bind(index + 1, event.title, event.start, event.end, event.enabled ? 1 : 0, event.important ? 1 : 0));
+  });
+  await env.DB.batch(statements);
+  return json({ ok: true, data: payload });
 }
 
 async function handleAdminContentGet(request, url, env) {

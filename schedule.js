@@ -69,7 +69,7 @@
       return `<article class="event-card event-${info.state}${event.important?' event-important':''}" style="--event-index:${index}"><div class="event-card-top"><span class="event-number">${pad(index+1)}</span><div class="event-badges">${importantBadge}<span class="event-badge event-status">${escapeHtml(badge)}</span></div></div><h3>${escapeHtml(event.title)}</h3><div class="event-countdown">${timerLabel?`<small>${escapeHtml(timerLabel)}</small>`:''}<strong>${escapeHtml(timerText)}</strong></div><time><small>${escapeHtml(ui.scheduleStart || fallback.scheduleStart)}</small><strong>${formatServerTime(info.start)}</strong></time></article>`;
     }).join('');
   }
-  fetch(`data/events.json?v=${Date.now()}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Schedule data unavailable');return r.json();}).then(data=>{scheduleData=data||{events:[]};render();timer=window.setInterval(render,1000);}).catch(()=>{scheduleData={events:[]};render();});
+  fetch('/api/events',{cache:'no-store',headers:{accept:'application/json'}}).then(r=>{if(!r.ok)throw new Error('Schedule data unavailable');return r.json();}).then(payload=>{if(!payload?.ok)throw new Error(payload?.code||'Schedule data unavailable');scheduleData=payload.data||{events:[]};render();timer=window.setInterval(render,1000);}).catch(()=>{scheduleData={events:[]};render();});
   window.addEventListener('ezpk-language-change', render);
   window.addEventListener('beforeunload',()=>timer&&clearInterval(timer),{once:true});
 })();

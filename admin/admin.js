@@ -102,8 +102,9 @@ function syncEventsFromForm(){
     const i=Number(card.dataset.eventI),e=eventsData.events[i];
     if(!e)return;
     const get=f=>card.querySelector(`[data-event-f="${f}"]`);
-    const enabled=get('enabled'),title=get('title'),startDate=get('startDate'),startTime=get('startTime'),endDate=get('endDate'),endTime=get('endTime');
+    const enabled=get('enabled'),important=get('important'),title=get('title'),startDate=get('startDate'),startTime=get('startTime'),endDate=get('endDate'),endTime=get('endTime');
     if(enabled)e.enabled=enabled.checked;
+    if(important)e.important=important.checked;
     if(title)e.title=title.value.trim();
     const sd=startDate?.value||'',st=formatTimeDigits(startTime?.value||''),ed=endDate?.value||'',et=formatTimeDigits(endTime?.value||'');
     if(startTime){startTime.value=st;startTime.classList.toggle('invalid',Boolean(st)&&!isValid24HourTime(st));}
@@ -116,7 +117,7 @@ function syncEventsFromForm(){
 function setStatus(msg,type=''){const e=$('#status');if(!e)return;e.textContent=msg;e.className='status '+type}
 function adminErrorMessage(error){
   const code=String(error?.message||error||'');
-  const map={FORBIDDEN:'관리자 권한이 없습니다.',UNAUTHORIZED:'로그인 세션이 만료되었습니다.',GITHUB_NOT_CONFIGURED:'Cloudflare GitHub 환경변수가 설정되지 않았습니다.',GITHUB_READ_FAILED:'GitHub 운영 데이터를 불러오지 못했습니다.',GITHUB_WRITE_FAILED:'GitHub 운영 데이터를 저장하지 못했습니다.',CONTENT_PATH_NOT_ALLOWED:'허용되지 않은 운영 데이터 경로입니다.',INVALID_JSON_CONTENT:'저장할 JSON 데이터 형식이 올바르지 않습니다.'};
+  const map={FORBIDDEN:'관리자 권한이 없습니다.',UNAUTHORIZED:'로그인 세션이 만료되었습니다.',GITHUB_NOT_CONFIGURED:'Cloudflare GitHub 환경변수가 설정되지 않았습니다.',GITHUB_READ_FAILED:'GitHub 운영 데이터를 불러오지 못했습니다.',GITHUB_WRITE_FAILED:'GitHub 운영 데이터를 저장하지 못했습니다.',CONTENT_PATH_NOT_ALLOWED:'허용되지 않은 운영 데이터 경로입니다.',INVALID_JSON_CONTENT:'저장할 JSON 데이터 형식이 올바르지 않습니다.',INVALID_EVENT_TIME:'이벤트 시작·종료시간을 확인해 주세요.',EVENTS_API_FAILED:'이벤트 API 처리에 실패했습니다.',EVENTS_LOAD_FAILED:'이벤트 데이터를 불러오지 못했습니다.'};
   return map[code]||code||'알 수 없는 오류가 발생했습니다.';
 }
 function showAdminToast(message,type='ok'){
@@ -153,12 +154,14 @@ async function loadLocal(){
   const [adminMembers,br,er]=await Promise.all([
     fetchAllAdminMembers(),
     fetch('../data/bgb.json?v='+Date.now(),{cache:'no-store'}),
-    fetch('../data/events.json?v='+Date.now(),{cache:'no-store'})
+    fetch('/api/admin/events',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}})
   ]);
   if(!br.ok||!er.ok)throw new Error('현재 홈페이지 운영 데이터를 불러오지 못했습니다.');
   membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
   bgbData=normalizeBgb(await br.json());
-  eventsData=normalizeEvents(await er.json());
+  const eventPayload=await er.json();
+  if(!eventPayload?.ok)throw new Error(eventPayload?.code||'EVENTS_LOAD_FAILED');
+  eventsData=normalizeEvents(eventPayload.data);
   syncInputs();
   renderAll();
   window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
@@ -251,30 +254,42 @@ async function adminContentRequest(path,options={}){
 }
 async function githubGetFile(path){const data=await adminContentRequest(path);return{sha:data.sha||'',data:data.content}}
 async function githubPutFile(path,payload,sha,message){const data=await adminContentRequest(path,{method:'PUT',content:payload,message});return data.sha||sha||''}
+async function eventApiRequest(options={}){
+  const method=options.method||'GET';
+  const response=await fetch('/api/admin/events',{method,credentials:'include',cache:'no-store',headers:{accept:'application/json',...(method==='PUT'?{'content-type':'application/json'}:{})},body:method==='PUT'?JSON.stringify(options.payload):undefined});
+  const payload=await response.json().catch(()=>null);
+  if(!response.ok||!payload?.ok)throw new Error(payload?.code||'EVENTS_API_FAILED');
+  return payload.data;
+}
 async function loadGithub(){
   const [adminMembers,b,e]=await Promise.all([
     fetchAllAdminMembers(),
     githubGetFile('data/bgb.json'),
-    githubGetFile('data/events.json')
+    eventApiRequest()
   ]);
-  bgbSha=b.sha;eventsSha=e.sha;
+  bgbSha=b.sha;eventsSha='';
   membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
-  bgbData=normalizeBgb(b.data);eventsData=normalizeEvents(e.data);
+  bgbData=normalizeBgb(b.data);eventsData=normalizeEvents(e);
   syncInputs();renderAll();
   window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
 }
-async function saveAllGithub(){
+async function saveAllData(){
   if(!bgbSha){const b=await githubGetFile('data/bgb.json');bgbSha=b.sha}
-  if(!eventsSha){const e=await githubGetFile('data/events.json');eventsSha=e.sha}
   const date=todayKst(),bp=bgbPayload(),ep=eventsPayload();
   if(!bp.lastUpdated)bp.lastUpdated=date;
   if(!ep.lastUpdated)ep.lastUpdated=date;
   TEAM_KEYS.forEach(t=>{if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`)});
   ep.events.forEach((e,i)=>{if(!e.enabled)return;if(!e.title||!e.start||!e.end)throw new Error(`EVENT ${i+1}: 활성화된 이벤트는 이벤트명, 시작시간, 종료시간이 모두 필요합니다.`);const startDate=parseEventDate(e.start),endDate=parseEventDate(e.end);if(!startDate||!endDate)throw new Error(`EVENT ${i+1}: 시간을 정확히 입력해 주세요.`);if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`)});
-  bgbSha=await githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`);
-  eventsSha=await githubPutFile('data/events.json',ep,eventsSha,`Update EZPK events ${ep.lastUpdated}`);
-  bgbData=normalizeBgb(bp);eventsData=normalizeEvents(ep);syncInputs();renderAll();
-  clearAdminDirty();setStatus('BGB 편성과 이벤트 일정 저장 완료. 회원 정보는 D1에 즉시 저장됩니다.','ok');showAdminToast('저장 완료 ✓')
+  const results=await Promise.allSettled([
+    githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`),
+    eventApiRequest({method:'PUT',payload:ep})
+  ]);
+  const failures=[];
+  if(results[0].status==='fulfilled')bgbSha=results[0].value;else failures.push(`BGB: ${adminErrorMessage(results[0].reason)}`);
+  if(results[1].status==='fulfilled')eventsData=normalizeEvents(results[1].value);else failures.push(`이벤트: ${adminErrorMessage(results[1].reason)}`);
+  if(failures.length)throw new Error(failures.join(' / '));
+  bgbData=normalizeBgb(bp);syncInputs();renderAll();
+  clearAdminDirty();setStatus('BGB 편성 저장 완료. 이벤트 일정은 D1에 즉시 반영됩니다.','ok');showAdminToast('저장 완료 ✓')
 }
 function exportExcel(){if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}const rows=membersData.members.map((m,i)=>({No:i+1,Rank:m.rank,Nickname:m.nickname,IND:m.ind,'Combat Power':m.power}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EZPK Members');XLSX.writeFile(wb,`EZPK_Member_List_${($('#lastUpdated').value||'backup').replaceAll('.','-')}.xlsx`)}
 function importExcel(){alert('Excel 가져오기는 v188에서 제거되었습니다.')} 
@@ -297,7 +312,7 @@ $('#loadGithub').onclick=async()=>{
 };
 $('#saveAllGithub').onclick=async()=>{
   const button=$('#saveAllGithub');
-  await withAdminButton(button,'저장 중...',async()=>{try{setStatus('운영 데이터를 저장하는 중...');await saveAllGithub()}catch(e){const msg=adminErrorMessage(e);setStatus(msg,'error');showAdminToast(msg,'error')}})
+  await withAdminButton(button,'저장 중...',async()=>{try{setStatus('운영 데이터를 저장하는 중...');await saveAllData()}catch(e){const msg=adminErrorMessage(e);setStatus(msg,'error');showAdminToast(msg,'error')}})
 };
 document.addEventListener('input',event=>{if(event.target.closest('#adminApp'))markAdminDirty()});
 document.addEventListener('change',event=>{if(event.target.closest('#adminApp'))markAdminDirty()});
