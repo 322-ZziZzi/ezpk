@@ -50,7 +50,7 @@ export default {
       if (voteExclusionMatch && request.method === "PUT") return handleVoteExclusion(request, Number(voteExclusionMatch[1]), env);
 
 
-      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history))?$/);
+      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs))?$/);
       if (adminMemberMatch) {
         const memberId = Number(adminMemberMatch[1]);
         const action = adminMemberMatch[2] || "";
@@ -58,6 +58,8 @@ export default {
         if (request.method === "GET" && action === "history") return handleAdminMemberHistory(request, memberId, env);
         if (request.method === "PUT" && !action) return handleAdminMemberUpdate(request, memberId, env);
         if (request.method === "PUT" && action === "memo") return handleAdminMemberMemo(request, memberId, env);
+        if (request.method === "PUT" && action === "specs") return handleAdminMemberSpecsUpdate(request, memberId, env);
+        if (request.method === "DELETE" && action === "specs") return handleAdminMemberSpecsReset(request, memberId, env);
         if (request.method === "POST" && action === "reset-password") return handleAdminMemberResetPassword(request, memberId, env);
         if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
       }
@@ -1563,23 +1565,64 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   if (!target) return jsonError("MEMBER_NOT_FOUND",404);
   const body=await readJson(request);
   const nickname=cleanString(body.nickname,64);
-  const powerInput = body.power;
-  const industryInput = body.industryLevel;
-  const power = powerInput === null || powerInput === "" ? null : toPositiveInteger(powerInput);
-  const industry = industryInput === null || industryInput === "" ? null : String(industryInput).toUpperCase();
   const rank=String(body.memberRank||"").toUpperCase();
   const status=String(body.status||"");
-  if(!nickname||(powerInput !== null && powerInput !== "" && !power)||(industryInput !== null && industryInput !== "" && !isIndustryLevel(industry))||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
+  if(!nickname||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
   if(target.role==="admin" && (rank!=="R5" || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  if(target.role!=="admin" && !["R1","R2","R3","R4"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
   const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
   if(dupe) return jsonError("NICKNAME_TAKEN",409);
   const batch=[];
   if(nickname!==target.nickname){
     batch.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) VALUES(?,?,?,'admin',?)`).bind(memberId,target.nickname,nickname,admin.id));
   }
-  batch.push(env.DB.prepare(`UPDATE members SET nickname=?,power=?,industry_level=?,member_rank=?,status=? WHERE id=?`).bind(nickname,power,industry,rank,status,memberId));
+  batch.push(env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=? WHERE id=?`).bind(nickname,rank,status,memberId));
   await env.DB.batch(batch);
   return json({ok:true,data:{updated:true}});
+}
+
+async function handleAdminMemberSpecsUpdate(request, memberId, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const target=await env.DB.prepare("SELECT id FROM members WHERE id=?").bind(memberId).first();
+  if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  const body=await readJson(request);
+  const power=toPositiveInteger(body.power);
+  const industryLevel=String(body.industryLevel??"").toUpperCase();
+  const vehicle1Class=nullableEnum(body.vehicle1Class,["fighter","shooter","rider"]);
+  const vehicle1PowerValue=nullableVehiclePowerValue(body.vehicle1PowerValue);
+  const vehicle1PowerUnit=nullableEnum(body.vehicle1PowerUnit,["M","G"]);
+  const vehicle2Class=nullableEnum(body.vehicle2Class,["fighter","shooter","rider"]);
+  const vehicle2PowerValue=nullableVehiclePowerValue(body.vehicle2PowerValue);
+  const vehicle2PowerUnit=nullableEnum(body.vehicle2PowerUnit,["M","G"]);
+  const seasonWarAvailable=nullableBoolean(body.seasonWarAvailable);
+  const bgbAvailableHour=nullableHour(body.bgbAvailableHour);
+  const discord=nullableCleanString(body.discord,100);
+  const telegram=nullableCleanString(body.telegram,100);
+  if(!power||!isIndustryLevel(industryLevel)||vehicle1Class===INVALID||vehicle1PowerValue===INVALID||vehicle1PowerUnit===INVALID||vehicle2Class===INVALID||vehicle2PowerValue===INVALID||vehicle2PowerUnit===INVALID||seasonWarAvailable===INVALID||bgbAvailableHour===INVALID||discord===INVALID||telegram===INVALID||!vehicleGroupValid(vehicle1Class,vehicle1PowerValue,vehicle1PowerUnit)||!vehicleGroupValid(vehicle2Class,vehicle2PowerValue,vehicle2PowerUnit)) return jsonError("VALIDATION_ERROR",400);
+  const n1=vehicle1PowerValue===null?null:vehicle1PowerValue*(vehicle1PowerUnit==="G"?1000:1);
+  const n2=vehicle2PowerValue===null?null:vehicle2PowerValue*(vehicle2PowerUnit==="G"?1000:1);
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE members SET power=?,industry_level=? WHERE id=?`).bind(power,industryLevel,memberId),
+    env.DB.prepare(`INSERT INTO member_specs(member_id,profile_specs_registered,vehicle1_class,vehicle1_power_value,vehicle1_power_unit,vehicle1_power_normalized,vehicle2_class,vehicle2_power_value,vehicle2_power_unit,vehicle2_power_normalized,season_war_available,bgb_available_hour,discord,telegram)
+      VALUES(?,1,?,?,?,?,?,?,?,?,?,?,?,?)
+      ON CONFLICT(member_id) DO UPDATE SET profile_specs_registered=1,vehicle1_class=excluded.vehicle1_class,vehicle1_power_value=excluded.vehicle1_power_value,vehicle1_power_unit=excluded.vehicle1_power_unit,vehicle1_power_normalized=excluded.vehicle1_power_normalized,vehicle2_class=excluded.vehicle2_class,vehicle2_power_value=excluded.vehicle2_power_value,vehicle2_power_unit=excluded.vehicle2_power_unit,vehicle2_power_normalized=excluded.vehicle2_power_normalized,season_war_available=excluded.season_war_available,bgb_available_hour=excluded.bgb_available_hour,discord=excluded.discord,telegram=excluded.telegram`)
+      .bind(memberId,vehicle1Class,vehicle1PowerValue,vehicle1PowerUnit,n1,vehicle2Class,vehicle2PowerValue,vehicle2PowerUnit,n2,seasonWarAvailable,bgbAvailableHour,discord,telegram)
+  ]);
+  return json({ok:true,data:{updated:true}});
+}
+
+async function handleAdminMemberSpecsReset(request, memberId, env) {
+  const admin = await requireAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const target=await env.DB.prepare("SELECT id FROM members WHERE id=?").bind(memberId).first();
+  if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE members SET power=NULL,industry_level=NULL WHERE id=?`).bind(memberId),
+    env.DB.prepare(`INSERT INTO member_specs(member_id,profile_specs_registered) VALUES(?,0)
+      ON CONFLICT(member_id) DO UPDATE SET profile_specs_registered=0,vehicle1_class=NULL,vehicle1_power_value=NULL,vehicle1_power_unit=NULL,vehicle1_power_normalized=NULL,vehicle2_class=NULL,vehicle2_power_value=NULL,vehicle2_power_unit=NULL,vehicle2_power_normalized=NULL,season_war_available=NULL,bgb_available_hour=NULL,discord=NULL,telegram=NULL`).bind(memberId)
+  ]);
+  return json({ok:true,data:{reset:true}});
 }
 
 async function handleAdminMemberMemo(request, memberId, env) {
@@ -1605,12 +1648,11 @@ async function handleAdminMembersBulk(request, env) {
   const field=String(body.field||"");
   const value=String(body.value||"").toUpperCase();
   const placeholders=ids.map(()=>"?").join(",");
-  if(field==="memberRank"&&!isAnyMemberRank(value))return jsonError("VALIDATION_ERROR",400);
-  if(field==="industryLevel"&&!isIndustryLevel(value))return jsonError("VALIDATION_ERROR",400);
+  if(field==="memberRank"&&!["R1","R2","R3","R4"].includes(value))return jsonError("VALIDATION_ERROR",400);
   if(field==="status"&&!["ACTIVE","SUSPENDED","LEFT"].includes(value))return jsonError("VALIDATION_ERROR",400);
   const protectedRow=await env.DB.prepare(`SELECT id FROM members WHERE id IN (${placeholders}) AND role='admin' LIMIT 1`).bind(...ids).first();
   if(protectedRow)return jsonError("PRIMARY_ADMIN_PROTECTED",409);
-  const column=field==="memberRank"?"member_rank":field==="industryLevel"?"industry_level":field==="status"?"status":null;
+  const column=field==="memberRank"?"member_rank":field==="status"?"status":null;
   if(!column)return jsonError("VALIDATION_ERROR",400);
   await env.DB.prepare(`UPDATE members SET ${column}=? WHERE id IN (${placeholders})`).bind(field==="status"?value.toLowerCase():value,...ids).run();
   return json({ok:true,data:{updated:ids.length}});

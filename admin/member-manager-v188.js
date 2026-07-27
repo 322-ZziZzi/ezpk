@@ -81,39 +81,49 @@
     $("#memberBulkBarV188").hidden=!state.selected.size;
     $("#memberSelectAllV188").checked=state.items.length>0&&state.items.every(m=>state.selected.has(m.id));
   }
+  function rankOptions(m){
+    if(m.role==="admin") return `<option selected>R5</option>`;
+    return ["R4","R3","R2","R1"].map(v=>`<option ${v===m.memberRank?"selected":""}>${v}</option>`).join("");
+  }
+  function industryOptions(current){
+    return `<option value="">선택하세요</option>`+["I10","I9","I8","I7","I6","I5","I4","I3","I2","I1"].map(v=>`<option ${v===current?"selected":""}>${v}</option>`).join("");
+  }
+  function classOptions(current){
+    const labels={fighter:"전사",shooter:"사수",rider:"기병"};
+    return `<option value="">선택 안 함</option>`+["fighter","shooter","rider"].map(v=>`<option value="${v}" ${v===current?"selected":""}>${labels[v]}</option>`).join("");
+  }
+  function nullableValue(v){return v==null?"":String(v)}
   function detailHtml(m,history){
     const historyHtml=(history||[]).length?(history||[]).map(h=>`<li><time>${date(h.changed_at)}</time><span>${esc(h.old_nickname)} → <b>${esc(h.new_nickname)}</b></span></li>`).join(""):"<li>변경 이력이 없습니다.</li>";
-    return `<div class="v188-detail-head"><button id="memberDetailBackV188" type="button">← 목록</button><div><h2>${esc(m.nickname)}</h2><p>${esc(m.memberRank)} · ${esc(m.industryLevel)} · ${fmt(m.power)}</p></div></div>
+    const adminLocked=m.role==="admin"?"disabled":"";
+    return `<div class="v188-detail-head"><button id="memberDetailBackV188" class="secondary" type="button">← 목록</button><div><h2>${esc(m.nickname)}</h2><p>${esc(m.memberRank)} · ${esc(m.industryLevel||"미입력")} · ${fmt(m.power)}</p></div></div>
     <form id="memberDetailFormV188" class="v188-detail-form">
       <details open><summary>기본 프로필</summary><div class="v188-detail-grid">
-        <label>닉네임<input name="nickname" value="${esc(m.nickname)}"></label>
         <label>로그인 ID<input value="${esc(m.loginId)}" disabled></label>
-        <label>등급<select name="memberRank">
-<option selected>R1</option>
-<option>R2</option>
-<option>R3</option>
-<option>R4</option>
-<option>R5</option>
-</select></label>
-        <label>산업<select name="industryLevel">${["I10","I9","I8","I7","I6","I5","I4","I3","I2","I1"].map(v=>`<option ${v===m.industryLevel?"selected":""}>${v}</option>`).join("")}</select></label>
-        <label>전투력<input name="power" type="number" min="1" value="${m.power}"></label>
-        <label>상태<select name="status">${["active","suspended","left"].map(v=>`<option ${v===m.status?"selected":""} value="${v}">${v}</option>`).join("")}</select></label>
+        <label>닉네임<input name="nickname" value="${esc(m.nickname)}"></label>
+        <label>회원 등급<select name="memberRank" ${adminLocked}>${rankOptions(m)}</select></label>
+        <label>회원 상태<select name="status" ${adminLocked}>${[["active","활성"],["suspended","정지"],["left","탈퇴"]].map(([v,l])=>`<option ${v===m.status?"selected":""} value="${v}">${l}</option>`).join("")}</select></label>
+        <label>가입일<input value="${date(m.createdAt)}" disabled></label>
+        <label>최근 로그인<input value="${date(m.lastLoginAt)}" disabled></label>
         <label>가입 승인<input value="${esc(m.approvalStatus||"approved")}" disabled></label>
       </div></details>
-      <details><summary>세부 스펙</summary><div class="v188-info-grid">
-        <span>1번 차량<b>${esc(m.vehicle1Class||"-")} · ${esc(vehicle(m))}</b></span>
-        <span>2번 차량<b>${esc(m.vehicle2Class||"-")} · ${esc(vehicle(m,2))}</b></span>
-        <span>Season War<b>${m.seasonWarAvailable==null?"-":m.seasonWarAvailable?"가능":"불가능"}</b></span>
-        <span>BGB<b>${m.bgbAvailableHour==null?"-":String(m.bgbAvailableHour).padStart(2,"0")+":00"}</b></span>
-        <span>Discord<b>${esc(m.discord||"-")}</b></span><span>Telegram<b>${esc(m.telegram||"-")}</b></span>
-      </div></details>
-      <details><summary>계정 정보</summary><div class="v188-info-grid">
-        <span>가입일<b>${date(m.createdAt)}</b></span><span>최근 로그인<b>${date(m.lastLoginAt)}</b></span>
-        <span>비밀번호 변경<b>${date(m.passwordChangedAt)}</b></span><span>닉네임 변경 횟수<b>${m.nicknameChangeCount||0}</b></span>
-      </div></details>
+      <details open><summary>세부 스펙</summary><div class="v188-detail-grid">
+        <label>산업 레벨<select name="industryLevel">${industryOptions(m.industryLevel)}</select></label>
+        <label class="v188-power-field">전투력(CP)<input name="power" inputmode="numeric" value="${m.power==null?"":Number(m.power).toLocaleString("ko-KR")}"><small>숫자만 입력하면 자동으로 쉼표가 표시됩니다.</small></label>
+        <label>1번 차량 병종<select name="vehicle1Class">${classOptions(m.vehicle1Class)}</select></label>
+        <label>1번 차량 파워<input name="vehicle1PowerValue" inputmode="decimal" value="${nullableValue(m.vehicle1PowerValue)}" placeholder="예: 520.5"></label>
+        <label>1번 차량 단위<select name="vehicle1PowerUnit"><option value="">선택 안 함</option><option ${m.vehicle1PowerUnit==="M"?"selected":""}>M</option><option ${m.vehicle1PowerUnit==="G"?"selected":""}>G</option></select></label>
+        <label>2번 차량 병종<select name="vehicle2Class">${classOptions(m.vehicle2Class)}</select></label>
+        <label>2번 차량 파워<input name="vehicle2PowerValue" inputmode="decimal" value="${nullableValue(m.vehicle2PowerValue)}" placeholder="예: 410.2"></label>
+        <label>2번 차량 단위<select name="vehicle2PowerUnit"><option value="">선택 안 함</option><option ${m.vehicle2PowerUnit==="M"?"selected":""}>M</option><option ${m.vehicle2PowerUnit==="G"?"selected":""}>G</option></select></label>
+        <label>시즌전 참여<select name="seasonWarAvailable"><option value="">선택 안 함</option><option value="1" ${m.seasonWarAvailable===true?"selected":""}>가능</option><option value="0" ${m.seasonWarAvailable===false?"selected":""}>불가능</option></select></label>
+        <label>BGB 가능 시간<select name="bgbAvailableHour"><option value="">선택 안 함</option>${Array.from({length:24},(_,h)=>`<option value="${h}" ${Number(m.bgbAvailableHour)===h?"selected":""}>${String(h).padStart(2,"0")}:00</option>`).join("")}</select></label>
+        <label>Discord<input name="discord" value="${esc(m.discord||"")}" maxlength="100"></label>
+        <label>Telegram<input name="telegram" value="${esc(m.telegram||"")}" maxlength="100"></label>
+      </div><div class="v188-spec-actions"><button id="memberSpecsSaveV228" class="primary" type="button">세부 스펙 저장</button><button id="memberSpecsResetV228" class="danger" type="button">세부 스펙 초기화</button></div></details>
       <details><summary>닉네임 변경 이력</summary><ul class="v188-history">${historyHtml}</ul></details>
       <details><summary>관리자 메모</summary><textarea name="adminMemo" maxlength="1000" rows="6">${esc(m.adminMemo||"")}</textarea><button id="memberMemoSaveV188" class="secondary" type="button">메모 저장</button></details>
-      <div class="v188-detail-actions"><button class="primary" type="submit">회원 정보 저장</button><button id="memberResetPasswordV188" class="secondary" type="button">비밀번호 초기화</button><button id="memberDeleteV188" class="danger" type="button">회원 삭제</button></div>
+      <div class="v188-detail-actions"><button class="primary" type="submit">기본 프로필 저장</button><button id="memberResetPasswordV188" class="secondary" type="button">비밀번호 초기화</button><button id="memberDeleteV188" class="danger" type="button">회원 삭제</button></div>
     </form>`;
   }
   async function openDetail(id){
@@ -123,20 +133,48 @@
     $("#memberDetailV188").classList.add("open");
     bindDetail(data.member);
   }
+  function specPayload(f){
+    const power=String(f.power.value||"").replace(/,/g,"").trim();
+    return {
+      power:power?Number(power):null,
+      industryLevel:f.industryLevel.value,
+      vehicle1Class:f.vehicle1Class.value||null,
+      vehicle1PowerValue:f.vehicle1PowerValue.value||null,
+      vehicle1PowerUnit:f.vehicle1PowerUnit.value||null,
+      vehicle2Class:f.vehicle2Class.value||null,
+      vehicle2PowerValue:f.vehicle2PowerValue.value||null,
+      vehicle2PowerUnit:f.vehicle2PowerUnit.value||null,
+      seasonWarAvailable:f.seasonWarAvailable.value===""?null:f.seasonWarAvailable.value==="1",
+      bgbAvailableHour:f.bgbAvailableHour.value===""?null:Number(f.bgbAvailableHour.value),
+      discord:f.discord.value.trim()||null,
+      telegram:f.telegram.value.trim()||null
+    };
+  }
   function bindDetail(member){
     $("#memberDetailBackV188").onclick=()=>$("#memberDetailV188").classList.remove("open");
-    $("#memberDetailFormV188").onsubmit=async e=>{
+    const form=$("#memberDetailFormV188");
+    form.power.addEventListener("input",e=>{const digits=e.target.value.replace(/\D/g,"");e.target.value=digits?Number(digits).toLocaleString("ko-KR"):""});
+    form.onsubmit=async e=>{
       e.preventDefault();const f=e.currentTarget;
-      await api(`/api/admin/members/${member.id}`,{method:"PUT",body:JSON.stringify({nickname:f.nickname.value,power:Number(f.power.value),industryLevel:f.industryLevel.value,memberRank:f.memberRank.value,status:f.status.value})});
-      alert("저장되었습니다.");await load();await openDetail(member.id);
+      await api(`/api/admin/members/${member.id}`,{method:"PUT",body:JSON.stringify({nickname:f.nickname.value,memberRank:member.role==="admin"?"R5":f.memberRank.value,status:member.role==="admin"?"active":f.status.value})});
+      alert("기본 프로필이 저장되었습니다.");await load();await openDetail(member.id);
     };
-    $("#memberMemoSaveV188").onclick=async()=>{const memo=$("#memberDetailFormV188").adminMemo.value;await api(`/api/admin/members/${member.id}/memo`,{method:"PUT",body:JSON.stringify({memo})});alert("메모가 저장되었습니다.")};
+    $("#memberSpecsSaveV228").onclick=async()=>{
+      await api(`/api/admin/members/${member.id}/specs`,{method:"PUT",body:JSON.stringify(specPayload(form))});
+      alert("세부 스펙이 저장되었습니다.");await load();await openDetail(member.id);
+    };
+    $("#memberSpecsResetV228").onclick=async()=>{
+      if(!confirm(`${member.nickname} 회원의 세부 스펙 전체를 초기화할까요?`))return;
+      await api(`/api/admin/members/${member.id}/specs`,{method:"DELETE",body:null});
+      alert("세부 스펙이 초기화되었습니다.");await load();await openDetail(member.id);
+    };
+    $("#memberMemoSaveV188").onclick=async()=>{const memo=form.adminMemo.value;await api(`/api/admin/members/${member.id}/memo`,{method:"PUT",body:JSON.stringify({memo})});alert("메모가 저장되었습니다.")};
     $("#memberResetPasswordV188").onclick=async()=>{if(!confirm("임시 비밀번호를 발급할까요?"))return;const d=await api(`/api/admin/members/${member.id}/reset-password`,{method:"POST",body:"{}"});prompt("임시 비밀번호",d.temporaryPassword)};
     $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 회원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});$("#memberDetailV188").classList.remove("open");await load(true)};
   }
   function bulkOptions(){
     const field=$("#memberBulkFieldV188").value;
-    const values=field==="memberRank"?["R1","R2","R3","R4","R5"]:field==="industryLevel"?["I1","I2","I3","I4","I5","I6","I7","I8","I9","I10"]:["active","suspended","left"];
+    const values=field==="memberRank"?["R1","R2","R3","R4"]:["active","suspended","left"];
     $("#memberBulkValueV188").innerHTML=values.map(v=>`<option>${v}</option>`).join("");
   }
   async function applyBulk(){

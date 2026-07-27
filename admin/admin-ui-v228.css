@@ -1,0 +1,73 @@
+
+/* EZPK v228 관리자 공통 UI 시스템 */
+:root{
+  --admin-control-h:44px;
+  --admin-radius:10px;
+  --admin-primary:#1577ff;
+  --admin-primary-hover:#348aff;
+  --admin-secondary:#151d29;
+  --admin-secondary-hover:#202b3b;
+  --admin-danger:#7f252b;
+  --admin-danger-hover:#9b3038;
+  --admin-border:#334156;
+  --admin-text:#f7f9fc;
+  --admin-muted:#91a0b4;
+}
+#adminApp button,#adminApp .primary,#adminApp .secondary,#adminApp .danger,#adminApp .outline,
+.admin-login-screen button,.admin-login-screen a.secondary{
+  min-height:var(--admin-control-h)!important;
+  height:var(--admin-control-h);
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:0 16px!important;
+  border-radius:var(--admin-radius)!important;
+  border:1px solid var(--admin-border);
+  font-size:14px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  white-space:nowrap;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background-color .16s ease,border-color .16s ease,transform .08s ease,opacity .16s ease;
+  background:var(--admin-secondary);
+  color:var(--admin-text);
+}
+#adminApp button:hover,.admin-login-screen button:hover{background:var(--admin-secondary-hover)}
+#adminApp button:active,.admin-login-screen button:active{transform:translateY(1px)}
+#adminApp button:disabled,.admin-login-screen button:disabled{opacity:.42!important;cursor:not-allowed!important;transform:none!important}
+#adminApp .primary,.admin-login-screen .primary{background:var(--admin-primary)!important;border-color:var(--admin-primary)!important;color:#fff!important}
+#adminApp .primary:hover,.admin-login-screen .primary:hover{background:var(--admin-primary-hover)!important;border-color:var(--admin-primary-hover)!important}
+#adminApp .secondary,.admin-login-screen .secondary{background:var(--admin-secondary)!important;border-color:var(--admin-border)!important;color:var(--admin-text)!important}
+#adminApp .secondary:hover,.admin-login-screen .secondary:hover{background:var(--admin-secondary-hover)!important}
+#adminApp .danger{background:var(--admin-danger)!important;border-color:#a23b43!important;color:#fff!important}
+#adminApp .danger:hover{background:var(--admin-danger-hover)!important}
+#adminApp .outline{background:transparent!important;border-color:var(--admin-border)!important;color:var(--admin-text)!important}
+#adminApp .outline:hover{background:var(--admin-secondary)!important}
+#adminApp input:not([type="checkbox"]):not([type="radio"]),#adminApp select,#adminApp textarea{
+  box-sizing:border-box;
+  min-height:var(--admin-control-h)!important;
+  border:1px solid var(--admin-border)!important;
+  border-radius:var(--admin-radius)!important;
+  background:#080d14!important;
+  color:var(--admin-text)!important;
+  padding:0 13px!important;
+  font-size:14px!important;
+}
+#adminApp textarea{height:auto!important;min-height:112px!important;padding:11px 13px!important;line-height:1.5}
+#adminApp input:focus,#adminApp select:focus,#adminApp textarea:focus{outline:2px solid rgba(21,119,255,.28);outline-offset:1px;border-color:#3188ff!important}
+#adminApp input:disabled,#adminApp select:disabled,#adminApp textarea:disabled{opacity:.62;cursor:not-allowed}
+.admin-tabs button,.admin-nav button{height:auto!important;min-height:42px!important}
+.v188-detail-actions>button{width:100%}
+.v188-spec-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px;width:calc(100% - 24px)}
+.v188-spec-actions button{width:100%}
+.v188-power-field{position:relative}
+.v188-power-field small{color:var(--admin-muted);font-size:11px}
+.v188-detail-grid .full{grid-column:1/-1}
+@media(max-width:900px){
+  :root{--admin-control-h:46px}
+  #adminApp button,#adminApp .primary,#adminApp .secondary,#adminApp .danger,#adminApp .outline{min-height:46px!important;height:46px}
+  .v188-spec-actions{grid-template-columns:1fr 1fr}
+}

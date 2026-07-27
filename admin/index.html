@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#05070b">
-  <title>EZPK Admin Manager</title>
+  <title>EZPK 관리자</title>
   <link rel="stylesheet" href="../style.css?v=2270">
   <link rel="stylesheet" href="admin.css?v=2170">
   <link rel="stylesheet" href="member-manager-v188.css?v=1920">
   <link rel="stylesheet" href="vote-manager.css?v=2160">
+  <link rel="stylesheet" href="admin-ui-v228.css?v=2280">
   <link rel="stylesheet" href="../common-heading.css?v=1920">
 
 <style>
@@ -26,10 +27,10 @@
   <div class="admin-login-card">
     <div class="login-mark">★</div>
     <span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span>
-    <h1>R5 ADMIN ACCESS</h1>
+    <h1>R5 관리자 로그인</h1>
     <p id="loginStatus">R5 관리자 세션을 확인하고 있습니다.</p>
-    <button id="adminLoginButton" type="button" class="primary">LOGIN</button>
-    <a href="../" class="secondary admin-home-link">PORTAL</a>
+    <button id="adminLoginButton" type="button" class="primary">로그인</button>
+    <a href="../" class="secondary admin-home-link">메인으로</a>
   </div>
 </section>
 <div id="adminApp" hidden>
@@ -38,18 +39,18 @@
     <button id="adminMenuButton" class="admin-menu-button" type="button" aria-expanded="false" aria-controls="adminNav" aria-label="관리자 메뉴 열기">☰</button>
   </div>
   <nav id="adminNav" class="admin-nav">
-    <a href="../">HOME</a>
-    <button type="button" data-admin-panel="membersPanel">MEMBERS</button>
-    <button type="button" data-admin-panel="bgbPanel">BGB</button>
-    <button type="button" data-admin-panel="season6Panel">SEASON 6</button>
-    <button type="button" data-admin-panel="eventsPanel">EVENT</button>
-    <button type="button" data-admin-panel="votePanel">VOTE</button>
-    <button type="button" data-admin-panel="requestsPanel">REQUEST</button>
-    <button type="button" data-admin-panel="accountsPanel">ACCOUNT</button>
+    <a href="../">메인</a>
+    <button type="button" data-admin-panel="membersPanel">회원 관리</button>
+    <button type="button" data-admin-panel="bgbPanel">BGB 관리</button>
+    <button type="button" data-admin-panel="season6Panel">시즌 6 관리</button>
+    <button type="button" data-admin-panel="eventsPanel">이벤트 관리</button>
+    <button type="button" data-admin-panel="votePanel">투표 관리</button>
+    <button type="button" data-admin-panel="requestsPanel">요청 관리</button>
+    <button type="button" data-admin-panel="accountsPanel">계정 관리</button>
   </nav>
 </header>
 <main class="admin-main">
-  <section class="admin-hero"><span class="eyebrow">EZPK ALLIANCE</span><h1>ADMIN</h1><p>관리자 페이지에서 EZPK 운영 데이터를 수정하세요.</p></section>
+  <section class="admin-hero"><span class="eyebrow">EZPK ALLIANCE</span><h1>관리자 페이지</h1><p>관리자 페이지에서 EZPK 운영 데이터를 수정하세요.</p></section>
   <section class="connect-card admin-api-card">
     <div>
       <h2>관리자 운영 데이터</h2>
@@ -63,7 +64,7 @@
   </section>
 
   <section class="manager-card">
-    <div class="admin-tabs"><button data-panel="membersPanel" class="active">Member Manager</button><button data-panel="bgbPanel">BGB Manager</button><button data-panel="season6Panel">Season 6 Manager</button><button data-panel="eventsPanel">Event Manager</button><button data-panel="votePanel">VOTE Manager</button><button data-panel="requestsPanel">Request Manager</button><button data-panel="accountsPanel">Account Manager</button></div>
+    <div class="admin-tabs"><button data-panel="membersPanel" class="active">회원 관리</button><button data-panel="bgbPanel">BGB 관리</button><button data-panel="season6Panel">시즌 6 관리</button><button data-panel="eventsPanel">이벤트 관리</button><button data-panel="votePanel">투표 관리</button><button data-panel="requestsPanel">요청 관리</button><button data-panel="accountsPanel">계정 관리</button></div>
 
     <div id="membersPanel" class="admin-panel active">
   <section class="v188-member-manager">
@@ -76,7 +77,7 @@
 
     <div class="v188-toolbar">
       <input id="memberSearchV188" type="search" placeholder="닉네임 검색">
-      <select id="memberRankV188"><option value="">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select>
+      <select id="memberRankV188"><option value="">전체 등급</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select>
       <select id="memberIndustryV188"><option value="">전체 산업</option><option>I10</option><option>I9</option><option>I8</option><option>I7</option><option>I6</option><option>I5</option><option>I4</option><option>I3</option><option>I2</option><option>I1</option></select>
       <select id="memberSortV188">
         <option value="created_desc">최근 가입순</option>
@@ -91,14 +92,13 @@
         <option value="50">50명 보기</option>
       </select>
       <button id="memberRefreshV188" class="secondary" type="button">↻ 새로고침</button>
-      <button id="memberExportV188" class="secondary" type="button">↓ Excel</button>
+      <button id="memberExportV188" class="secondary" type="button">↓ 엑셀</button>
     </div>
 
     <div id="memberBulkBarV188" class="v188-bulk" hidden>
       <strong><span id="memberSelectedCountV188">0</span>명 선택</strong>
       <select id="memberBulkFieldV188">
         <option value="memberRank">등급 변경</option>
-        <option value="industryLevel">산업 변경</option>
         <option value="status">상태 변경</option>
       </select>
       <select id="memberBulkValueV188"></select>
@@ -133,21 +133,21 @@
 </div>
 
     <div id="bgbPanel" class="admin-panel">
-      <div class="bgb-manager-head"><div><h2>BGB Team Manager</h2><p>최종 참전 멤버 20명을 선택한 뒤 자동 배정 버튼을 누르세요.</p></div><label>BGB 업데이트<input id="bgbLastUpdated" type="text" placeholder="2026.07.17"></label></div>
+      <div class="bgb-manager-head"><div><h2>BGB 팀 관리</h2><p>최종 참전 멤버 20명을 선택한 뒤 자동 배정 버튼을 누르세요.</p></div><label>BGB 업데이트<input id="bgbLastUpdated" type="text" placeholder="2026.07.17"></label></div>
 
-      <div id="bgbTeamTabs" class="bgb-team-tabs"><button data-team="A" class="active">A TEAM</button><button data-team="B">B TEAM</button></div>
+      <div id="bgbTeamTabs" class="bgb-team-tabs"><button data-team="A" class="active">A팀</button><button data-team="B">B팀</button></div>
 
       <section class="lineup-manager">
         <div class="lineup-head">
-          <div><span class="team-chip" id="activeTeamChip">A TEAM</span><h3>FINAL LINEUP</h3><p>전체 멤버 목록은 Member Manager의 데이터를 사용합니다.</p></div>
+          <div><span class="team-chip" id="activeTeamChip">A팀</span><h3>최종 라인업</h3><p>전체 멤버 목록은 회원 관리의 데이터를 사용합니다.</p></div>
           <strong id="lineupCount">0 / 20</strong>
         </div>
-        <div class="lineup-tools"><input id="lineupSearch" type="search" placeholder="닉네임 검색"><select id="lineupRank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><select id="lineupSort"><option value="power-desc">1번 차량 파워 높은 순</option><option value="ind-desc">IND. 높은 순</option><option value="name-asc">닉네임 순</option></select></div>
+        <div class="lineup-tools"><input id="lineupSearch" type="search" placeholder="닉네임 검색"><select id="lineupRank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><select id="lineupSort"><option value="power-desc">1번 차량 파워 높은 순</option><option value="ind-desc">산업 레벨 높은 순</option><option value="name-asc">닉네임 순</option></select></div>
         <div id="lineupMembers" class="lineup-members"></div>
 
         <section class="final-preview-card" aria-live="polite">
           <div class="final-preview-head">
-            <div><span class="preview-step">STEP 2</span><h3>FINAL LINEUP PREVIEW</h3><p>선택된 멤버만 1번 차량 파워 높은 순으로 표시됩니다. 이 단계에서는 위치에 배정되지 않습니다.</p></div>
+            <div><span class="preview-step">2단계</span><h3>최종 라인업 미리보기</h3><p>선택된 멤버만 1번 차량 파워 높은 순으로 표시됩니다. 이 단계에서는 위치에 배정되지 않습니다.</p></div>
             <strong id="previewCount">0 / 20</strong>
           </div>
           <div id="finalLineupPreview" class="final-lineup-preview"></div>
@@ -158,7 +158,7 @@
       </section>
 
       <section class="location-manager-section">
-        <h3>LOCATION ASSIGNMENTS</h3>
+        <h3>위치 배정</h3>
         <p>자동 배정 후 필요할 경우 위치별 담당자를 수동으로 조정할 수 있습니다.</p>
         <div class="bgb-admin-grid">
           <aside id="locationButtons" class="location-buttons"></aside>
@@ -174,23 +174,23 @@
 
 
     <div id="season6Panel" class="admin-panel">
-      <div class="s6-manager-head"><div><h2>Season 6 Manager</h2><p>참가자를 선택하고 팀을 자동으로 편성합니다.</p></div><label>팀 편성 업데이트<input id="s6LastUpdated" type="text" placeholder="2026.07.20"></label></div>
+      <div class="s6-manager-head"><div><h2>시즌 6 관리</h2><p>참가자를 선택하고 팀을 자동으로 편성합니다.</p></div><label>팀 편성 업데이트<input id="s6LastUpdated" type="text" placeholder="2026.07.20"></label></div>
       <div class="s6-summary" id="s6Summary"></div>
       <details class="s6-stats-panel" id="s6StatsPanel"><summary>팀 통계 보기</summary><div id="s6StatsContent" class="s6-stats-content"></div></details>
       <div class="manager-tools s6-tools"><input id="s6Search" type="search" placeholder="닉네임 검색"><button id="s6LoadVote" type="button">투표 불러오기</button><button id="s6SelectAll" type="button">전체 참가</button><button id="s6ClearParticipants" type="button">전체 해제</button><button id="s6AutoAssign" class="primary" type="button">자동 배정</button><button id="s6ResetTeams" class="danger" type="button">팀 배정 초기화</button></div><div id="s6VoteSource" class="s6-vote-source" hidden></div>
       <div id="s6ParticipantList" class="s6-participant-list"></div>
       <div class="s6-team-grid" id="s6TeamGrid"></div>
-      <div class="s6-publish-row"><span class="help">저장된 팀 배정은 시즌6 페이지에 즉시 반영됩니다. 미배정 인원은 하단 미배정 명단에서 확인하고 다시 팀을 배정할 수 있습니다.</span><button id="downloadSeason6Json" type="button">↓ Season 6 JSON 백업</button></div>
+      <div class="s6-publish-row"><span class="help">저장된 팀 배정은 시즌6 페이지에 즉시 반영됩니다. 미배정 인원은 하단 미배정 명단에서 확인하고 다시 팀을 배정할 수 있습니다.</span><button id="downloadSeason6Json" type="button">↓ 시즌 6 JSON 백업</button></div>
     </div>
 
     <div id="eventsPanel" class="admin-panel">
-      <div class="event-manager-head"><div><h2>Event Manager</h2><p>최대 9개의 이벤트를 설정합니다. 종료시간은 상태 판단에만 사용되며 연맹원 화면에는 시작시간만 표시됩니다.</p></div><label>일정 업데이트<input id="eventsLastUpdated" type="text" placeholder="2026.07.17"></label></div>
-      <div class="event-manager-guide"><strong>EVENT MANAGER</strong><span>게임 내 SERVER TIME과 동일하게 입력하세요.</span><span>24시간 표기: 00:00~23:59</span><span>시작 전: 카운트다운</span><span>진행 중: LIVE</span><span>종료 후: FINISHED</span></div>
+      <div class="event-manager-head"><div><h2>이벤트 관리</h2><p>최대 9개의 이벤트를 설정합니다. 종료시간은 상태 판단에만 사용되며 연맹원 화면에는 시작시간만 표시됩니다.</p></div><label>일정 업데이트<input id="eventsLastUpdated" type="text" placeholder="2026.07.17"></label></div>
+      <div class="event-manager-guide"><strong>이벤트 관리</strong><span>게임 내 서버 시간과 동일하게 입력하세요.</span><span>24시간 표기: 00:00~23:59</span><span>시작 전: 카운트다운</span><span>진행 중</span><span>종료 후</span></div>
       <div id="eventAdminGrid" class="event-admin-grid"></div>
-      <div class="event-manager-actions"><button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button><button id="downloadEventsJson" type="button">↓ Events JSON 백업</button></div>
+      <div class="event-manager-actions"><button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button><button id="downloadEventsJson" type="button">↓ 이벤트 JSON 백업</button></div>
     </div>
     <div id="requestsPanel" class="admin-panel">
-      <div class="request-admin-head"><div><h2>Request Manager</h2><p>Supabase에 등록된 요청을 확인하고 답변하거나 삭제할 수 있습니다.</p></div><button id="refreshRequests" type="button" class="secondary">새로고침</button></div>
+      <div class="request-admin-head"><div><h2>요청 관리</h2><p>Supabase에 등록된 요청을 확인하고 답변하거나 삭제할 수 있습니다.</p></div><button id="refreshRequests" type="button" class="secondary">새로고침</button></div>
       <div id="requestAdminStatus" class="status" aria-live="polite"></div>
       <div id="requestAdminList" class="request-admin-list"></div>
     </div>
@@ -198,7 +198,7 @@
 
     <div id="votePanel" class="admin-panel">
       <section class="vote-manager">
-        <div class="vote-manager-head"><div><h2>VOTE Manager</h2><p>투표를 만들고 참여 명단과 연속 미투표 기록을 관리합니다.</p></div><button id="newVoteButton" class="primary" type="button">새 투표 만들기</button></div>
+        <div class="vote-manager-head"><div><h2>투표 관리</h2><p>투표를 만들고 참여 명단과 연속 미투표 기록을 관리합니다.</p></div><button id="newVoteButton" class="primary" type="button">새 투표 만들기</button></div>
         <div class="vote-admin-stats"><article><span>진행 중</span><strong id="voteActiveCount">0</strong></article><article><span>종료</span><strong id="voteEndedCount">0</strong></article><article><span>현재 미투표</span><strong id="voteMissingCount">0</strong></article><article><span>연속 3회 이상</span><strong id="voteRiskCount">0</strong></article></div>
         <div id="voteEditor" class="vote-editor" hidden></div>
         <div id="voteAdminList" class="vote-admin-list"><div class="vote-admin-empty">현재 진행 중인 투표가 없습니다.</div></div>
@@ -207,21 +207,21 @@
     </div>
 
     <div id="accountsPanel" class="admin-panel">
-      <div class="account-admin-head"><div><h2>Account Manager</h2><p>판매 계정의 정보를 등록하고 관리합니다.</p></div></div>
+      <div class="account-admin-head"><div><h2>계정 관리</h2><p>판매 계정의 정보를 등록하고 관리합니다.</p></div></div>
       <section class="template-download-card"><div><strong>템플릿</strong><p>1. 표준 템플릿을 계정 판매자에게 전달하세요.<br>2. 전달받은 템플릿을 붙여넣으세요.</p></div><div class="template-actions"><button id="copyAccountTemplate" type="button">복사하기</button><button id="downloadAccountTemplate" type="button">다운로드</button></div><div id="templateActionStatus" class="mini-status"></div></section>
       <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">붙여넣기</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" type="button">초기화</button><button id="registerAccount" class="primary" type="button">등록</button></div></section></div>
       <section class="account-list-admin">
-  <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · Premium 0개</p></div></div>
+  <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · 프리미엄 0개</p></div></div>
   <div class="account-mobile-tabs" role="tablist" aria-label="계정 게시 유형">
     <button type="button" data-account-tab="all" class="active">전체 <b id="accountTabAllCount">0</b></button>
-    <button type="button" data-account-tab="premium">⭐ Premium <b id="accountTabPremiumCount">0</b></button>
+    <button type="button" data-account-tab="premium">⭐ 프리미엄 <b id="accountTabPremiumCount">0</b></button>
     <button type="button" data-account-tab="expiring">⚠ 만료 예정 <b id="accountTabExpiringCount">0</b></button>
     <button type="button" data-account-tab="standard">Standard <b id="accountTabStandardCount">0</b></button>
   </div>
   <div class="account-list-tools">
     <label class="account-search-field"><span>검색</span><input id="accountAdminSearch" type="search" placeholder="서버, 연락처, 가격, VIP 검색"></label>
-    <label><span>게시 유형</span><select id="accountAdminFilter"><option value="all">전체</option><option value="forSale">판매중</option><option value="sold">판매완료</option><option value="premium">Premium</option><option value="expiring">만료 예정</option><option value="standard">Standard</option><option value="expired">Premium 만료</option></select></label>
-    <label><span>정렬</span><select id="accountAdminSort"><option value="premium">Premium 우선</option><option value="newest">최신 등록순</option><option value="oldest">오래된 등록순</option><option value="expiring">Premium 만료 임박순</option><option value="priceDesc">가격 높은순</option><option value="priceAsc">가격 낮은순</option></select></label>
+    <label><span>게시 유형</span><select id="accountAdminFilter"><option value="all">전체</option><option value="forSale">판매중</option><option value="sold">판매완료</option><option value="premium">프리미엄</option><option value="expiring">만료 예정</option><option value="standard">스탠다드</option><option value="expired">프리미엄 만료</option></select></label>
+    <label><span>정렬</span><select id="accountAdminSort"><option value="premium">프리미엄 우선</option><option value="newest">최신 등록순</option><option value="oldest">오래된 등록순</option><option value="expiring">프리미엄 만료 임박순</option><option value="priceDesc">가격 높은순</option><option value="priceAsc">가격 낮은순</option></select></label>
     <label><span>표시</span><select id="accountAdminPageSize"><option value="10">10개</option><option value="30">30개</option></select></label>
   </div>
   <div id="accountAdminList"></div>
@@ -231,8 +231,8 @@
     <button id="accountNextPage" type="button" aria-label="다음 페이지"><span>다음</span> ›</button>
   </nav>
 </section>
-<div class="account-backup-actions"><button id="downloadAccountsJson" type="button">↓ Account JSON 백업</button></div>
-<div id="adminAccountImageModal" class="admin-account-image-modal" hidden><div class="admin-image-backdrop" data-admin-image-close></div><article><header><h3>ACCOUNT IMAGE</h3><button type="button" data-admin-image-close>×</button></header><div><img id="adminAccountImagePreview" alt="Account image preview"></div><p>모바일에서는 이미지를 길게 눌러 저장할 수 있습니다.</p><button class="secondary" type="button" data-admin-image-close>CLOSE</button></article></div>
+<div class="account-backup-actions"><button id="downloadAccountsJson" type="button">↓ 계정 JSON 백업</button></div>
+<div id="adminAccountImageModal" class="admin-account-image-modal" hidden><div class="admin-image-backdrop" data-admin-image-close></div><article><header><h3>계정 이미지</h3><button type="button" data-admin-image-close>×</button></header><div><img id="adminAccountImagePreview" alt="Account image preview"></div><p>모바일에서는 이미지를 길게 눌러 저장할 수 있습니다.</p><button class="secondary" type="button" data-admin-image-close>닫기</button></article></div>
     </div>
 
   </section>
