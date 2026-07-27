@@ -1,0 +1,15 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>EZPK Vote</title><link rel="stylesheet" href="../style.css?v=2300"><link rel="stylesheet" href="../common-heading.css?v=2300"><link rel="stylesheet" href="vote.css?v=2300"></head><body>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="vote"></header><script src="../shared-header.js?v=2300"></script>
+<main class="vote-main">
+<section id="voteLock" class="member-gate-wrap" hidden><div class="member-gate-card"><div class="member-gate-icon">🔐</div><span class="member-gate-section" data-member-gate-section></span><h1 class="member-gate-title" data-member-gate-title></h1><p class="member-gate-description" data-member-gate-lead></p><div class="member-login-actions"><button type="button" class="member-login-primary" data-member-login></button><a class="member-login-secondary" href="../signup/" data-member-signup></a></div><p class="member-gate-error" data-member-gate-error></p></div></section>
+<div id="voteProtected" hidden>
+<section class="vote-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 id="votePageTitle">투표</h1><p id="votePageLead">진행 중인 투표에 참여하고 결과를 확인하세요.</p></section>
+<div class="vote-mobile-tabs" role="tablist"><button type="button" class="active" data-vote-tab="active"></button><button type="button" data-vote-tab="recent"></button><button type="button" data-vote-tab="older"></button></div>
+<section class="vote-page-shell">
+<section class="vote-section vote-active-section" data-vote-panel="active"><div class="vote-section-head"><h2 id="activeHeading"></h2><span id="activeCount"></span></div><div id="activeVotes" class="vote-card-list"></div></section>
+<section class="vote-history-grid">
+<section class="vote-section vote-recent-section" data-vote-panel="recent"><div class="vote-section-head"><h2 id="recentHeading"></h2></div><div id="recentVotes" class="vote-recent-list"></div></section>
+<section class="vote-section vote-older-section" data-vote-panel="older"><div class="vote-section-head"><h2 id="olderHeading"></h2></div><div id="olderVotes" class="vote-older-list"></div><button id="olderMore" class="vote-more-button" type="button" hidden></button></section>
+</section></section></div></main>
+<aside id="voteResultPanel" class="vote-result-panel" hidden aria-live="polite"><button id="voteResultClose" class="vote-result-close" type="button" aria-label="Close">×</button><div id="voteResultContent"></div></aside><div id="voteResultBackdrop" class="vote-result-backdrop" hidden></div>
+<footer><b>322 EZPK ALLIANCE</b><span>Vote</span></footer><script src="vote.js?v=2300"></script></body></html>

@@ -1,108 +1,33 @@
 (function(){'use strict';
-const I18N={
-ko:{title:'투표',lead:'진행 중인 투표에 참여하고 의견을 선택하세요.',empty:'현재 진행 중인 투표가 없습니다.',login:'로그인 후 투표할 수 있습니다.',single:'단일 선택',multiple:'복수 선택',saved:'선택이 저장되었습니다.',updated:'선택이 변경되었습니다.',ended:'종료',active:'진행 중',endedMessage:'투표가 종료되었습니다.',day:'일',hour:'시간',minute:'분'},
-en:{title:'VOTE',lead:'Join the active vote and select your response.',empty:'There are no active votes at the moment.',login:'Please log in to vote.',single:'Single choice',multiple:'Multiple choice',saved:'Your choice has been saved.',updated:'Your choice has been updated.',ended:'Ended',active:'Active',endedMessage:'The vote has ended.',day:'d',hour:'h',minute:'m'},
-pt:{title:'VOTAÇÃO',lead:'Participe da votação em andamento e escolha sua resposta.',empty:'Não há nenhuma votação em andamento no momento.',login:'Entre para votar.',single:'Escolha única',multiple:'Múltipla escolha',saved:'Sua escolha foi salva.',updated:'Sua escolha foi atualizada.',ended:'Encerrada',active:'Em andamento',endedMessage:'A votação foi encerrada.',day:'d',hour:'h',minute:'m'},
-vi:{title:'BÌNH CHỌN',lead:'Tham gia cuộc bình chọn đang diễn ra và chọn ý kiến của bạn.',empty:'Hiện không có cuộc bình chọn nào đang diễn ra.',login:'Vui lòng đăng nhập để bình chọn.',single:'Chọn một',multiple:'Chọn nhiều',saved:'Lựa chọn đã được lưu.',updated:'Lựa chọn đã được cập nhật.',ended:'Đã kết thúc',active:'Đang diễn ra',endedMessage:'Cuộc bình chọn đã kết thúc.',day:'ngày',hour:'giờ',minute:'phút'},
-ar:{title:'التصويت',lead:'شارك في التصويت الجاري واختر إجابتك.',empty:'لا يوجد تصويت جارٍ حاليًا.',login:'يرجى تسجيل الدخول للتصويت.',single:'اختيار واحد',multiple:'اختيارات متعددة',saved:'تم حفظ اختيارك.',updated:'تم تحديث اختيارك.',ended:'منتهٍ',active:'جارٍ',endedMessage:'انتهى التصويت.',day:'يوم',hour:'ساعة',minute:'دقيقة'},
-ja:{title:'投票',lead:'進行中の投票に参加して回答を選択してください。',empty:'現在進行中の投票はありません。',login:'投票するにはログインしてください。',single:'単一選択',multiple:'複数選択',saved:'選択を保存しました。',updated:'選択を変更しました。',ended:'終了',active:'進行中',endedMessage:'投票は終了しました。',day:'日',hour:'時間',minute:'分'},
-th:{title:'โหวต',lead:'เข้าร่วมการโหวตที่กำลังดำเนินอยู่และเลือกคำตอบของคุณ',empty:'ขณะนี้ไม่มีการโหวตที่กำลังดำเนินอยู่',login:'กรุณาเข้าสู่ระบบเพื่อโหวต',single:'เลือกหนึ่งข้อ',multiple:'เลือกได้หลายข้อ',saved:'บันทึกตัวเลือกแล้ว',updated:'อัปเดตตัวเลือกแล้ว',ended:'สิ้นสุด',active:'กำลังดำเนินอยู่',endedMessage:'การโหวตสิ้นสุดแล้ว',day:'วัน',hour:'ชั่วโมง',minute:'นาที'},
-'zh-tw':{title:'投票',lead:'參與進行中的投票並選擇您的意見。',empty:'目前沒有進行中的投票。',login:'請先登入再投票。',single:'單選',multiple:'複選',saved:'已儲存您的選擇。',updated:'已更新您的選擇。',ended:'已結束',active:'進行中',endedMessage:'投票已結束。',day:'天',hour:'小時',minute:'分鐘'}
-};
-let lang=localStorage.getItem('ezpk-lang')||'ko', current=[], countdownTimer=null;
-const t=()=>I18N[lang]||I18N.ko;
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function applyText(){
-  document.documentElement.lang=lang;
-  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
-  const title=document.getElementById('votePageTitle'),lead=document.getElementById('votePageLead');
-  if(title)title.textContent=t().title;
-  if(lead)lead.textContent=t().lead;
-  const e=document.getElementById('voteEmpty');if(e)e.textContent=t().empty;
-}
-function isEnded(v){return Boolean(v.endsAt)&&new Date(v.endsAt).getTime()<=Date.now()}
-function formatRemaining(endsAt){
-  const diff=Math.max(0,new Date(endsAt).getTime()-Date.now());
-  const totalMinutes=Math.ceil(diff/60000);
-  const days=Math.floor(totalMinutes/1440);
-  const hours=Math.floor((totalMinutes%1440)/60);
-  const minutes=totalMinutes%60;
-  const pad=n=>String(n).padStart(2,'0');
-  if(lang==='en'||lang==='pt')return `${days}${t().day} ${hours}${t().hour} ${pad(minutes)}${t().minute}`;
-  return `${days}${t().day} ${hours}${t().hour} ${pad(minutes)}${t().minute}`;
-}
-async function load(){
-  applyText();
-  if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}
-  const app=document.getElementById('voteApp'),section=document.querySelector('.home-vote-section');
-  if(!app)return;
-  try{
-    const r=await fetch('/api/votes/active',{credentials:'include',cache:'no-store'});
-    const p=await r.json();
-    if(!r.ok||!p.ok)throw new Error(p.error||'LOAD_FAILED');
-    current=p.data?.votes||[];
-    if(!current.length){app.innerHTML='';if(section)section.hidden=true;return}
-    if(section)section.hidden=false;
-    render(app,current,p.data?.authenticated);
-  }catch(e){app.innerHTML='';if(section)section.hidden=true;console.error('[VOTE] active vote load failed',e)}
-}
-function render(app,votes,authenticated){
-  if(!votes.length){app.innerHTML='';return}
-  app.innerHTML=votes.map(v=>{
-    const selected=new Set(v.myAnswers||[]),ended=isEnded(v),cls=v.options.length===2?'vote-options two':'vote-options';
-    return `<article class="vote-card ${ended?'is-ended':''}" data-vote-id="${v.id}" data-type="${v.voteType}" data-ends-at="${esc(v.endsAt||'')}">
-      <div class="vote-card-heading"><h2>${esc(v.title)}</h2>${v.description?`<p class="vote-description">${esc(v.description)}</p>`:''}</div>
-      <div class="vote-meta"><span class="vote-type">${v.voteType==='multiple'?t().multiple:t().single}</span><span class="vote-status-badge ${ended?'ended':'active'}">${ended?t().ended:t().active}</span></div>
-      <div class="${cls}">${v.options.map(o=>`<button class="vote-option ${selected.has(o.id)?'selected':''}" data-option-id="${o.id}" ${(authenticated&&!ended)?'':'disabled'}><strong>${esc(o.label)}</strong>${o.description?`<span>${esc(o.description)}</span>`:''}</button>`).join('')}</div>
-      <div class="vote-save-state">${authenticated?'':esc(t().login)}</div>
-      ${v.showResults?resultHtml(v):''}
-      ${v.endsAt?`<div class="vote-countdown" aria-live="polite">${ended?esc(t().endedMessage):esc(formatRemaining(v.endsAt))}</div>`:''}
-    </article>`
-  }).join('');
-  app.querySelectorAll('.vote-option').forEach(b=>b.addEventListener('click',onChoose));
-  updateCountdowns();
-  countdownTimer=setInterval(updateCountdowns,1000);
-}
-function resultHtml(v){
-  const total=Math.max(1,Number(v.totalVoters||0));
-  return `<div class="vote-results">${v.options.map(o=>{
-    const n=Number(o.votes||0),pct=Math.round(n/total*100);
-    return `<div class="vote-result-row"><span>${esc(o.label)} ${esc(o.description||'')}</span><strong>${pct}%</strong><div class="vote-result-bar"><i style="width:${pct}%"></i></div></div>`
-  }).join('')}</div>`
-}
-function updateCountdowns(){
-  document.querySelectorAll('.vote-card[data-ends-at]').forEach(card=>{
-    const endsAt=card.dataset.endsAt;if(!endsAt)return;
-    const ended=new Date(endsAt).getTime()<=Date.now();
-    const badge=card.querySelector('.vote-status-badge'),countdown=card.querySelector('.vote-countdown');
-    if(ended){
-      card.classList.add('is-ended');
-      card.querySelectorAll('.vote-option').forEach(x=>x.disabled=true);
-      if(badge){badge.classList.remove('active');badge.classList.add('ended');badge.textContent=t().ended}
-      if(countdown)countdown.textContent=t().endedMessage;
-    }else{
-      if(badge){badge.classList.remove('ended');badge.classList.add('active');badge.textContent=t().active}
-      if(countdown)countdown.textContent=formatRemaining(endsAt);
-    }
-  })
-}
-async function onChoose(e){
-  const card=e.currentTarget.closest('[data-vote-id]');
-  if(card.classList.contains('is-ended'))return;
-  const type=card.dataset.type,id=Number(card.dataset.voteId),optionId=Number(e.currentTarget.dataset.optionId);
-  let selected=[...card.querySelectorAll('.vote-option.selected')].map(x=>Number(x.dataset.optionId));
-  const had=selected.length>0;
-  if(type==='single')selected=[optionId];else selected=selected.includes(optionId)?selected.filter(x=>x!==optionId):[...selected,optionId];
-  card.querySelectorAll('.vote-option').forEach(x=>x.disabled=true);
-  const state=card.querySelector('.vote-save-state');state.textContent='...';
-  try{
-    const r=await fetch(`/api/votes/${id}/respond`,{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:JSON.stringify({voteAnswers:selected})});
-    const p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||'SAVE_FAILED');
-    card.querySelectorAll('.vote-option').forEach(x=>x.classList.toggle('selected',selected.includes(Number(x.dataset.optionId))));
-    state.textContent=had?t().updated:t().saved;
-  }catch(err){state.textContent=t().login}
-  finally{if(!card.classList.contains('is-ended'))card.querySelectorAll('.vote-option').forEach(x=>x.disabled=false)}
-}
-window.addEventListener('ezpk-language-change',e=>{lang=e.detail?.lang||localStorage.getItem('ezpk-lang')||'ko';load()});
-document.addEventListener('DOMContentLoaded',load);
-})();
+const $=s=>document.querySelector(s);let lang=localStorage.getItem('ezpk-lang-v5')||'en',data={activeVotes:[],recentEnded:[],olderEnded:[]},olderShown=10,countdownTimer=null;
+const T={
+ko:{title:'투표',lead:'진행 중인 투표에 참여하고 결과를 확인하세요.',active:'진행 중인 투표',activeStatus:'진행 중',endsIn:'종료까지',recent:'최근 종료된 투표',older:'이전 종료된 투표',emptyActive:'현재 진행 중인 투표가 없습니다.',emptyRecent:'최근 종료된 투표가 없습니다.',emptyOlder:'이전 종료된 투표가 없습니다.',single:'단일 선택',multiple:'복수 선택',saved:'선택이 저장되었습니다.',updated:'선택이 변경되었습니다.',voted:'투표한 명단',missing:'미투표 명단',result:'결과 보기',more:'더 보기',participants:'참여',nonparticipants:'미참여',private:'결과가 공개되지 않은 투표입니다.',ended:'종료',day:'일',hour:'시간',minute:'분',people:'명',login:'로그인',signup:'회원가입',members:'연맹원 전용',membersLead:'로그인한 활성 연맹원만 이용할 수 있습니다.'},
+en:{title:'VOTE',lead:'Join active votes and review the results.',active:'Active votes',activeStatus:'Active',endsIn:'Ends in',recent:'Recently ended',older:'Previous votes',emptyActive:'There are no active votes.',emptyRecent:'There are no recently ended votes.',emptyOlder:'There are no previous votes.',single:'Single choice',multiple:'Multiple choice',saved:'Your choice has been saved.',updated:'Your choice has been updated.',voted:'Voted',missing:'Not voted',result:'VIEW RESULTS',more:'LOAD MORE',participants:'Participated',nonparticipants:'Not participated',private:'The results of this vote are private.',ended:'Ended',day:'d',hour:'h',minute:'m',people:'',login:'LOG IN',signup:'SIGN UP',members:'ALLIANCE MEMBERS ONLY',membersLead:'Only logged-in active alliance members can use this page.'},
+pt:{title:'VOTAÇÃO',lead:'Participe das votações ativas e veja os resultados.',active:'Votações ativas',activeStatus:'Ativa',endsIn:'Termina em',recent:'Encerradas recentemente',older:'Votações anteriores',emptyActive:'Não há votações ativas.',emptyRecent:'Não há votações encerradas recentemente.',emptyOlder:'Não há votações anteriores.',single:'Escolha única',multiple:'Múltipla escolha',saved:'Escolha salva.',updated:'Escolha atualizada.',voted:'Votaram',missing:'Não votaram',result:'VER RESULTADOS',more:'VER MAIS',participants:'Participaram',nonparticipants:'Não participaram',private:'Os resultados desta votação são privados.',ended:'Encerrada',day:'d',hour:'h',minute:'m',people:'',login:'ENTRAR',signup:'CADASTRAR',members:'APENAS MEMBROS DA ALIANÇA',membersLead:'Somente membros ativos e conectados podem usar esta página.'},
+vi:{title:'BÌNH CHỌN',lead:'Tham gia bình chọn đang diễn ra và xem kết quả.',active:'Đang diễn ra',activeStatus:'Đang diễn ra',endsIn:'Còn lại',recent:'Mới kết thúc',older:'Bình chọn trước',emptyActive:'Hiện không có bình chọn đang diễn ra.',emptyRecent:'Không có bình chọn mới kết thúc.',emptyOlder:'Không có bình chọn trước.',single:'Chọn một',multiple:'Chọn nhiều',saved:'Đã lưu lựa chọn.',updated:'Đã cập nhật lựa chọn.',voted:'Đã bình chọn',missing:'Chưa bình chọn',result:'XEM KẾT QUẢ',more:'XEM THÊM',participants:'Đã tham gia',nonparticipants:'Chưa tham gia',private:'Kết quả bình chọn này không được công khai.',ended:'Đã kết thúc',day:'ngày',hour:'giờ',minute:'phút',people:'',login:'ĐĂNG NHẬP',signup:'ĐĂNG KÝ',members:'CHỈ DÀNH CHO THÀNH VIÊN',membersLead:'Chỉ thành viên liên minh đang hoạt động và đã đăng nhập mới có thể sử dụng.'},
+ar:{title:'التصويت',lead:'شارك في التصويتات الجارية وراجع النتائج.',active:'التصويتات الجارية',activeStatus:'جارٍ',endsIn:'متبقي',recent:'انتهت مؤخرًا',older:'التصويتات السابقة',emptyActive:'لا توجد تصويتات جارية.',emptyRecent:'لا توجد تصويتات منتهية مؤخرًا.',emptyOlder:'لا توجد تصويتات سابقة.',single:'اختيار واحد',multiple:'اختيارات متعددة',saved:'تم حفظ الاختيار.',updated:'تم تحديث الاختيار.',voted:'صوّتوا',missing:'لم يصوّتوا',result:'عرض النتائج',more:'عرض المزيد',participants:'شارك',nonparticipants:'لم يشارك',private:'نتائج هذا التصويت غير متاحة.',ended:'منتهٍ',day:'يوم',hour:'ساعة',minute:'دقيقة',people:'',login:'تسجيل الدخول',signup:'إنشاء حساب',members:'لأعضاء التحالف فقط',membersLead:'يمكن فقط لأعضاء التحالف النشطين والمسجلين الدخول استخدام هذه الصفحة.'},
+ja:{title:'投票',lead:'進行中の投票に参加し、結果を確認してください。',active:'進行中の投票',activeStatus:'進行中',endsIn:'終了まで',recent:'最近終了した投票',older:'以前の投票',emptyActive:'現在進行中の投票はありません。',emptyRecent:'最近終了した投票はありません。',emptyOlder:'以前の投票はありません。',single:'単一選択',multiple:'複数選択',saved:'選択を保存しました。',updated:'選択を変更しました。',voted:'投票済み',missing:'未投票',result:'結果を見る',more:'もっと見る',participants:'参加',nonparticipants:'未参加',private:'この投票結果は非公開です。',ended:'終了',day:'日',hour:'時間',minute:'分',people:'人',login:'ログイン',signup:'新規登録',members:'同盟メンバー限定',membersLead:'ログイン中の有効な同盟メンバーのみ利用できます。'},
+th:{title:'โหวต',lead:'เข้าร่วมการโหวตที่กำลังดำเนินอยู่และดูผลลัพธ์',active:'กำลังดำเนินอยู่',activeStatus:'กำลังดำเนินการ',endsIn:'สิ้นสุดในอีก',recent:'เพิ่งสิ้นสุด',older:'การโหวตก่อนหน้า',emptyActive:'ขณะนี้ไม่มีการโหวตที่กำลังดำเนินอยู่',emptyRecent:'ไม่มีการโหวตที่เพิ่งสิ้นสุด',emptyOlder:'ไม่มีการโหวตก่อนหน้า',single:'เลือกหนึ่งข้อ',multiple:'เลือกได้หลายข้อ',saved:'บันทึกตัวเลือกแล้ว',updated:'อัปเดตตัวเลือกแล้ว',voted:'โหวตแล้ว',missing:'ยังไม่โหวต',result:'ดูผลลัพธ์',more:'ดูเพิ่มเติม',participants:'เข้าร่วม',nonparticipants:'ไม่เข้าร่วม',private:'ผลการโหวตนี้ไม่เปิดเผย',ended:'สิ้นสุด',day:'วัน',hour:'ชั่วโมง',minute:'นาที',people:'',login:'เข้าสู่ระบบ',signup:'สมัครสมาชิก',members:'สำหรับสมาชิกพันธมิตรเท่านั้น',membersLead:'เฉพาะสมาชิกที่ใช้งานอยู่และเข้าสู่ระบบแล้วเท่านั้น'},
+'zh-tw':{title:'投票',lead:'參與進行中的投票並查看結果。',active:'進行中的投票',activeStatus:'進行中',endsIn:'剩餘',recent:'最近結束的投票',older:'之前的投票',emptyActive:'目前沒有進行中的投票。',emptyRecent:'目前沒有最近結束的投票。',emptyOlder:'目前沒有之前的投票。',single:'單選',multiple:'複選',saved:'已儲存選擇。',updated:'已更新選擇。',voted:'已投票名單',missing:'未投票名單',result:'查看結果',more:'查看更多',participants:'參與',nonparticipants:'未參與',private:'此投票結果未公開。',ended:'已結束',day:'天',hour:'小時',minute:'分鐘',people:'人',login:'登入',signup:'註冊',members:'僅限聯盟成員',membersLead:'僅限已登入且狀態正常的聯盟成員使用。'}};
+const tx=()=>T[lang]||T.en,count=n=>`${n}${tx().people||''}`,esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(path,opt={}){const r=await fetch(path,{credentials:'include',cache:'no-store',headers:{accept:'application/json','content-type':'application/json',...(opt.headers||{})},...opt});let j={};try{j=await r.json()}catch{}if(!r.ok||j.ok===false)throw new Error(j.error||j.code||'REQUEST_FAILED');return j}
+function fmtDate(v){try{return new Intl.DateTimeFormat(lang==='ko'?'ko-KR':undefined,{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(v))}catch{return v||''}}
+function remaining(v){const d=Math.max(0,new Date(v).getTime()-Date.now()),m=Math.ceil(d/60000),days=Math.floor(m/1440),hours=Math.floor(m%1440/60),mins=m%60;return `${days}${tx().day} ${hours}${tx().hour} ${String(mins).padStart(2,'0')}${tx().minute}`}
+function applyText(){const t=tx();document.documentElement.lang=lang;document.documentElement.dir=lang==='ar'?'rtl':'ltr';$('#votePageTitle').textContent=t.title;$('#votePageLead').textContent=t.lead;$('#activeHeading').textContent=t.active;$('#recentHeading').textContent=t.recent;$('#olderHeading').textContent=t.older;document.querySelector('[data-vote-tab="active"]').textContent=t.active;document.querySelector('[data-vote-tab="recent"]').textContent=t.recent;document.querySelector('[data-vote-tab="older"]').textContent=t.older;$('#olderMore').textContent=t.more}
+async function checkAuth(){try{const j=await api('/api/auth/me');if(j.data?.authenticated&&j.data?.member?.status==='active'){$('#voteProtected').hidden=false;$('#voteLock').hidden=true;return true}}catch{}const t=tx();$('#voteLock').hidden=false;$('#voteProtected').hidden=true;$('[data-member-gate-section]').textContent=t.title;$('[data-member-gate-title]').textContent=t.members;$('[data-member-gate-lead]').textContent=t.membersLead;$('[data-member-login]').textContent=t.login;$('[data-member-signup]').textContent=t.signup;$('[data-member-login]').onclick=()=>{sessionStorage.setItem('ezpk-auth-return',location.href);location.href='../?login=1'};return false}
+function resultsHtml(v){if(!v.resultsVisible)return '';const total=Math.max(1,v.participantCount||0);return `<div class="vote-results">${v.options.map(o=>{const pct=Math.round((o.votes||0)/total*100);return `<div class="vote-result-row"><span>${esc(o.label)}</span><strong>${count(o.votes||0)} (${pct}%)</strong><div class="vote-result-bar"><i style="width:${Math.min(100,pct)}%"></i></div></div>`}).join('')}</div>`}
+function roster(v,type){const items=type==='voted'?v.participants:v.missing,label=type==='voted'?tx().voted:tx().missing;return `<div class="vote-roster-panel" data-roster-panel="${type}" hidden><div class="vote-roster-grid">${items.length?items.map(n=>`<span class="vote-nickname" title="${esc(n)}">${esc(n)}</span>`).join(''):`<span class="vote-nickname">-</span>`}</div></div>`}
+function activeCard(v){const sel=new Set(v.myAnswers||[]),two=v.options.length===2?' two':'';return `<article class="vote-card" data-vote-id="${v.id}" data-type="${v.voteType}" data-ends-at="${esc(v.endsAt||'')}"><div class="vote-card-heading"><h3>${esc(v.title)}</h3>${v.description?`<p class="vote-description">${esc(v.description)}</p>`:''}</div><div class="vote-meta"><span class="vote-choice-type">${v.voteType==='multiple'?tx().multiple:tx().single}</span><div class="vote-live-meta"><span class="vote-status-badge">${tx().activeStatus}</span>${v.endsAt?`<span class="vote-countdown"><span class="vote-countdown-label">${tx().endsIn}</span> <span class="vote-countdown-value">${remaining(v.endsAt)}</span></span>`:''}</div></div><div class="vote-options${two}">${v.options.map(o=>`<button class="vote-option ${sel.has(o.id)?'selected':''}" data-option-id="${o.id}"><strong>${esc(o.label)}</strong>${o.description?`<span>${esc(o.description)}</span>`:''}</button>`).join('')}</div><div class="vote-save-state"></div>${resultsHtml(v)}<div class="vote-roster-controls"><button class="vote-roster-toggle" data-roster="voted" type="button">${tx().voted} ${count(v.participantCount)}</button><button class="vote-roster-toggle" data-roster="missing" type="button">${tx().missing} ${count(v.missingCount)}</button></div>${roster(v,'voted')}${roster(v,'missing')}</article>`}
+function historyCard(v){return `<article class="vote-history-card"><h3>${esc(v.title)}</h3><div class="vote-history-meta"><span>${fmtDate(v.endedAt||v.endsAt)}</span><span>${tx().ended}</span></div><div class="vote-history-summary"><span>${tx().participants} ${count(v.participantCount)}</span><span>${tx().nonparticipants} ${count(v.missingCount)}</span></div><button class="vote-result-button" data-result-id="${v.id}" type="button" ${v.resultsVisible?'':'disabled'}>${v.resultsVisible?tx().result:tx().private}</button></article>`}
+function olderRow(v){return `<button class="vote-older-row" data-result-id="${v.id}" type="button" ${v.resultsVisible?'':'disabled'}><time>${fmtDate(v.endedAt||v.endsAt)}</time><strong>${esc(v.title)}</strong><span>${v.resultsVisible?'›':'—'}</span></button>`}
+function render(){const t=tx();$('#activeCount').textContent=data.activeVotes.length;$('#activeVotes').innerHTML=data.activeVotes.length?data.activeVotes.map(activeCard).join(''):`<div class="vote-empty">${t.emptyActive}</div>`;$('#recentVotes').innerHTML=data.recentEnded.length?data.recentEnded.map(historyCard).join(''):`<div class="vote-empty">${t.emptyRecent}</div>`;const visible=data.olderEnded.slice(0,olderShown);$('#olderVotes').innerHTML=visible.length?visible.map(olderRow).join(''):`<div class="vote-empty">${t.emptyOlder}</div>`;$('#olderMore').hidden=olderShown>=data.olderEnded.length;bind();updateCountdowns();if(countdownTimer)clearInterval(countdownTimer);countdownTimer=setInterval(updateCountdowns,1000)}
+function bind(){document.querySelectorAll('.vote-option').forEach(b=>b.onclick=choose);document.querySelectorAll('.vote-roster-toggle').forEach(b=>b.onclick=toggleRoster);document.querySelectorAll('[data-result-id]').forEach(b=>b.onclick=()=>openResult(Number(b.dataset.resultId)))}
+function toggleRoster(e){const card=e.currentTarget.closest('.vote-card'),type=e.currentTarget.dataset.roster,target=card.querySelector(`[data-roster-panel="${type}"]`),willOpen=target.hidden;card.querySelectorAll('[data-roster-panel]').forEach(x=>x.hidden=true);card.querySelectorAll('.vote-roster-toggle').forEach(x=>x.classList.remove('open'));if(willOpen){target.hidden=false;e.currentTarget.classList.add('open')}}
+async function choose(e){const card=e.currentTarget.closest('.vote-card'),v=data.activeVotes.find(x=>x.id===Number(card.dataset.voteId));if(!v)return;let ids=[...card.querySelectorAll('.vote-option.selected')].map(x=>Number(x.dataset.optionId)),had=ids.length>0,id=Number(e.currentTarget.dataset.optionId);ids=v.voteType==='single'?[id]:ids.includes(id)?ids.filter(x=>x!==id):[...ids,id];card.querySelectorAll('.vote-option').forEach(x=>x.disabled=true);try{await api(`/api/votes/${v.id}/respond`,{method:'POST',body:JSON.stringify({voteAnswers:ids})});card.querySelector('.vote-save-state').textContent=had?tx().updated:tx().saved;await loadData()}catch(err){card.querySelector('.vote-save-state').textContent=err.message;card.querySelectorAll('.vote-option').forEach(x=>x.disabled=false)}}
+function updateCountdowns(){document.querySelectorAll('.vote-card[data-ends-at]').forEach(c=>{if(c.dataset.endsAt)c.querySelector('.vote-countdown-value').textContent=remaining(c.dataset.endsAt)})}
+function findVote(id){return [...data.recentEnded,...data.olderEnded].find(v=>v.id===id)}
+function openResult(id){const v=findVote(id);if(!v||!v.resultsVisible)return;const total=Math.max(1,v.participantCount||0),t=tx();$('#voteResultContent').innerHTML=`<div class="vote-result-title"><h2>${esc(v.title)}</h2><p>${fmtDate(v.endedAt||v.endsAt)}</p></div><div class="vote-result-stats"><div class="vote-result-stat"><span>${t.participants}</span><strong>${count(v.participantCount)}</strong></div><div class="vote-result-stat"><span>${t.nonparticipants}</span><strong>${count(v.missingCount)}</strong></div></div><div class="vote-result-options">${v.options.map(o=>{const pct=Math.round((o.votes||0)/total*100);return `<div class="vote-result-row"><span>${esc(o.label)}</span><strong>${count(o.votes||0)} (${pct}%)</strong><div class="vote-result-bar"><i style="width:${Math.min(100,pct)}%"></i></div></div>`}).join('')}</div>`;$('#voteResultPanel').hidden=false;$('#voteResultBackdrop').hidden=false;document.body.style.overflow='hidden'}
+function closeResult(){$('#voteResultPanel').hidden=true;$('#voteResultBackdrop').hidden=true;document.body.style.overflow=''}
+async function loadData(){const j=await api('/api/votes');data=j.data||data;render()}
+function setTab(tab){document.querySelectorAll('[data-vote-tab]').forEach(b=>b.classList.toggle('active',b.dataset.voteTab===tab));document.querySelectorAll('[data-vote-panel]').forEach(p=>p.classList.toggle('mobile-active',p.dataset.votePanel===tab))}
+document.addEventListener('DOMContentLoaded',async()=>{applyText();setTab('active');document.querySelectorAll('[data-vote-tab]').forEach(b=>b.onclick=()=>setTab(b.dataset.voteTab));$('#olderMore').onclick=()=>{olderShown+=10;render()};$('#voteResultClose').onclick=closeResult;$('#voteResultBackdrop').onclick=closeResult;if(await checkAuth())try{await loadData()}catch(e){$('#activeVotes').innerHTML=`<div class="vote-empty">${esc(e.message)}</div>`}});window.addEventListener('ezpk-language-change',async e=>{lang=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';applyText();if(!$('#voteProtected').hidden)render()});})();
