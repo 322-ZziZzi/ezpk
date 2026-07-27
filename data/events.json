@@ -34,10 +34,10 @@
       "enabled": true
     },
     {
-      "title": "",
-      "start": "",
-      "end": "",
-      "enabled": false
+      "title": "Capital Clash",
+      "start": "2026-08-01T12:00:00-02:00",
+      "end": "2026-08-01T14:00:00-02:00",
+      "enabled": true
     },
     {
       "title": "",
