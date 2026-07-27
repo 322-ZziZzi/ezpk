@@ -145,6 +145,12 @@
       $("#loadingPanel").hidden = true;
       $("#memberContent").hidden = false;
       renderMember();
+      if (initialSection === "specs") {
+        const specsSection = accordionList.querySelector('[data-section="specs"]');
+        window.requestAnimationFrame(() => {
+          specsSection?.scrollIntoView({behavior:"auto", block:"start"});
+        });
+      }
     } catch (error) {
       $("#loadingPanel").hidden = true;
       if (error.code === "UNAUTHORIZED") $("#authRequiredPanel").hidden = false;
@@ -181,8 +187,11 @@
     });
   });
 
-  accordionList.querySelectorAll(".accordion-item").forEach((item, index) => {
-    setAccordionState(item, index === 0);
+  const requestedSection = new URLSearchParams(window.location.search).get("tab");
+  const initialSection = requestedSection === "specs" ? "specs" : "profile";
+
+  accordionList.querySelectorAll(".accordion-item").forEach(item => {
+    setAccordionState(item, item.dataset.section === initialSection);
   });
 
   function updateServerClock(){
