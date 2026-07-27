@@ -1282,3 +1282,19 @@ font-weight:700;
   -webkit-font-smoothing:antialiased;
   text-shadow:none!important;
 }
+
+
+/* v232: important event priority and responsive badges */
+.event-card-top{align-items:flex-start;min-width:0}
+.event-badges{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px;min-width:0;max-width:calc(100% - 46px)}
+.event-badge{display:inline-flex;align-items:center;justify-content:center;max-width:100%;padding:6px 9px;border-radius:999px;white-space:nowrap;font-size:10px;font-weight:900;letter-spacing:.08em;line-height:1}
+.event-important-badge{background:#ff5a5f1f;color:#ff7b80;border:1px solid #ff5a5f55}
+.event-card.event-important{border-color:#ff5a5f66;box-shadow:0 14px 34px #0000002e,0 0 0 1px #ff5a5f1a}
+.event-card.event-important:before,.event-card.event-important.event-upcoming:before,.event-card.event-important.event-live:before{background:#ff5a5f}
+.event-card.event-important .event-number{color:#ff7b80;background:#ff5a5f12}
+.event-card.event-important .event-status{background:#ff5a5f16;color:#ff7b80}
+.event-card.event-important .event-countdown small,.event-card.event-important time small{color:#ff7b80}
+.event-card.event-important .event-countdown strong{color:#ff5a5f}
+.event-card.event-important time strong{color:#ffb0b3}
+html[dir="rtl"] .event-badges{justify-content:flex-start}
+@media(max-width:620px){.event-badges{gap:5px;max-width:calc(100% - 44px)}.event-badge{padding:4px 7px;font-size:10px;letter-spacing:.05em}}

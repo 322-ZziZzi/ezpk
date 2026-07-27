@@ -10,7 +10,7 @@
   const fallback = {
     scheduleEmpty: 'No scheduled events.', scheduleUpcoming: 'UPCOMING',
     scheduleStartIn: 'START IN', scheduleLive: 'LIVE',
-    scheduleFinished: 'FINISHED', scheduleStart: 'START'
+    scheduleFinished: 'FINISHED', scheduleStart: 'START', scheduleImportant: 'IMPORTANT'
   };
   function currentUi() {
     const code = localStorage.getItem('ezpk-lang-v5') || 'en';
@@ -40,8 +40,16 @@
     const now=new Date();
     const events=(scheduleData.events||[])
       .filter(e=>e&&e.enabled&&e.title&&e.start&&e.end)
-      .map(event=>({event,info:stateOf(event,now)}))
+      .map(event=>({event:{...event,important:Boolean(event.important)},info:stateOf(event,now)}))
       .filter(item=>item.info.state==='upcoming'||item.info.state==='live')
+      .sort((a,b)=>{
+        const importance=Number(b.event.important)-Number(a.event.important);
+        if(importance)return importance;
+        const statePriority={live:0,upcoming:1};
+        const stateDiff=(statePriority[a.info.state]??9)-(statePriority[b.info.state]??9);
+        if(stateDiff)return stateDiff;
+        return a.info.start-b.info.start;
+      })
       .slice(0,9);
     if(!events.length){
       grid.innerHTML='';
@@ -57,7 +65,8 @@
       if(info.state==='upcoming') timerText=countdown(info.start-now);
       if(info.state==='live'){badge=ui.scheduleLive || fallback.scheduleLive;timerLabel='';timerText=`● ${badge}`;}
       if(info.state==='finished'){badge=ui.scheduleFinished || fallback.scheduleFinished;timerLabel='';timerText=badge;}
-      return `<article class="event-card event-${info.state}" style="--event-index:${index}"><div class="event-card-top"><span class="event-number">${pad(index+1)}</span><span class="event-status">${escapeHtml(badge)}</span></div><h3>${escapeHtml(event.title)}</h3><div class="event-countdown">${timerLabel?`<small>${escapeHtml(timerLabel)}</small>`:''}<strong>${escapeHtml(timerText)}</strong></div><time><small>${escapeHtml(ui.scheduleStart || fallback.scheduleStart)}</small><strong>${formatServerTime(info.start)}</strong></time></article>`;
+      const importantBadge=event.important?`<span class="event-badge event-important-badge">${escapeHtml(ui.scheduleImportant || fallback.scheduleImportant)}</span>`:'';
+      return `<article class="event-card event-${info.state}${event.important?' event-important':''}" style="--event-index:${index}"><div class="event-card-top"><span class="event-number">${pad(index+1)}</span><div class="event-badges">${importantBadge}<span class="event-badge event-status">${escapeHtml(badge)}</span></div></div><h3>${escapeHtml(event.title)}</h3><div class="event-countdown">${timerLabel?`<small>${escapeHtml(timerLabel)}</small>`:''}<strong>${escapeHtml(timerText)}</strong></div><time><small>${escapeHtml(ui.scheduleStart || fallback.scheduleStart)}</small><strong>${formatServerTime(info.start)}</strong></time></article>`;
     }).join('');
   }
   fetch(`data/events.json?v=${Date.now()}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Schedule data unavailable');return r.json();}).then(data=>{scheduleData=data||{events:[]};render();timer=window.setInterval(render,1000);}).catch(()=>{scheduleData={events:[]};render();});

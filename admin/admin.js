@@ -80,8 +80,8 @@ const TEAM_KEYS=['A','B'];
 let membersData={lastUpdated:'',members:[]},bgbData=blankBgb(),eventsData=blankEvents(),memberSha='',bgbSha='',eventsSha='',selectedTeam='A',selectedLocation='R1';
 function blankLocations(){return Object.fromEntries(LOCATIONS.map(([c])=>[c,[]]))}
 function blankBgb(){return{lastUpdated:'',teams:{A:{members:[],locations:blankLocations()},B:{members:[],locations:blankLocations()}}}}
-function blankEvents(){return{lastUpdated:'',timezone:'UTC-02:00',timezoneLabel:'ST',events:Array.from({length:9},()=>({title:'',start:'',end:'',enabled:false}))}}
-function normalizeEvents(d){const out=blankEvents();out.lastUpdated=String(d?.lastUpdated||'');const list=Array.isArray(d?.events)?d.events:[];for(let i=0;i<9;i++){const e=list[i]||{};out.events[i]={title:String(e.title||'').slice(0,60),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled)}}return out}
+function blankEvents(){return{lastUpdated:'',timezone:'UTC-02:00',timezoneLabel:'ST',events:Array.from({length:9},()=>({title:'',start:'',end:'',enabled:false,important:false}))}}
+function normalizeEvents(d){const out=blankEvents();out.lastUpdated=String(d?.lastUpdated||'');const list=Array.isArray(d?.events)?d.events:[];for(let i=0;i<9;i++){const e=list[i]||{};out.events[i]={title:String(e.title||'').slice(0,60),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled),important:Boolean(e.important)}}return out}
 function parseEventDate(value){if(!value)return null;const hasZone=/(?:Z|[+-]\d{2}:\d{2})$/.test(value);const normalized=hasZone?value:`${value.length===16?value+':00':value}-02:00`;const d=new Date(normalized);return Number.isNaN(d.getTime())?null:d}
 function isoToServerParts(value){const d=parseEventDate(value);if(!d)return{date:'',time:''};const st=new Date(d.getTime()-2*60*60*1000),pad=n=>String(n).padStart(2,'0');return{date:`${st.getUTCFullYear()}-${pad(st.getUTCMonth()+1)}-${pad(st.getUTCDate())}`,time:`${pad(st.getUTCHours())}:${pad(st.getUTCMinutes())}`}}
 function isValid24HourTime(value){return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(value||''))}
@@ -201,8 +201,8 @@ function renderEvents(){
   if(!grid)return;
   grid.innerHTML=eventsData.events.map((e,i)=>{
     const sp=isoToServerParts(e.start),ep=isoToServerParts(e.end);
-    return `<article class="event-admin-card ${e.enabled?'enabled':''}" data-event-i="${i}">
-      <div class="event-admin-card-head"><strong>EVENT ${i+1}</strong><label><input data-event-f="enabled" type="checkbox" ${e.enabled?'checked':''}> 활성화</label></div>
+    return `<article class="event-admin-card ${e.enabled?'enabled':''} ${e.important?'important':''}" data-event-i="${i}">
+      <div class="event-admin-card-head"><strong>EVENT ${i+1}</strong><div class="event-admin-toggles"><label class="important-toggle"><input data-event-f="important" type="checkbox" ${e.important?'checked':''}> 중요 이벤트</label><label><input data-event-f="enabled" type="checkbox" ${e.enabled?'checked':''}> 활성화</label></div></div>
       <div class="event-admin-fields">
         <label>이벤트명<input data-event-f="title" type="text" maxlength="60" value="${esc(e.title)}" placeholder="예: BGB"></label>
         <div class="event-datetime-group"><span>시작 날짜·시간 (ST)</span><div class="event-date-time-row"><input data-event-f="startDate" type="date" value="${sp.date}"><input class="event-time-24h" data-event-f="startTime" type="text" inputmode="numeric" autocomplete="off" maxlength="5" value="${sp.time}" placeholder="19:00" aria-label="시작 시간 24시간 형식"></div></div>
@@ -215,6 +215,7 @@ function renderEvents(){
     const commit=()=>{
       const card=el.closest('[data-event-i]'),i=Number(card.dataset.eventI),f=el.dataset.eventF;
       if(f==='enabled')eventsData.events[i].enabled=el.checked;
+      else if(f==='important')eventsData.events[i].important=el.checked;
       else if(f==='title')eventsData.events[i].title=el.value.trim();
       else if(f==='startDate')updateEventDateTime(i,'start','date',el.value);
       else if(f==='endDate')updateEventDateTime(i,'end','date',el.value);
@@ -225,7 +226,8 @@ function renderEvents(){
         if(!isValid24HourTime(normalized))return;
         updateEventDateTime(i,f==='startTime'?'start':'end','time',normalized);
       }
-      card.classList.toggle('enabled',eventsData.events[i].enabled)
+      card.classList.toggle('enabled',eventsData.events[i].enabled);
+      card.classList.toggle('important',eventsData.events[i].important)
     };
     if(el.classList.contains('event-time-24h')){
       el.addEventListener('input',()=>{el.value=formatTimeDigits(el.value);el.classList.remove('invalid')});
@@ -237,7 +239,7 @@ function renderEvents(){
 function renderAll(){renderMembers();renderBgbAll();renderEvents()}
 function membersPayload(){return{lastUpdated:$('#lastUpdated').value.trim(),members:membersData.members.map(normalizeMember)}}
 function bgbPayload(){const out=blankBgb();out.lastUpdated=$('#bgbLastUpdated').value.trim();TEAM_KEYS.forEach(t=>{out.teams[t].members=[...bgbData.teams[t].members];LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=[...bgbData.teams[t].locations[c]])});return out}
-function eventsPayload(){syncEventsFromForm();const out=blankEvents();out.lastUpdated=$('#eventsLastUpdated').value.trim();out.events=eventsData.events.slice(0,9).map(e=>({title:String(e.title||'').trim(),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled)}));return out}
+function eventsPayload(){syncEventsFromForm();const out=blankEvents();out.lastUpdated=$('#eventsLastUpdated').value.trim();out.events=eventsData.events.slice(0,9).map(e=>({title:String(e.title||'').trim(),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled),important:Boolean(e.important)}));return out}
 function todayKst(){const d=new Date(Date.now()-2*60*60*1000),p=n=>String(n).padStart(2,'0');return `${d.getUTCFullYear()}.${p(d.getUTCMonth()+1)}.${p(d.getUTCDate())}`}
 async function adminContentRequest(path,options={}){
   const method=options.method||'GET';

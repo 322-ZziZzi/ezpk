@@ -730,3 +730,13 @@ body.admin-unlocked{overflow:auto}
   .s6-tools #s6SelectAll,.s6-tools #s6ClearParticipants,.s6-tools #s6AutoAssign,.s6-tools #s6ResetTeams{grid-column:auto!important}
   .s6-vote-modal-actions{grid-template-columns:1fr}
 }
+
+
+/* v232: important event controls */
+.event-admin-toggles{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;min-width:0}
+.event-admin-toggles label{white-space:nowrap}
+.event-admin-card.important{border-color:#ff5a5f88;box-shadow:inset 0 3px 0 #ff5a5f}
+.event-admin-card.important .event-admin-card-head strong{color:#ff5a5f}
+.event-admin-card .important-toggle input{accent-color:#ff5a5f}
+.event-admin-card.important .important-toggle{color:#ff9b9f}
+@media(max-width:500px){.event-admin-card-head{align-items:flex-start}.event-admin-toggles{max-width:68%;gap:7px;justify-content:flex-end}.event-admin-card-head label{font-size:11px}}
