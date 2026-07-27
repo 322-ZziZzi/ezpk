@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>Capital War | 322 EZPK Alliance</title>
+  <link rel="stylesheet" href="../style.css?v=2380">
+  <link rel="stylesheet" href="../common-heading.css?v=2380">
+  <link rel="stylesheet" href="capital-war.css?v=2380">
+</head>
+<body>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="capitalWar"></header>
+<script src="../shared-header.js?v=2380"></script>
+<main>
+  <section id="capitalWarLock" class="member-gate-wrap" hidden>
+    <div class="member-gate-card">
+      <div class="member-gate-icon" aria-hidden="true">🔐</div>
+      <span class="member-gate-section" data-member-gate-section></span>
+      <h1 class="member-gate-title" data-member-gate-title></h1>
+      <p class="member-gate-description" data-member-gate-lead></p>
+      <div class="member-login-actions">
+        <button type="button" class="member-login-primary" data-member-login></button>
+        <a class="member-login-secondary" href="../signup/" data-member-signup></a>
+      </div>
+      <p class="member-gate-error" data-member-gate-error role="alert"></p>
+    </div>
+  </section>
+
+  <div id="capitalWarProtected" hidden aria-hidden="true">
+    <section class="cw-page">
+      <section class="cw-hero" aria-labelledby="cwHeroTitle">
+        <span class="cw-kicker">SERVER 322 · EZPK ALLIANCE</span>
+        <h1 id="cwHeroTitle">CAPITAL WAR</h1>
+        <p id="cwVersus">SERVER 322 VS SERVER 320</p>
+        <div class="cw-countdown"><span id="cwRemainingLabel">남은 시간</span><strong id="cwCountdown">--D --:--:--</strong></div>
+        <div class="cw-start"><span>START</span><strong id="cwStartTime">--/-- --:-- ST</strong></div>
+      </section>
+
+      <section class="cw-section" aria-labelledby="cwTeamsTitle">
+        <div class="section-title-block"><span>TEAM ASSIGNMENT</span><h2 id="cwTeamsTitle"></h2><p id="cwTeamsLead"></p></div>
+        <div id="cwTeamAccordion" class="cw-team-accordion"></div>
+      </section>
+
+      <section class="cw-section" aria-labelledby="cwGoalTitle">
+        <div class="section-title-block"><span>STRATEGY</span><h2 id="cwGoalTitle"></h2></div>
+        <article class="cw-goal-card"><ul id="cwGoalList"></ul></article>
+      </section>
+
+      <section class="cw-section" aria-labelledby="cwStrategyTitle">
+        <div class="section-title-block"><span>TEAM STRATEGY</span><h2 id="cwStrategyTitle"></h2><p id="cwStrategyLead"></p></div>
+        <div id="cwStrategyTabs" class="cw-strategy-tabs" role="tablist"></div>
+        <div id="cwStrategyDesktop" class="cw-strategy-desktop"></div>
+        <div id="cwStrategyMobile" class="cw-strategy-mobile"></div>
+      </section>
+
+      <section class="cw-section cw-common-section" aria-labelledby="cwCommonTitle">
+        <div class="section-title-block"><span>COMMON ORDERS</span><h2 id="cwCommonTitle"></h2></div>
+        <article class="cw-common-card"><ul id="cwCommonList"></ul></article>
+      </section>
+    </section>
+  </div>
+</main>
+<script src="capital-war.js?v=2380"></script>
+</body>
+</html>

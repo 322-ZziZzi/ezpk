@@ -11,7 +11,7 @@ export default {
 
     try {
       if (!url.pathname.startsWith("/api/")) {
-        if (request.method === "GET" && (url.pathname === "/data/bgb.json" || url.pathname === "/data/season6-teams.json")) {
+        if (request.method === "GET" && (url.pathname === "/data/bgb.json" || url.pathname === "/data/season6-teams.json" || url.pathname === "/data/capital-war.json")) {
           return handleConditionalStrategyAsset(request, url, env);
         }
         return env.ASSETS.fetch(request);
@@ -555,6 +555,7 @@ async function strategyAccessState(env, origin) {
     season6AssignedCount,
     bgbLocked: bgbAssignedCount > 0,
     season6Locked: season6AssignedCount > 0,
+    capitalWarLocked: true,
   };
 }
 
@@ -565,11 +566,13 @@ async function handlePublicStrategyAccess(env, url) {
 
 async function handleConditionalStrategyAsset(request, url, env) {
   const isBgb = url.pathname === "/data/bgb.json";
+  const isCapitalWar = url.pathname === "/data/capital-war.json";
   const state = await strategyAccessState(env, url.origin);
-  const locked = isBgb ? state.bgbLocked : state.season6Locked;
+  const locked = isCapitalWar ? true : (isBgb ? state.bgbLocked : state.season6Locked);
   if (locked) {
     const member = await requireMember(request, env.DB);
     if (member instanceof Response) return member;
+    if (isCapitalWar && member.status !== "active") return jsonError("FORBIDDEN", 403);
   }
   return env.ASSETS.fetch(request);
 }
@@ -597,13 +600,15 @@ async function handleAuthMe(request, env) {
 const MEMBER_CONTENT_PATHS = new Set([
   "data/season6-teams.json",
   "data/bgb.json",
-  "data/members.json"
+  "data/members.json",
+  "data/capital-war.json"
 ]);
 async function handleMemberContentGet(request, url, env) {
   const member = await requireMember(request, env.DB);
   if (member instanceof Response) return member;
   const path = String(url.searchParams.get("path") || "").trim();
   if (!MEMBER_CONTENT_PATHS.has(path)) return jsonError("CONTENT_PATH_NOT_ALLOWED", 400);
+  if (path === "data/capital-war.json" && member.status !== "active") return jsonError("FORBIDDEN", 403);
   const assetUrl = new URL(`/${path}`, url.origin);
   const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, { method:"GET" }));
   if (!assetResponse.ok) return jsonError("CONTENT_NOT_FOUND", 404);
@@ -1339,6 +1344,7 @@ const ADMIN_CONTENT_PATHS = new Set([
   "data/season6-teams.json",
   "data/events.json",
   "data/accounts.json",
+  "data/capital-war.json",
 ]);
 
 function getGithubConfig(env) {

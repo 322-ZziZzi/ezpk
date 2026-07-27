@@ -7,16 +7,17 @@
   const base = header.dataset.base || '.';
   const homeHref = header.dataset.homeHref || `${base}/`;
   const activeMenu = header.dataset.activeMenu || '';
+  const SHOW_SEASON_5_MENU = false; // v239: preserve Season 5 page/data, hide menu for all users
 
   const NAV_LABELS = {
-    ko: { home:'홈', vote:'투표', seasonUpcoming:'시즌 6 (준비중)', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팀', request:'요청 게시판', accounts:'계정 마켓', game:'🎮 미니게임', logo:'로고' },
-    en: { home:'HOME', vote:'VOTE', seasonUpcoming:'SEASON 6 (COMING SOON)', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TEAM', request:'REQUEST', accounts:'ACCOUNT MARKET', game:'🎮 MINI GAME', logo:'LOGO' },
-    pt: { home:'INÍCIO', vote:'VOTAÇÃO', seasonUpcoming:'TEMPORADA 6 (EM BREVE)', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'EQUIPE', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'🎮 MINI GAME', logo:'LOGO' },
-    vi: { home:'TRANG CHỦ', vote:'BÌNH CHỌN', seasonUpcoming:'MÙA 6 (SẮP RA MẮT)', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'ĐỘI', request:'YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'🎮 MINI GAME', logo:'LOGO' },
-    ar: { home:'الرئيسية', vote:'التصويت', seasonUpcoming:'الموسم 6 (قريبًا)', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'الفريق', request:'الطلبات', accounts:'سوق الحسابات', game:'🎮 الألعاب المصغرة', logo:'الشعار' },
-    ja: { home:'ホーム', vote:'投票', seasonUpcoming:'シーズン6（準備中）', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'チーム', request:'リクエスト', accounts:'アカウントマーケット', game:'🎮 ミニゲーム', logo:'ロゴ' },
-    th: { home:'หน้าแรก', vote:'โหวต', seasonUpcoming:'ซีซัน 6 (เร็ว ๆ นี้)', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'ทีม', request:'คำขอ', accounts:'ตลาดบัญชี', game:'🎮 มินิเกม', logo:'โลโก้' },
-    'zh-tw': { home:'首頁', vote:'投票', seasonUpcoming:'第 6 賽季（準備中）', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'隊伍', request:'留言板', accounts:'帳號市集', game:'🎮 小遊戲', logo:'標誌' }
+    ko: { home:'홈', vote:'투표', capitalWar:'수도전', seasonUpcoming:'시즌 6 (준비중)', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팁', request:'요청 게시판', accounts:'계정 마켓', game:'🎮 미니게임', logo:'로고' },
+    en: { home:'HOME', vote:'VOTE', capitalWar:'CAPITAL WAR', seasonUpcoming:'SEASON 6 (COMING SOON)', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TIP', request:'REQUEST', accounts:'ACCOUNT MARKET', game:'🎮 MINI GAME', logo:'LOGO' },
+    pt: { home:'INÍCIO', vote:'VOTAÇÃO', capitalWar:'GUERRA DA CAPITAL', seasonUpcoming:'TEMPORADA 6 (EM BREVE)', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'DICAS', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'🎮 MINI GAME', logo:'LOGO' },
+    vi: { home:'TRANG CHỦ', vote:'BÌNH CHỌN', capitalWar:'CHIẾN TRANH THỦ ĐÔ', seasonUpcoming:'MÙA 6 (SẮP RA MẮT)', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'MẸO', request:'YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'🎮 MINI GAME', logo:'LOGO' },
+    ar: { home:'الرئيسية', vote:'التصويت', capitalWar:'حرب العاصمة', seasonUpcoming:'الموسم 6 (قريبًا)', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'الطلبات', accounts:'سوق الحسابات', game:'🎮 الألعاب المصغرة', logo:'الشعار' },
+    ja: { home:'ホーム', vote:'投票', capitalWar:'首都戦', seasonUpcoming:'シーズン6（準備中）', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト', accounts:'アカウントマーケット', game:'🎮 ミニゲーム', logo:'ロゴ' },
+    th: { home:'หน้าแรก', vote:'โหวต', capitalWar:'สงครามเมืองหลวง', seasonUpcoming:'ซีซัน 6 (เร็ว ๆ นี้)', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'คำขอ', accounts:'ตลาดบัญชี', game:'🎮 มินิเกม', logo:'โลโก้' },
+    'zh-tw': { home:'首頁', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季（準備中）', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', accounts:'帳號市集', game:'🎮 小遊戲', logo:'標誌' }
   };
 
   const ACCOUNT_LABELS = {
@@ -129,6 +130,7 @@
   const menuItems = [
     { key: 'home', href: homeHref },
     { key: 'vote', href: `${base}/vote/` },
+    { key: 'capitalWar', href: `${base}/capital-war/` },
     { key: 'seasonUpcoming', href: `${base}/season6/` },
     { key: 'seasonArchive', href: `${base}/season5/` },
     { key: 'members', href: `${base}/members/` },
@@ -151,7 +153,7 @@
       `data-nav-key="${item.key}"`,
       classes ? `class="${classes}"` : '',
       isActive ? 'aria-current="page"' : '',
-      (item.key === 'bgb' || item.key === 'seasonUpcoming') ? 'hidden' : ''
+      (item.key === 'bgb' || item.key === 'seasonUpcoming' || item.key === 'capitalWar' || (item.key === 'seasonArchive' && !SHOW_SEASON_5_MENU)) ? 'hidden' : ''
     ].filter(Boolean).join(' ');
     return `<a ${attrs}></a>`;
   }).join('');
@@ -233,7 +235,7 @@
   const SUPPORTED_LANGS=Object.freeze(['ko','en','pt','vi','ar','ja','th','zh-tw']);
   let authState = { authenticated:false, member:null };
   let authLoaded = false;
-  let strategyAccess = { loaded:false, bgbLocked:false, season6Locked:false };
+  let strategyAccess = { loaded:false, bgbLocked:false, season6Locked:false, capitalWarLocked:true };
 
   function activeMemberSignedIn() {
     return Boolean(authLoaded && authState.authenticated && authState.member && authState.member.status === 'active');
@@ -246,6 +248,12 @@
     });
     document.querySelectorAll('[data-menu="seasonUpcoming"]').forEach(function (link) {
       link.hidden = !strategyAccess.loaded || Boolean(strategyAccess.season6Locked && !memberCanSeeAll);
+    });
+    document.querySelectorAll('[data-menu="capitalWar"]').forEach(function (link) {
+      link.hidden = !memberCanSeeAll;
+    });
+    document.querySelectorAll('[data-menu="seasonArchive"]').forEach(function (link) {
+      link.hidden = !SHOW_SEASON_5_MENU;
     });
     requestAnimationFrame(updateResponsiveNavigation);
   }
@@ -260,7 +268,8 @@
         strategyAccess = {
           loaded:true,
           bgbLocked:Boolean(payload.data?.bgbLocked),
-          season6Locked:Boolean(payload.data?.season6Locked)
+          season6Locked:Boolean(payload.data?.season6Locked),
+          capitalWarLocked:true
         };
       }
     } catch (_) {

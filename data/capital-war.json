@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "lastUpdated": "",
+  "settings": {
+    "opponentServer": "320",
+    "eventTitle": "Capital Clash",
+    "targets": {
+      "capital": 8,
+      "tower": 6,
+      "mobile": 20
+    }
+  },
+  "coreMembers": [
+    {
+      "nickname": "Ling² Kwong",
+      "role": "mainRallyLeader"
+    },
+    {
+      "nickname": "TIGER VESSEL",
+      "role": "core"
+    },
+    {
+      "nickname": "HORANG",
+      "role": "core"
+    },
+    {
+      "nickname": "KUMA",
+      "role": "core"
+    }
+  ],
+  "draft": {
+    "participants": [],
+    "fixedTeams": {},
+    "teams": {
+      "capital": [],
+      "tower": [],
+      "mobile": [],
+      "support": []
+    }
+  },
+  "published": {
+    "publishedAt": "",
+    "lastUpdated": "",
+    "teams": {
+      "capital": [],
+      "tower": [],
+      "mobile": [],
+      "support": []
+    }
+  }
+}

@@ -1,3 +1,11 @@
+## v239 Menu & Capital War Finalization
+
+See `V239_CHANGELOG.txt`.
+
+## v238 Capital War System
+
+See `V238_CHANGELOG.txt`.
+
 # EZPK v188 — D1 Admin Member Manager
 
 # EZPK v187 — D1 Member List Integration & UI Fixes

@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="admin.css?v=2170">
   <link rel="stylesheet" href="member-manager-v188.css?v=1920">
   <link rel="stylesheet" href="vote-manager.css?v=2160">
+  <link rel="stylesheet" href="capital-war-manager.css?v=2380">
   <link rel="stylesheet" href="admin-ui-v228.css?v=2280">
   <link rel="stylesheet" href="../common-heading.css?v=1920">
 
@@ -42,6 +43,7 @@
     <a href="../">메인</a>
     <button type="button" data-admin-panel="membersPanel">회원 관리</button>
     <button type="button" data-admin-panel="bgbPanel">BGB 관리</button>
+    <button type="button" data-admin-panel="capitalWarPanel">수도전 관리</button>
     <button type="button" data-admin-panel="season6Panel">시즌 6 관리</button>
     <button type="button" data-admin-panel="eventsPanel">이벤트 관리</button>
     <button type="button" data-admin-panel="votePanel">투표 관리</button>
@@ -64,7 +66,7 @@
   </section>
 
   <section class="manager-card">
-    <div class="admin-tabs"><button data-panel="membersPanel" class="active">회원 관리</button><button data-panel="bgbPanel">BGB 관리</button><button data-panel="season6Panel">시즌 6 관리</button><button data-panel="eventsPanel">이벤트 관리</button><button data-panel="votePanel">투표 관리</button><button data-panel="requestsPanel">요청 관리</button><button data-panel="accountsPanel">계정 관리</button></div>
+    <div class="admin-tabs"><button data-panel="membersPanel" class="active">회원 관리</button><button data-panel="bgbPanel">BGB 관리</button><button data-panel="capitalWarPanel">수도전 관리</button><button data-panel="season6Panel">시즌 6 관리</button><button data-panel="eventsPanel">이벤트 관리</button><button data-panel="votePanel">투표 관리</button><button data-panel="requestsPanel">요청 관리</button><button data-panel="accountsPanel">계정 관리</button></div>
 
     <div id="membersPanel" class="admin-panel active">
   <section class="v188-member-manager">
@@ -172,6 +174,28 @@
       <div class="bgb-backup-actions"><button id="downloadBgbJson">↓ BGB JSON 백업</button></div>
     </div>
 
+    <div id="capitalWarPanel" class="admin-panel">
+      <div class="cw-admin-head"><div><h2>수도전 관리</h2><p>참가자를 선택하고 수도전 4개 팀을 자동 편성합니다.</p></div></div>
+      <section class="cw-settings">
+        <label>상대 서버<input id="cwOpponentServer" type="text" value="320"></label>
+        <label>연동 이벤트<input id="cwEventTitle" type="text" value="Capital Clash"></label>
+        <label>수도조<input id="cwTarget-capital" type="number" min="0" value="8"></label>
+        <label>포탑 집결조<input id="cwTarget-tower" type="number" min="0" value="6"></label>
+        <label>기동대<input id="cwTarget-mobile" type="number" min="0" value="20"></label>
+        <label>지원조<input id="cwTarget-support" type="number" readonly value="0"></label>
+      </section>
+      <div class="cw-admin-overview">
+        <section class="cw-rules"><h3>자동 편성 기준</h3><div class="cw-rule-tabs" role="tablist"><button class="active" data-cw-rule="capital">수도조</button><button data-cw-rule="tower">포탑 집결조</button><button data-cw-rule="mobile">기동대</button><button data-cw-rule="support">지원조</button></div><div id="cwRuleContent" class="cw-rule-content"></div></section>
+        <section class="cw-summary-wrap"><h3>팀 통계</h3><div id="cwSummary" class="cw-summary"></div></section>
+      </div>
+      <div class="manager-tools cw-tools"><input id="cwSearch" type="search" placeholder="닉네임 검색"><button id="cwLoadVote" type="button">투표 불러오기</button><button id="cwSelectAll" type="button">전체 참가</button><button id="cwClearAll" type="button">전체 해제</button><button id="cwAutoAssign" class="primary" type="button">자동 편성</button><button id="cwReset" class="danger" type="button">초기화</button></div>
+      <div id="cwVoteSource" class="s6-vote-source" hidden></div>
+      <div class="cw-admin-main">
+        <section class="cw-participants"><h3>참가자 목록</h3><div class="cw-participant-table-wrap"><table class="cw-participant-table"><thead><tr><th>닉네임</th><th>산업 레벨</th><th>1번 차량</th><th>2번 차량</th><th>참가</th><th>고정 팀</th></tr></thead><tbody id="cwParticipantBody"></tbody></table></div></section>
+        <section class="cw-results"><h3>팀 편성 결과</h3><div class="cw-result-tabs" role="tablist"><button class="active" data-cw-result="capital">수도조</button><button data-cw-result="tower">포탑 집결조</button><button data-cw-result="mobile">기동대</button><button data-cw-result="support">지원조</button></div><div id="cwResultList" class="cw-result-list"></div></section>
+      </div>
+      <div class="cw-admin-footer"><span id="cwPublishStatus"></span><button id="cwSave" type="button">저장</button><button id="cwPublish" class="cw-publish" type="button">노출</button></div>
+    </div>
 
     <div id="season6Panel" class="admin-panel">
       <div class="s6-manager-head"><div><h2>시즌 6 관리</h2><p>참가자를 선택하고 팀을 자동으로 편성합니다.</p></div><label>팀 편성 업데이트<input id="s6LastUpdated" type="text" placeholder="2026.07.20"></label></div>
@@ -242,6 +266,7 @@
 <script src="../vehicle-power.js?v=1970"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2330"></script><script src="season6-manager.js?v=2170"></script><script src="accounts-manager.js?v=2160"></script>
+<script src="capital-war-manager.js?v=2380"></script>
 <script src="member-manager-v188.js?v=1920"></script>
 <script src="vote-manager.js?v=2160"></script>
 </body>
