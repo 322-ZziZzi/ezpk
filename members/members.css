@@ -88,3 +88,30 @@ nav a.active{color:#f5c547}.members-main{min-height:100vh}.members-hero{padding:
 .member-meta{align-items:center}
 .member-meta-divider{color:#596575;font-style:normal;font-weight:800}
 @media(max-width:620px){.member-meta{flex-wrap:nowrap;gap:7px;font-size:11px}.member-meta span{min-width:0;white-space:nowrap}}
+
+
+/* v234 rank group colors */
+.rank-group.rank-r5{border:2px solid #f5c547;box-shadow:0 0 20px rgba(245,197,71,.22)}
+.rank-group.rank-r5 .rank-head{border-top:3px solid #ff8a3d}
+.rank-group.rank-r5 .rank-badge{background:#f5c54722;border-color:#f5c547;color:#f5c547}
+
+.rank-group.rank-r4{border:2px solid #b57cff;box-shadow:0 0 14px rgba(181,124,255,.16)}
+.rank-group.rank-r4 .rank-head{border-top:3px solid #6f8cff}
+.rank-group.rank-r4 .rank-badge{background:#b57cff22;border-color:#b57cff;color:#d2b3ff}
+
+.rank-group.rank-r3{border:2px solid #4fd5ff}
+.rank-group.rank-r3 .rank-head{border-top:3px solid #4f8cff}
+.rank-group.rank-r3 .rank-badge{background:#4fd5ff22;border-color:#4fd5ff;color:#4fd5ff}
+
+.rank-group.rank-r2{border:2px solid #aeb8c7}
+.rank-group.rank-r2 .rank-head{border-top:3px solid #718096}
+.rank-group.rank-r2 .rank-badge{background:#aeb8c722;border-color:#aeb8c7;color:#d7dde6}
+
+.rank-group.rank-r1{border:1px solid #5b6472}
+.rank-group.rank-r1 .rank-head{border-top:3px solid #3e4652}
+.rank-group.rank-r1 .rank-badge{background:#5b647222;border-color:#5b6472;color:#c0c7d1}
+
+@media(max-width:620px){
+.rank-group.rank-r5{box-shadow:0 0 10px rgba(245,197,71,.14)}
+.rank-group.rank-r4{box-shadow:0 0 8px rgba(181,124,255,.10)}
+}
