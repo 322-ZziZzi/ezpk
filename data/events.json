@@ -46,10 +46,10 @@
       "enabled": true
     },
     {
-      "title": "",
-      "start": "",
-      "end": "",
-      "enabled": false
+      "title": "Core Embers",
+      "start": "2026-07-27T12:00:00-02:00",
+      "end": "2026-07-27T13:00:00-02:00",
+      "enabled": true
     },
     {
       "title": "",
