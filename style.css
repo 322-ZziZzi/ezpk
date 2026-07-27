@@ -1298,3 +1298,57 @@ font-weight:700;
 .event-card.event-important time strong{color:#ffb0b3}
 html[dir="rtl"] .event-badges{justify-content:flex-start}
 @media(max-width:620px){.event-badges{gap:5px;max-width:calc(100% - 44px)}.event-badge{padding:4px 7px;font-size:10px;letter-spacing:.05em}}
+
+/* v235: Migration application copy refresh and rotating gold border glow */
+.immigration-card{
+  isolation:isolate;
+  border-color:rgba(245,197,71,.46);
+}
+.immigration-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  padding:2px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:conic-gradient(
+    from 0deg,
+    transparent 0deg 292deg,
+    rgba(245,197,71,.08) 305deg,
+    rgba(255,232,153,.95) 328deg,
+    rgba(245,197,71,.18) 350deg,
+    transparent 360deg
+  );
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  filter:drop-shadow(0 0 5px rgba(245,197,71,.42));
+  animation:immigration-border-orbit 7.5s linear infinite;
+}
+.immigration-card > *{position:relative;z-index:1}
+.immigration-status{
+  max-width:100%;
+  white-space:normal;
+  text-align:center;
+  line-height:1.35;
+}
+.immigration-process{
+  overflow-wrap:anywhere;
+}
+@keyframes immigration-border-orbit{
+  to{transform:rotate(1turn)}
+}
+@media(max-width:760px){
+  .immigration-card::before{
+    padding:1.5px;
+    filter:drop-shadow(0 0 3px rgba(245,197,71,.3));
+  }
+  .immigration-status{font-size:10px;letter-spacing:.08em}
+}
+@media(prefers-reduced-motion:reduce){
+  .immigration-card::before{
+    animation:none;
+    background:linear-gradient(135deg,rgba(255,232,153,.8),rgba(245,197,71,.22));
+  }
+}

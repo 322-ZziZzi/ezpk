@@ -115,3 +115,48 @@ nav a.active{color:#f5c547}.members-main{min-height:100vh}.members-hero{padding:
 .rank-group.rank-r5{box-shadow:0 0 10px rgba(245,197,71,.14)}
 .rank-group.rank-r4{box-shadow:0 0 8px rgba(181,124,255,.10)}
 }
+
+
+/* v236: connect rank classes to all group-level visual accents */
+.rank-group.rank-r5 .rank-title h2,
+.rank-group.rank-r5 .rank-count strong,
+.rank-group.rank-r5 .rank-count .label,
+.rank-group.rank-r5 .rank-arrow{color:#f5c547}
+.rank-group.rank-r5 .rank-title small{color:#ffb25f}
+
+.rank-group.rank-r4 .rank-title h2,
+.rank-group.rank-r4 .rank-count strong,
+.rank-group.rank-r4 .rank-count .label,
+.rank-group.rank-r4 .rank-arrow{color:#c8a3ff}
+.rank-group.rank-r4 .rank-title small{color:#8fa3ff}
+
+.rank-group.rank-r3 .rank-title h2,
+.rank-group.rank-r3 .rank-count strong,
+.rank-group.rank-r3 .rank-count .label,
+.rank-group.rank-r3 .rank-arrow{color:#63dcff}
+.rank-group.rank-r3 .rank-title small{color:#76a4ff}
+
+.rank-group.rank-r2 .rank-title h2,
+.rank-group.rank-r2 .rank-count strong,
+.rank-group.rank-r2 .rank-count .label,
+.rank-group.rank-r2 .rank-arrow{color:#c7cfda}
+.rank-group.rank-r2 .rank-title small{color:#8d9bad}
+
+.rank-group.rank-r1 .rank-title h2,
+.rank-group.rank-r1 .rank-count strong,
+.rank-group.rank-r1 .rank-count .label,
+.rank-group.rank-r1 .rank-arrow{color:#a7b0bd}
+.rank-group.rank-r1 .rank-title small{color:#717c8b}
+
+/* Keep the hierarchy readable without changing individual member cards. */
+.rank-group .rank-title h2,
+.rank-group .rank-count strong,
+.rank-group .rank-count .label,
+.rank-group .rank-arrow{transition:color .2s ease}
+
+@media(max-width:620px){
+  .rank-group.rank-r5{border-width:1px;box-shadow:0 0 8px rgba(245,197,71,.12)}
+  .rank-group.rank-r4{border-width:1px;box-shadow:0 0 6px rgba(181,124,255,.08)}
+  .rank-group.rank-r5 .rank-head,
+  .rank-group.rank-r4 .rank-head{border-top-width:2px}
+}
