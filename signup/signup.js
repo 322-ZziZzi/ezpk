@@ -105,7 +105,7 @@
       if (window.EZPKSharedHeader?.refreshAuth) {
         await window.EZPKSharedHeader.refreshAuth();
       }
-      setTimeout(() => { window.location.href = "../my/"; }, 900);
+      setTimeout(() => { window.location.href = "../my/?tab=specs"; }, 900);
     } catch (_) {
       showError(tr("failed"));
     } finally {
