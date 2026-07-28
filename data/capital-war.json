@@ -43,12 +43,10 @@
     }
   },
   "published": {
-    "publishedAt": "2026-07-28T02:29:48.320Z",
-    "lastUpdated": "2026.07.28",
+    "publishedAt": "",
+    "lastUpdated": "",
     "teams": {
-      "capital": [
-        "Ling² Kwong"
-      ],
+      "capital": [],
       "tower": [],
       "mobile": [],
       "support": []
