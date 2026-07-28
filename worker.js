@@ -11,6 +11,9 @@ export default {
 
     try {
       if (!url.pathname.startsWith("/api/")) {
+        if (request.method === "GET" && url.pathname === "/data/accounts.json") {
+          return handlePublicPersistentAsset(url, env);
+        }
         if (request.method === "GET" && (url.pathname === "/data/bgb.json" || url.pathname === "/data/season6-teams.json" || url.pathname === "/data/capital-war.json")) {
           return handleConditionalStrategyAsset(request, url, env);
         }
@@ -540,6 +543,7 @@ const D1_STRATEGY_PATHS = new Map([
   ["data/capital-war.json", "capital-war"],
   ["data/season6-teams.json", "season6-teams"],
   ["data/bgb.json", "bgb"],
+  ["data/accounts.json", "accounts"],
 ]);
 
 function strategyContentKey(path) {
@@ -614,6 +618,12 @@ async function strategyAccessState(env, origin) {
 async function handlePublicStrategyAccess(env, url) {
   const state = await strategyAccessState(env, url.origin);
   return json({ ok:true, data:state });
+}
+
+async function handlePublicPersistentAsset(url, env) {
+  const path = url.pathname.replace(/^\//, "");
+  const stored = await readStrategyContentD1(env, url.origin, path);
+  return json(stored.content, 200, { "cache-control": "no-store" });
 }
 
 async function handleConditionalStrategyAsset(request, url, env) {

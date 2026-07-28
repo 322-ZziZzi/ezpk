@@ -18,7 +18,8 @@
       "/api/*",
       "/data/capital-war.json",
       "/data/season6-teams.json",
-      "/data/bgb.json"
+      "/data/bgb.json",
+      "/data/accounts.json"
     ]
   },
 
