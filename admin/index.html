@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="admin.css?v=2170">
   <link rel="stylesheet" href="member-manager-v188.css?v=1920">
   <link rel="stylesheet" href="vote-manager.css?v=2160">
-  <link rel="stylesheet" href="capital-war-manager.css?v=2470">
+  <link rel="stylesheet" href="capital-war-manager.css?v=2500">
   <link rel="stylesheet" href="admin-ui-v228.css?v=2280">
   <link rel="stylesheet" href="../common-heading.css?v=1920">
 
@@ -188,7 +188,8 @@
         <section class="cw-rules"><h3>자동 편성 기준</h3><div class="cw-rule-tabs" role="tablist"><button class="active" data-cw-rule="capital">수도조</button><button data-cw-rule="tower">포탑 집결조</button><button data-cw-rule="mobile">기동대</button><button data-cw-rule="support">지원조</button></div><div id="cwRuleContent" class="cw-rule-content"></div></section>
         <section class="cw-summary-wrap"><h3>팀 통계</h3><div id="cwSummary" class="cw-summary"></div></section>
       </div>
-      <div class="manager-tools cw-tools"><input id="cwSearch" type="search" placeholder="닉네임 검색"><button id="cwLoadVote" type="button">투표 불러오기</button><button id="cwSelectAll" type="button">전체 참가</button><button id="cwClearAll" type="button">전체 해제</button><button id="cwAutoAssign" class="primary" type="button">자동 편성</button><button id="cwReset" class="danger" type="button">초기화</button></div>
+      <div class="cw-participant-controls"><input id="cwSearch" type="search" placeholder="닉네임 검색"><select id="cwParticipantSort" aria-label="참가자 목록 정렬"><option value="vehicle1-desc">1번 차량 높은 순</option><option value="industry-desc">산업 레벨 높은 순</option><option value="rank-desc">등급 높은 순</option></select></div>
+      <div class="manager-tools cw-tools"><button id="cwLoadVote" type="button">투표 불러오기</button><button id="cwSelectAll" type="button">전체 참가</button><button id="cwClearAll" type="button">전체 해제</button><button id="cwAutoAssign" class="primary" type="button">자동 편성</button><button id="cwReset" class="danger" type="button">초기화</button></div>
       <div id="cwVoteSource" class="s6-vote-source" hidden></div>
       <div class="cw-admin-main">
         <section class="cw-participants"><h3>참가자 목록</h3><div class="cw-participant-table-wrap"><table class="cw-participant-table"><thead><tr><th>닉네임</th><th>산업 레벨</th><th>1번 차량</th><th>2번 차량</th><th>참가</th><th>고정 팀 / 개별 편성</th></tr></thead><tbody id="cwParticipantBody"></tbody></table></div></section>
@@ -266,7 +267,7 @@
 <script src="../vehicle-power.js?v=1970"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2330"></script><script src="season6-manager.js?v=2170"></script><script src="accounts-manager.js?v=2160"></script>
-<script src="capital-war-manager.js?v=2470"></script>
+<script src="capital-war-manager.js?v=2500"></script>
 <script src="member-manager-v188.js?v=1920"></script>
 <script src="vote-manager.js?v=2160"></script>
 </body>

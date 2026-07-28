@@ -8,7 +8,7 @@ const META={
   mobile:{label:'기동대',w:{v1:.60,v2:.05,ind:.20,power:.15}},
   support:{label:'지원조',w:null}
 };
-let selectedRule='capital',selectedResult='capital',sha='',loaded=false,voteSource=null;
+let selectedRule='capital',selectedResult='capital',participantSort='vehicle1-desc',sha='',loaded=false,voteSource=null;
 let cw=blank();
 
 function blank(){
@@ -92,12 +92,35 @@ function renderRules(){
   box.innerHTML=`<h4>${meta.label}</h4><dl>${[['1번 차량 파워',meta.w.v1],['2번 차량 파워',meta.w.v2],['산업 레벨',meta.w.ind],['전투력',meta.w.power]].map(([l,x])=>`<div><dt>${l}</dt><dd>${Math.round(x*100)}%</dd></div>`).join('')}</dl>`;
 }
 
+function compareMissingLast(a,b){
+  const av=Number(a)||0,bv=Number(b)||0;
+  if(av<=0&&bv<=0)return 0;
+  if(av<=0)return 1;
+  if(bv<=0)return -1;
+  return bv-av;
+}
+
+function rankValue(m){
+  const rank=String(m?.rank||m?.memberRank||'R1').toUpperCase();
+  return ({R5:5,R4:4,R3:3,R2:2,R1:1})[rank]||0;
+}
+
+function participantComparator(a,b){
+  if(participantSort==='industry-desc'){
+    return compareMissingLast(ind(a),ind(b))||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
+  }
+  if(participantSort==='rank-desc'){
+    return rankValue(b)-rankValue(a)||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
+  }
+  return compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
+}
+
 function participantRows(){
   const q=(document.querySelector('#cwSearch')?.value||'').trim().toLowerCase();
   const ps=new Set(cw.draft.participants);
   return membersData.members
     .filter(m=>m.nickname.toLowerCase().includes(q))
-    .sort((a,b)=>power(b)-power(a))
+    .sort(participantComparator)
     .map(m=>{
       const current=cw.draft.fixedTeams[m.nickname]||'auto';
       return `<tr>
@@ -293,6 +316,7 @@ function bind(){
   document.querySelectorAll('[data-cw-rule]').forEach(b=>b.onclick=()=>{selectedRule=b.dataset.cwRule;renderRules();});
   document.querySelectorAll('[data-cw-result]').forEach(b=>b.onclick=()=>{selectedResult=b.dataset.cwResult;render();});
   document.querySelector('#cwSearch').oninput=render;
+  document.querySelector('#cwParticipantSort').onchange=e=>{participantSort=e.target.value;render();};
   document.querySelector('#cwLoadVote').onclick=()=>openVote().catch(()=>alert('투표를 불러오지 못했습니다.'));
   document.querySelector('#cwSelectAll').onclick=()=>{voteSource=null;cw.draft.participants=membersData.members.map(m=>m.nickname);render();};
   document.querySelector('#cwClearAll').onclick=()=>{voteSource=null;cw.draft.participants=[];cw.draft.teams={capital:[],tower:[],mobile:[],support:[]};render();};
