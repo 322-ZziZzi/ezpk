@@ -11,3 +11,12 @@ main{min-height:70vh}.cw-page{width:min(1180px,92vw);margin:0 auto;padding:126px
 .cw-dot-mobile{background:var(--cw-red);color:var(--cw-red)}
 .cw-dot-support{background:var(--cw-green);color:var(--cw-green)}
 .cw-team-toggle b,.cw-strategy-card h3,.cw-strategy-tab{display:flex;align-items:center;gap:0}
+
+/* v242: logged-in member highlight */
+.cw-member{position:relative;align-content:center;gap:3px;isolation:isolate}
+.cw-member.is-current-member{padding-left:13px;border-color:color-mix(in srgb,var(--team-accent) 72%,#2b3749);background:linear-gradient(90deg,color-mix(in srgb,var(--team-accent) 18%,#111a27),#111a27 72%);box-shadow:inset 4px 0 0 var(--team-accent),0 0 15px color-mix(in srgb,var(--team-accent) 18%,transparent)}
+.cw-member.is-current-member .cw-member-name{color:#fff;font-weight:900;text-shadow:0 0 10px color-mix(in srgb,var(--team-accent) 58%,transparent)}
+.cw-you-badge{position:absolute;top:5px;right:5px;padding:2px 5px;border:1px solid color-mix(in srgb,var(--team-accent) 66%,transparent);border-radius:999px;background:color-mix(in srgb,var(--team-accent) 15%,#0d1520);color:var(--team-accent);font-size:8px;font-weight:950;line-height:1.2;letter-spacing:.03em}
+.cw-member-team{display:block;color:var(--team-accent);font-size:9px;font-weight:900;line-height:1.15}
+.rtl .cw-member.is-current-member{padding-left:7px;padding-right:13px;box-shadow:inset -4px 0 0 var(--team-accent),0 0 15px color-mix(in srgb,var(--team-accent) 18%,transparent)}
+.rtl .cw-you-badge{right:auto;left:5px}

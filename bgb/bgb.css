@@ -43,3 +43,14 @@ nav a.active{color:#f5c547!important}
 .member-login-primary{border:0;background:#f5c547;color:#171000}
 .member-login-secondary{border:1px solid #ffffff22;background:#151e2c;color:#fff}
 @media(max-width:480px){.member-login-actions{grid-template-columns:1fr}}
+
+/* v242: logged-in member highlight */
+.final-member,.assigned-member{position:relative;isolation:isolate}
+.final-member.is-current-member,.assigned-member.is-current-member{padding-left:17px;border-color:#f5c54799;background:linear-gradient(90deg,#f5c54720,#111923 72%);box-shadow:inset 4px 0 0 #f5c547,0 0 15px #f5c54720}
+.final-member.is-current-member strong,.assigned-member.is-current-member strong{color:#fff;font-weight:900;text-shadow:0 0 10px #f5c54780}
+.bgb-you-badge{margin-left:auto;padding:2px 6px;border:1px solid #f5c54788;border-radius:999px;background:#f5c54715;color:#f5c547;font-size:8px;font-style:normal;font-weight:950;line-height:1.2}
+.bgb-member-team{position:absolute;right:9px;bottom:4px;display:block!important;color:#f5c547!important;font-size:8px!important;font-weight:900;line-height:1.1}
+.assigned-member.is-current-member{min-height:58px;padding-right:58px}
+.assigned-member .bgb-you-badge{position:absolute;top:7px;right:8px}
+.rtl .final-member.is-current-member,.rtl .assigned-member.is-current-member{padding-left:12px;padding-right:17px;box-shadow:inset -4px 0 0 #f5c547,0 0 15px #f5c54720}
+.rtl .bgb-you-badge{margin-left:0;margin-right:auto}.rtl .bgb-member-team{right:auto;left:9px}.rtl .assigned-member .bgb-you-badge{right:auto;left:8px}
