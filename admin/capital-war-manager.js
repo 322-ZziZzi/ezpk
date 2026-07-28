@@ -106,6 +106,11 @@ function rankValue(m){
 }
 
 function participantComparator(a,b){
+  if(participantSort==='nonparticipant-first'){
+    const ap=cw.draft.participants.includes(a.nickname)?1:0;
+    const bp=cw.draft.participants.includes(b.nickname)?1:0;
+    return ap-bp||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
+  }
   if(participantSort==='vehicle2-desc'){
     return compareMissingLast(v(a,2),v(b,2))||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
   }
