@@ -36,7 +36,9 @@ function normalize(d){
   }
   const used=new Set();
   for(const k of TEAMS){
-    o.draft.teams[k]=uniq(d?.draft?.teams?.[k]).filter(n=>names.has(n)&&o.draft.participants.includes(n)&&!used.has(n));
+    // Keep valid saved assignments even when the participant checkbox is currently off.
+    // Duplicate assignments are resolved by retaining the first valid team in TEAMS order.
+    o.draft.teams[k]=uniq(d?.draft?.teams?.[k]).filter(n=>names.has(n)&&!used.has(n));
     o.draft.teams[k].forEach(n=>used.add(n));
     o.published.teams[k]=uniq(d?.published?.teams?.[k]).filter(n=>names.has(n));
   }
@@ -60,7 +62,51 @@ function targets(){
 }
 
 function removeEverywhere(n){
-  for(const k of TEAMS)cw.draft.teams[k]=cw.draft.teams[k].filter(x=>x!==n);
+  for(const k of TEAMS)cw.draft.teams[k]=(cw.draft.teams[k]||[]).filter(x=>x!==n);
+}
+
+function assignedTeamOf(n){
+  for(const k of TEAMS){
+    if((cw.draft.teams[k]||[]).includes(n))return k;
+  }
+  return '';
+}
+
+function displayedTeamOf(n){
+  const assigned=assignedTeamOf(n);
+  if(assigned)return assigned;
+  const fixed=cw.draft.fixedTeams[n];
+  return [...TEAMS,'exclude'].includes(fixed)?fixed:'auto';
+}
+
+function setMemberTeam(n,k,{ensureParticipant=true,syncFixed=true}={}){
+  removeEverywhere(n);
+  if(TEAMS.includes(k)){
+    if(ensureParticipant&&!cw.draft.participants.includes(n))cw.draft.participants.push(n);
+    cw.draft.teams[k].push(n);
+    if(syncFixed)cw.draft.fixedTeams[n]=k;
+    return k;
+  }
+  if(syncFixed)cw.draft.fixedTeams[n]='auto';
+  return '';
+}
+
+function normalizeDraftTeams(){
+  const valid=new Set(membersData.members.map(m=>m.nickname));
+  const used=new Set();
+  for(const k of TEAMS){
+    cw.draft.teams[k]=uniq(cw.draft.teams[k]).filter(n=>valid.has(n)&&!used.has(n));
+    cw.draft.teams[k].forEach(n=>used.add(n));
+  }
+}
+
+function unassignedNonParticipantCount(){
+  const participants=new Set(cw.draft.participants);
+  return membersData.members.filter(m=>
+    !participants.has(m.nickname)&&
+    !assignedTeamOf(m.nickname)&&
+    cw.draft.fixedTeams[m.nickname]!=='exclude'
+  ).length;
 }
 
 function assignOne(n,k){
@@ -68,10 +114,7 @@ function assignOne(n,k){
     alert('개별 편성할 팀을 먼저 선택하세요.');
     return;
   }
-  if(!cw.draft.participants.includes(n))cw.draft.participants.push(n);
-  cw.draft.fixedTeams[n]=k;
-  removeEverywhere(n);
-  cw.draft.teams[k].push(n);
+  setMemberTeam(n,k,{ensureParticipant:true,syncFixed:true});
   selectedResult=k;
   render();
 }
@@ -130,7 +173,7 @@ function participantRows(){
     .filter(m=>m.nickname.toLowerCase().includes(q))
     .sort(participantComparator)
     .map(m=>{
-      const current=cw.draft.fixedTeams[m.nickname]||'auto';
+      const current=displayedTeamOf(m.nickname);
       return `<tr>
         <td><b>${esc(m.nickname)}</b></td>
         <td>I${ind(m)}</td>
@@ -155,8 +198,9 @@ function render(){
   document.querySelector('#cwEventTitle').value=cw.settings.eventTitle||'Capital Clash';
   for(const k of ['capital','tower','mobile'])document.querySelector(`#cwTarget-${k}`).value=Number(cw.settings.targets[k]||0);
   document.querySelector('#cwTarget-support').value=targets().support;
+  normalizeDraftTeams();
   const t=targets();
-  document.querySelector('#cwSummary').innerHTML=`<article><span>참가자</span><b>${cw.draft.participants.length}</b></article>${TEAMS.map(k=>`<article class="cw-sum-${k}"><span>${META[k].label}</span><b>${(cw.draft.teams[k]||[]).length} / ${t[k]}</b></article>`).join('')}`;
+  document.querySelector('#cwSummary').innerHTML=`<article><span>참가자</span><b>${cw.draft.participants.length}</b></article>${TEAMS.map(k=>`<article class="cw-sum-${k}"><span>${META[k].label}</span><b>${(cw.draft.teams[k]||[]).length} / ${t[k]}</b></article>`).join('')}<article class="cw-sum-unassigned"><span>미배정</span><b>${unassignedNonParticipantCount()}</b></article>`;
   renderRules();
   document.querySelector('#cwParticipantBody').innerHTML=participantRows()||'<tr><td colspan="6">표시할 회원이 없습니다.</td></tr>';
 
@@ -167,6 +211,7 @@ function render(){
     }else{
       cw.draft.participants=cw.draft.participants.filter(v=>v!==n);
       removeEverywhere(n);
+      if(cw.draft.fixedTeams[n]!=='exclude')cw.draft.fixedTeams[n]='auto';
     }
     render();
   });
@@ -177,8 +222,9 @@ function render(){
     if(k==='exclude'){
       cw.draft.participants=cw.draft.participants.filter(v=>v!==n);
       removeEverywhere(n);
+      render();
     }
-    render();
+    // For normal team choices, keep the selected value visible until the + button is pressed.
   });
 
   document.querySelectorAll('[data-cw-add]').forEach(b=>b.onclick=()=>{
@@ -200,13 +246,7 @@ function render(){
 
   document.querySelectorAll('[data-cw-move]').forEach(x=>x.onchange=()=>{
     const n=x.dataset.cwMove;
-    removeEverywhere(n);
-    if(x.value!=='none'){
-      cw.draft.teams[x.value].push(n);
-      cw.draft.fixedTeams[n]=x.value;
-    }else{
-      cw.draft.fixedTeams[n]='auto';
-    }
+    setMemberTeam(n,x.value==='none'?'':x.value,{ensureParticipant:true,syncFixed:true});
     render();
   });
 
@@ -260,6 +300,7 @@ function autoAssign(){
     }
   }
   cw.draft.teams.support.push(...remaining);
+  normalizeDraftTeams();
   render();
 }
 
@@ -312,6 +353,7 @@ async function load(){
 
 async function save(expose=false){
   syncSettings();
+  normalizeDraftTeams();
   cw.lastUpdated=todayKst();
   if(expose)cw.published={publishedAt:new Date().toISOString(),lastUpdated:cw.lastUpdated,teams:Object.fromEntries(TEAMS.map(k=>[k,[...(cw.draft.teams[k]||[])]]))};
   if(!sha){const r=await githubGetFile('data/capital-war.json');sha=r.sha;}

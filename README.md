@@ -1,6 +1,8 @@
-# EZPK War Portal v255
+# EZPK War Portal v256
 
-Current baseline: v255 in-app browser guidance and canonical host normalization.
+Current baseline: v256 Capital War assignment synchronization and unassigned statistics.
+
+This version retains the v255 in-app browser guidance and canonical host normalization fixes.
 
 ## v239 Menu & Capital War Finalization
 
