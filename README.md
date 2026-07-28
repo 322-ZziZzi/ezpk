@@ -244,3 +244,10 @@ See `V224_CHANGELOG.txt` for the finalized profile and Member List UX changes.
 - Member List display, sorting, and registration status now use the actual NULL values.
 - Profile reset failures return `SPEC_RESET_DB_ERROR`; My Page logs the API details and shows the error code.
 - Apply the remote migration before deploying the Worker: `npx wrangler d1 migrations apply DB --remote`.
+
+## v246
+- Added a guest-only mobile discovery cue to the top-right hamburger menu.
+- The menu button receives a subtle gold glow and a 1–2px wiggle approximately every 3 seconds.
+- The cue starts only after authentication confirms that the visitor is not logged in, preventing flashes for signed-in members.
+- Opening the mobile menu once stores `ezpk-mobile-menu-discovered-v246` in localStorage and permanently stops the cue for that browser.
+- Users with reduced-motion preferences receive a static gold highlight instead of animation.
