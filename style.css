@@ -1388,7 +1388,7 @@ html[dir="rtl"] .event-badges{justify-content:flex-start}
 }
 
 
-/* v246: guest-only mobile menu discovery cue */
+/* v248: persistent mobile menu discovery cue for all users */
 @media (max-width:900px){
   .site-header #menuBtn.ezpk-menu-discovery-cue{
     position:relative;

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "lastUpdated": "",
   "settings": {
     "opponentServer": "320",
@@ -10,24 +10,6 @@
       "mobile": 20
     }
   },
-  "coreMembers": [
-    {
-      "nickname": "Ling² Kwong",
-      "role": "mainRallyLeader"
-    },
-    {
-      "nickname": "TIGER VESSEL",
-      "role": "core"
-    },
-    {
-      "nickname": "HORANG",
-      "role": "core"
-    },
-    {
-      "nickname": "KUMA",
-      "role": "core"
-    }
-  ],
   "draft": {
     "participants": [],
     "fixedTeams": {},

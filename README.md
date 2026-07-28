@@ -251,3 +251,11 @@ See `V224_CHANGELOG.txt` for the finalized profile and Member List UX changes.
 - The cue starts only after authentication confirms that the visitor is not logged in, preventing flashes for signed-in members.
 - Opening the mobile menu once stores `ezpk-mobile-menu-discovered-v246` in localStorage and permanently stops the cue for that browser.
 - Users with reduced-motion preferences receive a static gold highlight instead of animation.
+
+## v248
+- Updated the top-right hamburger menu discovery cue to remain active for every mobile user.
+- The subtle gold glow and 1–2px wiggle repeat approximately every 3 seconds for both signed-in and signed-out users, even after the menu has been opened before.
+- Removed the v246 localStorage discovery flag and the one-time dismissal behavior.
+- Desktop behavior remains unchanged, and reduced-motion users receive a static gold highlight without the wiggle animation.
+- Preserved all v247 Capital War manual assignment features and existing project behavior.
+

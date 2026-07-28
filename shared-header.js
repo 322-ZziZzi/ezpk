@@ -186,7 +186,7 @@
         <button type="button" data-l="zh-tw">🇹🇼 繁體中文</button>
       </div>
     </div>
-    <button id="menuBtn" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
+    <button id="menuBtn" class="ezpk-menu-discovery-cue" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
 
   document.body.insertAdjacentHTML('beforeend', `
     <aside class="ezpk-mobile-drawer" id="ezpkMobileDrawer" aria-hidden="true">
@@ -232,7 +232,6 @@
     ar:['🇸🇦','العربية'], ja:['🇯🇵','日本語'], th:['🇹🇭','ไทย'], 'zh-tw':['🇹🇼','繁體中文']
   };
   const STORAGE_KEY='ezpk-lang-v5';
-  const MOBILE_MENU_DISCOVERY_KEY='ezpk-mobile-menu-discovered-v246';
   const SUPPORTED_LANGS=Object.freeze(['ko','en','pt','vi','ar','ja','th','zh-tw']);
   let authState = { authenticated:false, member:null };
   let authLoaded = false;
@@ -242,23 +241,12 @@
     return Boolean(authLoaded && authState.authenticated && authState.member && authState.member.status === 'active');
   }
 
-  function mobileMenuAlreadyDiscovered() {
-    try { return localStorage.getItem(MOBILE_MENU_DISCOVERY_KEY) === '1'; }
-    catch (_) { return false; }
-  }
-
-  function markMobileMenuDiscovered() {
-    try { localStorage.setItem(MOBILE_MENU_DISCOVERY_KEY, '1'); }
-    catch (_) {}
-    const button = header.querySelector('#menuBtn');
-    if (button) button.classList.remove('ezpk-menu-discovery-cue');
-  }
-
   function syncMobileMenuDiscoveryCue() {
     const button = header.querySelector('#menuBtn');
     if (!button) return;
-    const shouldShow = authLoaded && !authState.authenticated && !mobileMenuAlreadyDiscovered();
-    button.classList.toggle('ezpk-menu-discovery-cue', shouldShow);
+    // v248: keep the mobile menu discoverability cue visible for every user.
+    // CSS limits the effect to mobile viewports, regardless of login or prior use.
+    button.classList.add('ezpk-menu-discovery-cue');
   }
 
   function applyStrategyMenuVisibility() {
@@ -743,7 +731,6 @@
   menuBtn.addEventListener('click',function(e){
     e.stopPropagation();
     const willOpen = !mobileDrawer.classList.contains('open');
-    if (willOpen && authLoaded && !authState.authenticated) markMobileMenuDiscovered();
     closeMenus();
     setMobileMenuOpen(willOpen);
     menuBtn.setAttribute('aria-expanded',String(willOpen));
