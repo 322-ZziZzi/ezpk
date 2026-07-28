@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "",
+  "lastUpdated": "2026.07.27",
   "settings": {
     "opponentServer": "320",
     "eventTitle": "Capital Clash",
@@ -29,12 +29,52 @@
     }
   ],
   "draft": {
-    "participants": [],
-    "fixedTeams": {},
+    "participants": [
+      "Ling² Kwong",
+      "다은  daeun",
+      "Alliance Bot••",
+      "Uncle Uay Balam",
+      "LU",
+      "SOS lựu đạn",
+      "• • Shindol",
+      "••Pro",
+      "Purple••",
+      "NOX",
+      "GB I'm Ok",
+      "Tiger"
+    ],
+    "fixedTeams": {
+      "다은  daeun": "mobile",
+      "Alliance Bot••": "mobile",
+      "Uncle Uay Balam": "capital",
+      "LU": "mobile",
+      "SOS lựu đạn": "mobile",
+      "• • Shindol": "mobile",
+      "••Pro": "mobile",
+      "Purple••": "mobile",
+      "NOX": "tower",
+      "GB I'm Ok": "mobile",
+      "Tiger": "capital"
+    },
     "teams": {
-      "capital": [],
-      "tower": [],
-      "mobile": [],
+      "capital": [
+        "Ling² Kwong",
+        "Uncle Uay Balam",
+        "Tiger"
+      ],
+      "tower": [
+        "NOX"
+      ],
+      "mobile": [
+        "다은  daeun",
+        "Alliance Bot••",
+        "LU",
+        "SOS lựu đạn",
+        "• • Shindol",
+        "••Pro",
+        "Purple••",
+        "GB I'm Ok"
+      ],
       "support": []
     }
   },
