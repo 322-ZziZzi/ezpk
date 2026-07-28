@@ -6,23 +6,14 @@
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Members</title>
   <link rel="stylesheet" href="../style.css?v=2270">
-  <link rel="stylesheet" href="members.css?v=2580">
+  <link rel="stylesheet" href="members.css?v=2610">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
-
-<style>
-@media (min-width:901px){
-.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
-}
-@media (max-width:900px){
-.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
-}
-</style>
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="members"></header><script src="../shared-header.js?v=2230"></script>
 <main class="members-main">
   <section class="members-hero">
-    <span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span>
+    <span class="eyebrow">EZPK ALLIANCE</span>
     <h1 id="membersTitle"></h1>
     <p id="membersLead"></p>
     <div class="member-summary">
@@ -34,18 +25,21 @@
   <section class="members-content">
     <div class="member-tools">
       <input id="memberSearch" type="search" autocomplete="off">
-      <select id="rankFilter"></select>
-      <div class="mobile-sort-wrap">
-        <label id="mobileSortLabel" for="sortMembers"></label>
+      <select id="rankFilter" aria-label="Rank filter"></select>
+      <div class="sort-wrap">
+        <label id="sortLabel" for="sortMembers"></label>
         <select id="sortMembers"></select>
       </div>
     </div>
     <div id="memberGroups" class="member-groups"></div>
     <div id="emptyState" class="empty-state" hidden></div>
+    <div id="vehicleLegend" class="vehicle-legend" hidden>
+      <span>⚔️ Fighter</span><span>🎯 Shooter</span><span>🏍️ Rider</span>
+    </div>
   </section>
 </main>
 <footer><b>322 EZPK ALLIANCE</b><span id="memberFooter"></span></footer>
 <script src="../data.js?v=1530"></script>
-<script src="members.js?v=2580"></script>
+<script src="members.js?v=2610"></script>
 </body>
 </html>

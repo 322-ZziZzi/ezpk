@@ -1156,7 +1156,15 @@ async function handlePublicMembers(url, env) {
       m.member_rank AS member_rank,
       m.created_at AS joined_at,
       m.updated_at AS basic_updated_at,
-      COALESCE(s.profile_specs_registered, 1) AS profile_specs_registered
+      COALESCE(s.profile_specs_registered, 1) AS profile_specs_registered,
+      s.vehicle1_class AS vehicle1_class,
+      s.vehicle1_power_value AS vehicle1_power_value,
+      s.vehicle1_power_unit AS vehicle1_power_unit,
+      s.vehicle1_power_normalized AS vehicle1_power_normalized,
+      s.vehicle2_class AS vehicle2_class,
+      s.vehicle2_power_value AS vehicle2_power_value,
+      s.vehicle2_power_unit AS vehicle2_power_unit,
+      s.vehicle2_power_normalized AS vehicle2_power_normalized
     FROM members m
     LEFT JOIN member_specs s ON s.member_id = m.id
     ${whereSql ? whereSql + " AND m.status = 'active'" : "WHERE m.status = 'active'"}
@@ -2376,6 +2384,14 @@ function publicMemberRow(row) {
     industryLevel: row.industry_level ?? null,
     profileSpecsRegistered: registered,
     memberRank: row.member_rank,
+    vehicle1Class: row.vehicle1_class ?? null,
+    vehicle1PowerValue: row.vehicle1_power_value ?? null,
+    vehicle1PowerUnit: row.vehicle1_power_unit ?? null,
+    vehicle1PowerNormalized: row.vehicle1_power_normalized ?? null,
+    vehicle2Class: row.vehicle2_class ?? null,
+    vehicle2PowerValue: row.vehicle2_power_value ?? null,
+    vehicle2PowerUnit: row.vehicle2_power_unit ?? null,
+    vehicle2PowerNormalized: row.vehicle2_power_normalized ?? null,
     joinedAt: row.joined_at,
     basicUpdatedAt: row.basic_updated_at,
   };
