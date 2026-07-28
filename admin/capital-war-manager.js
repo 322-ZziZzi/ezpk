@@ -149,6 +149,14 @@ function rankValue(m){
 }
 
 function participantComparator(a,b){
+  if(participantSort==='assignment-order'){
+    const teamOrder=n=>{
+      const team=assignedTeamOf(n);
+      const index=TEAMS.indexOf(team);
+      return index>=0?index:TEAMS.length;
+    };
+    return teamOrder(a.nickname)-teamOrder(b.nickname)||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
+  }
   if(participantSort==='nonparticipant-first'){
     const ap=cw.draft.participants.includes(a.nickname)?1:0;
     const bp=cw.draft.participants.includes(b.nickname)?1:0;
