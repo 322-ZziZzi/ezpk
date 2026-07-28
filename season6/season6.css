@@ -162,3 +162,15 @@
 .team-member-role{color:var(--team-accent);font-size:9px;font-weight:900;line-height:1.1}
 .rtl .team-member-cell.is-current-member{padding-left:5px;padding-right:12px;box-shadow:inset -4px 0 0 var(--team-accent),0 0 15px color-mix(in srgb,var(--team-accent) 18%,transparent)}
 .rtl .team-you-badge{right:auto;left:4px}
+
+
+/* v243: fixed responsive member grid */
+.team-member-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.team-member-cell{box-sizing:border-box;height:40px;min-height:40px;padding:0 8px;flex-direction:row;gap:4px;overflow:hidden;white-space:nowrap}
+.team-member-name{display:block;width:auto;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;-webkit-line-clamp:unset;line-clamp:unset;overflow-wrap:normal;word-break:normal;font-size:13px!important;line-height:1;font-weight:700}
+.team-member-cell.is-current-member{padding-left:12px;padding-right:35px}
+.team-member-role{display:none!important}
+.team-you-badge{top:50%;right:5px;transform:translateY(-50%);font-size:7px}
+.rtl .team-member-cell.is-current-member{padding-left:35px;padding-right:12px}
+.rtl .team-you-badge{right:auto;left:5px}
+@media(max-width:900px){.team-member-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.team-member-cell{height:36px;min-height:36px;padding:0 6px}.team-member-name{font-size:12px!important}.team-member-cell.is-current-member{padding-left:10px;padding-right:31px}.rtl .team-member-cell.is-current-member{padding-left:31px;padding-right:10px}.team-you-badge{right:4px;font-size:6.5px}.rtl .team-you-badge{right:auto;left:4px}}

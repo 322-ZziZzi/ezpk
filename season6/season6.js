@@ -149,7 +149,7 @@ function showSeason6Unlocked({animate=true}={}){
   content.classList.remove('alliance-content-reveal');
   if(animate){void content.offsetWidth;content.classList.add('alliance-content-reveal')}
 }
-function fitNames(){requestAnimationFrame(()=>{$$('.team-member-name').forEach(el=>{let size=13;el.style.fontSize=size+'px';while(size>9&&(el.scrollHeight>el.clientHeight+1||el.scrollWidth>el.clientWidth+1)){size-=.5;el.style.fontSize=size+'px'}})})}
+function fitNames(){requestAnimationFrame(()=>{$$('.team-member-name').forEach(el=>{el.style.removeProperty('font-size')})})}
 const teamIcons={
 attack:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 3.3 20.7 9.3 9.8 20.2 4.5 21.5 5.8 16.2 16.7 5.3 14.7 3.3Z"/><path d="m4 4 5 5M3 3l3.2 1.1L4.1 6.2 3 3Z"/></svg>',
 defense:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 20 6v5.7c0 5.1-3.2 8.1-8 9.5-4.8-1.4-8-4.4-8-9.5V6l8-3.2Z"/><path d="M12 6v11"/></svg>',
