@@ -590,21 +590,30 @@
   async function logout(event) {
     event.preventDefault();
     try {
-      await fetch('/api/auth/logout', {
+      const response = await fetch('/api/auth/logout', {
         method:'POST',
         credentials:'include',
-        headers:{'content-type':'application/json'},
+        cache:'no-store',
+        headers:{'content-type':'application/json','accept':'application/json'},
         body:'{}'
       });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      // v263: Only switch the UI to logged-out after the server session is
+      // actually gone. This prevents the member page from showing the wrong
+      // list when a logout request fails or the cookie has not cleared yet.
+      const verifiedState = await fetchVerifiedAuth(3);
+      if (verifiedState.authenticated) throw new Error('LOGOUT_NOT_VERIFIED');
+
+      authState = { authenticated:false, member:null };
+      authLoaded = true;
+      renderAccount();
+      closeMenus();
+      showGlobalToast(accountLabels().logoutSuccess);
+      window.dispatchEvent(new CustomEvent('ezpk-auth-change', { detail:authState }));
     } catch (_) {
-      // The local UI still clears even when the network is temporarily unavailable.
+      showGlobalToast(accountLabels().requestFailed);
     }
-    authState = { authenticated:false, member:null };
-    authLoaded = true;
-    renderAccount();
-    closeMenus();
-    showGlobalToast(accountLabels().logoutSuccess);
-    window.dispatchEvent(new CustomEvent('ezpk-auth-change', { detail:authState }));
   }
 
   function accountMarkup(mobile) {

@@ -62,3 +62,54 @@ nav a.active{color:#f5c547}.members-main{min-height:100vh}.members-hero{padding:
   .my-card-marker{margin-top:7px}
   .my-card-marker i{width:12px;height:12px}
 }
+
+/* v262: member toolbar + Find My Card */
+.member-tools .find-my-card{
+  width:100%;
+  min-width:0;
+  height:48px;
+  padding:0 14px;
+  border:1px solid rgba(72,221,236,.42);
+  border-radius:10px;
+  background:linear-gradient(145deg,rgba(28,55,66,.94),rgba(16,35,44,.96));
+  color:#bffaff;
+  font:inherit;
+  font-weight:900;
+  cursor:pointer;
+  box-sizing:border-box;
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.member-tools .find-my-card:hover{
+  border-color:rgba(72,221,236,.78);
+  box-shadow:0 0 18px rgba(72,221,236,.16);
+  transform:translateY(-1px);
+}
+.member-tools .find-my-card:active{transform:translateY(0)}
+.member-tools .find-my-card[hidden]{display:none!important}
+.tier-mode .member-tools{
+  grid-template-columns:minmax(0,56fr) minmax(0,22fr) minmax(0,22fr);
+}
+.tier-card.find-my-card-flash{
+  animation:find-my-card-pulse .72s ease-in-out 3;
+  z-index:2;
+}
+@keyframes find-my-card-pulse{
+  0%,100%{filter:none;transform:none}
+  50%{filter:brightness(1.22);transform:translateY(-3px) scale(1.025);box-shadow:0 0 16px var(--glow),0 0 0 2px rgba(112,240,251,.92),0 0 38px rgba(72,221,236,.48),inset 0 1px 0 #ffffff18}
+}
+@media(max-width:900px){
+  .tier-mode .member-tools{grid-template-columns:minmax(0,56fr) minmax(0,22fr) minmax(0,22fr)}
+  .tier-mode .member-tools input{grid-column:auto}
+}
+@media(max-width:620px){
+  .tier-mode .member-tools{grid-template-columns:1fr;gap:10px}
+  .tier-mode .member-tools input,
+  .tier-mode .sort-wrap,
+  .tier-mode .find-my-card{grid-column:1;width:100%}
+  .tier-mode .sort-wrap label{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .member-tools .find-my-card{transition:none}
+  .member-tools .find-my-card:hover{transform:none}
+  .tier-card.find-my-card-flash{animation:none;outline:2px solid rgba(112,240,251,.92);outline-offset:3px}
+}

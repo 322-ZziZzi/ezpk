@@ -265,3 +265,7 @@ See `V224_CHANGELOG.txt` for the finalized profile and Member List UX changes.
 - Desktop behavior remains unchanged, and reduced-motion users receive a static gold highlight without the wiggle animation.
 - Preserved all v247 Capital War manual assignment features and existing project behavior.
 
+
+
+## v263
+Member list now switches immediately between public and tier views after verified login/logout without requiring refresh or navigation.
