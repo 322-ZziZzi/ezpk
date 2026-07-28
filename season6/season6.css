@@ -152,3 +152,13 @@
 .member-login-primary{border:0;background:#f5c547;color:#171000}
 .member-login-secondary{border:1px solid #ffffff22;background:#151e2c;color:#fff}
 @media(max-width:480px){.member-login-actions{grid-template-columns:1fr}}
+
+/* v242: logged-in member highlight */
+.team-member-cell{position:relative;flex-direction:column;gap:2px;isolation:isolate}
+.team-member-cell.is-current-member{padding-left:12px;border-color:color-mix(in srgb,var(--team-accent) 72%,#263247);background:linear-gradient(90deg,color-mix(in srgb,var(--team-accent) 18%,#101824),#101824 72%);box-shadow:inset 4px 0 0 var(--team-accent),0 0 15px color-mix(in srgb,var(--team-accent) 18%,transparent)}
+.team-member-cell.is-current-member .team-member-name{max-width:100%;color:#fff;font-weight:900;text-shadow:0 0 10px color-mix(in srgb,var(--team-accent) 58%,transparent)}
+.team-card--attack{--team-accent:#d85a5a}.team-card--defense{--team-accent:#5f8fe5}.team-card--support{--team-accent:#4fbd83}
+.team-you-badge{position:absolute;top:4px;right:4px;padding:2px 5px;border:1px solid color-mix(in srgb,var(--team-accent) 66%,transparent);border-radius:999px;background:color-mix(in srgb,var(--team-accent) 15%,#0d1520);color:var(--team-accent);font-size:8px;font-weight:950;line-height:1.15}
+.team-member-role{color:var(--team-accent);font-size:9px;font-weight:900;line-height:1.1}
+.rtl .team-member-cell.is-current-member{padding-left:5px;padding-right:12px;box-shadow:inset -4px 0 0 var(--team-accent),0 0 15px color-mix(in srgb,var(--team-accent) 18%,transparent)}
+.rtl .team-you-badge{right:auto;left:4px}
