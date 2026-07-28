@@ -122,13 +122,56 @@
     }
   },
   "published": {
-    "publishedAt": "",
-    "lastUpdated": "",
+    "publishedAt": "2026-07-28T02:11:44.033Z",
+    "lastUpdated": "2026.07.28",
     "teams": {
-      "capital": [],
-      "tower": [],
-      "mobile": [],
-      "support": []
+      "capital": [
+        "Ling² Kwong",
+        "Tiger",
+        "Uncle Uay Balam"
+      ],
+      "tower": [
+        "NOX"
+      ],
+      "mobile": [
+        "Alliance Bot••",
+        "다은  daeun",
+        "Katreeya",
+        "••Pro",
+        "SOS lựu đạn",
+        "GB I'm Ok",
+        "• • Shindol",
+        "LU",
+        "Purple••"
+      ],
+      "support": [
+        "Jem •",
+        "mamimo",
+        "Obliveon",
+        "Noufff",
+        "jerry1",
+        "Bird Of Hermes",
+        "FoxxyScorpio",
+        "Josef62",
+        "RoughRider25",
+        "Anubis X",
+        "αℓуssα",
+        "Oscarlui",
+        "HuPaMaGu",
+        "siggus",
+        "Areh deity",
+        "Moldakill",
+        "咸鸭蛋",
+        "Selenn£",
+        "Just A",
+        "AnonymuzGamer",
+        "yungqe",
+        "Wild Merida",
+        "Andrea",
+        "LucaNoel17",
+        "Chloae",
+        "AK3"
+      ]
     }
   }
 }
