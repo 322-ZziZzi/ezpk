@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastUpdated": "",
+  "lastUpdated": "2026.07.28",
   "settings": {
     "opponentServer": "320",
     "eventTitle": "Capital Clash",
@@ -29,20 +29,26 @@
     }
   ],
   "draft": {
-    "participants": [],
+    "participants": [
+      "Ling² Kwong"
+    ],
     "fixedTeams": {},
     "teams": {
-      "capital": [],
+      "capital": [
+        "Ling² Kwong"
+      ],
       "tower": [],
       "mobile": [],
       "support": []
     }
   },
   "published": {
-    "publishedAt": "",
-    "lastUpdated": "",
+    "publishedAt": "2026-07-28T02:29:48.320Z",
+    "lastUpdated": "2026.07.28",
     "teams": {
-      "capital": [],
+      "capital": [
+        "Ling² Kwong"
+      ],
       "tower": [],
       "mobile": [],
       "support": []
