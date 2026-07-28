@@ -20,3 +20,15 @@ main{min-height:70vh}.cw-page{width:min(1180px,92vw);margin:0 auto;padding:126px
 .cw-member-team{display:block;color:var(--team-accent);font-size:9px;font-weight:900;line-height:1.15}
 .rtl .cw-member.is-current-member{padding-left:7px;padding-right:13px;box-shadow:inset -4px 0 0 var(--team-accent),0 0 15px color-mix(in srgb,var(--team-accent) 18%,transparent)}
 .rtl .cw-you-badge{right:auto;left:5px}
+
+
+/* v243: fixed responsive member grid */
+.cw-member-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.cw-member{position:relative;box-sizing:border-box;height:40px;min-height:40px;padding:0 8px;display:flex;align-items:center;justify-content:center;gap:4px;overflow:hidden;white-space:nowrap;font-size:13px;line-height:1;font-weight:800;overflow-wrap:normal;word-break:normal}
+.cw-member-name{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cw-member.is-current-member{padding-left:12px;padding-right:35px}
+.cw-member-team{display:none!important}
+.cw-you-badge{top:50%;right:5px;transform:translateY(-50%);font-size:7px}
+.rtl .cw-member.is-current-member{padding-left:35px;padding-right:12px}
+.rtl .cw-you-badge{right:auto;left:5px}
+@media(max-width:760px){.cw-member-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.cw-member{height:36px;min-height:36px;padding:0 6px;font-size:12px}.cw-member.is-current-member{padding-left:10px;padding-right:31px}.rtl .cw-member.is-current-member{padding-left:31px;padding-right:10px}.cw-you-badge{right:4px;font-size:6.5px}.rtl .cw-you-badge{right:auto;left:4px}}

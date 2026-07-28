@@ -54,3 +54,17 @@ nav a.active{color:#f5c547!important}
 .assigned-member .bgb-you-badge{position:absolute;top:7px;right:8px}
 .rtl .final-member.is-current-member,.rtl .assigned-member.is-current-member{padding-left:12px;padding-right:17px;box-shadow:inset -4px 0 0 #f5c547,0 0 15px #f5c54720}
 .rtl .bgb-you-badge{margin-left:0;margin-right:auto}.rtl .bgb-member-team{right:auto;left:9px}.rtl .assigned-member .bgb-you-badge{right:auto;left:8px}
+
+
+/* v243: fixed responsive member grid */
+.location-cards{grid-template-columns:1fr}
+.final-lineup,.assigned-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;background:transparent}
+.final-member,.assigned-member{box-sizing:border-box;height:40px;min-height:40px;padding:0 8px;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid #ffffff10;border-radius:10px;background:#111923;overflow:hidden;white-space:nowrap;font-size:13px;line-height:1}
+.final-member span{flex:0 0 auto;font-size:10px}
+.final-member strong,.assigned-member strong{display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.final-member.is-current-member,.assigned-member.is-current-member{height:40px;min-height:40px;padding-left:12px;padding-right:35px}
+.bgb-member-team{display:none!important}
+.final-member .bgb-you-badge,.assigned-member .bgb-you-badge{position:absolute;top:50%;right:5px;margin:0;transform:translateY(-50%);font-size:7px}
+.rtl .final-member.is-current-member,.rtl .assigned-member.is-current-member{padding-left:35px;padding-right:12px}
+.rtl .final-member .bgb-you-badge,.rtl .assigned-member .bgb-you-badge{right:auto;left:5px}
+@media(max-width:700px){.final-lineup,.assigned-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.final-member,.assigned-member{height:36px;min-height:36px;padding:0 6px;font-size:12px}.final-member.is-current-member,.assigned-member.is-current-member{height:36px;min-height:36px;padding-left:10px;padding-right:31px}.rtl .final-member.is-current-member,.rtl .assigned-member.is-current-member{padding-left:31px;padding-right:10px}.final-member .bgb-you-badge,.assigned-member .bgb-you-badge{right:4px;font-size:6.5px}.rtl .final-member .bgb-you-badge,.rtl .assigned-member .bgb-you-badge{right:auto;left:4px}}
