@@ -9,9 +9,22 @@
 
 
 /* v250: Capital Clash participant search and sorting */
-.cw-participant-controls{display:flex;align-items:center;gap:10px;margin-top:14px}
-.cw-participant-controls input{flex:1 1 auto;min-width:0}
-.cw-participant-controls select{flex:0 0 210px;width:210px}
-.cw-tools{margin-top:10px}
-@media(max-width:900px){.cw-tools{grid-template-columns:repeat(2,minmax(0,1fr))!important}.cw-tools input{grid-column:auto}}
-@media(max-width:520px){.cw-participant-controls{align-items:stretch;flex-direction:column}.cw-participant-controls select{flex:none;width:100%}}
+/* v251: desktop command bar keeps search, sorting and all actions on one line */
+.cw-command-bar{margin-top:14px}
+@media(min-width:901px){
+  .cw-command-bar{display:flex!important;align-items:stretch;gap:9px;flex-wrap:nowrap}
+  .cw-command-bar input{flex:1 1 260px;min-width:140px;margin-top:0}
+  .cw-command-bar select{flex:0 0 210px;width:210px;margin-top:0}
+  .cw-command-bar button{flex:0 0 auto;min-width:0;padding-inline:14px}
+  .cw-command-bar #cwLoadVote{min-width:150px}
+}
+@media(max-width:900px){
+  .cw-command-bar{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .cw-command-bar input,.cw-command-bar select{grid-column:1/-1;width:100%;margin-top:0}
+}
+@media(max-width:520px){
+  .cw-command-bar{grid-template-columns:1fr!important}
+  .cw-command-bar input,.cw-command-bar select{grid-column:auto}
+}
+
+/* v252: second-vehicle sorting and result metadata */

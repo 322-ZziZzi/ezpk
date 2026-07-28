@@ -49,7 +49,7 @@ function v(m,n){return window.EZPKVehiclePower?.normalized(m,n)||Number(m?.[`veh
 function ind(m){return Number(m?.ind||m?.industryLevel||0)||0;}
 function power(m){return Number(m?.power||0)||0;}
 function fvp(x){return window.EZPKVehiclePower?.formatNormalized(x)||Number(x||0).toLocaleString();}
-function memberMeta(n){const m=map().get(n);return `Lv${ind(m)} • ${fvp(v(m,1))}`;}
+function memberMeta(n){const m=map().get(n);return `Lv${ind(m)} • ${fvp(v(m,1))} • ${fvp(v(m,2))}`;}
 
 function targets(){
   const n=cw.draft.participants.length,t=cw.settings.targets||{};
@@ -106,6 +106,9 @@ function rankValue(m){
 }
 
 function participantComparator(a,b){
+  if(participantSort==='vehicle2-desc'){
+    return compareMissingLast(v(a,2),v(b,2))||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
+  }
   if(participantSort==='industry-desc'){
     return compareMissingLast(ind(a),ind(b))||compareMissingLast(v(a,1),v(b,1))||a.nickname.localeCompare(b.nickname);
   }
