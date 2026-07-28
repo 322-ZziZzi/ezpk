@@ -1,3 +1,7 @@
+# EZPK War Portal v255
+
+Current baseline: v255 in-app browser guidance and canonical host normalization.
+
 ## v239 Menu & Capital War Finalization
 
 See `V239_CHANGELOG.txt`.

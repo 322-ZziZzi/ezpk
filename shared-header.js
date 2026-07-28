@@ -1,6 +1,146 @@
 (function () {
   'use strict';
 
+  // v255: Normalize the public host before authentication. Secure __Host-
+  // cookies are bound to the exact host, so www/http variants must converge on
+  // https://ezpk322.com. Preview, localhost, and workers.dev hosts are left alone.
+  const currentHost = String(window.location.hostname || '').toLowerCase();
+  const isTranslationProxy = currentHost.endsWith('.translate.goog')
+    || currentHost === 'translate.goog'
+    || currentHost.endsWith('.translate.googleusercontent.com')
+    || currentHost === 'translate.googleusercontent.com';
+  const isCanonicalHost = currentHost === 'ezpk322.com';
+  const isWwwHost = currentHost === 'www.ezpk322.com';
+  const needsHttps = (isCanonicalHost || isWwwHost) && window.location.protocol !== 'https:';
+  if (isTranslationProxy || isWwwHost || needsHttps) {
+    const canonical = new URL(window.location.href);
+    canonical.protocol = 'https:';
+    canonical.hostname = 'ezpk322.com';
+    canonical.port = '';
+    ['_x_tr_sl', '_x_tr_tl', '_x_tr_hl', '_x_tr_pto'].forEach(function (key) {
+      canonical.searchParams.delete(key);
+    });
+    window.location.replace(canonical.toString());
+    return;
+  }
+
+  // v255: In-app browsers frequently isolate or discard secure session cookies.
+  // Detect common embedded browsers and explain how to reopen the exact page in
+  // Chrome/Safari. The user may continue, but the warning remains available for
+  // every new browser session.
+  const ua = String(navigator.userAgent || '');
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isStandalone = Boolean(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+    || Boolean(navigator.standalone);
+  const inAppPatterns = [
+    /FBAN|FBAV|FB_IAB/i,
+    /Instagram/i,
+    /KAKAOTALK/i,
+    /Line\//i,
+    /NAVER\(inapp/i,
+    /DaumApps/i,
+    /Twitter/i,
+    /Discord/i,
+    /Telegram/i,
+    /Snapchat/i,
+    /TikTok/i,
+    /wv\).*Version\//i,
+    /; wv\)/i
+  ];
+  const isInAppBrowser = !isStandalone && inAppPatterns.some(function (pattern) { return pattern.test(ua); });
+
+  function canonicalPublicUrl() {
+    const target = new URL(window.location.href);
+    if (target.hostname === 'www.ezpk322.com' || target.hostname.endsWith('.translate.goog')
+      || target.hostname.endsWith('.translate.googleusercontent.com')) {
+      target.hostname = 'ezpk322.com';
+    }
+    if (target.hostname === 'ezpk322.com') {
+      target.protocol = 'https:';
+      target.port = '';
+    }
+    ['_x_tr_sl', '_x_tr_tl', '_x_tr_hl', '_x_tr_pto'].forEach(function (key) {
+      target.searchParams.delete(key);
+    });
+    return target.toString();
+  }
+
+  function inAppCopy(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    return new Promise(function (resolve, reject) {
+      const input = document.createElement('textarea');
+      input.value = text;
+      input.setAttribute('readonly', '');
+      input.style.position = 'fixed';
+      input.style.opacity = '0';
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
+      } catch (error) { reject(error); }
+      input.remove();
+    });
+  }
+
+  function showInAppBrowserGuide() {
+    if (!isInAppBrowser || document.getElementById('ezpkInAppGuide')) return;
+    let lang = 'en';
+    try { lang = localStorage.getItem('ezpk-lang-v5') || 'en'; } catch (_) {}
+    const copyByLang = {
+      ko:{title:'외부 브라우저에서 열어주세요',lead:'현재 앱 내부 브라우저에서는 로그인 세션이 유지되지 않을 수 있습니다.',steps:isIOS?'아래 주소를 복사한 뒤 Safari 또는 Chrome 주소창에 붙여 넣어 주세요.':'아래 버튼으로 Chrome을 열거나 주소를 복사해 Chrome 주소창에 붙여 넣어 주세요.',open:'외부 브라우저로 열기',copy:'주소 복사',continue:'현재 브라우저에서 계속',copied:'주소가 복사되었습니다.'},
+      en:{title:'Open in an external browser',lead:'This in-app browser may not preserve your login session.',steps:isIOS?'Copy the address below and paste it into Safari or Chrome.':'Open Chrome below, or copy the address and paste it into Chrome.',open:'Open external browser',copy:'Copy address',continue:'Continue here',copied:'Address copied.'},
+      pt:{title:'Abra em um navegador externo',lead:'Este navegador interno pode não manter sua sessão de login.',steps:'Copie o endereço abaixo e abra-o no Chrome ou Safari.',open:'Abrir navegador externo',copy:'Copiar endereço',continue:'Continuar aqui',copied:'Endereço copiado.'},
+      vi:{title:'Mở bằng trình duyệt bên ngoài',lead:'Trình duyệt trong ứng dụng có thể không giữ phiên đăng nhập.',steps:'Sao chép địa chỉ bên dưới và mở bằng Chrome hoặc Safari.',open:'Mở trình duyệt ngoài',copy:'Sao chép địa chỉ',continue:'Tiếp tục tại đây',copied:'Đã sao chép địa chỉ.'},
+      ar:{title:'افتح في متصفح خارجي',lead:'قد لا يحتفظ المتصفح داخل التطبيق بجلسة تسجيل الدخول.',steps:'انسخ العنوان أدناه وافتحه في Chrome أو Safari.',open:'فتح متصفح خارجي',copy:'نسخ العنوان',continue:'المتابعة هنا',copied:'تم نسخ العنوان.'},
+      ja:{title:'外部ブラウザで開いてください',lead:'アプリ内ブラウザではログイン状態が維持されない場合があります。',steps:'下のアドレスをコピーしてSafariまたはChromeで開いてください。',open:'外部ブラウザで開く',copy:'アドレスをコピー',continue:'このまま続ける',copied:'アドレスをコピーしました。'},
+      th:{title:'เปิดด้วยเบราว์เซอร์ภายนอก',lead:'เบราว์เซอร์ในแอปอาจไม่เก็บสถานะการเข้าสู่ระบบ',steps:'คัดลอกที่อยู่ด้านล่างแล้วเปิดด้วย Chrome หรือ Safari',open:'เปิดเบราว์เซอร์ภายนอก',copy:'คัดลอกที่อยู่',continue:'ใช้งานต่อที่นี่',copied:'คัดลอกที่อยู่แล้ว'},
+      'zh-tw':{title:'請使用外部瀏覽器開啟',lead:'應用程式內建瀏覽器可能無法保留登入狀態。',steps:'請複製下方網址並使用 Safari 或 Chrome 開啟。',open:'使用外部瀏覽器開啟',copy:'複製網址',continue:'繼續使用目前瀏覽器',copied:'網址已複製。'}
+    };
+    const t = copyByLang[lang] || copyByLang.en;
+    const url = canonicalPublicUrl();
+    const overlay = document.createElement('div');
+    overlay.id = 'ezpkInAppGuide';
+    overlay.innerHTML = '<div class="ezpk-inapp-card" role="dialog" aria-modal="true" aria-labelledby="ezpkInAppTitle">'
+      + '<div class="ezpk-inapp-icon" aria-hidden="true">↗</div>'
+      + '<h2 id="ezpkInAppTitle"></h2><p class="ezpk-inapp-lead"></p><p class="ezpk-inapp-steps"></p>'
+      + '<div class="ezpk-inapp-url"></div><div class="ezpk-inapp-actions">'
+      + '<button type="button" data-inapp-open></button><button type="button" data-inapp-copy></button>'
+      + '<button type="button" class="ezpk-inapp-continue" data-inapp-close></button></div>'
+      + '<p class="ezpk-inapp-status" aria-live="polite"></p></div>';
+    const style = document.createElement('style');
+    style.textContent = '#ezpkInAppGuide{position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:20px;background:rgba(4,8,16,.82);backdrop-filter:blur(8px)}.ezpk-inapp-card{width:min(440px,100%);box-sizing:border-box;padding:26px 22px 20px;border:1px solid rgba(212,175,55,.55);border-radius:18px;background:#101722;color:#f7f4ea;box-shadow:0 24px 70px rgba(0,0,0,.48);text-align:center}.ezpk-inapp-icon{width:48px;height:48px;margin:0 auto 12px;display:grid;place-items:center;border-radius:50%;background:rgba(212,175,55,.13);color:#e8c85a;font-size:25px}.ezpk-inapp-card h2{margin:0 0 10px;font-size:21px}.ezpk-inapp-card p{margin:7px 0;line-height:1.55}.ezpk-inapp-lead{color:#fff}.ezpk-inapp-steps{color:#c7ced9;font-size:14px}.ezpk-inapp-url{margin:15px 0;padding:10px 12px;border-radius:10px;background:#080d14;color:#d8dee8;font-size:12px;word-break:break-all;text-align:left}.ezpk-inapp-actions{display:grid;gap:9px}.ezpk-inapp-actions button{min-height:45px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.ezpk-inapp-actions [data-inapp-open]{background:#d7b84a;color:#111}.ezpk-inapp-actions [data-inapp-copy]{background:#273346;color:#fff}.ezpk-inapp-actions .ezpk-inapp-continue{background:transparent;color:#aeb7c5;border:1px solid #344156}.ezpk-inapp-status{min-height:20px;color:#e8c85a;font-size:13px}';
+    document.head.appendChild(style);
+    document.body.appendChild(overlay);
+    overlay.querySelector('#ezpkInAppTitle').textContent = t.title;
+    overlay.querySelector('.ezpk-inapp-lead').textContent = t.lead;
+    overlay.querySelector('.ezpk-inapp-steps').textContent = t.steps;
+    overlay.querySelector('.ezpk-inapp-url').textContent = url;
+    overlay.querySelector('[data-inapp-open]').textContent = t.open;
+    overlay.querySelector('[data-inapp-copy]').textContent = t.copy;
+    overlay.querySelector('[data-inapp-close]').textContent = t.continue;
+    const status = overlay.querySelector('.ezpk-inapp-status');
+    overlay.querySelector('[data-inapp-copy]').addEventListener('click', function () {
+      inAppCopy(url).then(function () { status.textContent = t.copied; }).catch(function () { status.textContent = url; });
+    });
+    overlay.querySelector('[data-inapp-open]').addEventListener('click', function () {
+      if (isAndroid) {
+        const parsed = new URL(url);
+        const intentPath = parsed.host + parsed.pathname + parsed.search + parsed.hash;
+        window.location.href = 'intent://' + intentPath + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+      } else {
+        inAppCopy(url).finally(function () {
+          status.textContent = t.copied;
+          window.open(url, '_blank', 'noopener,noreferrer');
+        });
+      }
+    });
+    overlay.querySelector('[data-inapp-close]').addEventListener('click', function () { overlay.remove(); style.remove(); });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', showInAppBrowserGuide, { once:true });
+  else showInAppBrowserGuide();
+
   const header = document.querySelector('[data-shared-header]');
   if (!header) return;
 
@@ -30,6 +170,7 @@
       invalidLogin:'아이디 또는 비밀번호가 올바르지 않습니다.',
       suspended:'정지된 계정입니다.', left:'탈퇴 처리된 계정입니다.',
       sessionExpired:'세션이 만료되었습니다. 다시 로그인해 주세요.',
+      sessionNotSaved:'로그인 세션을 확인하지 못했습니다. ezpk322.com으로 직접 접속한 뒤 다시 로그인해 주세요.',
       requestFailed:'요청을 처리하지 못했습니다.',
       close:'닫기', showPassword:'비밀번호 보기', hidePassword:'비밀번호 숨기기',
       adminComing:'관리자 페이지는 다음 버전에서 제공됩니다.'
@@ -43,6 +184,7 @@
       invalidLogin:'Invalid login ID or password.',
       suspended:'This account is suspended.', left:'This account has been closed.',
       sessionExpired:'Your session has expired. Please log in again.',
+      sessionNotSaved:'The login session could not be verified. Open ezpk322.com directly and log in again.',
       requestFailed:'The request could not be completed.',
       close:'Close', showPassword:'Show password', hidePassword:'Hide password',
       adminComing:'The Admin page will be available in the next version.'
@@ -56,6 +198,7 @@
       invalidLogin:'ID de login ou senha inválidos.',
       suspended:'Esta conta está suspensa.', left:'Esta conta foi encerrada.',
       sessionExpired:'Sua sessão expirou. Entre novamente.',
+      sessionNotSaved:'Não foi possível verificar a sessão. Acesse ezpk322.com diretamente e entre novamente.',
       requestFailed:'Não foi possível concluir a solicitação.',
       close:'Fechar', showPassword:'Mostrar senha', hidePassword:'Ocultar senha',
       adminComing:'A página de administração estará disponível na próxima versão.'
@@ -69,6 +212,7 @@
       invalidLogin:'ID đăng nhập hoặc mật khẩu không đúng.',
       suspended:'Tài khoản này đã bị đình chỉ.', left:'Tài khoản này đã đóng.',
       sessionExpired:'Phiên đã hết hạn. Vui lòng đăng nhập lại.',
+      sessionNotSaved:'Không thể xác minh phiên đăng nhập. Hãy mở trực tiếp ezpk322.com và đăng nhập lại.',
       requestFailed:'Không thể xử lý yêu cầu.',
       close:'Đóng', showPassword:'Hiện mật khẩu', hidePassword:'Ẩn mật khẩu',
       adminComing:'Trang quản trị sẽ có trong phiên bản tiếp theo.'
@@ -82,6 +226,7 @@
       invalidLogin:'معرّف تسجيل الدخول أو كلمة المرور غير صحيحة.',
       suspended:'هذا الحساب موقوف.', left:'تم إغلاق هذا الحساب.',
       sessionExpired:'انتهت الجلسة. يرجى تسجيل الدخول مجددًا.',
+      sessionNotSaved:'تعذر التحقق من جلسة الدخول. افتح ezpk322.com مباشرة ثم سجّل الدخول مجددًا.',
       requestFailed:'تعذر تنفيذ الطلب.',
       close:'إغلاق', showPassword:'إظهار كلمة المرور', hidePassword:'إخفاء كلمة المرور',
       adminComing:'ستتوفر صفحة الإدارة في الإصدار القادم.'
@@ -95,6 +240,7 @@
       invalidLogin:'ログインIDまたはパスワードが正しくありません。',
       suspended:'このアカウントは停止されています。', left:'このアカウントは退会済みです。',
       sessionExpired:'セッションの有効期限が切れました。再度ログインしてください。',
+      sessionNotSaved:'ログインセッションを確認できませんでした。ezpk322.comを直接開いて再度ログインしてください。',
       requestFailed:'リクエストを処理できませんでした。',
       close:'閉じる', showPassword:'パスワードを表示', hidePassword:'パスワードを隠す',
       adminComing:'管理ページは次のバージョンで提供されます。'
@@ -108,6 +254,7 @@
       invalidLogin:'รหัสเข้าสู่ระบบหรือรหัสผ่านไม่ถูกต้อง',
       suspended:'บัญชีนี้ถูกระงับ', left:'บัญชีนี้ถูกปิดแล้ว',
       sessionExpired:'เซสชันหมดอายุ โปรดเข้าสู่ระบบอีกครั้ง',
+      sessionNotSaved:'ไม่สามารถตรวจสอบเซสชันได้ โปรดเปิด ezpk322.com โดยตรงแล้วเข้าสู่ระบบอีกครั้ง',
       requestFailed:'ไม่สามารถดำเนินการได้',
       close:'ปิด', showPassword:'แสดงรหัสผ่าน', hidePassword:'ซ่อนรหัสผ่าน',
       adminComing:'หน้าผู้ดูแลจะพร้อมใช้งานในเวอร์ชันถัดไป'
@@ -121,6 +268,7 @@
       invalidLogin:'登入 ID 或密碼不正確。',
       suspended:'此帳號已停權。', left:'此帳號已關閉。',
       sessionExpired:'工作階段已過期，請重新登入。',
+      sessionNotSaved:'無法確認登入工作階段。請直接開啟 ezpk322.com 後重新登入。',
       requestFailed:'無法完成要求。',
       close:'關閉', showPassword:'顯示密碼', hidePassword:'隱藏密碼',
       adminComing:'管理頁面將於下一版本提供。'
@@ -560,20 +708,35 @@
     isActive: function () { return Boolean(authLoaded && authState.authenticated && authState.member && authState.member.status === 'active'); }
   };
 
-  async function loadAuth() {
-    try {
-      const response = await fetch('/api/auth/me', {
-        method:'GET',
-        credentials:'include',
-        headers:{'accept':'application/json'}
-      });
-      const payload = await response.json();
-      authState = payload?.ok && payload?.data?.authenticated
-        ? { authenticated:true, member:payload.data.member }
-        : { authenticated:false, member:null };
-    } catch (_) {
-      authState = { authenticated:false, member:null };
+  function wait(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  async function fetchVerifiedAuth(attempts) {
+    const total = Math.max(1, Number(attempts) || 1);
+    for (let attempt = 0; attempt < total; attempt += 1) {
+      try {
+        const response = await fetch('/api/auth/me', {
+          method:'GET',
+          credentials:'include',
+          cache:'no-store',
+          headers:{'accept':'application/json'}
+        });
+        const payload = await response.json();
+        if (response.ok && payload?.ok) {
+          if (payload?.data?.authenticated && payload?.data?.member) {
+            return { authenticated:true, member:payload.data.member };
+          }
+          if (attempt === total - 1) return { authenticated:false, member:null };
+        }
+      } catch (_) {}
+      if (attempt < total - 1) await wait(350 * (attempt + 1));
     }
+    return { authenticated:false, member:null };
+  }
+
+  async function loadAuth() {
+    authState = await fetchVerifiedAuth(2);
     authLoaded = true;
     renderAccount();
     window.dispatchEvent(new CustomEvent('ezpk-auth-ready', { detail:authState }));
@@ -641,7 +804,24 @@
         return;
       }
 
-      authState = { authenticated:true, member:payload.data.member };
+      // v254: A successful password response is not enough. Confirm that the
+      // browser actually stored and returned the secure session cookie before
+      // presenting the user as logged in. A short retry covers propagation
+      // delays on mobile and translated DOM environments.
+      const verifiedState = await fetchVerifiedAuth(3);
+      const expectedLoginId = String(payload?.data?.member?.loginId || '').trim().toLowerCase();
+      const verifiedLoginId = String(verifiedState?.member?.loginId || '').trim().toLowerCase();
+      if (!verifiedState.authenticated || !verifiedState.member
+        || (expectedLoginId && verifiedLoginId !== expectedLoginId)) {
+        authState = { authenticated:false, member:null };
+        authLoaded = true;
+        renderAccount();
+        loginError.textContent = accountLabels().sessionNotSaved || accountLabels().sessionExpired;
+        loginError.hidden = false;
+        return;
+      }
+
+      authState = verifiedState;
       authLoaded = true;
       renderAccount();
       closeLogin();
@@ -761,5 +941,6 @@
   };
 
   loadStrategyAccess();
+  window.addEventListener('ezpk-auth-refresh', loadAuth);
   loadAuth();
 })();
