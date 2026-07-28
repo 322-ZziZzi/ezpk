@@ -113,3 +113,59 @@ nav a.active{color:#f5c547}.members-main{min-height:100vh}.members-hero{padding:
   .member-tools .find-my-card:hover{transform:none}
   .tier-card.find-my-card-flash{animation:none;outline:2px solid rgba(112,240,251,.92);outline-offset:3px}
 }
+
+/* v264: prevent logged-in tier cards from clipping on mobile */
+@media(max-width:620px){
+  .tier-card{
+    aspect-ratio:auto;
+    height:auto;
+    min-height:238px;
+    overflow:visible;
+    padding:8px 7px 10px;
+    box-sizing:border-box;
+  }
+  .tier-card .card-top{
+    position:relative;
+    min-height:54px;
+    align-items:flex-start;
+  }
+  .tier-card .card-rank-column{
+    position:absolute;
+    top:0;
+    right:0;
+    z-index:1;
+  }
+  .rtl .tier-card .card-rank-column{
+    right:auto;
+    left:0;
+  }
+  .tier-card .member-name{
+    flex:0 0 auto;
+    min-height:20px;
+    margin:0 0 9px;
+    line-height:1.25;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .tier-card .tier-stats{
+    margin-top:auto;
+    gap:4px;
+  }
+  .tier-card .tier-stats span{
+    display:flex;
+    align-items:center;
+    min-height:30px;
+    padding:4px 5px;
+    box-sizing:border-box;
+  }
+}
+@media(max-width:380px){
+  .tier-card{
+    min-height:226px;
+    padding:7px 5px 9px;
+  }
+  .tier-card .card-top{min-height:50px}
+  .tier-card .member-name{min-height:18px;margin-bottom:7px}
+  .tier-card .tier-stats span{min-height:28px;padding:3px 4px}
+}

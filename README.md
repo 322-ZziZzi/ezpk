@@ -269,3 +269,13 @@ See `V224_CHANGELOG.txt` for the finalized profile and Member List UX changes.
 
 ## v263
 Member list now switches immediately between public and tier views after verified login/logout without requiring refresh or navigation.
+
+
+## v264
+- Fixed mobile logged-in tier member cards being clipped while keeping the 3-column layout.
+- Removed the mobile card aspect-ratio constraint and allowed content-driven card height.
+- Added a consistent mobile minimum card height and bottom spacing.
+- Reserved a stable nickname row with single-line ellipsis.
+- Anchored alliance rank and the localized own-card marker independently from content flow.
+- Kept the stats block at the bottom and guaranteed enough height for all four rows including CP.
+- Updated member page asset cache version to 2640.
