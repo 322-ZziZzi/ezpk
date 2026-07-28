@@ -50,8 +50,10 @@ function normalize(d){
 function v(m,n){return window.EZPKVehiclePower?.normalized(m,n)||Number(m?.[`vehicle${n}PowerNormalized`]||0)||0;}
 function ind(m){return Number(m?.ind||m?.industryLevel||0)||0;}
 function power(m){return Number(m?.power||0)||0;}
-function fvp(x){return window.EZPKVehiclePower?.formatNormalized(x)||Number(x||0).toLocaleString();}
-function memberMeta(n){const m=map().get(n);return `Lv${ind(m)} • ${fvp(v(m,1))} • ${fvp(v(m,2))}`;}
+function fvp(x){return window.EZPKVehiclePower?.formatNormalized(x)||'-';}
+function fcp(x){return window.EZPKVehiclePower?.formatCombatPower(x)||'-';}
+function find(x){return window.EZPKVehiclePower?.formatIndustryLevel(x)||'-';}
+function memberMeta(n){const m=map().get(n);return `${find(ind(m))} • ${fvp(v(m,1))} • ${fvp(v(m,2))} • CP ${fcp(power(m))}`;}
 
 function targets(){
   const n=cw.draft.participants.length,t=cw.settings.targets||{};
@@ -184,9 +186,9 @@ function participantRows(){
       const current=displayedTeamOf(m.nickname);
       return `<tr>
         <td><b>${esc(m.nickname)}</b></td>
-        <td>I${ind(m)}</td>
-        <td>${fvp(v(m,1))}</td>
-        <td>${fvp(v(m,2))}</td>
+        <td><b class="spec-value">${find(ind(m))}</b></td>
+        <td><b class="spec-value">${fvp(v(m,1))}</b></td>
+        <td><b class="spec-value">${fvp(v(m,2))}</b></td>
         <td><input type="checkbox" data-cw-participant="${esc(m.nickname)}" ${ps.has(m.nickname)?'checked':''}></td>
         <td><div class="cw-fixed-control"><select data-cw-fixed="${esc(m.nickname)}">
           <option value="auto" ${current==='auto'?'selected':''}>미배정</option>

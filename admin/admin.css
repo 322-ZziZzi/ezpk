@@ -740,3 +740,6 @@ body.admin-unlocked{overflow:auto}
 .event-admin-card .important-toggle input{accent-color:#ff5a5f}
 .event-admin-card.important .important-toggle{color:#ff9b9f}
 @media(max-width:500px){.event-admin-card-head{align-items:flex-start}.event-admin-toggles{max-width:68%;gap:7px;justify-content:flex-end}.event-admin-card-head label{font-size:11px}}
+
+/* v265: unified detailed-spec value emphasis */
+.admin-main .spec-value{color:#f5c547;font-weight:900}

@@ -3,7 +3,8 @@
   const state={items:[],stats:{},page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",industry:"",sort:"created_desc",limit:10,longPress:null};
   const $=s=>document.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-  const fmt=n=>Number(n||0).toLocaleString("ko-KR");
+  const fmt=n=>window.EZPKVehiclePower?.formatCombatPower(n)??"-";
+  const industry=v=>window.EZPKVehiclePower?.formatIndustryLevel(v)??"-";
   const vehicle=(m,vehicleNumber=1)=>window.EZPKVehiclePower?.formatMember(m,vehicleNumber)??"-";
   const date=v=>v?new Intl.DateTimeFormat("ko-KR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v)):"-";
   async function api(path,options={}){
@@ -38,14 +39,14 @@
     return `<tr data-id="${m.id}" class="${state.activeId===m.id?"active":""}">
       <td><input class="v188-select" type="checkbox" ${checked}></td>
       <td><button class="v188-open" type="button">${esc(m.nickname)}</button></td>
-      <td>${esc(m.memberRank)}</td><td>${esc(m.industryLevel)}</td>
-      <td>${fmt(m.power)}</td><td>${esc(vehicle(m))}</td></tr>`;
+      <td>${esc(m.memberRank)}</td><td><b class="spec-value">${esc(industry(m.industryLevel))}</b></td>
+      <td><b class="spec-value">${fmt(m.power)}</b></td><td><b class="spec-value">${esc(vehicle(m))}</b></td></tr>`;
   }
   function card(m){
     const selected=state.selected.has(m.id)?"selected":"";
     return `<article class="v188-member-card ${selected}" data-id="${m.id}" tabindex="0" aria-label="${esc(m.nickname)} 상세 열기">
-      <div class="v188-card-top"><strong>${esc(m.nickname)}</strong><span>${esc(m.memberRank)} · ${esc(m.industryLevel)}</span></div>
-      <div class="v188-card-grid"><span>전투력<b>${fmt(m.power)}</b></span><span>1번 차량 파워<b>${esc(vehicle(m))}</b></span></div>
+      <div class="v188-card-top"><strong>${esc(m.nickname)}</strong><span>${esc(m.memberRank)} · <b class="spec-value">${esc(industry(m.industryLevel))}</b></span></div>
+      <div class="v188-card-grid"><span>전투력<b class="spec-value">${fmt(m.power)}</b></span><span>1번 차량 파워<b class="spec-value">${esc(vehicle(m))}</b></span></div>
       <i class="v188-card-check">✓</i>
     </article>`;
   }
@@ -96,7 +97,7 @@
   function detailHtml(m,history){
     const historyHtml=(history||[]).length?(history||[]).map(h=>`<li><time>${date(h.changed_at)}</time><span>${esc(h.old_nickname)} → <b>${esc(h.new_nickname)}</b></span></li>`).join(""):"<li>변경 이력이 없습니다.</li>";
     const adminLocked=m.role==="admin"?"disabled":"";
-    return `<div class="v188-detail-head"><button id="memberDetailBackV188" class="secondary" type="button">← 목록</button><div><h2>${esc(m.nickname)}</h2><p>${esc(m.memberRank)} · ${esc(m.industryLevel||"미입력")} · ${fmt(m.power)}</p></div></div>
+    return `<div class="v188-detail-head"><button id="memberDetailBackV188" class="secondary" type="button">← 목록</button><div><h2>${esc(m.nickname)}</h2><p>${esc(m.memberRank)} · <b class="spec-value">${esc(industry(m.industryLevel))}</b> · <b class="spec-value">${fmt(m.power)}</b></p></div></div>
     <form id="memberDetailFormV188" class="v188-detail-form">
       <details open><summary>기본 프로필</summary><div class="v188-detail-grid">
         <label>로그인 ID<input value="${esc(m.loginId)}" disabled></label>

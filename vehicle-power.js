@@ -37,22 +37,23 @@
     return { amount: normalized, unit: "M", comparisonRank: normalized };
   }
 
-  function roundForDisplay(amount) {
-    return Math.round((Number(amount) + Number.EPSILON) * 10) / 10;
+  function truncateForDisplay(amount) {
+    const value = Number(amount);
+    return Number.isFinite(value) ? Math.floor(value) : 0;
   }
 
-  function displayNumber(amount, locale = "ko-KR") {
-    const rounded = roundForDisplay(amount);
-    return rounded.toLocaleString(locale, {
-      minimumFractionDigits: Number.isInteger(rounded) ? 0 : 1,
-      maximumFractionDigits: 1,
+  function displayInteger(amount, locale = "ko-KR") {
+    return truncateForDisplay(amount).toLocaleString(locale, {
+      maximumFractionDigits: 0,
     });
   }
 
   function format(value, unit, options = {}) {
     const parsed = parse(value, unit);
     if (!parsed) return options.empty ?? "-";
-    return `${displayNumber(parsed.amount, options.locale)}${parsed.unit}`;
+    const normalized = parsed.comparisonRank;
+    if (normalized >= 1000) return `${displayInteger(normalized / 1000, options.locale)}G`;
+    return `${displayInteger(normalized, options.locale)}M`;
   }
 
   function formatMember(member, vehicleNumber = 1, options = {}) {
@@ -69,8 +70,21 @@
   function formatNormalized(normalizedValue, options = {}) {
     const value = Number(normalizedValue);
     if (!Number.isFinite(value) || value < 0) return options.empty ?? "-";
-    if (value >= 1000) return `${displayNumber(value / 1000, options.locale)}G`;
-    return `${displayNumber(value, options.locale)}M`;
+    if (value >= 1000) return `${displayInteger(value / 1000, options.locale)}G`;
+    return `${displayInteger(value, options.locale)}M`;
+  }
+
+
+  function formatCombatPower(rawValue, options = {}) {
+    const value = Number(String(rawValue ?? "").replace(/,/g, "").trim());
+    if (!Number.isFinite(value) || value <= 0) return options.empty ?? "-";
+    return `${Math.floor(value / 100000000).toLocaleString(options.locale || "ko-KR")}G`;
+  }
+
+  function formatIndustryLevel(rawValue, options = {}) {
+    const value = Number(String(rawValue ?? "").trim().replace(/^I/i, ""));
+    if (!Number.isFinite(value) || value <= 0) return options.empty ?? "-";
+    return `i${Math.floor(value)}`;
   }
 
   function compareValues(aValue, aUnit, bValue, bUnit) {
@@ -108,6 +122,8 @@
     format,
     formatMember,
     formatNormalized,
+    formatCombatPower,
+    formatIndustryLevel,
     compareValues,
     compareMembers,
     isValidInput,
