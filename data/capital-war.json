@@ -134,18 +134,13 @@
     }
   },
   "published": {
-    "publishedAt": "2026-07-28T01:53:54.424Z",
+    "publishedAt": "2026-07-28T01:54:40.346Z",
     "lastUpdated": "2026.07.27",
     "teams": {
       "capital": [
         "Ling² Kwong",
         "Uncle Uay Balam",
-        "Tiger",
-        "Katreeya",
-        "AK3",
-        "RoughRider25",
-        "FoxxyScorpio",
-        "Bird Of Hermes"
+        "Tiger"
       ],
       "tower": [
         "NOX"
@@ -182,7 +177,12 @@
         "Josef62",
         "Anubis X",
         "Oscarlui",
-        "咸鸭蛋"
+        "咸鸭蛋",
+        "Bird Of Hermes",
+        "FoxxyScorpio",
+        "RoughRider25",
+        "AK3",
+        "Katreeya"
       ]
     }
   }
