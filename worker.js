@@ -536,11 +536,63 @@ function season6AssignmentCount(data) {
     .filter(validAssignedName).length;
 }
 
-async function readStrategyAsset(env, origin, path) {
+const D1_STRATEGY_PATHS = new Map([
+  ["data/capital-war.json", "capital-war"],
+  ["data/season6-teams.json", "season6-teams"],
+  ["data/bgb.json", "bgb"],
+]);
+
+function strategyContentKey(path) {
+  return D1_STRATEGY_PATHS.get(String(path || "").replace(/^\/+/, "")) || "";
+}
+
+async function readStrategyAssetFallback(env, origin, path) {
   const response = await env.ASSETS.fetch(new Request(new URL(`/${path}`, origin), { method:"GET" }));
   if (!response.ok) throw new HttpError(404, "CONTENT_NOT_FOUND");
   try { return await response.json(); }
   catch (_) { throw new HttpError(500, "CONTENT_INVALID"); }
+}
+
+async function readStrategyContentD1(env, origin, path, options = {}) {
+  const key = strategyContentKey(path);
+  if (!key) return readStrategyAssetFallback(env, origin, path);
+  const row = await env.DB.prepare(
+    "SELECT content_json, updated_at FROM strategy_content WHERE content_key = ?"
+  ).bind(key).first();
+  if (row?.content_json) {
+    try { return { content: JSON.parse(row.content_json), updatedAt: row.updated_at || "", source: "d1" }; }
+    catch (_) { throw new HttpError(500, "CONTENT_INVALID"); }
+  }
+
+  let content = null;
+  try {
+    const github = await readGithubJson(env, path);
+    if (github?.content) content = github.content;
+  } catch (_) {}
+  if (!content) content = await readStrategyAssetFallback(env, origin, path);
+  await env.DB.prepare(`
+    INSERT INTO strategy_content(content_key, content_json, updated_at)
+    VALUES(?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(content_key) DO NOTHING
+  `).bind(key, JSON.stringify(content)).run();
+  return { content, updatedAt: new Date().toISOString(), source: "fallback" };
+}
+
+async function writeStrategyContentD1(env, path, content) {
+  const key = strategyContentKey(path);
+  if (!key) throw new HttpError(400, "CONTENT_PATH_NOT_ALLOWED");
+  await env.DB.prepare(`
+    INSERT INTO strategy_content(content_key, content_json, updated_at)
+    VALUES(?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(content_key) DO UPDATE SET
+      content_json = excluded.content_json,
+      updated_at = CURRENT_TIMESTAMP
+  `).bind(key, JSON.stringify(content)).run();
+  return { sha: "d1", storage: "d1" };
+}
+
+async function readStrategyAsset(env, origin, path) {
+  return (await readStrategyContentD1(env, origin, path)).content;
 }
 
 async function strategyAccessState(env, origin) {
@@ -574,7 +626,9 @@ async function handleConditionalStrategyAsset(request, url, env) {
     if (member instanceof Response) return member;
     if (isCapitalWar && member.status !== "active") return jsonError("FORBIDDEN", 403);
   }
-  return env.ASSETS.fetch(request);
+  const path = url.pathname.replace(/^\//, "");
+  const stored = await readStrategyContentD1(env, url.origin, path);
+  return json(stored.content, 200, { "cache-control": "no-store" });
 }
 
 async function handleAuthMe(request, env) {
@@ -609,11 +663,15 @@ async function handleMemberContentGet(request, url, env) {
   const path = String(url.searchParams.get("path") || "").trim();
   if (!MEMBER_CONTENT_PATHS.has(path)) return jsonError("CONTENT_PATH_NOT_ALLOWED", 400);
   if (path === "data/capital-war.json" && member.status !== "active") return jsonError("FORBIDDEN", 403);
-  const assetUrl = new URL(`/${path}`, url.origin);
-  const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, { method:"GET" }));
-  if (!assetResponse.ok) return jsonError("CONTENT_NOT_FOUND", 404);
   let content;
-  try { content = await assetResponse.json(); } catch (_) { return jsonError("CONTENT_INVALID", 500); }
+  if (strategyContentKey(path)) {
+    content = (await readStrategyContentD1(env, url.origin, path)).content;
+  } else {
+    const assetUrl = new URL(`/${path}`, url.origin);
+    const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, { method:"GET" }));
+    if (!assetResponse.ok) return jsonError("CONTENT_NOT_FOUND", 404);
+    try { content = await assetResponse.json(); } catch (_) { return jsonError("CONTENT_INVALID", 500); }
+  }
   return json({ ok:true, data:{ content } });
 }
 
@@ -1535,6 +1593,10 @@ async function handleAdminContentGet(request, url, env) {
   const admin = await requireAdmin(request, env.DB);
   if (admin instanceof Response) return admin;
   const path = assertAdminContentPath(url.searchParams.get("path"));
+  if (strategyContentKey(path)) {
+    const stored = await readStrategyContentD1(env, url.origin, path, { preferGithub: true });
+    return json({ ok: true, data: { sha: "d1", content: stored.content, storage: "d1" } });
+  }
   return json({ ok: true, data: await readGithubJson(env, path) });
 }
 
@@ -1544,6 +1606,9 @@ async function handleAdminContentPut(request, env) {
   const body = await readJson(request);
   const path = assertAdminContentPath(body.path);
   if (body.content === undefined || body.content === null) return jsonError("VALIDATION_ERROR", 400);
+  if (strategyContentKey(path)) {
+    return json({ ok: true, data: await writeStrategyContentD1(env, path, body.content) });
+  }
   return json({ ok: true, data: await writeGithubJson(env, path, body.content, body.message) });
 }
 
