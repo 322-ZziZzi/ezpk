@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK 관리자</title>
   <link rel="stylesheet" href="../style.css?v=2270">
-  <link rel="stylesheet" href="admin.css?v=2170">
+  <link rel="stylesheet" href="admin.css?v=2770">
   <link rel="stylesheet" href="member-manager-v188.css?v=2690">
   <link rel="stylesheet" href="vote-manager.css?v=2160">
   <link rel="stylesheet" href="capital-war-manager.css?v=2650">
@@ -56,18 +56,6 @@
 </header>
 <main class="admin-main">
   <section class="admin-hero"><span class="eyebrow">EZPK ALLIANCE</span><h1>관리자 페이지</h1><p>관리자 페이지에서 EZPK 운영 데이터를 수정하세요.</p></section>
-  <section class="connect-card admin-api-card">
-    <div>
-      <h2>관리자 운영 데이터</h2>
-      <p class="help">GitHub 인증 정보는 Cloudflare Worker Secret에 보관됩니다. 브라우저에는 토큰이 저장되지 않습니다.</p>
-    </div>
-    <div class="connect-actions">
-      <button id="loadGithub" class="secondary" type="button">↻ 새로고침</button>
-      <button id="saveAllGithub" class="primary" type="button">저장</button>
-    </div>
-    <div id="status" class="status" aria-live="polite"></div>
-  </section>
-
   <section class="manager-card">
     <div class="admin-tabs"><button data-panel="membersPanel" class="active">회원 관리</button><button data-panel="bgbPanel">BGB 관리</button><button data-panel="capitalWarPanel">수도전 관리</button><button data-panel="season6Panel">시즌 6 관리</button><button data-panel="eventsPanel">이벤트 관리</button><button data-panel="votePanel">투표 관리</button><button data-panel="requestsPanel">요청 관리</button><button data-panel="accountsPanel">계정 관리</button></div>
 
@@ -175,7 +163,11 @@
           </div>
         </div>
       </section>
-      <div class="bgb-backup-actions"><button id="downloadBgbJson">↓ BGB JSON 백업</button></div>
+      <div class="bgb-manager-actions">
+        <button id="refreshBgb" class="secondary" type="button">↻ 새로고침</button>
+        <button id="downloadBgbJson" type="button">↓ BGB JSON 백업</button>
+        <button id="saveBgb" class="primary" type="button">BGB 저장</button>
+      </div>
     </div>
 
     <div id="capitalWarPanel" class="admin-panel">
@@ -215,7 +207,12 @@
       <div class="event-manager-head"><div><h2>이벤트 관리</h2><p>최대 9개의 이벤트를 설정합니다. 종료시간은 상태 판단에만 사용되며 연맹원 화면에는 시작시간만 표시됩니다.</p></div><label>일정 업데이트<input id="eventsLastUpdated" type="text" placeholder="2026.07.17"></label></div>
       <div class="event-manager-guide"><strong>이벤트 관리</strong><span>게임 내 서버 시간과 동일하게 입력하세요.</span><span>24시간 표기: 00:00~23:59</span><span>시작 전: 카운트다운</span><span>진행 중</span><span>종료 후</span></div>
       <div id="eventAdminGrid" class="event-admin-grid"></div>
-      <div class="event-manager-actions"><button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button><button id="downloadEventsJson" type="button">↓ 이벤트 JSON 백업</button></div>
+      <div class="event-manager-actions">
+        <button id="refreshEvents" class="secondary" type="button">↻ 새로고침</button>
+        <button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button>
+        <button id="downloadEventsJson" type="button">↓ 이벤트 JSON 백업</button>
+        <button id="saveEvents" class="primary" type="button">이벤트 저장</button>
+      </div>
     </div>
     <div id="requestsPanel" class="admin-panel">
       <div class="request-admin-head"><div><h2>요청 관리</h2><p>Supabase에 등록된 요청을 확인하고 답변하거나 삭제할 수 있습니다.</p></div><button id="refreshRequests" type="button" class="secondary">새로고침</button></div>
@@ -269,7 +266,7 @@
 <script src="../shared-header.js?v=1940"></script>
 <script src="../vehicle-power.js?v=2740"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2740"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2740"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2770"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2740"></script>
 <script src="capital-war-manager.js?v=2740"></script>
 <script src="member-manager-v188.js?v=2740"></script>
 <script src="vote-manager.js?v=2160"></script>

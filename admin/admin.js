@@ -114,7 +114,6 @@ function syncEventsFromForm(){
     e.end=serverPartsToIso(ed,et);
   });
 }
-function setStatus(msg,type=''){const e=$('#status');if(!e)return;e.textContent=msg;e.className='status '+type}
 function adminErrorMessage(error){
   const code=String(error?.message||error||'');
   const map={FORBIDDEN:'관리자 권한이 없습니다.',UNAUTHORIZED:'로그인 세션이 만료되었습니다.',GITHUB_NOT_CONFIGURED:'Cloudflare GitHub 환경변수가 설정되지 않았습니다.',GITHUB_READ_FAILED:'GitHub 운영 데이터를 불러오지 못했습니다.',GITHUB_WRITE_FAILED:'GitHub 운영 데이터를 저장하지 못했습니다.',CONTENT_PATH_NOT_ALLOWED:'허용되지 않은 운영 데이터 경로입니다.',INVALID_JSON_CONTENT:'저장할 JSON 데이터 형식이 올바르지 않습니다.',INVALID_EVENT_TIME:'이벤트 시작·종료시간을 확인해 주세요.',EVENTS_API_FAILED:'이벤트 API 처리에 실패했습니다.',EVENTS_LOAD_FAILED:'이벤트 데이터를 불러오지 못했습니다.'};
@@ -269,35 +268,60 @@ async function eventApiRequest(options={}){
   if(!response.ok||!payload?.ok)throw new Error(payload?.code||'EVENTS_API_FAILED');
   return payload.data;
 }
-async function loadGithub(){
-  const [adminMembers,b,e]=await Promise.all([
-    fetchAllAdminMembers(),
-    githubGetFile('data/bgb.json'),
-    eventApiRequest()
-  ]);
-  bgbSha=b.sha;eventsSha='';
-  membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
-  bgbData=normalizeBgb(b.data);eventsData=normalizeEvents(e);
-  syncInputs();renderAll();
-  window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
+async function loadBgbData({refreshMembers=false}={}){
+  let adminMembers=null;
+  if(refreshMembers)adminMembers=await fetchAllAdminMembers();
+  const b=await githubGetFile('data/bgb.json');
+  bgbSha=b.sha;
+  if(adminMembers){
+    membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
+    window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
+  }
+  bgbData=normalizeBgb(b.data);
+  syncInputs();
+  renderMembers();
+  renderBgbAll();
+  clearAdminDirty('bgb');
 }
-async function saveAllData(){
+async function loadEventsData(){
+  eventsData=normalizeEvents(await eventApiRequest());
+  syncInputs();
+  renderEvents();
+  clearAdminDirty('events');
+}
+function validateBgbPayload(bp){
+  TEAM_KEYS.forEach(t=>{
+    if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`);
+  });
+}
+function validateEventsPayload(ep){
+  ep.events.forEach((e,i)=>{
+    if(!e.enabled)return;
+    if(!e.title||!e.start||!e.end)throw new Error(`EVENT ${i+1}: 활성화된 이벤트는 이벤트명, 시작시간, 종료시간이 모두 필요합니다.`);
+    const startDate=parseEventDate(e.start),endDate=parseEventDate(e.end);
+    if(!startDate||!endDate)throw new Error(`EVENT ${i+1}: 시간을 정확히 입력해 주세요.`);
+    if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`);
+  });
+}
+async function saveBgbData(){
   if(!bgbSha){const b=await githubGetFile('data/bgb.json');bgbSha=b.sha}
-  const date=todayKst(),bp=bgbPayload(),ep=eventsPayload();
-  if(!bp.lastUpdated)bp.lastUpdated=date;
-  if(!ep.lastUpdated)ep.lastUpdated=date;
-  TEAM_KEYS.forEach(t=>{if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`)});
-  ep.events.forEach((e,i)=>{if(!e.enabled)return;if(!e.title||!e.start||!e.end)throw new Error(`EVENT ${i+1}: 활성화된 이벤트는 이벤트명, 시작시간, 종료시간이 모두 필요합니다.`);const startDate=parseEventDate(e.start),endDate=parseEventDate(e.end);if(!startDate||!endDate)throw new Error(`EVENT ${i+1}: 시간을 정확히 입력해 주세요.`);if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`)});
-  const results=await Promise.allSettled([
-    githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`),
-    eventApiRequest({method:'PUT',payload:ep})
-  ]);
-  const failures=[];
-  if(results[0].status==='fulfilled')bgbSha=results[0].value;else failures.push(`BGB: ${adminErrorMessage(results[0].reason)}`);
-  if(results[1].status==='fulfilled')eventsData=normalizeEvents(results[1].value);else failures.push(`이벤트: ${adminErrorMessage(results[1].reason)}`);
-  if(failures.length)throw new Error(failures.join(' / '));
-  bgbData=normalizeBgb(bp);syncInputs();renderAll();
-  clearAdminDirty('bgb');clearAdminDirty('events');setStatus('BGB 편성 저장 완료. 이벤트 일정은 D1에 즉시 반영됩니다.','ok');showAdminToast('저장 완료 ✓')
+  const bp=bgbPayload();
+  if(!bp.lastUpdated)bp.lastUpdated=todayKst();
+  validateBgbPayload(bp);
+  bgbSha=await githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`);
+  bgbData=normalizeBgb(bp);
+  syncInputs();
+  renderBgbAll();
+  clearAdminDirty('bgb');
+}
+async function saveEventsData(){
+  const ep=eventsPayload();
+  if(!ep.lastUpdated)ep.lastUpdated=todayKst();
+  validateEventsPayload(ep);
+  eventsData=normalizeEvents(await eventApiRequest({method:'PUT',payload:ep}));
+  syncInputs();
+  renderEvents();
+  clearAdminDirty('events');
 }
 function exportExcel(){if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}const rows=membersData.members.map((m,i)=>({No:i+1,Rank:m.rank,Nickname:m.nickname,IND:m.ind,'Combat Power':m.power}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EZPK Members');XLSX.writeFile(wb,`EZPK_Member_List_${($('#lastUpdated').value||'backup').replaceAll('.','-')}.xlsx`)}
 function importExcel(){alert('Excel 가져오기는 v188에서 제거되었습니다.')} 
@@ -313,14 +337,35 @@ $('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const s
 $('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments();markAdminDirty('bgb')};
 $('#downloadEventsJson').onclick=()=>downloadJson(eventsPayload(),'events.json');
 $('#clearFinishedEvents').onclick=()=>{const now=Date.now();eventsData.events.forEach(e=>{if(e.enabled&&e.end&&parseEventDate(e.end)?.getTime()<=now)e.enabled=false});renderEvents();markAdminDirty('events')};
-$('#loadGithub').onclick=async()=>{
-  const button=$('#loadGithub');
-  if(window.ezpkAdminDirty&&!confirm('저장하지 않은 변경사항이 있습니다. 계속 새로고침하시겠습니까?'))return;
-  await withAdminButton(button,'불러오는 중...',async()=>{try{setStatus('운영 데이터를 불러오는 중...');await loadGithub();clearAdminDirty();setStatus('운영 데이터 새로고침 완료.','ok');showAdminToast('새로고침 완료 ✓')}catch(e){const msg=adminErrorMessage(e);setStatus(msg,'error');showAdminToast(msg,'error')}})
+$('#refreshBgb').onclick=async()=>{
+  const button=$('#refreshBgb');
+  if(hasAdminDirty('bgb')&&!confirm('저장하지 않은 BGB 변경사항이 있습니다. 새로고침할까요?'))return;
+  await withAdminButton(button,'불러오는 중...',async()=>{
+    try{await loadBgbData({refreshMembers:true});showAdminToast('BGB 새로고침 완료 ✓')}
+    catch(e){showAdminToast(adminErrorMessage(e),'error')}
+  });
 };
-$('#saveAllGithub').onclick=async()=>{
-  const button=$('#saveAllGithub');
-  await withAdminButton(button,'저장 중...',async()=>{try{setStatus('운영 데이터를 저장하는 중...');await saveAllData()}catch(e){const msg=adminErrorMessage(e);setStatus(msg,'error');showAdminToast(msg,'error')}})
+$('#saveBgb').onclick=async()=>{
+  const button=$('#saveBgb');
+  await withAdminButton(button,'저장 중...',async()=>{
+    try{await saveBgbData();showAdminToast('BGB 저장 완료 ✓')}
+    catch(e){showAdminToast(adminErrorMessage(e),'error')}
+  });
+};
+$('#refreshEvents').onclick=async()=>{
+  const button=$('#refreshEvents');
+  if(hasAdminDirty('events')&&!confirm('저장하지 않은 이벤트 변경사항이 있습니다. 새로고침할까요?'))return;
+  await withAdminButton(button,'불러오는 중...',async()=>{
+    try{await loadEventsData();showAdminToast('이벤트 새로고침 완료 ✓')}
+    catch(e){showAdminToast(adminErrorMessage(e),'error')}
+  });
+};
+$('#saveEvents').onclick=async()=>{
+  const button=$('#saveEvents');
+  await withAdminButton(button,'저장 중...',async()=>{
+    try{await saveEventsData();showAdminToast('이벤트 저장 완료 ✓')}
+    catch(e){showAdminToast(adminErrorMessage(e),'error')}
+  });
 };
 function adminPersistedSection(target){
   if(!target?.closest)return '';

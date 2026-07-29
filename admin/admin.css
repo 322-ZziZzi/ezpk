@@ -743,3 +743,52 @@ body.admin-unlocked{overflow:auto}
 
 /* v265: unified detailed-spec value emphasis */
 .admin-main .spec-value{color:#f5c547;font-weight:900}
+
+
+/* v277: section-scoped BGB and event data controls */
+.bgb-manager-actions,
+.event-manager-actions{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  margin-top:18px;
+  flex-wrap:wrap;
+}
+.bgb-manager-actions button,
+.event-manager-actions button{
+  min-height:43px;
+  padding:0 15px;
+  border:1px solid #ffffff1c;
+  border-radius:10px;
+  background:#151e2c;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+.bgb-manager-actions button:disabled,
+.event-manager-actions button:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+@media(max-width:620px){
+  .bgb-manager-actions,
+  .event-manager-actions{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch;
+  }
+  .bgb-manager-actions button,
+  .event-manager-actions button{
+    width:100%;
+    min-height:48px;
+    height:auto;
+    padding:12px 10px;
+    line-height:1.3;
+    white-space:normal;
+  }
+  .bgb-manager-actions .primary,
+  .event-manager-actions .primary{
+    grid-column:1 / -1;
+  }
+}
