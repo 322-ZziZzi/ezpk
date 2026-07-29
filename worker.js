@@ -1681,7 +1681,7 @@ async function handleAdminMembers(request, url, env) {
   const q = cleanString(url.searchParams.get("q"), 64);
   const rank = String(url.searchParams.get("rank") || "").toUpperCase();
   const industry = String(url.searchParams.get("industry") || "").toUpperCase();
-  const sortKey = url.searchParams.get("sort") || "created_desc";
+  const sortKey = url.searchParams.get("sort") || "default";
   const page = Math.max(1, Number(url.searchParams.get("page") || 1));
   const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit") || 50)));
   const offset = (page - 1) * limit;
@@ -1692,14 +1692,20 @@ async function handleAdminMembers(request, url, env) {
   if (isAnyMemberRank(rank)) { where.push("m.member_rank = ?"); binds.push(rank); }
   if (isIndustryLevel(industry)) { where.push("m.industry_level = ?"); binds.push(industry); }
   const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+  const rankOrderSql = "CASE m.member_rank WHEN 'R5' THEN 5 WHEN 'R4' THEN 4 WHEN 'R3' THEN 3 WHEN 'R2' THEN 2 WHEN 'R1' THEN 1 ELSE 0 END";
+  const industryOrderSql = "CAST(REPLACE(UPPER(COALESCE(m.industry_level,'')),'I','') AS INTEGER)";
+  const missingSpecCountSql = "((CASE WHEN m.industry_level IS NULL OR TRIM(m.industry_level)='' THEN 1 ELSE 0 END) + (CASE WHEN m.power IS NULL OR m.power<=0 THEN 1 ELSE 0 END) + (CASE WHEN s.vehicle1_power_normalized IS NULL OR s.vehicle1_power_normalized<=0 THEN 1 ELSE 0 END) + (CASE WHEN s.vehicle2_power_normalized IS NULL OR s.vehicle2_power_normalized<=0 THEN 1 ELSE 0 END))";
   const sortMap = {
-    created_desc: "m.created_at DESC",
-    power_desc: "m.power DESC",
-    power_asc: "m.power ASC",
-    vehicle1_desc: "COALESCE(s.vehicle1_power_normalized,0) DESC",
-    nickname_asc: "m.nickname COLLATE NOCASE ASC",
+    default: `${rankOrderSql} DESC, CASE WHEN s.vehicle1_power_normalized IS NULL OR s.vehicle1_power_normalized<=0 THEN 1 ELSE 0 END ASC, s.vehicle1_power_normalized DESC, CASE WHEN s.vehicle2_power_normalized IS NULL OR s.vehicle2_power_normalized<=0 THEN 1 ELSE 0 END ASC, s.vehicle2_power_normalized DESC, CASE WHEN m.industry_level IS NULL OR TRIM(m.industry_level)='' THEN 1 ELSE 0 END ASC, ${industryOrderSql} DESC, m.nickname COLLATE NOCASE ASC`,
+    vehicle1_desc: "CASE WHEN s.vehicle1_power_normalized IS NULL OR s.vehicle1_power_normalized<=0 THEN 1 ELSE 0 END ASC, s.vehicle1_power_normalized DESC, m.id ASC",
+    vehicle2_desc: "CASE WHEN s.vehicle2_power_normalized IS NULL OR s.vehicle2_power_normalized<=0 THEN 1 ELSE 0 END ASC, s.vehicle2_power_normalized DESC, m.id ASC",
+    industry_desc: `CASE WHEN m.industry_level IS NULL OR TRIM(m.industry_level)='' THEN 1 ELSE 0 END ASC, ${industryOrderSql} DESC, m.id ASC`,
+    power_desc: "CASE WHEN m.power IS NULL OR m.power<=0 THEN 1 ELSE 0 END ASC, m.power DESC, m.id ASC",
+    nickname_asc: "m.nickname COLLATE NOCASE ASC, m.id ASC",
+    created_desc: "m.created_at DESC, m.id DESC",
+    spec_missing_desc: `${missingSpecCountSql} DESC, m.id ASC`,
   };
-  const orderBy = sortMap[sortKey] || sortMap.created_desc;
+  const orderBy = sortMap[sortKey] || sortMap.default;
 
   const countRow = await env.DB.prepare(`SELECT COUNT(*) AS total FROM members m ${whereSql}`)
     .bind(...binds).first();

@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const state={items:[],stats:{},page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",industry:"",sort:"created_desc",limit:10,longPress:null};
+  const state={items:[],stats:{},page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",sort:"default",limit:10,longPress:null};
   const $=s=>document.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   const fmt=n=>window.EZPKVehiclePower?.formatCombatPower(n)??"-";
@@ -17,7 +17,6 @@
     const p=new URLSearchParams({page:String(state.page),limit:String(state.limit),sort:state.sort});
     if(state.query)p.set("q",state.query);
     if(state.rank)p.set("rank",state.rank);
-    if(state.industry)p.set("industry",state.industry);
     return p;
   }
   async function load(reset=false){
@@ -33,20 +32,20 @@
     }
     window.dispatchEvent(new CustomEvent("ezpk-admin-members-updated",{detail:{members:state.items}}));
   }
-  function renderStats(){document.querySelectorAll("[data-stat]").forEach(el=>el.textContent=fmt(state.stats[el.dataset.stat]||0))}
+  function renderStats(){document.querySelectorAll("[data-stat]").forEach(el=>{const value=Number(state.stats[el.dataset.stat]||0);el.textContent=Number.isFinite(value)?Math.max(0,Math.floor(value)).toLocaleString("ko-KR"):"0"})}
   function row(m){
     const checked=state.selected.has(m.id)?"checked":"";
     return `<tr data-id="${m.id}" class="${state.activeId===m.id?"active":""}">
       <td><input class="v188-select" type="checkbox" ${checked}></td>
       <td><button class="v188-open" type="button">${esc(m.nickname)}</button></td>
       <td>${esc(m.memberRank)}</td><td><b class="spec-value">${esc(industry(m.industryLevel))}</b></td>
-      <td><b class="spec-value">${fmt(m.power)}</b></td><td><b class="spec-value">${esc(vehicle(m))}</b></td></tr>`;
+      <td><b class="spec-value">${fmt(m.power)}</b></td><td><b class="spec-value">${esc(vehicle(m,1))}</b></td><td><b class="spec-value">${esc(vehicle(m,2))}</b></td></tr>`;
   }
   function card(m){
     const selected=state.selected.has(m.id)?"selected":"";
     return `<article class="v188-member-card ${selected}" data-id="${m.id}" tabindex="0" aria-label="${esc(m.nickname)} 상세 열기">
       <div class="v188-card-top"><strong>${esc(m.nickname)}</strong><span>${esc(m.memberRank)} · <b class="spec-value">${esc(industry(m.industryLevel))}</b></span></div>
-      <div class="v188-card-grid"><span>전투력<b class="spec-value">${fmt(m.power)}</b></span><span>1번 차량 파워<b class="spec-value">${esc(vehicle(m))}</b></span></div>
+      <div class="v188-card-grid"><span>CP<b class="spec-value">${fmt(m.power)}</b></span><span>#1<b class="spec-value">${esc(vehicle(m,1))}</b></span><span>#2<b class="spec-value">${esc(vehicle(m,2))}</b></span></div>
       <i class="v188-card-check">✓</i>
     </article>`;
   }
@@ -200,10 +199,9 @@
     if(!$("#memberRowsV188"))return;
     $("#memberSearchV188").oninput=e=>{clearTimeout(init.t);init.t=setTimeout(()=>{state.query=e.target.value.trim();load(true)},250)};
     $("#memberRankV188").onchange=e=>{state.rank=e.target.value;load(true)};
-    $("#memberIndustryV188").onchange=e=>{state.industry=e.target.value;load(true)};
     $("#memberSortV188").onchange=e=>{state.sort=e.target.value;load(true)};
     $("#memberLimitV188").onchange=e=>{state.limit=Math.max(10,Number(e.target.value)||10);load(true)};
-    $("#memberRefreshV188").onclick=()=>load();
+    $("#memberRefreshV188").onclick=()=>{state.sort="default";$("#memberSortV188").value="default";load(true)};
     $("#memberExportV188").onclick=exportExcel;
     $("#memberPrevV188").onclick=()=>{if(state.page>1){state.page--;load()}};
     $("#memberNextV188").onclick=()=>{if(state.page<state.totalPages){state.page++;load()}};
