@@ -19,7 +19,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fullNumber=n=>new Intl.NumberFormat(lang==='en'?'en-US':lang).format(Number(n)||0);
 function numberOrNull(value){if(value===null||value===undefined||value==='')return null;const n=Number(value);return Number.isFinite(n)&&n>0?n:null}
 function industryNumber(value){if(value===null||value===undefined||value==='')return null;const n=Number(String(value).toUpperCase().replace(/^I/,''));return Number.isFinite(n)&&n>0?n:null}
-function compactRaw(value){const n=numberOrNull(value);return n?(window.EZPKVehiclePower?.formatCombatPower(n,{locale:lang==='en'?'en-US':lang,maximumFractionDigits:2})||'-'):'-'}
+function compactRaw(value){const n=numberOrNull(value);return n?(window.EZPKVehiclePower?.formatCombatPower(n,{locale:lang==='en'?'en-US':lang,maximumFractionDigits:1})||'-'):'-'}
 function compactNormalized(value){return window.EZPKVehiclePower?.formatNormalized(value,{maximumFractionDigits:1,mMaximumFractionDigits:0})??'-'}
 function vehicleIcon(type){return({fighter:'⚔️',shooter:'🎯',rider:'🏍️'})[String(type||'').toLowerCase()]||'🚙'}
 function tierOf(m){const v=m.vehicle1Power;if(!v)return'UNREGISTERED';if(v>=8000)return'SS';if(v>=5000)return'S';if(v>=3000)return'A';if(v>=2000)return'B';return'C'}
