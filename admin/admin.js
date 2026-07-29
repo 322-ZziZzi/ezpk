@@ -130,9 +130,15 @@ async function withAdminButton(button,busyText,task){
   const oldText=button.textContent;button.disabled=true;button.textContent=busyText;
   try{return await task()}finally{button.disabled=false;button.textContent=oldText}
 }
+const adminDirtySections=new Set();
+function syncAdminDirty(){window.ezpkAdminDirty=adminDirtySections.size>0}
+function markAdminDirty(section='general'){adminDirtySections.add(String(section||'general'));syncAdminDirty()}
+function clearAdminDirty(section){if(section)adminDirtySections.delete(String(section));else adminDirtySections.clear();syncAdminDirty()}
+function hasAdminDirty(section){return section?adminDirtySections.has(String(section)):adminDirtySections.size>0}
 window.ezpkAdminDirty=false;
-function markAdminDirty(){window.ezpkAdminDirty=true}
-function clearAdminDirty(){window.ezpkAdminDirty=false}
+window.markAdminDirty=markAdminDirty;
+window.clearAdminDirty=clearAdminDirty;
+window.hasAdminDirty=hasAdminDirty;
 
 function normalizeMember(m){return{id:Number(m.id||0),rank:String(m.memberRank||m.rank||m.Rank||'R1').toUpperCase(),nickname:String(m.nickname||m.Nickname||'').trim(),ind:Number(String(m.industryLevel||m.ind||m.IND||m['Shelter Level']||0).replace(/^I/i,'')),power:Number(String(m.power??m['Combat Power']??0).replaceAll(',','')),vehicle1PowerNormalized:Number(m.vehicle1PowerNormalized||0),vehicle1PowerValue:m.vehicle1PowerValue??null,vehicle1PowerUnit:m.vehicle1PowerUnit||'',vehicle2PowerNormalized:Number(m.vehicle2PowerNormalized||0),vehicle2PowerValue:m.vehicle2PowerValue??null,vehicle2PowerUnit:m.vehicle2PowerUnit||'',status:m.status||'active',raw:m}}
 function compareVehiclePriority(a,b){const first=window.EZPKVehiclePower?.compareMembers(b,a,1)||0;if(first)return first;const second=window.EZPKVehiclePower?.compareMembers(b,a,2)||0;if(second)return second;return b.power-a.power||b.ind-a.ind||a.nickname.localeCompare(b.nickname)}
@@ -291,7 +297,7 @@ async function saveAllData(){
   if(results[1].status==='fulfilled')eventsData=normalizeEvents(results[1].value);else failures.push(`이벤트: ${adminErrorMessage(results[1].reason)}`);
   if(failures.length)throw new Error(failures.join(' / '));
   bgbData=normalizeBgb(bp);syncInputs();renderAll();
-  clearAdminDirty();setStatus('BGB 편성 저장 완료. 이벤트 일정은 D1에 즉시 반영됩니다.','ok');showAdminToast('저장 완료 ✓')
+  clearAdminDirty('bgb');clearAdminDirty('events');setStatus('BGB 편성 저장 완료. 이벤트 일정은 D1에 즉시 반영됩니다.','ok');showAdminToast('저장 완료 ✓')
 }
 function exportExcel(){if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}const rows=membersData.members.map((m,i)=>({No:i+1,Rank:m.rank,Nickname:m.nickname,IND:m.ind,'Combat Power':m.power}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EZPK Members');XLSX.writeFile(wb,`EZPK_Member_List_${($('#lastUpdated').value||'backup').replaceAll('.','-')}.xlsx`)}
 function importExcel(){alert('Excel 가져오기는 v188에서 제거되었습니다.')} 
@@ -302,11 +308,11 @@ $('#search')&&($('#search').oninput=renderMembers);$('#rank')&&($('#rank').oncha
 $('#addMember')&&($('#addMember').onclick=()=>{});
 $('#exportExcel')&&($('#exportExcel').onclick=exportExcel);
 $('#downloadJson')&&($('#downloadJson').onclick=()=>{});$('#downloadBgbJson').onclick=()=>downloadJson(bgbPayload(),'bgb.json');
-$('#autoAssign').onclick=autoAssign;$('#clearTeam').onclick=()=>{if(confirm(`${selectedTeam} TEAM 명단과 모든 위치 배정을 초기화할까요?`)){currentTeam().members=[];currentTeam().locations=blankLocations();$('#autoSummary').innerHTML='';renderBgbAll()}};
-$('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const set=new Set(currentTeam().locations[selectedLocation]);assignmentVisibleMembers().forEach(m=>set.add(m.nickname));currentTeam().locations[selectedLocation]=[...set];renderLocationButtons();renderAssignments()};
-$('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments()};
+$('#autoAssign').onclick=()=>{if(currentTeam().members.length===20){autoAssign();markAdminDirty('bgb')}else autoAssign()};$('#clearTeam').onclick=()=>{if(confirm(`${selectedTeam} TEAM 명단과 모든 위치 배정을 초기화할까요?`)){currentTeam().members=[];currentTeam().locations=blankLocations();$('#autoSummary').innerHTML='';renderBgbAll();markAdminDirty('bgb')}};
+$('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const set=new Set(currentTeam().locations[selectedLocation]);assignmentVisibleMembers().forEach(m=>set.add(m.nickname));currentTeam().locations[selectedLocation]=[...set];renderLocationButtons();renderAssignments();markAdminDirty('bgb')};
+$('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments();markAdminDirty('bgb')};
 $('#downloadEventsJson').onclick=()=>downloadJson(eventsPayload(),'events.json');
-$('#clearFinishedEvents').onclick=()=>{const now=Date.now();eventsData.events.forEach(e=>{if(e.enabled&&e.end&&parseEventDate(e.end)?.getTime()<=now)e.enabled=false});renderEvents()};
+$('#clearFinishedEvents').onclick=()=>{const now=Date.now();eventsData.events.forEach(e=>{if(e.enabled&&e.end&&parseEventDate(e.end)?.getTime()<=now)e.enabled=false});renderEvents();markAdminDirty('events')};
 $('#loadGithub').onclick=async()=>{
   const button=$('#loadGithub');
   if(window.ezpkAdminDirty&&!confirm('저장하지 않은 변경사항이 있습니다. 계속 새로고침하시겠습니까?'))return;
@@ -316,7 +322,16 @@ $('#saveAllGithub').onclick=async()=>{
   const button=$('#saveAllGithub');
   await withAdminButton(button,'저장 중...',async()=>{try{setStatus('운영 데이터를 저장하는 중...');await saveAllData()}catch(e){const msg=adminErrorMessage(e);setStatus(msg,'error');showAdminToast(msg,'error')}})
 };
-document.addEventListener('input',event=>{if(event.target.closest('#adminApp'))markAdminDirty()});
-document.addEventListener('change',event=>{if(event.target.closest('#adminApp'))markAdminDirty()});
+function adminPersistedSection(target){
+  if(!target?.closest)return '';
+  if(target.closest('#eventsPanel'))return 'events';
+  if(target.closest('#bgbPanel')){
+    if(target.closest('#lineupSearch,#lineupRank,#lineupSort,#assignmentSearch'))return '';
+    return 'bgb';
+  }
+  return '';
+}
+document.addEventListener('input',event=>{const section=adminPersistedSection(event.target);if(section)markAdminDirty(section)});
+document.addEventListener('change',event=>{const section=adminPersistedSection(event.target);if(section)markAdminDirty(section)});
 window.addEventListener('beforeunload',event=>{if(!window.ezpkAdminDirty)return;event.preventDefault();event.returnValue=''});
 

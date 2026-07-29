@@ -93,6 +93,11 @@
     return `<option value="">선택 안 함</option>`+["fighter","shooter","rider"].map(v=>`<option value="${v}" ${v===current?"selected":""}>${labels[v]}</option>`).join("");
   }
   function nullableValue(v){return v==null?"":String(v)}
+  function dirty(section){window.markAdminDirty?.(`member:${section}`)}
+  function clean(section){window.clearAdminDirty?.(`member:${section}`)}
+  function memberDirty(section){return window.hasAdminDirty?.(`member:${section}`)===true}
+  function anyMemberDirty(){return ["profile","specs","memo"].some(memberDirty)}
+  function clearMemberDirty(){["profile","specs","memo"].forEach(clean)}
   function detailHtml(m,history){
     const historyHtml=(history||[]).length?(history||[]).map(h=>`<li><time>${date(h.changed_at)}</time><span>${esc(h.old_nickname)} → <b>${esc(h.new_nickname)}</b></span></li>`).join(""):"<li>변경 이력이 없습니다.</li>";
     const adminLocked=m.role==="admin"?"disabled":"";
@@ -151,26 +156,29 @@
     };
   }
   function bindDetail(member){
-    $("#memberDetailBackV188").onclick=()=>$("#memberDetailV188").classList.remove("open");
+    $("#memberDetailBackV188").onclick=()=>{if(anyMemberDirty()&&!confirm("저장하지 않은 변경사항이 있습니다. 상세 화면을 닫을까요?"))return;clearMemberDirty();$("#memberDetailV188").classList.remove("open")};
     const form=$("#memberDetailFormV188");
+    [form.nickname,form.memberRank,form.status].filter(Boolean).forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>dirty("profile")));
+    [form.industryLevel,form.power,form.vehicle1Class,form.vehicle1PowerValue,form.vehicle1PowerUnit,form.vehicle2Class,form.vehicle2PowerValue,form.vehicle2PowerUnit,form.seasonWarAvailable,form.bgbAvailableHour,form.discord,form.telegram].filter(Boolean).forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>dirty("specs")));
+    form.adminMemo.addEventListener("input",()=>dirty("memo"));
     form.power.addEventListener("input",e=>{const digits=e.target.value.replace(/\D/g,"");e.target.value=digits?Number(digits).toLocaleString("ko-KR"):""});
     form.onsubmit=async e=>{
       e.preventDefault();const f=e.currentTarget;
       await api(`/api/admin/members/${member.id}`,{method:"PUT",body:JSON.stringify({nickname:f.nickname.value,memberRank:member.role==="admin"?"R5":f.memberRank.value,status:member.role==="admin"?"active":f.status.value})});
-      alert("기본 프로필이 저장되었습니다.");await load();await openDetail(member.id);
+      clean("profile");alert("기본 프로필이 저장되었습니다.");await load();if(!anyMemberDirty())await openDetail(member.id);
     };
     $("#memberSpecsSaveV228").onclick=async()=>{
       await api(`/api/admin/members/${member.id}/specs`,{method:"PUT",body:JSON.stringify(specPayload(form))});
-      alert("세부 스펙이 저장되었습니다.");await load();await openDetail(member.id);
+      clean("specs");alert("세부 스펙이 저장되었습니다.");await load();if(!anyMemberDirty())await openDetail(member.id);
     };
     $("#memberSpecsResetV228").onclick=async()=>{
       if(!confirm(`${member.nickname} 회원의 세부 스펙 전체를 초기화할까요?`))return;
       await api(`/api/admin/members/${member.id}/specs`,{method:"DELETE",body:null});
-      alert("세부 스펙이 초기화되었습니다.");await load();await openDetail(member.id);
+      clean("specs");alert("세부 스펙이 초기화되었습니다.");await load();if(!anyMemberDirty())await openDetail(member.id);
     };
-    $("#memberMemoSaveV188").onclick=async()=>{const memo=form.adminMemo.value;await api(`/api/admin/members/${member.id}/memo`,{method:"PUT",body:JSON.stringify({memo})});alert("메모가 저장되었습니다.")};
+    $("#memberMemoSaveV188").onclick=async()=>{const memo=form.adminMemo.value;await api(`/api/admin/members/${member.id}/memo`,{method:"PUT",body:JSON.stringify({memo})});clean("memo");alert("메모가 저장되었습니다.")};
     $("#memberResetPasswordV188").onclick=async()=>{if(!confirm("임시 비밀번호를 발급할까요?"))return;const d=await api(`/api/admin/members/${member.id}/reset-password`,{method:"POST",body:"{}"});prompt("임시 비밀번호",d.temporaryPassword)};
-    $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 회원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});$("#memberDetailV188").classList.remove("open");await load(true)};
+    $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 회원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});clearMemberDirty();$("#memberDetailV188").classList.remove("open");await load(true)};
   }
   function bulkOptions(){
     const field=$("#memberBulkFieldV188").value;

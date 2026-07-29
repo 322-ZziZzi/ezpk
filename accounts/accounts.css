@@ -94,3 +94,7 @@
     min-height:48px;
   }
 }
+
+/* v271 Account Market filter layout */
+.sort-bar{align-items:center}.sort-controls{display:flex;align-items:center;gap:8px}.sort-controls select{height:44px;background:#0b1018;color:#fff;border:1px solid var(--line);border-radius:10px;padding:0 14px}.sale-only-toggle{display:flex!important;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:#0b1018;cursor:pointer;user-select:none}.sale-only-toggle input{width:auto!important;margin:0;accent-color:var(--gold)}
+@media(max-width:760px){.sort-bar{display:grid!important;grid-template-columns:1fr;gap:8px;align-items:stretch}.sale-only-toggle{width:100%;justify-content:center;box-sizing:border-box;font-weight:800}.sale-only-toggle input{position:absolute;opacity:0;pointer-events:none}.sale-only-toggle:has(input:checked){border-color:var(--gold);background:rgba(214,175,88,.16);color:var(--gold);box-shadow:0 0 0 1px rgba(214,175,88,.18) inset}.sort-controls{display:grid;grid-template-columns:minmax(0,4fr) minmax(48px,1fr);gap:8px;width:100%}.sort-controls select,.sort-controls button{width:100%!important;min-width:0;box-sizing:border-box}}
