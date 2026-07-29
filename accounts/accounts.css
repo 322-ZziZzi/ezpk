@@ -28,3 +28,69 @@
 
 /* v171 Account registration contact channels */
 @media(max-width:520px){.registration-channel{width:min(100%,300px);min-width:0}.registration-value-row{gap:10px}.registration-copy{min-width:62px}}
+
+/* v270 Mobile account detail viewport containment */
+@media (max-width:760px){
+  .account-modal{
+    place-items:center;
+    box-sizing:border-box;
+    padding:
+      max(10px,env(safe-area-inset-top))
+      10px
+      max(10px,env(safe-area-inset-bottom));
+    overflow:hidden;
+  }
+  .account-detail{
+    width:100%;
+    max-width:720px;
+    height:auto;
+    min-height:0;
+    max-height:calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  @supports not (height:100dvh){
+    .account-detail{
+      max-height:calc(100vh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    }
+  }
+  .account-detail>.premium-modal-badge,
+  .account-detail>header,
+  .account-detail>footer{
+    flex:0 0 auto;
+  }
+  .account-detail>header{
+    position:relative;
+    top:auto;
+    padding:16px 17px;
+  }
+  .account-detail>.detail-body{
+    flex:1 1 auto;
+    min-height:0;
+    max-height:none;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    padding:18px 17px;
+  }
+  .account-detail .detail-section{
+    margin-bottom:18px;
+  }
+  .account-detail .detail-section:last-child{
+    margin-bottom:0;
+  }
+  .account-detail .detail-section h3{
+    margin-top:0;
+  }
+  .account-detail footer{
+    position:relative;
+    padding:12px 17px max(16px,env(safe-area-inset-bottom));
+    border-top:1px solid var(--line);
+    background:#0b1018;
+  }
+  .account-detail .primary-account-btn{
+    min-height:48px;
+  }
+}
