@@ -967,8 +967,15 @@ async function handleSpecsUpdate(request, env) {
     return jsonError("VALIDATION_ERROR", 400);
   }
 
-  // v221: Power and industry level are edited together with the detailed specs.
-  // Keep the existing database columns, but save both tables from one My Page action.
+  const vehicle1PowerNormalized = vehicle1PowerValue === null
+    ? null
+    : vehicle1PowerValue * (vehicle1PowerUnit === "G" ? 1000 : 1);
+  const vehicle2PowerNormalized = vehicle2PowerValue === null
+    ? null
+    : vehicle2PowerValue * (vehicle2PowerUnit === "G" ? 1000 : 1);
+
+  // v274: Store normalized vehicle values explicitly. D1 triggers remain as a
+  // secondary safeguard, but correct sorting no longer depends on them.
   await env.DB.batch([
     env.DB.prepare(`
       UPDATE members
@@ -978,20 +985,22 @@ async function handleSpecsUpdate(request, env) {
     env.DB.prepare(`
       INSERT INTO member_specs (
         member_id, profile_specs_registered,
-        vehicle1_class, vehicle1_power_value, vehicle1_power_unit,
-        vehicle2_class, vehicle2_power_value, vehicle2_power_unit,
+        vehicle1_class, vehicle1_power_value, vehicle1_power_unit, vehicle1_power_normalized,
+        vehicle2_class, vehicle2_power_value, vehicle2_power_unit, vehicle2_power_normalized,
         season_war_available, bgb_available_hour,
         discord, telegram
       )
-      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(member_id) DO UPDATE SET
         profile_specs_registered = 1,
         vehicle1_class = excluded.vehicle1_class,
         vehicle1_power_value = excluded.vehicle1_power_value,
         vehicle1_power_unit = excluded.vehicle1_power_unit,
+        vehicle1_power_normalized = excluded.vehicle1_power_normalized,
         vehicle2_class = excluded.vehicle2_class,
         vehicle2_power_value = excluded.vehicle2_power_value,
         vehicle2_power_unit = excluded.vehicle2_power_unit,
+        vehicle2_power_normalized = excluded.vehicle2_power_normalized,
         season_war_available = excluded.season_war_available,
         bgb_available_hour = excluded.bgb_available_hour,
         discord = excluded.discord,
@@ -1001,9 +1010,11 @@ async function handleSpecsUpdate(request, env) {
       vehicle1Class,
       vehicle1PowerValue,
       vehicle1PowerUnit,
+      vehicle1PowerNormalized,
       vehicle2Class,
       vehicle2PowerValue,
       vehicle2PowerUnit,
+      vehicle2PowerNormalized,
       seasonWarAvailable,
       bgbAvailableHour,
       discord,

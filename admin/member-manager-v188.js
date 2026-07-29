@@ -5,7 +5,7 @@
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   const fmt=n=>window.EZPKVehiclePower?.formatCombatPower(n)??"-";
   const industry=v=>window.EZPKVehiclePower?.formatIndustryLevel(v)??"-";
-  const vehicle=(m,vehicleNumber=1)=>window.EZPKVehiclePower?.formatMember(m,vehicleNumber)??"-";
+  const vehicle=(m,vehicleNumber=1)=>window.EZPKVehiclePower?.formatMember(m,vehicleNumber,{maximumFractionDigits:1,mMaximumFractionDigits:0})??"-";
   const date=v=>v?new Intl.DateTimeFormat("ko-KR",{dateStyle:"medium",timeStyle:"short"}).format(new Date(v)):"-";
   async function api(path,options={}){
     const res=await fetch(path,{credentials:"include",headers:{accept:"application/json",...(options.body?{"content-type":"application/json"}:{})},...options});

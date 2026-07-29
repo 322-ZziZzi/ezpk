@@ -50,7 +50,7 @@ function normalize(d){
 function v(m,n){return window.EZPKVehiclePower?.normalized(m,n)||Number(m?.[`vehicle${n}PowerNormalized`]||0)||0;}
 function ind(m){return Number(m?.ind||m?.industryLevel||0)||0;}
 function power(m){return Number(m?.power||0)||0;}
-function fvp(x){return window.EZPKVehiclePower?.formatNormalized(x)||'-';}
+function fvp(x){return window.EZPKVehiclePower?.formatNormalized(x,{maximumFractionDigits:1,mMaximumFractionDigits:0})||'-';}
 function fcp(x){return window.EZPKVehiclePower?.formatCombatPower(x)||'-';}
 function find(x){return window.EZPKVehiclePower?.formatIndustryLevel(x)||'-';}
 function memberMeta(n){const m=map().get(n);return `${find(ind(m))} • ${fvp(v(m,1))} • ${fvp(v(m,2))} • CP ${fcp(power(m))}`;}

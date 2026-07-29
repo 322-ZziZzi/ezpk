@@ -18,7 +18,7 @@ function targets(n){let a=Math.floor(n*.55),d=Math.floor(n*.25),u=Math.floor(n*.
 function fmt(n){return Number(n||0).toLocaleString()}
 function industryValue(m){return Number(m?.ind||String(m?.industryLevel||'').replace(/^I/i,''))||0}
 function vehicle1Value(m){return window.EZPKVehiclePower?.normalized(m,1)??(Number(m?.vehicle1PowerNormalized||m?.vehicle1Power||0)||0)}
-function vehiclePowerDisplay(value){return window.EZPKVehiclePower?.formatNormalized(value)??fmt(value)}
+function vehiclePowerDisplay(value){return window.EZPKVehiclePower?.formatNormalized(value,{maximumFractionDigits:1,mMaximumFractionDigits:0})??fmt(value)}
 function stats(k){const map=known(),list=s6.teams[k],total=list.reduce((v,n)=>v+(map.get(n)?.power||0),0),vehicle1=list.reduce((v,n)=>v+vehicle1Value(map.get(n)),0),industry=list.reduce((v,n)=>v+industryValue(map.get(n)),0);return{count:list.length,total,vehicle1,industrySum:industry,industryAvg:list.length?industry/list.length:0,avg:list.length?Math.round(total/list.length):0}}
 function unassigned(){const assigned=new Set(Object.values(s6.teams).flat());return s6.participants.filter(n=>!assigned.has(n))}
 function listStats(list){const map=known(),total=list.reduce((v,n)=>v+(map.get(n)?.power||0),0),vehicle1=list.reduce((v,n)=>v+vehicle1Value(map.get(n)),0),industry=list.reduce((v,n)=>v+industryValue(map.get(n)),0);return{count:list.length,total,vehicle1,industry}}
