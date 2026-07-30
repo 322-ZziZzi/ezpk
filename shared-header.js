@@ -638,8 +638,10 @@
 
     const member = authState.member;
     const isAdmin = member.role === 'admin';
+    const isAdminContext = header.dataset.adminContext === 'true';
     const roleLabel = isAdmin ? labels.administrator : labels.member;
     const dropdownItems = `
+      ${isAdminContext ? `<button type="button" data-account-action="home">${safeText((NAV_LABELS[currentLang] || NAV_LABELS.ko).home)}</button>` : ''}
       ${isAdmin ? `<button type="button" data-account-action="admin">${safeText(labels.admin)}</button>` : ''}
       <button type="button" data-account-action="mypage">${safeText(labels.myPage)}</button>
       <button type="button" data-account-action="logout">${safeText(labels.logout)}</button>`;
@@ -671,6 +673,11 @@
       </div>`;
   }
 
+  function goHome(event) {
+    event.preventDefault();
+    window.location.href = header.dataset.homeHref || `${base}/`;
+  }
+
   function goToMyPage(event) {
     event.preventDefault();
     window.location.href = `${base}/my/`;
@@ -679,7 +686,8 @@
   function bindAccountEvents(container) {
     container.querySelectorAll('[data-account-action]').forEach(function (button) {
       const action = button.dataset.accountAction;
-      if (action === 'logout') button.addEventListener('click', logout);
+      if (action === 'home') button.addEventListener('click', goHome);
+      else if (action === 'logout') button.addEventListener('click', logout);
       else if (action === 'mypage') button.addEventListener('click', goToMyPage);
       else if (action === 'login') button.addEventListener('click', openLogin);
       else if (action === 'signup') button.addEventListener('click', goToSignup);

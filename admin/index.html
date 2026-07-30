@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK 관리자</title>
   <link rel="stylesheet" href="../style.css?v=2270">
-  <link rel="stylesheet" href="admin.css?v=2770">
+  <link rel="stylesheet" href="admin.css?v=2790">
   <link rel="stylesheet" href="member-manager-v188.css?v=2690">
   <link rel="stylesheet" href="vote-manager.css?v=2160">
   <link rel="stylesheet" href="capital-war-manager.css?v=2650">
@@ -26,7 +26,7 @@
 </style>
 </head>
 <body>
-<header class="site-header admin-auth-host" data-shared-header data-base=".." data-home-href="../" data-active-menu=""></header>
+<header class="site-header admin-auth-host" data-shared-header data-base=".." data-home-href="../" data-active-menu="" data-admin-context="true"></header>
 <section id="adminLogin" class="admin-login-screen">
   <div class="admin-login-card">
     <div class="login-mark">★</div>
@@ -38,26 +38,40 @@
   </div>
 </section>
 <div id="adminApp" hidden>
-<header class="admin-header" aria-label="관리자 모바일 메뉴">
-  <div class="admin-header-row">
-    <button id="adminMenuButton" class="admin-menu-button" type="button" aria-expanded="false" aria-controls="adminNav" aria-label="관리자 메뉴 열기">☰</button>
-  </div>
-  <nav id="adminNav" class="admin-nav">
-    <a href="../">메인</a>
-    <button type="button" data-admin-panel="membersPanel">회원 관리</button>
-    <button type="button" data-admin-panel="bgbPanel">BGB 관리</button>
-    <button type="button" data-admin-panel="capitalWarPanel">수도전 관리</button>
-    <button type="button" data-admin-panel="season6Panel">시즌 6 관리</button>
-    <button type="button" data-admin-panel="eventsPanel">이벤트 관리</button>
-    <button type="button" data-admin-panel="votePanel">투표 관리</button>
-    <button type="button" data-admin-panel="requestsPanel">요청 관리</button>
-    <button type="button" data-admin-panel="accountsPanel">계정 관리</button>
-  </nav>
-</header>
 <main class="admin-main">
   <section class="admin-hero"><span class="eyebrow">EZPK ALLIANCE</span><h1>관리자 페이지</h1><p>관리자 페이지에서 EZPK 운영 데이터를 수정하세요.</p></section>
   <section class="manager-card">
-    <div class="admin-tabs"><button data-panel="membersPanel" class="active">회원 관리</button><button data-panel="bgbPanel">BGB 관리</button><button data-panel="capitalWarPanel">수도전 관리</button><button data-panel="season6Panel">시즌 6 관리</button><button data-panel="eventsPanel">이벤트 관리</button><button data-panel="votePanel">투표 관리</button><button data-panel="requestsPanel">요청 관리</button><button data-panel="accountsPanel">계정 관리</button></div>
+    <nav class="admin-card-navigation" aria-label="관리자 메뉴">
+      <section class="admin-nav-card open" data-admin-group="operations">
+        <button class="admin-nav-card-toggle" type="button" aria-expanded="true">
+          <span>운영 관리</span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="admin-nav-card-items">
+          <button type="button" data-panel="membersPanel" class="active">회원</button>
+          <button type="button" data-panel="eventsPanel">이벤트</button>
+          <button type="button" data-panel="votePanel">투표</button>
+        </div>
+      </section>
+      <section class="admin-nav-card" data-admin-group="teams">
+        <button class="admin-nav-card-toggle" type="button" aria-expanded="false">
+          <span>팀 편성 관리</span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="admin-nav-card-items">
+          <button type="button" data-panel="bgbPanel">BGB</button>
+          <button type="button" data-panel="capitalWarPanel">수도전</button>
+          <button type="button" data-panel="season6Panel">시즌</button>
+        </div>
+      </section>
+      <section class="admin-nav-card" data-admin-group="support">
+        <button class="admin-nav-card-toggle" type="button" aria-expanded="false">
+          <span>지원</span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="admin-nav-card-items">
+          <button type="button" data-panel="requestsPanel">요청</button>
+          <button type="button" data-panel="accountsPanel">계정</button>
+        </div>
+      </section>
+    </nav>
 
     <div id="membersPanel" class="admin-panel active">
   <section class="v188-member-manager">
@@ -263,10 +277,10 @@
   </section>
 </main>
 </div>
-<script src="../shared-header.js?v=1940"></script>
+<script src="../shared-header.js?v=2790"></script>
 <script src="../vehicle-power.js?v=2740"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2770"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2790"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
 <script src="capital-war-manager.js?v=2740"></script>
 <script src="member-manager-v188.js?v=2740"></script>
 <script src="vote-manager.js?v=2160"></script>

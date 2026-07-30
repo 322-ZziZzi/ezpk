@@ -42,38 +42,52 @@ function initAdminLoginGate(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
 
-// v73: mobile-only collapsible admin navigation.
-function initAdminMobileMenu(){
-  const button=document.getElementById('adminMenuButton');
-  const nav=document.getElementById('adminNav');
-  if(!button||!nav)return;
-  const closeMenu=()=>{
-    nav.classList.remove('open');
-    button.setAttribute('aria-expanded','false');
-    button.setAttribute('aria-label','관리자 메뉴 열기');
-    button.textContent='☰';
+// v279: card navigation for desktop and accordion navigation for mobile.
+function initAdminCardNavigation(){
+  const navigation=document.querySelector('.admin-card-navigation');
+  if(!navigation)return;
+  const cards=[...navigation.querySelectorAll('.admin-nav-card')];
+  const menuButtons=[...navigation.querySelectorAll('[data-panel]')];
+  const panels=[...document.querySelectorAll('.admin-panel')];
+
+  const setGroupOpen=(card,open)=>{
+    card.classList.toggle('open',open);
+    card.querySelector('.admin-nav-card-toggle')?.setAttribute('aria-expanded',String(open));
   };
-  button.addEventListener('click',()=>{
-    const willOpen=!nav.classList.contains('open');
-    nav.classList.toggle('open',willOpen);
-    button.setAttribute('aria-expanded',String(willOpen));
-    button.setAttribute('aria-label',willOpen?'관리자 메뉴 닫기':'관리자 메뉴 열기');
-    button.textContent=willOpen?'✕':'☰';
-  });
-  nav.querySelectorAll('[data-admin-panel]').forEach(item=>item.addEventListener('click',()=>{
-    const panelId=item.dataset.adminPanel;
-    const tab=document.querySelector(`.admin-tabs button[data-panel="${panelId}"]`);
-    if(tab){
-      tab.click();
-      document.querySelector('.manager-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+
+  const activatePanel=panelId=>{
+    menuButtons.forEach(button=>button.classList.toggle('active',button.dataset.panel===panelId));
+    panels.forEach(panel=>panel.classList.toggle('active',panel.id===panelId));
+    const activeButton=menuButtons.find(button=>button.dataset.panel===panelId);
+    const activeCard=activeButton?.closest('.admin-nav-card');
+    if(window.innerWidth<=760&&activeCard){
+      cards.forEach(card=>setGroupOpen(card,card===activeCard));
     }
-    closeMenu();
+  };
+
+  menuButtons.forEach(button=>button.addEventListener('click',()=>activatePanel(button.dataset.panel)));
+  cards.forEach(card=>card.querySelector('.admin-nav-card-toggle')?.addEventListener('click',()=>{
+    if(window.innerWidth>760)return;
+    const willOpen=!card.classList.contains('open');
+    cards.forEach(item=>setGroupOpen(item,item===card&&willOpen));
   }));
-  nav.querySelectorAll('a').forEach(item=>item.addEventListener('click',closeMenu));
-  window.addEventListener('resize',()=>{if(window.innerWidth>900)closeMenu()});
+
+  window.addEventListener('resize',()=>{
+    if(window.innerWidth>760)cards.forEach(card=>setGroupOpen(card,true));
+    else{
+      const activeCard=navigation.querySelector('[data-panel].active')?.closest('.admin-nav-card');
+      cards.forEach(card=>setGroupOpen(card,card===activeCard));
+    }
+  });
+
+  if(window.innerWidth>760)cards.forEach(card=>setGroupOpen(card,true));
+  else{
+    const activeCard=navigation.querySelector('[data-panel].active')?.closest('.admin-nav-card');
+    cards.forEach(card=>setGroupOpen(card,card===activeCard));
+  }
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminMobileMenu,{once:true});
-else initAdminMobileMenu();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminCardNavigation,{once:true});
+else initAdminCardNavigation();
 
 const LOCATIONS=[['R1','REFINERY 1'],['R2','REFINERY 2'],['R3','REFINERY 3'],['R4','REFINERY 4'],['R5','REFINERY 5'],['R6','REFINERY 6'],['M1','MILITARY BASE 1'],['M2','MILITARY BASE 2'],['H1','HOSPITAL 1'],['H2','HOSPITAL 2'],['CENTER','ALLOY FACTORY']];
 const TEAM_KEYS=['A','B'];
@@ -326,7 +340,7 @@ async function saveEventsData(){
 function exportExcel(){if(!window.XLSX){alert('Excel 라이브러리를 불러오지 못했습니다.');return}const rows=membersData.members.map((m,i)=>({No:i+1,Rank:m.rank,Nickname:m.nickname,IND:m.ind,'Combat Power':m.power}));const ws=XLSX.utils.json_to_sheet(rows),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EZPK Members');XLSX.writeFile(wb,`EZPK_Member_List_${($('#lastUpdated').value||'backup').replaceAll('.','-')}.xlsx`)}
 function importExcel(){alert('Excel 가져오기는 v188에서 제거되었습니다.')} 
 function downloadJson(obj,name){const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
-$$('.admin-tabs button').forEach(btn=>btn.onclick=()=>{$$('.admin-tabs button').forEach(b=>b.classList.remove('active'));$$('.admin-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('#'+btn.dataset.panel).classList.add('active')});
+// v279: panel switching is handled by initAdminCardNavigation().
 $$('#bgbTeamTabs button').forEach(btn=>btn.onclick=()=>{selectedTeam=btn.dataset.team;selectedLocation='R1';$('#autoSummary').innerHTML='';renderBgbAll()});
 $('#search')&&($('#search').oninput=renderMembers);$('#rank')&&($('#rank').onchange=renderMembers);$('#lineupSearch').oninput=renderLineup;$('#lineupRank').onchange=renderLineup;$('#lineupSort').onchange=renderLineup;$('#assignmentSearch').oninput=renderAssignments;
 $('#addMember')&&($('#addMember').onclick=()=>{});
