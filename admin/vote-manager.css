@@ -28,3 +28,21 @@
   .vote-editor,.vote-result-panel{padding:15px}
   .vote-admin-stats article{padding:14px}
 }
+
+/* v317: use the full desktop administrator content frame */
+@media (min-width:801px){
+  #votePanel,
+  #votePanel>.vote-manager,
+  #votePanel .vote-manager-head,
+  #votePanel .vote-admin-stats,
+  #votePanel .vote-editor,
+  #votePanel .vote-result-panel,
+  #votePanel .vote-admin-list{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    box-sizing:border-box!important;
+  }
+}

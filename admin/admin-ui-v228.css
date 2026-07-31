@@ -346,3 +346,22 @@
     margin-bottom:16px;
   }
 }
+
+/* v317: final shared width authority for Member, Capital War, and Vote */
+@media (min-width:761px){
+  #adminApp #membersPanel,
+  #adminApp #capitalWarPanel,
+  #adminApp #votePanel,
+  #adminApp #membersPanel>.v188-member-manager,
+  #adminApp #membersPanel #memberListContentV299,
+  #adminApp #votePanel>.vote-manager{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    box-sizing:border-box!important;
+  }
+}
