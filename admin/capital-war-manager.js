@@ -361,6 +361,29 @@ async function load(){
   loaded=true;render();
 }
 
+function loadPublishedIntoDraft(){
+  const publishedTeams=Object.fromEntries(TEAMS.map(k=>[k,uniq(cw?.published?.teams?.[k])]));
+  const publishedNames=uniq(TEAMS.flatMap(k=>publishedTeams[k]));
+  if(!publishedNames.length){
+    alert('현재 수도전 페이지에 노출된 팀 명단이 없습니다.');
+    return;
+  }
+  const currentAssigned=TEAMS.reduce((sum,k)=>sum+(cw.draft.teams[k]||[]).length,0);
+  const warning=currentAssigned||cw.draft.participants.length
+    ?'현재 관리자 페이지에서 편집 중인 참가자 및 팀 편성 목록을 노출 중인 명단으로 교체할까요?'
+    :'현재 수도전 페이지에 노출 중인 명단을 관리자 편집 목록으로 불러올까요?';
+  if(!confirm(warning))return;
+
+  cw.draft.participants=[...publishedNames];
+  cw.draft.teams=Object.fromEntries(TEAMS.map(k=>[k,[...publishedTeams[k]]]));
+  cw.draft.fixedTeams={};
+  for(const k of TEAMS)for(const nickname of cw.draft.teams[k])cw.draft.fixedTeams[nickname]=k;
+  voteSource=null;
+  normalizeDraftTeams();
+  render();
+  showAdminToast(`현재 노출 명단 ${publishedNames.length}명을 불러왔습니다. 저장 버튼을 눌러 D1에 반영하세요.`);
+}
+
 async function save(expose=false){
   syncSettings();
   normalizeDraftTeams();
@@ -378,6 +401,7 @@ function bind(){
   document.querySelector('#cwSearch').oninput=render;
   document.querySelector('#cwParticipantSort').onchange=e=>{participantSort=e.target.value;render();};
   document.querySelector('#cwLoadVote').onclick=()=>openVote().catch(()=>alert('투표를 불러오지 못했습니다.'));
+  document.querySelector('#cwLoadPublished').onclick=loadPublishedIntoDraft;
   document.querySelector('#cwSelectAll').onclick=()=>{voteSource=null;cw.draft.participants=membersData.members.map(m=>m.nickname);render();};
   document.querySelector('#cwClearAll').onclick=()=>{voteSource=null;cw.draft.participants=[];cw.draft.teams={capital:[],tower:[],mobile:[],support:[]};render();};
   document.querySelector('#cwAutoAssign').onclick=autoAssign;
