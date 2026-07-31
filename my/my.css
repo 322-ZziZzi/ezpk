@@ -1,6 +1,6 @@
 :root{color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:#05070b;color:#f4f7fb;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{margin:0;background:#05070b;color:#f4f7fb}
 .my-shell{width:min(760px,calc(100% - 24px));margin:0 auto;padding:28px 0 64px}
 .my-hero{text-align:center;margin:12px 0 22px}
 .my-eyebrow{margin:0 0 7px;color:#78d7ff;font-size:.74rem;font-weight:800;letter-spacing:.16em}
@@ -138,3 +138,61 @@ html[dir="rtl"] .server-time-live{text-align:right}
 @media(max-width:759px){
   .confirm-dialog-actions{grid-template-columns:1fr 1fr;gap:11px}
 }
+
+/* v291: final grouped My Page navigation, shared typography and unified SVG icons */
+body{font-family:inherit}
+.my-shell,
+.my-shell button,
+.my-shell input,
+.my-shell select,
+.my-shell textarea{font-family:inherit}
+
+#memberContent,
+.member-card,
+.accordion-list,
+.my-menu-group,
+.my-menu-group-card{width:100%}
+
+.accordion-list{gap:18px}
+.my-menu-group{display:grid;gap:8px}
+.my-menu-group-title{margin:0;padding:0 4px;color:#aab5c4;font-size:.78rem;font-weight:800;letter-spacing:.08em}
+.my-menu-group-card{overflow:hidden;border:1px solid #202a38;border-radius:16px;background:linear-gradient(180deg,#111722,#0b1018);box-shadow:0 16px 42px rgba(0,0,0,.25)}
+.my-menu-group-card .accordion-item{border:0;border-radius:0;background:transparent;box-shadow:none}
+.my-menu-group-card .accordion-item+.accordion-item{border-top:1px solid #202a38}
+
+.accordion-item.is-open{background:linear-gradient(180deg,rgba(245,197,71,.13),rgba(245,197,71,.045))}
+.accordion-item.is-open .accordion-trigger{color:#f5c547;box-shadow:inset 4px 0 0 #f5c547}
+.accordion-item.is-open .accordion-panel{border-top-color:rgba(245,197,71,.28);background:rgba(5,7,11,.24)}
+.accordion-item.is-open .chevron{color:#f5c547}
+.accordion-trigger:hover{background:rgba(255,255,255,.025)}
+
+.menu-svg-icon{display:inline-block;width:1.25rem;height:1.25rem;flex:0 0 auto;background:currentColor;mask-position:center;mask-repeat:no-repeat;mask-size:contain;-webkit-mask-position:center;-webkit-mask-repeat:no-repeat;-webkit-mask-size:contain}
+.icon-user{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.33 0-8 2.67-8 5v2h16v-2c0-2.33-2.67-5-8-5Z'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-5.33 0-8 2.67-8 5v2h16v-2c0-2.33-2.67-5-8-5Z'/%3E%3C/svg%3E")}
+.icon-sliders{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M4 7h10v2H4V7Zm0 8h6v2H4v-2Zm14-9h2v4h-2V6Zm-2 1h6v2h-6V7Zm-4 7h2v4h-2v-4Zm-2 1h6v2h-6v-2Z'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M4 7h10v2H4V7Zm0 8h6v2H4v-2Zm14-9h2v4h-2V6Zm-2 1h6v2h-6V7Zm-4 7h2v4h-2v-4Zm-2 1h6v2h-6v-2Z'/%3E%3C/svg%3E")}
+.icon-document{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 2h8l4 4v16H6V2Zm7 1.5V7h3.5L13 3.5ZM9 11v2h6v-2H9Zm0 4v2h6v-2H9Z'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M6 2h8l4 4v16H6V2Zm7 1.5V7h3.5L13 3.5ZM9 11v2h6v-2H9Zm0 4v2h6v-2H9Z'/%3E%3C/svg%3E")}
+.icon-edit{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='m4 16.5 9.9-9.9 3.5 3.5-9.9 9.9H4v-3.5ZM15.3 5.2l1.4-1.4a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 1 0 2.1l-1.4 1.4-3.5-3.5Z'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='m4 16.5 9.9-9.9 3.5 3.5-9.9 9.9H4v-3.5ZM15.3 5.2l1.4-1.4a1.5 1.5 0 0 1 2.1 0l1.4 1.4a1.5 1.5 0 0 1 0 2.1l-1.4 1.4-3.5-3.5Z'/%3E%3C/svg%3E")}
+.icon-lock{mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M7 10V7a5 5 0 0 1 10 0v3h2v12H5V10h2Zm2 0h6V7a3 3 0 0 0-6 0v3Zm3 3a2 2 0 0 0-1 3.73V19h2v-2.27A2 2 0 0 0 12 13Z'/%3E%3C/svg%3E");-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M7 10V7a5 5 0 0 1 10 0v3h2v12H5V10h2Zm2 0h6V7a3 3 0 0 0-6 0v3Zm3 3a2 2 0 0 0-1 3.73V19h2v-2.27A2 2 0 0 0 12 13Z'/%3E%3C/svg%3E")}
+
+html[dir="rtl"] .accordion-item.is-open .accordion-trigger{box-shadow:inset -4px 0 0 #f5c547}
+@media(max-width:759px){.accordion-list{gap:16px}.my-menu-group-title{padding-inline:3px}.accordion-item.is-open .accordion-trigger{box-shadow:inset 3px 0 0 #f5c547}}
+
+
+/* v292: My Page is based on shared portal UI components from ../style.css */
+.my-shell{width:min(900px,calc(100% - 24px));margin:0 auto;padding:42px 0 72px}
+.my-hero{margin:0 0 24px;padding:0}
+.my-eyebrow{color:#f5c547}
+.state-panel,.member-card,.my-menu-group-card{background:#111823;border-color:#ffffff18;box-shadow:0 16px 42px rgba(0,0,0,.24)}
+.member-card,.my-menu-group-card{width:100%}
+.accordion-item{border:0;background:transparent;box-shadow:none;border-radius:0}
+.my-menu-group-card{overflow:hidden}
+.my-menu-group-card .accordion-item+ .accordion-item{border-top:1px solid #ffffff14}
+.form-stack input,.form-stack select{border-radius:10px;border-color:#ffffff22;background:#080d14}
+.form-stack input:focus,.form-stack select:focus{outline:2px solid rgba(245,197,71,.24);border-color:#f5c547}
+.primary-link,.form-submit{border-radius:10px;background:#f5c547;color:#171000;font-weight:800!important}
+.secondary-action{border-color:#ffffff30;background:#ffffff0b;color:#fff}
+.accordion-trigger:focus-visible{outline:2px solid rgba(245,197,71,.52)}
+.chevron{color:#f5c547}
+.spinner{border-top-color:#f5c547}
+.server-time-live strong{color:#f5c547}
+legend{color:#f5c547}
+@media(max-width:620px){.my-shell{width:min(100% - 16px,900px);padding:28px 0 56px}}
