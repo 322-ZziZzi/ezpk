@@ -80,3 +80,97 @@
 #memberManagerV188 .spec-value,#memberDetailV188 .spec-value{color:#f5c547;font-weight:900}
 
 .admin-member-tabs{display:flex;gap:8px;margin:0 0 16px}.admin-member-tabs button{min-height:42px;padding:0 18px;border:1px solid rgba(255,255,255,.12);border-radius:10px;background:rgba(255,255,255,.04);color:#aeb8ca;font-weight:800}.admin-member-tabs button.active{background:#1c65d8;color:#fff;border-color:#4388ef}.admin-log-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 180px auto;gap:10px;margin-bottom:14px}.admin-log-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.1);border-radius:12px}.admin-log-table{width:100%;border-collapse:collapse}.admin-log-table th,.admin-log-table td{padding:12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;white-space:nowrap}.admin-log-table th{color:#aeb8ca;font-size:12px}.admin-log-cards{display:none}.admin-role-badge{display:inline-flex;align-items:center;margin-left:6px;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:900}.admin-role-badge.super{background:rgba(239,68,68,.18);color:#ff8a8a}.admin-role-badge.sub{background:rgba(59,130,246,.18);color:#83b7ff}.admin-permission-box{grid-column:1/-1;padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.03)}.admin-permission-help{display:block;margin-top:6px;color:#8f9bb0;font-size:12px}@media(max-width:700px){.admin-log-toolbar{grid-template-columns:1fr}.admin-log-table-wrap{display:none}.admin-log-cards{display:grid;gap:10px}.admin-log-card{padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.03)}.admin-log-card strong,.admin-log-card span{display:block}.admin-log-card small{color:#8f9bb0}}
+
+
+/* v304 stage 3: desktop member list/detail route-style view; mobile overlay remains unchanged */
+@media (min-width:901px){
+  #memberManagerV188 .v188-layout,
+  .v188-member-manager .v188-layout{
+    display:block;
+  }
+  #memberManagerV188 .v188-detail-pane,
+  .v188-member-manager .v188-detail-pane{
+    display:none;
+    position:static;
+    top:auto;
+    width:100%;
+    max-height:none;
+    overflow:visible;
+  }
+  #memberManagerV188.detail-active .admin-member-tabs,
+  .v188-member-manager.detail-active .admin-member-tabs,
+  #memberManagerV188.detail-active .v188-stats,
+  .v188-member-manager.detail-active .v188-stats,
+  #memberManagerV188.detail-active .v188-toolbar,
+  .v188-member-manager.detail-active .v188-toolbar,
+  #memberManagerV188.detail-active .v188-bulk,
+  .v188-member-manager.detail-active .v188-bulk,
+  #memberManagerV188.detail-active .v188-list-pane,
+  .v188-member-manager.detail-active .v188-list-pane{
+    display:none!important;
+  }
+  #memberManagerV188.detail-active .v188-detail-pane,
+  .v188-member-manager.detail-active .v188-detail-pane{
+    display:block;
+  }
+  #memberManagerV188.detail-active .v188-detail-head button,
+  .v188-member-manager.detail-active .v188-detail-head button{
+    display:inline-flex;
+    flex:0 0 auto;
+    align-items:center;
+    justify-content:center;
+    width:auto;
+    min-width:88px;
+    height:44px;
+    padding:0 14px;
+    border:1px solid #2c394c;
+    border-radius:10px;
+    background:#111927;
+    color:#fff;
+    font-weight:800;
+    cursor:pointer;
+  }
+  #memberManagerV188.detail-active .v188-detail-form,
+  .v188-member-manager.detail-active .v188-detail-form{
+    padding:18px;
+    gap:14px;
+  }
+}
+
+/* v307 stage 6: member manager visual polish */
+#memberManagerV188 .v188-stats article,
+.v188-member-manager .v188-stats article,
+#memberManagerV188 .v188-list-pane,
+.v188-member-manager .v188-list-pane,
+#memberManagerV188 .v188-detail-pane,
+.v188-member-manager .v188-detail-pane,
+#memberManagerV188 .admin-permission-box,
+.v188-member-manager .admin-permission-box{
+  border-radius:14px;
+  border-color:rgba(255,255,255,.10);
+}
+#memberManagerV188 .v188-detail-head,
+.v188-member-manager .v188-detail-head{
+  min-height:58px;
+  padding:12px 16px;
+}
+#memberManagerV188 .v188-detail-form,
+.v188-member-manager .v188-detail-form{
+  gap:16px;
+}
+#memberManagerV188 .v188-member-card,
+.v188-member-manager .v188-member-card{
+  transition:border-color .15s ease,background-color .15s ease,transform .12s ease;
+}
+#memberManagerV188 .v188-member-card:hover,
+.v188-member-manager .v188-member-card:hover{
+  border-color:rgba(49,136,255,.42);
+  background:rgba(255,255,255,.035);
+}
+#memberManagerV188 .admin-member-tabs{gap:10px}
+#memberManagerV188 .admin-member-tabs button{padding-inline:16px}
+@media(max-width:700px){
+  #memberManagerV188 .v188-detail-form,
+  .v188-member-manager .v188-detail-form{padding:14px;gap:13px}
+  #memberManagerV188 .admin-member-tabs button{width:100%}
+}

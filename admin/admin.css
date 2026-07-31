@@ -1019,3 +1019,42 @@ body.admin-unlocked{overflow:auto}
 .admin-auth-host .admin-context-brand:hover b{
   color:#f2d675!important;
 }
+
+/* v302 stage 1: finalized administrator content frame
+   - Desktop: centered content container, maximum width 1400px
+   - Mobile: full viewport width with 12px safe padding
+   This final override intentionally resolves older responsive rules. */
+@media (min-width:761px){
+  #adminApp.manager-card,
+  #adminApp .manager-card,
+  body.admin-unlocked .manager-card{
+    width:min(1400px,calc(100% - 30px))!important;
+    max-width:1400px!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-left:22px!important;
+    padding-right:22px!important;
+    box-sizing:border-box!important;
+  }
+  #adminApp .admin-panel{
+    width:100%!important;
+    min-width:0!important;
+  }
+}
+@media (max-width:760px){
+  #adminApp.manager-card,
+  #adminApp .manager-card,
+  body.admin-unlocked .manager-card{
+    width:100%!important;
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+    box-sizing:border-box!important;
+  }
+  #adminApp .admin-panel{
+    width:100%!important;
+    min-width:0!important;
+  }
+}

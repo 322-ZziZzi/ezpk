@@ -135,11 +135,17 @@
       <div class="v188-detail-actions"><button class="primary" type="submit">기본 프로필 저장</button><button id="memberResetPasswordV188" class="secondary" type="button">비밀번호 초기화</button><button id="memberDeleteV188" class="danger" type="button">회원 삭제</button></div>
     </form>`;
   }
+  function setDetailMode(open){
+    const manager=$("#memberManagerV188")||document.querySelector(".v188-member-manager");
+    $("#memberDetailV188")?.classList.toggle("open",open);
+    manager?.classList.toggle("detail-active",open);
+    if(!open)state.activeId=null;
+  }
   async function openDetail(id){
     state.activeId=id;
     const data=await api(`/api/admin/members/${id}`);
     $("#memberDetailV188").innerHTML=detailHtml(data.member,data.nicknameHistory);
-    $("#memberDetailV188").classList.add("open");
+    setDetailMode(true);
     bindDetail(data.member);
   }
   function specPayload(f){
@@ -160,7 +166,7 @@
     };
   }
   function bindDetail(member){
-    $("#memberDetailBackV188").onclick=()=>{if(anyMemberDirty()&&!confirm("저장하지 않은 변경사항이 있습니다. 상세 화면을 닫을까요?"))return;clearMemberDirty();$("#memberDetailV188").classList.remove("open")};
+    $("#memberDetailBackV188").onclick=()=>{if(anyMemberDirty()&&!confirm("저장하지 않은 변경사항이 있습니다. 상세 화면을 닫을까요?"))return;clearMemberDirty();setDetailMode(false);render()};
     const form=$("#memberDetailFormV188");
     [form.nickname,form.memberRank,form.status,form.adminLevel].filter(Boolean).forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>dirty("profile")));
     [form.industryLevel,form.power,form.vehicle1Class,form.vehicle1PowerValue,form.vehicle1PowerUnit,form.vehicle2Class,form.vehicle2PowerValue,form.vehicle2PowerUnit,form.seasonWarAvailable,form.bgbAvailableHour,form.discord,form.telegram].filter(Boolean).forEach(el=>el.addEventListener(el.tagName==="SELECT"?"change":"input",()=>dirty("specs")));
@@ -205,7 +211,7 @@
     };
     $("#memberMemoSaveV188").onclick=async()=>{const memo=form.adminMemo.value;await api(`/api/admin/members/${member.id}/memo`,{method:"PUT",body:JSON.stringify({memo})});clean("memo");alert("메모가 저장되었습니다.")};
     $("#memberResetPasswordV188").onclick=async()=>{if(!confirm("임시 비밀번호를 발급할까요?"))return;const d=await api(`/api/admin/members/${member.id}/reset-password`,{method:"POST",body:"{}"});prompt("임시 비밀번호",d.temporaryPassword)};
-    $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 회원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});clearMemberDirty();$("#memberDetailV188").classList.remove("open");await load(true)};
+    $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 회원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});clearMemberDirty();setDetailMode(false);await load(true)};
   }
   function bulkOptions(){
     const field=$("#memberBulkFieldV188").value;
@@ -232,7 +238,13 @@
   }
   function logLabel(v){return ({admin_permission:"관리자 권한",member:"회원",event:"이벤트",vote:"투표",bgb:"BGB",capital_war:"수도전",season:"시즌",request:"요청",account:"계정"})[v]||v||"-"}
   async function loadLogs(){if(state.currentAdmin?.adminLevel!=="super")return;const p=new URLSearchParams({page:String(state.logPage),limit:"30"});const q=$("#adminLogSearchV299")?.value.trim();const c=$("#adminLogCategoryV299")?.value;if(q)p.set("q",q);if(c)p.set("category",c);const d=await api(`/api/admin/logs?${p}`);state.logTotalPages=Math.max(1,d.pagination?.totalPages||1);const rows=d.items||[];$("#adminLogRowsV299").innerHTML=rows.map(x=>`<tr><td>${date(x.created_at)}</td><td>${esc(x.actor_nickname)} ${x.actor_admin_level==="super"?"[최고]":"[부]"}</td><td>${esc(logLabel(x.category))}</td><td>${esc(x.action)}</td><td>${esc(x.target_name||"-")}</td><td>${esc(x.result)}</td></tr>`).join("")||`<tr><td colspan="6">기록이 없습니다.</td></tr>`;$("#adminLogCardsV299").innerHTML=rows.map(x=>`<article class="admin-log-card"><strong>${esc(x.action)}</strong><small>${date(x.created_at)}</small><span>처리자 ${esc(x.actor_nickname)} · ${x.actor_admin_level==="super"?"최고관리자":"부관리자"}</span><span>대상 ${esc(x.target_name||"-")}</span><span>${esc(logLabel(x.category))} · ${esc(x.result)}</span></article>`).join("");$("#adminLogPageV299").textContent=`${state.logPage} / ${state.logTotalPages}`;$("#adminLogPrevV299").disabled=state.logPage<=1;$("#adminLogNextV299").disabled=state.logPage>=state.logTotalPages;}
-  function showMemberMode(logMode){$("#memberListContentV299").hidden=logMode;$("#adminLogPanelV299").hidden=!logMode;$("#memberListTabV299").classList.toggle("active",!logMode);$("#adminLogTabV299").classList.toggle("active",logMode);if(logMode)loadLogs();}
+  function showMemberMode(logMode){
+    if(logMode&&document.querySelector(".v188-member-manager")?.classList.contains("detail-active")){
+      if(anyMemberDirty()&&!confirm("저장하지 않은 변경사항이 있습니다. 관리자 활동 로그로 이동할까요?"))return;
+      clearMemberDirty();setDetailMode(false);
+    }
+    $("#memberListContentV299").hidden=logMode;$("#adminLogPanelV299").hidden=!logMode;$("#memberListTabV299").classList.toggle("active",!logMode);$("#adminLogTabV299").classList.toggle("active",logMode);if(logMode)loadLogs();
+  }
   function init(){
     if(!$("#memberRowsV188"))return;
     $("#memberSearchV188").oninput=e=>{clearTimeout(init.t);init.t=setTimeout(()=>{state.query=e.target.value.trim();load(true)},250)};

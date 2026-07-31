@@ -163,3 +163,149 @@
 #adminApp .primary{box-shadow:0 6px 16px rgba(21,119,255,.18)}
 #adminApp .danger,#adminApp .outline{box-shadow:none}
 
+
+
+/* v303 stage 2: shared administrator content rhythm and optional tool areas */
+#adminApp .admin-panel{
+  width:100%;
+  min-width:0;
+}
+#adminApp .admin-panel > :first-child{min-width:0}
+#adminApp .admin-toolbar{
+  width:100%;
+  min-width:0;
+  margin:0 0 20px;
+  box-sizing:border-box;
+}
+#adminApp .admin-toolbar input,
+#adminApp .admin-toolbar select,
+#adminApp .admin-toolbar button{
+  min-width:0;
+  box-sizing:border-box;
+}
+#adminApp .admin-page-header + .admin-toolbar{margin-top:0}
+#adminApp .admin-page-header + [hidden] + .admin-toolbar{margin-top:0}
+#adminApp .admin-page-header + .v188-stats,
+#adminApp .admin-page-header + .vote-admin-stats,
+#adminApp .admin-page-header + .event-manager-guide,
+#adminApp .admin-page-header + .template-download-card{margin-top:0}
+#adminApp .admin-panel section,
+#adminApp .admin-panel article,
+#adminApp .admin-panel aside,
+#adminApp .admin-panel div{min-width:0}
+
+@media(max-width:760px){
+  #adminApp .admin-toolbar{margin-bottom:16px}
+}
+
+/* v307 stage 6: final administrator UI polish */
+:root{
+  --admin-space-1:6px;
+  --admin-space-2:10px;
+  --admin-space-3:14px;
+  --admin-space-4:18px;
+  --admin-space-5:24px;
+  --admin-card-radius:14px;
+  --admin-card-border:rgba(255,255,255,.10);
+  --admin-card-bg:#0c131e;
+  --admin-card-shadow:0 14px 34px rgba(0,0,0,.18);
+  --admin-focus:rgba(49,136,255,.34);
+}
+#adminApp{
+  color:var(--admin-text);
+  font-size:14px;
+  line-height:1.5;
+}
+#adminApp .admin-panel{
+  color:var(--admin-text);
+}
+#adminApp .admin-panel h3,
+#adminApp .admin-panel h4{
+  letter-spacing:-.015em;
+}
+#adminApp .admin-panel h3{font-size:18px;line-height:1.35}
+#adminApp .admin-panel h4{font-size:15px;line-height:1.4}
+#adminApp .admin-panel p{line-height:1.6}
+#adminApp button,
+#adminApp .primary,
+#adminApp .secondary,
+#adminApp .danger,
+#adminApp .outline{
+  box-shadow:none;
+}
+#adminApp button:focus-visible,
+#adminApp .primary:focus-visible,
+#adminApp .secondary:focus-visible,
+#adminApp .danger:focus-visible,
+#adminApp .outline:focus-visible{
+  outline:3px solid var(--admin-focus);
+  outline-offset:2px;
+}
+#adminApp input:not([type="checkbox"]):not([type="radio"]),
+#adminApp select,
+#adminApp textarea{
+  transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease;
+}
+#adminApp input:focus,
+#adminApp select:focus,
+#adminApp textarea:focus{
+  outline:0;
+  box-shadow:0 0 0 3px var(--admin-focus);
+}
+#adminApp input::placeholder,
+#adminApp textarea::placeholder{color:#68778b;opacity:1}
+#adminApp input[type="checkbox"],
+#adminApp input[type="radio"]{
+  width:18px;
+  height:18px;
+  accent-color:var(--admin-primary);
+}
+#adminApp .table-wrap,
+#adminApp .admin-log-table-wrap{
+  border-color:var(--admin-card-border);
+  border-radius:var(--admin-card-radius);
+  background:var(--admin-card-bg);
+  box-shadow:var(--admin-card-shadow);
+}
+#adminApp table th{
+  height:44px;
+  padding:11px 13px;
+  color:#a7b3c4;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.015em;
+}
+#adminApp table td{
+  padding:12px 13px;
+  vertical-align:middle;
+}
+#adminApp table tbody tr{
+  transition:background-color .14s ease;
+}
+#adminApp table tbody tr:hover{background:rgba(255,255,255,.025)}
+#adminApp .admin-toolbar{
+  padding:var(--admin-space-3);
+  border:1px solid var(--admin-card-border);
+  border-radius:var(--admin-card-radius);
+  background:rgba(255,255,255,.025);
+}
+#adminApp .admin-page-header{
+  margin-bottom:var(--admin-space-5);
+}
+#adminApp .admin-page-heading p{color:#9aa8ba}
+#adminApp .admin-page-actions{gap:var(--admin-space-2)}
+#adminApp .status,
+#adminApp .help,
+#adminApp small{line-height:1.5}
+
+@media(max-width:760px){
+  #adminApp .admin-toolbar{padding:12px}
+  #adminApp button,
+  #adminApp .primary,
+  #adminApp .secondary,
+  #adminApp .danger,
+  #adminApp .outline{
+    min-width:44px;
+  }
+  #adminApp table th,#adminApp table td{padding:11px 12px}
+}
