@@ -1823,21 +1823,33 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   const nickname=cleanString(body.nickname,64);
   const rank=String(body.memberRank||"").toUpperCase();
   const status=String(body.status||"");
+  const currentAdminLevel=target.admin_level || (target.role==="admin"?"super":null);
+  const hasAdminLevel=Object.prototype.hasOwnProperty.call(body,"adminLevel");
+  const requestedAdminLevel=!hasAdminLevel?currentAdminLevel:(body.adminLevel===null||body.adminLevel==="member"?null:String(body.adminLevel||""));
   if(!nickname||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
+  if(hasAdminLevel&&![null,"sub"].includes(requestedAdminLevel)) return jsonError("VALIDATION_ERROR",400);
+  if(hasAdminLevel&&admin.admin_level!=="super") return jsonError("SUPER_ADMIN_REQUIRED",403);
+  if(currentAdminLevel==="super"&&hasAdminLevel&&requestedAdminLevel!=="super") return jsonError("PRIMARY_ADMIN_PROTECTED",409);
   if(isProtectedAdminTarget(admin,target)) return jsonError("ADMIN_ACCOUNT_PROTECTED",403);
-  const targetLevel=target.admin_level || (target.role==="admin"?"super":null);
-  if(targetLevel==="super" && (rank!==target.member_rank || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  if(currentAdminLevel==="super" && (rank!==target.member_rank || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
   if(target.role!=="admin" && !["R1","R2","R3","R4","R5"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
   const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
   if(dupe) return jsonError("NICKNAME_TAKEN",409);
+  const permissionChanged=hasAdminLevel&&requestedAdminLevel!==currentAdminLevel;
+  const nextRole=permissionChanged?(requestedAdminLevel?"admin":"member"):target.role;
+  const nextLevel=permissionChanged?requestedAdminLevel:target.admin_level;
   const batch=[];
   if(nickname!==target.nickname){
     batch.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) VALUES(?,?,?,'admin',?)`).bind(memberId,target.nickname,nickname,admin.id));
   }
-  batch.push(env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=? WHERE id=?`).bind(nickname,rank,status,memberId));
+  batch.push(env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=?,role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(nickname,rank,status,nextRole,nextLevel,memberId));
+  if(permissionChanged) batch.push(env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId));
   await env.DB.batch(batch);
-  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_update",targetType:"member",targetId:memberId,targetName:nickname,before:{nickname:target.nickname,memberRank:target.member_rank,status:target.status},after:{nickname,memberRank:rank,status}});
-  return json({ok:true,data:{updated:true}});
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_update",targetType:"member",targetId:memberId,targetName:nickname,before:{nickname:target.nickname,memberRank:target.member_rank,status:target.status,role:target.role,adminLevel:currentAdminLevel},after:{nickname,memberRank:rank,status,role:nextRole,adminLevel:nextLevel}});
+  if(permissionChanged){
+    await writeAdminLog(env,request,{actor:admin,category:"admin_permission",action:requestedAdminLevel?"admin_role_granted":"admin_role_revoked",targetType:"member",targetId:memberId,targetName:nickname,before:{role:target.role,adminLevel:currentAdminLevel},after:{role:nextRole,adminLevel:nextLevel}});
+  }
+  return json({ok:true,data:{updated:true,role:nextRole,adminLevel:nextLevel}});
 }
 
 async function handleAdminMemberSpecsUpdate(request, memberId, env) {

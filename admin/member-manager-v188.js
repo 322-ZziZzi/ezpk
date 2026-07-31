@@ -167,10 +167,32 @@
     form.adminMemo.addEventListener("input",()=>dirty("memo"));
     form.power.addEventListener("input",e=>{const digits=e.target.value.replace(/\D/g,"");e.target.value=digits?Number(digits).toLocaleString("ko-KR"):""});
     form.onsubmit=async e=>{
-      e.preventDefault();const f=e.currentTarget;
-      await api(`/api/admin/members/${member.id}`,{method:"PUT",body:JSON.stringify({nickname:f.nickname.value,memberRank:f.memberRank.value,status:f.status.value})});
-      if(f.adminLevel&&state.currentAdmin?.adminLevel==="super"){const next=f.adminLevel.value;const current=member.adminLevel||"member";if(next!==current){if(!confirm(next==="sub"?`${member.nickname} 회원을 부관리자로 임명하시겠습니까?`:`${member.nickname} 회원의 부관리자 권한을 해제하시겠습니까?`))return;await api(`/api/admin/members/${member.id}/permissions`,{method:"PUT",body:JSON.stringify({adminLevel:next})});}}
-      clean("profile");alert("기본 프로필이 저장되었습니다.");await load();if(!anyMemberDirty())await openDetail(member.id);
+      e.preventDefault();
+      const f=e.currentTarget;
+      const submit=f.querySelector('button[type="submit"]');
+      const nextAdminLevel=f.adminLevel&&state.currentAdmin?.adminLevel==="super"?f.adminLevel.value:undefined;
+      const currentAdminLevel=member.adminLevel||"member";
+      if(nextAdminLevel!==undefined&&nextAdminLevel!==currentAdminLevel){
+        const confirmed=confirm(nextAdminLevel==="sub"?`${member.nickname} 회원을 부관리자로 임명하시겠습니까?`:`${member.nickname} 회원의 부관리자 권한을 해제하시겠습니까?`);
+        if(!confirmed)return;
+      }
+      try{
+        if(submit)submit.disabled=true;
+        await api(`/api/admin/members/${member.id}`,{method:"PUT",body:JSON.stringify({
+          nickname:f.nickname.value,
+          memberRank:f.memberRank.value,
+          status:f.status.value,
+          ...(nextAdminLevel!==undefined?{adminLevel:nextAdminLevel}:{})
+        })});
+        clean("profile");
+        alert(nextAdminLevel!==undefined&&nextAdminLevel!==currentAdminLevel?(nextAdminLevel==="sub"?"기본 프로필을 저장하고 부관리자로 임명했습니다.":"기본 프로필을 저장하고 부관리자 권한을 해제했습니다."):"기본 프로필이 저장되었습니다.");
+        await load();
+        if(!anyMemberDirty())await openDetail(member.id);
+      }catch(error){
+        console.error("[MEMBER_PROFILE_SAVE_FAILED]",error);
+        const messages={SUPER_ADMIN_REQUIRED:"최고관리자만 부관리자를 임명하거나 해제할 수 있습니다.",PRIMARY_ADMIN_PROTECTED:"최고관리자 권한은 변경할 수 없습니다.",ADMIN_ACCOUNT_PROTECTED:"해당 관리자 계정은 수정할 수 없습니다.",NICKNAME_TAKEN:"이미 사용 중인 닉네임입니다.",VALIDATION_ERROR:"입력값을 다시 확인해 주세요."};
+        alert(messages[error.code]||"기본 프로필 저장에 실패했습니다.");
+      }finally{if(submit)submit.disabled=false;}
     };
     $("#memberSpecsSaveV228").onclick=async()=>{
       await api(`/api/admin/members/${member.id}/specs`,{method:"PUT",body:JSON.stringify(specPayload(form))});
