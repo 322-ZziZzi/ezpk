@@ -188,7 +188,7 @@
   });
 
   const requestedSection = new URLSearchParams(window.location.search).get("tab");
-  const initialSection = requestedSection === "specs" ? "specs" : "profile";
+  const initialSection = requestedSection === "profile" ? "profile" : "specs";
 
   accordionList.querySelectorAll(".accordion-item").forEach(item => {
     setAccordionState(item, item.dataset.section === initialSection);

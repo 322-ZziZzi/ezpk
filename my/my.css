@@ -196,3 +196,36 @@ html[dir="rtl"] .accordion-item.is-open .accordion-trigger{box-shadow:inset -4px
 .server-time-live strong{color:#f5c547}
 legend{color:#f5c547}
 @media(max-width:620px){.my-shell{width:min(100% - 16px,900px);padding:28px 0 56px}}
+
+
+/* v293: finalized equal-width My Page card stack and Detailed Specs default state */
+.my-content-stack{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:18px;
+  width:100%;
+  min-width:0;
+}
+.my-content-stack[hidden]{display:none!important}
+.my-content-stack>.member-card,
+.my-content-stack>.accordion-list,
+.accordion-list>.my-menu-group,
+.my-menu-group>.my-menu-group-card{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  margin-inline:0;
+  box-sizing:border-box;
+}
+.my-content-stack>.member-card{margin-bottom:0}
+.accordion-list{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:18px;
+}
+@media(min-width:760px){
+  .my-content-stack>.member-card,
+  .my-menu-group>.my-menu-group-card{
+    border-radius:16px;
+  }
+}

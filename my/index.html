@@ -6,8 +6,8 @@
 <meta content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes" name="viewport"/>
 <meta content="#05070b" name="theme-color"/>
 <title>MY PAGE · EZPK</title>
-<link href="../style.css?v=2920" rel="stylesheet"/>
-<link href="./my.css?v=2920" rel="stylesheet"/>
+<link href="../style.css?v=2930" rel="stylesheet"/>
+<link href="./my.css?v=2930" rel="stylesheet"/>
 <style>
 @media (min-width:901px){
 .bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
@@ -38,7 +38,7 @@
 <p data-i18n="loginRequiredBody">로그인 후 마이페이지를 이용할 수 있습니다.</p>
 <button class="portal-button portal-button-primary primary-link" data-i18n="loginButton" id="myLoginButton" type="button">로그인</button>
 </section>
-<div hidden="" id="memberContent">
+<div class="my-content-stack" hidden="" id="memberContent">
 <section aria-label="Member summary" class="portal-card member-card">
 <div aria-hidden="true" class="member-avatar rank-r1" id="summaryAvatar"><span class="rank-member-icon"></span></div>
 <div class="member-main">
@@ -50,12 +50,12 @@
 <div><dt data-i18n="industry">산업 레벨</dt><dd id="summaryIndustry">-</dd></div>
 </dl>
 </section>
-<section class="accordion-list"><section class="my-menu-group" data-group="info"><h2 class="my-menu-group-title">내 정보</h2><div class="portal-card my-menu-group-card"><article class="accordion-item is-open" data-section="profile">
-<button aria-expanded="true" class="accordion-trigger" type="button">
+<section class="accordion-list"><section class="my-menu-group" data-group="info"><h2 class="my-menu-group-title">내 정보</h2><div class="portal-card my-menu-group-card"><article class="accordion-item" data-section="profile">
+<button aria-expanded="false" class="accordion-trigger" type="button">
 <span><span aria-hidden="true" class="menu-svg-icon icon-user"></span><span data-i18n="basicProfile">기본 프로필</span></span>
-<span class="chevron">⌄</span>
+<span class="chevron">›</span>
 </button>
-<div class="accordion-panel">
+<div class="accordion-panel" hidden="">
 <div class="portal-form form-stack profile-readonly" id="profileForm">
 <label><span data-i18n="loginId">로그인 아이디</span><input disabled="" id="profileLoginId" type="text"/></label>
 <label><span data-i18n="nickname">닉네임</span><input disabled="" id="profileNickname" type="text"/></label>
@@ -64,12 +64,12 @@
 </label>
 </div>
 </div>
-</article><article class="accordion-item" data-section="specs">
-<button aria-expanded="false" class="accordion-trigger" type="button">
+</article><article class="accordion-item is-open" data-section="specs">
+<button aria-expanded="true" class="accordion-trigger" type="button">
 <span><span aria-hidden="true" class="menu-svg-icon icon-sliders"></span><span data-i18n="detailedSpecs">세부 스펙</span></span>
-<span class="chevron">›</span>
+<span class="chevron">⌄</span>
 </button>
-<div class="accordion-panel" hidden="">
+<div class="accordion-panel">
 <form class="portal-form form-stack" id="specsForm">
 <label class="profile-power-field"><span data-i18n="profilePower">전투력 (프로필에 표시된 수치)</span>
 <input autocomplete="off" id="specsProfilePower" inputmode="numeric" name="power" placeholder="-" required="" type="text"/>
@@ -174,6 +174,6 @@
 </dialog>
 <div aria-live="polite" class="toast" hidden="" id="toast" role="status"></div>
 <script src="../vehicle-power.js?v=2740"></script>
-<script src="./my.js?v=2920"></script>
+<script src="./my.js?v=2930"></script>
 </body>
 </html>
