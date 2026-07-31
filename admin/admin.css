@@ -797,7 +797,7 @@ body.admin-unlocked{overflow:auto}
 .admin-hero{padding-bottom:26px}
 .manager-card{padding:24px}
 .admin-card-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:18px;margin-bottom:26px}
-.admin-nav-card{--group-accent:#67a7ff;--group-accent-rgb:103,167,255;display:flex;min-width:0;min-height:100%;padding:18px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(180deg,rgba(21,31,46,.96),rgba(12,19,29,.96));box-shadow:0 14px 32px rgba(0,0,0,.18)}
+.admin-nav-card{--group-accent:#67a7ff;--group-accent-rgb:103,167,255;display:flex;flex-direction:column;min-width:0;min-height:100%;padding:18px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(180deg,rgba(21,31,46,.96),rgba(12,19,29,.96));box-shadow:0 14px 32px rgba(0,0,0,.18)}
 .admin-nav-card[data-admin-group="teams"]{--group-accent:#f5c547;--group-accent-rgb:245,197,71}
 .admin-nav-card[data-admin-group="support"]{--group-accent:#bb8cff;--group-accent-rgb:187,140,255}
 .admin-nav-card-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;min-height:48px;padding:0 14px;border:1px solid rgba(var(--group-accent-rgb),.28);border-left:4px solid var(--group-accent);border-radius:11px;background:linear-gradient(90deg,rgba(var(--group-accent-rgb),.15),rgba(var(--group-accent-rgb),.045));color:var(--group-accent);font-size:16px;font-weight:900;text-align:left;cursor:default;pointer-events:none;appearance:none;box-shadow:none;transform:none;transition:none}
@@ -827,4 +827,24 @@ body.admin-unlocked{overflow:auto}
   .admin-nav-card.open .admin-nav-card-items{display:grid}
   .admin-nav-card.open .admin-nav-card-toggle{border-bottom:1px solid rgba(var(--group-accent-rgb),.2);border-radius:13px 13px 0 0}
   .admin-nav-card-items button{min-height:46px;padding:0 13px;justify-content:center;text-align:center}
+}
+
+
+/* v281: force desktop group-title layout and defeat stale/global button styles */
+@media(min-width:761px){
+  .admin-card-navigation .admin-nav-card{flex-direction:column!important}
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle{
+    flex:0 0 auto!important;
+    width:100%!important;
+    margin:0!important;
+    cursor:default!important;
+    pointer-events:none!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-items{
+    flex:1 1 auto!important;
+    width:100%!important;
+  }
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle:focus-visible{outline:none!important}
 }
