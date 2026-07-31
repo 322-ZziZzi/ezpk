@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Alliance</title>
-  <link rel="stylesheet" href="style.css?v=3190">
+  <link rel="stylesheet" href="style.css?v=3230">
   <link rel="stylesheet" href="./common-heading.css?v=1020">
 </head>
 <body class="home-auth-pending">
@@ -22,6 +22,7 @@
         </div>
         <div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div>
         <div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div>
+        <button id="eventScheduleToggle" class="schedule-toggle" type="button" hidden aria-expanded="false"></button>
       </section>
 
       <section class="home-quick-section" aria-labelledby="homeQuickTitle">
@@ -42,17 +43,17 @@
       <p class="brand-description" data-home-k="brandDescription"></p>
     </section>
 
+    <section class="home-account-actions" data-home-anonymous hidden aria-label="Account actions">
+      <button class="home-button home-button-primary" type="button" data-home-action="login" data-home-k="login"></button>
+      <button class="home-button home-button-secondary" type="button" data-home-action="signup" data-home-k="signup"></button>
+    </section>
+
     <section class="ezpk-video-section" aria-label="EZPK Alliance Video">
       <div class="ezpk-video-frame">
         <div id="ezpkYouTubePlayer"></div>
         <button class="ezpk-video-cover" id="ezpkVideoCover" type="button" aria-label="Play EZPK Alliance video"><span>EZPK</span></button>
         <div class="ezpk-video-overlay" aria-hidden="true"></div>
       </div>
-    </section>
-
-    <section class="home-account-actions" data-home-guest hidden aria-label="Account actions">
-      <button class="home-button home-button-primary" type="button" data-home-action="login" data-home-k="login"></button>
-      <button class="home-button home-button-secondary" type="button" data-home-action="signup" data-home-k="signup"></button>
     </section>
 
     <section class="home-features" data-home-guest hidden aria-labelledby="homeFeaturesTitle">
@@ -83,8 +84,8 @@
 
   <script src="data.js?v=1530"></script>
   <script src="script.js?v=1530"></script>
-  <script src="home-v319.js?v=3190"></script>
-  <script src="schedule.js?v=3190"></script>
+  <script src="home-v319.js?v=3230"></script>
+  <script src="schedule.js?v=3230"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
   (function(){

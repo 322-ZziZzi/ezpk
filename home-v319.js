@@ -169,11 +169,13 @@
   function applyAuth(state) {
     if (!state || !state.loaded) return;
     const active = Boolean(state.authenticated && state.member && state.member.status === 'active');
+    const anonymous = !state.authenticated;
     document.body.classList.remove('home-auth-pending');
     document.body.classList.toggle('home-auth-member', active);
     document.body.classList.toggle('home-auth-guest', !active);
     document.querySelectorAll('[data-home-member]').forEach(function (element) { element.hidden = !active; });
     document.querySelectorAll('[data-home-guest]').forEach(function (element) { element.hidden = active; });
+    document.querySelectorAll('[data-home-anonymous]').forEach(function (element) { element.hidden = !anonymous; });
   }
 
   document.querySelectorAll('[data-home-action="login"]').forEach(function (button) {
