@@ -749,7 +749,13 @@
           if (payload?.data?.authenticated && payload?.data?.member) {
             return { authenticated:true, member:payload.data.member };
           }
-          return { authenticated:false, member:null };
+          // A login cookie can take a brief moment to become visible to the
+          // following /api/auth/me request. Keep retrying when the caller
+          // explicitly requested verification attempts; startup still uses
+          // one attempt so the header never remains stuck on "확인 중".
+          if (attempt === total - 1) {
+            return { authenticated:false, member:null };
+          }
         }
       } catch (_) {
         // Never leave the account area stuck on "확인 중".
