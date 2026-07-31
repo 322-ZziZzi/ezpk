@@ -794,6 +794,11 @@
     return authLoadPromise;
   }
 
+  // v290: Start authentication before optional navigation/language bindings.
+  // The administrator account area must not remain on "확인 중" when a
+  // later, non-authentication UI initializer fails.
+  loadAuth();
+
   function closeMenus() {
     const langMenu = header.querySelector('#langMenu');
     const nav = header.querySelector('#nav');
@@ -999,5 +1004,4 @@
 
   loadStrategyAccess();
   window.addEventListener('ezpk-auth-refresh', loadAuth);
-  loadAuth();
 })();

@@ -1435,3 +1435,91 @@ html[dir="rtl"] .event-badges{justify-content:flex-start}
     box-shadow:0 0 0 2px rgba(245,197,71,.12),0 0 16px rgba(245,197,71,.28)!important;
   }
 }
+
+/* v292: shared portal page UI components */
+.portal-page{
+  width:min(900px,calc(100% - 24px));
+  margin:0 auto;
+  padding:42px 0 72px;
+  font-family:inherit;
+}
+.portal-page-hero{
+  margin:0 0 24px;
+  padding:0;
+  text-align:center;
+}
+.portal-eyebrow{
+  margin:0 0 8px;
+  color:#f5c547;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.portal-page-hero h1{
+  margin:0;
+  font-size:clamp(32px,6vw,48px);
+  line-height:1.1;
+}
+.portal-page-hero>p:last-child{
+  margin:10px auto 0;
+  color:#99a4b2;
+  line-height:1.6;
+}
+.portal-card{
+  width:100%;
+  border:1px solid #ffffff18;
+  border-radius:16px;
+  background:#111823;
+  box-shadow:0 16px 42px rgba(0,0,0,.24);
+}
+.portal-state-panel{
+  padding:32px 20px;
+  text-align:center;
+}
+.portal-form,
+.portal-form input,
+.portal-form select,
+.portal-form textarea,
+.portal-button{
+  font-family:inherit;
+}
+.portal-form input,
+.portal-form select,
+.portal-form textarea{
+  width:100%;
+  min-height:48px;
+  padding:0 13px;
+  border:1px solid #ffffff22;
+  border-radius:10px;
+  background:#080d14;
+  color:#fff;
+}
+.portal-form textarea{min-height:120px;padding-block:12px;resize:vertical}
+.portal-form input:focus,
+.portal-form select:focus,
+.portal-form textarea:focus{
+  outline:2px solid rgba(245,197,71,.24);
+  border-color:#f5c547;
+}
+.portal-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  padding:0 18px;
+  border:1px solid transparent;
+  border-radius:10px;
+  font-weight:800;
+  line-height:1.2;
+  text-decoration:none;
+  cursor:pointer;
+}
+.portal-button-primary{background:#f5c547;color:#171000}
+.portal-button-secondary{border-color:#ffffff30;background:#ffffff0b;color:#fff}
+.portal-button-danger{border-color:#ef4444;background:#ef4444;color:#fff}
+.portal-button:disabled{opacity:.48;cursor:not-allowed}
+@media(max-width:620px){
+  .portal-page{width:min(100% - 16px,900px);padding:28px 0 56px}
+  .portal-page-hero{margin-bottom:18px}
+}
