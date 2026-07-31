@@ -229,3 +229,10 @@ legend{color:#f5c547}
     border-radius:16px;
   }
 }
+
+/* v294: prevent global section padding from narrowing nested My Page cards */
+.my-content-stack > .member-card,
+.my-content-stack > .accordion-list,
+.accordion-list > .my-menu-group{
+  padding:0;
+}

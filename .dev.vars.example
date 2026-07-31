@@ -1,0 +1,6 @@
+ADMIN_SETUP_KEY=replace-with-a-long-random-secret
+PASSWORD_PEPPER=replace-with-a-different-long-random-secret
+GITHUB_TOKEN=github_pat_replace_me
+GITHUB_OWNER=322-ZziZzi
+GITHUB_REPO=ezpk
+GITHUB_BRANCH=main
