@@ -848,3 +848,40 @@ body.admin-unlocked{overflow:auto}
   }
   .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle:focus-visible{outline:none!important}
 }
+
+/* v282: stronger colored desktop group headers */
+@media(min-width:761px){
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle{
+    min-height:64px!important;
+    padding:0 18px!important;
+    border:1px solid rgba(var(--group-accent-rgb),.42)!important;
+    border-left:6px solid var(--group-accent)!important;
+    border-radius:12px!important;
+    background:
+      linear-gradient(100deg,rgba(var(--group-accent-rgb),.44) 0%,rgba(var(--group-accent-rgb),.24) 52%,rgba(var(--group-accent-rgb),.10) 100%)!important;
+    color:#fff!important;
+    font-size:17px!important;
+    font-weight:900!important;
+    letter-spacing:-.02em!important;
+    text-shadow:0 1px 2px rgba(0,0,0,.45)!important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      0 8px 18px rgba(var(--group-accent-rgb),.10)!important;
+  }
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle:hover,
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle:active,
+  .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle:focus{
+    background:
+      linear-gradient(100deg,rgba(var(--group-accent-rgb),.44) 0%,rgba(var(--group-accent-rgb),.24) 52%,rgba(var(--group-accent-rgb),.10) 100%)!important;
+    color:#fff!important;
+    transform:none!important;
+  }
+  .admin-card-navigation .admin-nav-card-title{gap:11px!important}
+  .admin-card-navigation .admin-nav-card-icon{
+    width:28px!important;
+    height:28px!important;
+    font-size:19px!important;
+    filter:drop-shadow(0 1px 3px rgba(0,0,0,.42));
+  }
+  .admin-card-navigation .admin-nav-card-items{padding-top:15px!important}
+}
