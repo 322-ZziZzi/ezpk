@@ -885,3 +885,126 @@ body.admin-unlocked{overflow:auto}
   }
   .admin-card-navigation .admin-nav-card-items{padding-top:15px!important}
 }
+
+
+/* v295: finalized responsive administrator header and navigation */
+.admin-nav-card-icon svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:900px){
+  body.admin-unlocked .site-header.admin-auth-host{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto 44px!important;
+    gap:8px!important;
+    min-height:68px!important;
+    padding:10px 12px!important;
+  }
+  .admin-auth-host .admin-context-brand{min-width:0!important;color:#f5c547!important}
+  .admin-auth-host .admin-context-brand b{font-size:17px!important;letter-spacing:.5px!important;white-space:nowrap!important}
+  .admin-auth-host .header-account{
+    display:flex!important;
+    grid-column:2!important;
+    grid-row:1!important;
+    align-items:center!important;
+    justify-self:end!important;
+    position:relative!important;
+    min-width:0!important;
+  }
+  .admin-auth-host #menuBtn{grid-column:3!important;grid-row:1!important}
+  .admin-auth-host .account-member-trigger{
+    min-width:76px!important;
+    height:42px!important;
+    padding:0 10px!important;
+    border:1px solid rgba(255,255,255,.16)!important;
+    border-radius:10px!important;
+    background:#111823!important;
+    color:#fff!important;
+    font-size:12px!important;
+  }
+  .admin-auth-host .account-member-name{max-width:52px!important}
+  .admin-auth-host .account-rank{display:none!important}
+  .admin-auth-host .account-menu{
+    position:fixed!important;
+    top:76px!important;
+    right:62px!important;
+    left:auto!important;
+    width:min(250px,calc(100vw - 84px))!important;
+    z-index:1200!important;
+  }
+  .admin-auth-host + .admin-login-screen{padding-top:20px}
+  .admin-hero{display:none!important}
+  .manager-card{
+    width:100%!important;
+    margin:0!important;
+    padding:14px 12px 70px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+  }
+  .ezpk-mobile-drawer .mobile-account-slot{display:none!important}
+  .ezpk-mobile-drawer .admin-mobile-navigation-host{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .ezpk-mobile-drawer .admin-card-navigation{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    width:100%!important;
+    margin:0!important;
+  }
+  .ezpk-mobile-drawer .admin-nav-card{
+    --group-accent:#67a7ff;
+    --group-accent-rgb:103,167,255;
+    display:block!important;
+    min-height:0!important;
+    padding:12px!important;
+    border:1px solid rgba(255,255,255,.09)!important;
+    border-radius:16px!important;
+    background:linear-gradient(180deg,rgba(21,31,46,.98),rgba(12,19,29,.98))!important;
+    box-shadow:0 14px 32px rgba(0,0,0,.18)!important;
+  }
+  .ezpk-mobile-drawer .admin-nav-card[data-admin-group="teams"]{--group-accent:#f5c547;--group-accent-rgb:245,197,71}
+  .ezpk-mobile-drawer .admin-nav-card[data-admin-group="support"]{--group-accent:#bb8cff;--group-accent-rgb:187,140,255}
+  .ezpk-mobile-drawer .admin-nav-card-toggle{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    width:100%!important;
+    min-height:52px!important;
+    padding:0 14px!important;
+    border:1px solid rgba(var(--group-accent-rgb),.28)!important;
+    border-left:4px solid var(--group-accent)!important;
+    border-radius:11px!important;
+    background:linear-gradient(90deg,rgba(var(--group-accent-rgb),.15),rgba(var(--group-accent-rgb),.045))!important;
+    color:var(--group-accent)!important;
+    font-size:15px!important;
+    font-weight:900!important;
+    cursor:pointer!important;
+    pointer-events:auto!important;
+  }
+  .ezpk-mobile-drawer .admin-nav-card.open .admin-nav-card-toggle{border-radius:11px!important}
+  .ezpk-mobile-drawer .admin-nav-chevron{display:block!important;font-size:18px!important;color:var(--group-accent)!important}
+  .ezpk-mobile-drawer .admin-nav-card.open .admin-nav-chevron{transform:rotate(180deg)!important}
+  .ezpk-mobile-drawer .admin-nav-card-items{display:none!important;gap:8px!important;padding:12px 0 0!important}
+  .ezpk-mobile-drawer .admin-nav-card.open .admin-nav-card-items{display:grid!important}
+  .ezpk-mobile-drawer .admin-nav-card-items button{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    min-height:48px!important;
+    padding:0 13px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    border-radius:10px!important;
+    background:rgba(255,255,255,.018)!important;
+    color:#c4cbd5!important;
+    font-size:14px!important;
+    font-weight:800!important;
+  }
+  .ezpk-mobile-drawer .admin-nav-card-items button.active{
+    border-color:rgba(var(--group-accent-rgb),.48)!important;
+    background:rgba(var(--group-accent-rgb),.15)!important;
+    color:var(--group-accent)!important;
+  }
+}

@@ -308,7 +308,7 @@
   }).join('');
 
   header.innerHTML = `
-    <a href="${homeHref}" class="brand">★ <span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></span></a>
+    <a href="${homeHref}" class="brand${isAdminContext ? ' admin-context-brand' : ''}">${isAdminContext ? '' : '★ '}<span><b>${isAdminContext ? 'EZPK ADMIN' : '322 EZPK'}</b>${isAdminContext ? '' : '<small>ALLIANCE PORTAL</small>'}</span></a>
     <nav id="nav">
       <div class="desktop-nav-items" id="desktopNavItems">${menuHtml}</div>
       <div class="nav-more" id="navMore" hidden>
@@ -341,7 +341,7 @@
     <aside class="ezpk-mobile-drawer" id="ezpkMobileDrawer" aria-hidden="true">
       <div class="ezpk-mobile-drawer-scroll" id="ezpkMobileDrawerScroll">
         <section class="mobile-account-slot" id="mobileDrawerAccount" aria-live="polite"></section>
-        <nav class="mobile-menu-list" id="mobileDrawerItems">${menuHtml}</nav>
+        <nav class="mobile-menu-list${isAdminContext ? ' admin-mobile-navigation-host' : ''}" id="mobileDrawerItems">${isAdminContext ? '' : menuHtml}</nav>
       </div>
     </aside>
     <div class="ezpk-auth-modal" id="ezpkLoginModal" hidden>
@@ -661,7 +661,7 @@
     return `
       <div class="account-member">
         <button type="button" class="account-member-trigger" aria-expanded="false">
-          <span class="account-member-name" title="${safeText(member.nickname)}">${safeText(member.nickname)}</span>
+          <span class="account-member-name" title="${safeText(member.nickname)}">${safeText(isAdminContext ? labels.admin : member.nickname)}</span>
           <span class="account-rank ${isAdmin ? 'rank-r5' : ''}">${safeText(member.memberRank)}</span>
           <span aria-hidden="true">▾</span>
         </button>

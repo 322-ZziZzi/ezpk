@@ -120,17 +120,26 @@ function initAdminLoginGate(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
 
-// v279: card navigation for desktop and accordion navigation for mobile.
+// v295: desktop card navigation and mobile header-drawer accordion.
 function initAdminCardNavigation(){
   const navigation=document.querySelector('.admin-card-navigation');
   if(!navigation)return;
+  const desktopHome=navigation.parentElement;
+  const placeholder=document.createComment('admin-navigation-home');
+  desktopHome.insertBefore(placeholder,navigation);
   const cards=[...navigation.querySelectorAll('.admin-nav-card')];
   const menuButtons=[...navigation.querySelectorAll('[data-panel]')];
   const panels=[...document.querySelectorAll('.admin-panel')];
+  const mobileQuery=window.matchMedia('(max-width: 900px)');
 
   const setGroupOpen=(card,open)=>{
     card.classList.toggle('open',open);
     card.querySelector('.admin-nav-card-toggle')?.setAttribute('aria-expanded',String(open));
+  };
+
+  const closeMobileDrawer=()=>{
+    const menuButton=document.getElementById('menuBtn');
+    if(mobileQuery.matches&&menuButton?.getAttribute('aria-expanded')==='true')menuButton.click();
   };
 
   const activatePanel=panelId=>{
@@ -138,31 +147,32 @@ function initAdminCardNavigation(){
     panels.forEach(panel=>panel.classList.toggle('active',panel.id===panelId));
     const activeButton=menuButtons.find(button=>button.dataset.panel===panelId);
     const activeCard=activeButton?.closest('.admin-nav-card');
-    if(window.innerWidth<=760&&activeCard){
+    if(mobileQuery.matches&&activeCard)cards.forEach(card=>setGroupOpen(card,card===activeCard));
+    closeMobileDrawer();
+  };
+
+  const placeNavigation=()=>{
+    const mobileHost=document.querySelector('.admin-mobile-navigation-host');
+    if(mobileQuery.matches&&mobileHost){
+      if(navigation.parentElement!==mobileHost)mobileHost.appendChild(navigation);
+      const activeCard=navigation.querySelector('[data-panel].active')?.closest('.admin-nav-card');
       cards.forEach(card=>setGroupOpen(card,card===activeCard));
+    }else{
+      if(navigation.parentElement!==desktopHome)desktopHome.insertBefore(navigation,placeholder.nextSibling);
+      cards.forEach(card=>setGroupOpen(card,true));
     }
   };
 
   menuButtons.forEach(button=>button.addEventListener('click',()=>activatePanel(button.dataset.panel)));
   cards.forEach(card=>card.querySelector('.admin-nav-card-toggle')?.addEventListener('click',()=>{
-    if(window.innerWidth>760)return;
+    if(!mobileQuery.matches)return;
     const willOpen=!card.classList.contains('open');
     cards.forEach(item=>setGroupOpen(item,item===card&&willOpen));
   }));
 
-  window.addEventListener('resize',()=>{
-    if(window.innerWidth>760)cards.forEach(card=>setGroupOpen(card,true));
-    else{
-      const activeCard=navigation.querySelector('[data-panel].active')?.closest('.admin-nav-card');
-      cards.forEach(card=>setGroupOpen(card,card===activeCard));
-    }
-  });
-
-  if(window.innerWidth>760)cards.forEach(card=>setGroupOpen(card,true));
-  else{
-    const activeCard=navigation.querySelector('[data-panel].active')?.closest('.admin-nav-card');
-    cards.forEach(card=>setGroupOpen(card,card===activeCard));
-  }
+  mobileQuery.addEventListener?.('change',placeNavigation);
+  window.addEventListener('resize',placeNavigation);
+  placeNavigation();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminCardNavigation,{once:true});
 else initAdminCardNavigation();
