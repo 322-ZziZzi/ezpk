@@ -143,6 +143,7 @@
 
   const header = document.querySelector('[data-shared-header]');
   if (!header) return;
+  const isAdminContext = header.dataset.adminContext === 'true';
 
   const base = header.dataset.base || '.';
   const homeHref = header.dataset.homeHref || `${base}/`;
@@ -318,7 +319,7 @@
     <div class="header-account" id="desktopAccount" aria-live="polite">
       <span class="account-loading" data-account-label="loading"></span>
     </div>
-    <div class="lang">
+    ${isAdminContext ? '' : `<div class="lang">
       <button id="langBtn" type="button" aria-haspopup="true" aria-expanded="false">
         <span class="mobile-language-icon" aria-hidden="true">🌐</span>
         <span class="desktop-language-label"><span id="flag"></span><span id="lname"></span> ▾</span>
@@ -333,7 +334,7 @@
         <button type="button" data-l="th">🇹🇭 ไทย</button>
         <button type="button" data-l="zh-tw">🇹🇼 繁體中文</button>
       </div>
-    </div>
+    </div>`}
     <button id="menuBtn" class="ezpk-menu-discovery-cue" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
 
   document.body.insertAdjacentHTML('beforeend', `
@@ -510,12 +511,14 @@
     lang=normalizeLanguage(lang);
     renderNavLabels(lang);
     const meta=META[lang];
-    header.querySelector('#flag').textContent=meta[0];
-    header.querySelector('#lname').textContent=meta[1];
+    const flagElement=header.querySelector('#flag');
+    const languageNameElement=header.querySelector('#lname');
+    if(flagElement)flagElement.textContent=meta[0];
+    if(languageNameElement)languageNameElement.textContent=meta[1];
     document.documentElement.lang=lang==='zh-tw'?'zh-Hant':lang;
     document.documentElement.dir=lang==='ar'?'rtl':'ltr';
     document.body.classList.toggle('rtl',lang==='ar');
-    localStorage.setItem(STORAGE_KEY,lang);
+    if(!isAdminContext)localStorage.setItem(STORAGE_KEY,lang);
     renderAccount();
     updateAuthModalLabels();
     if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang}}));
@@ -638,7 +641,6 @@
 
     const member = authState.member;
     const isAdmin = member.role === 'admin';
-    const isAdminContext = header.dataset.adminContext === 'true';
     const roleLabel = isAdmin ? labels.administrator : labels.member;
     const dropdownItems = `
       ${isAdminContext ? `<button type="button" data-account-action="home">${safeText((NAV_LABELS[currentLang] || NAV_LABELS.ko).home)}</button>` : ''}
@@ -732,31 +734,48 @@
   async function fetchVerifiedAuth(attempts) {
     const total = Math.max(1, Number(attempts) || 1);
     for (let attempt = 0; attempt < total; attempt += 1) {
+      const controller = typeof AbortController === 'function' ? new AbortController() : null;
+      const timeoutId = controller ? setTimeout(function () { controller.abort(); }, 7000) : null;
       try {
         const response = await fetch('/api/auth/me', {
           method:'GET',
           credentials:'include',
           cache:'no-store',
-          headers:{'accept':'application/json'}
+          headers:{'accept':'application/json'},
+          signal:controller ? controller.signal : undefined
         });
-        const payload = await response.json();
+        const payload = await response.json().catch(function () { return null; });
         if (response.ok && payload?.ok) {
           if (payload?.data?.authenticated && payload?.data?.member) {
             return { authenticated:true, member:payload.data.member };
           }
-          if (attempt === total - 1) return { authenticated:false, member:null };
+          return { authenticated:false, member:null };
         }
-      } catch (_) {}
-      if (attempt < total - 1) await wait(350 * (attempt + 1));
+      } catch (_) {
+        // Never leave the account area stuck on "확인 중".
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
+      if (attempt < total - 1) await wait(250 * (attempt + 1));
     }
     return { authenticated:false, member:null };
   }
 
+  let authLoadPromise = null;
   async function loadAuth() {
-    authState = await fetchVerifiedAuth(2);
-    authLoaded = true;
-    renderAccount();
-    window.dispatchEvent(new CustomEvent('ezpk-auth-ready', { detail:authState }));
+    if (authLoadPromise) return authLoadPromise;
+    authLoadPromise = (async function () {
+      try {
+        authState = await fetchVerifiedAuth(1);
+      } finally {
+        authLoaded = true;
+        renderAccount();
+        window.dispatchEvent(new CustomEvent('ezpk-auth-ready', { detail:authState }));
+        authLoadPromise = null;
+      }
+      return authState;
+    })();
+    return authLoadPromise;
   }
 
   function closeMenus() {
@@ -903,25 +922,27 @@
     requestAnimationFrame(syncMobileDrawerMetrics);
   });
 
-  const initialLang = currentLanguage();
+  const initialLang = isAdminContext ? 'ko' : currentLanguage();
   applyLanguage(initialLang,false);
 
   const langBtn=header.querySelector('#langBtn');
   const langMenu=header.querySelector('#langMenu');
-  langBtn.addEventListener('click',function(e){
-    e.stopPropagation();
-    const willOpen = langMenu.hidden;
-    closeMenus();
-    langMenu.hidden=!willOpen;
-    langBtn.setAttribute('aria-expanded', String(willOpen));
-  });
-  header.querySelectorAll('#langMenu [data-l]').forEach(function (button) {
-    button.addEventListener('click', function () {
-      langMenu.hidden=true;
-      langBtn.setAttribute('aria-expanded','false');
-      applyLanguage(button.dataset.l,true);
+  if(langBtn&&langMenu){
+    langBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      const willOpen = langMenu.hidden;
+      closeMenus();
+      langMenu.hidden=!willOpen;
+      langBtn.setAttribute('aria-expanded', String(willOpen));
     });
-  });
+    header.querySelectorAll('#langMenu [data-l]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        langMenu.hidden=true;
+        langBtn.setAttribute('aria-expanded','false');
+        applyLanguage(button.dataset.l,true);
+      });
+    });
+  }
 
   const menuBtn=header.querySelector('#menuBtn');
   const nav=header.querySelector('#nav');
@@ -941,9 +962,12 @@
 
   document.addEventListener('click',function(e){
     if (!header.contains(e.target) && !mobileDrawer.contains(e.target)) closeMenus();
-    else if (header.contains(e.target) && !header.querySelector('.lang').contains(e.target)) {
-      langMenu.hidden=true;
-      langBtn.setAttribute('aria-expanded','false');
+    else {
+      const languageArea=header.querySelector('.lang');
+      if(languageArea&&langMenu&&langBtn&&!languageArea.contains(e.target)){
+        langMenu.hidden=true;
+        langBtn.setAttribute('aria-expanded','false');
+      }
     }
   });
   window.addEventListener('storage',function(e){if(e.key===STORAGE_KEY)applyLanguage(e.newValue,false)});

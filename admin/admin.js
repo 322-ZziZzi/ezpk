@@ -3,28 +3,55 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>S
 // v17: initialize the login gate before the rest of the admin manager.
 // This keeps login functional even if a later manager feature raises an error.
 window.EZPK_ADMIN_PASSWORD='';
-async function verifyAdminSession(){
+let adminSessionLoading=false;
+let adminSessionReady=false;
+async function verifyAdminSession(event){
+  if(adminSessionLoading)return false;
+  adminSessionLoading=true;
   const status=document.getElementById('loginStatus');
   try{
-    const response=await fetch('/api/auth/me',{credentials:'include',headers:{accept:'application/json'},cache:'no-store'});
-    const payload=await response.json().catch(()=>null);
-    const member=payload?.data?.member;
-    if(response.ok&&payload?.ok&&member?.role==='admin'&&member?.memberRank==='R5'&&member?.status==='active'){
+    let state=event?.detail||null;
+    if(!state&&window.EZPKSharedHeader){
+      const current=window.EZPKSharedHeader.getAuthState?.();
+      if(current&&current.member)state=current;
+      else state=await window.EZPKSharedHeader.refreshAuth?.();
+    }
+    if(!state){
+      const controller=typeof AbortController==='function'?new AbortController():null;
+      const timeoutId=controller?setTimeout(()=>controller.abort(),7000):null;
+      try{
+        const response=await fetch('/api/auth/me',{credentials:'include',headers:{accept:'application/json'},cache:'no-store',signal:controller?.signal});
+        const payload=await response.json().catch(()=>null);
+        state={authenticated:Boolean(response.ok&&payload?.ok&&payload?.data?.authenticated),member:payload?.data?.member||null};
+      }finally{if(timeoutId)clearTimeout(timeoutId);}
+    }
+    const member=state?.member;
+    if(state?.authenticated&&member?.role==='admin'&&member?.memberRank==='R5'&&member?.status==='active'){
       document.getElementById('adminLogin').hidden=true;
       document.getElementById('adminApp').hidden=false;
       document.body.classList.add('admin-unlocked');
-      await loadLocal();
-      window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
+      if(!adminSessionReady){
+        adminSessionReady=true;
+        await loadLocal();
+        window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
+      }
       return true;
     }
+    adminSessionReady=false;
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
     if(status)status.textContent='R5 관리자 로그인이 필요합니다.';
     return false;
   }catch(error){
-    if(status)status.textContent='관리자 세션을 확인하지 못했습니다.';
+    adminSessionReady=false;
+    document.getElementById('adminLogin').hidden=false;
+    document.getElementById('adminApp').hidden=true;
+    document.body.classList.remove('admin-unlocked');
+    if(status)status.textContent='관리자 세션을 확인하지 못했습니다. 다시 로그인해 주세요.';
     return false;
+  }finally{
+    adminSessionLoading=false;
   }
 }
 function initAdminLoginGate(){
@@ -36,8 +63,9 @@ function initAdminLoginGate(){
     await fetch('/api/auth/logout',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'}).catch(()=>{});
     location.reload();
   });
+  window.addEventListener('ezpk-auth-ready',verifyAdminSession);
   window.addEventListener('ezpk-auth-change',verifyAdminSession);
-  verifyAdminSession();
+  setTimeout(()=>verifyAdminSession(),0);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
