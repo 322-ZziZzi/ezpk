@@ -40,8 +40,21 @@ async function verifyAdminSession(event){
       document.body.classList.add('admin-unlocked');
       if(!adminSessionReady){
         adminSessionReady=true;
-        await loadLocal();
         window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
+        // Authentication and admin-data loading are intentionally separated.
+        // A temporary members/events API failure must never be reported as a
+        // session failure or send an already authenticated R5 back to login.
+        Promise.resolve().then(async()=>{
+          try{
+            await loadLocal();
+          }catch(dataError){
+            console.error('[EZPK Admin] data load failed',dataError);
+            const message='관리자 로그인은 완료되었지만 운영 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+            if(window.showGlobalToast)window.showGlobalToast(message);
+            else if(status){status.textContent=message;}
+            window.dispatchEvent(new CustomEvent('ezpk-admin-data-error',{detail:{error:dataError}}));
+          }
+        });
       }
       return true;
     }
