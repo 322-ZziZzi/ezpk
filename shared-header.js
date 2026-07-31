@@ -643,7 +643,7 @@
     const isAdmin = member.role === 'admin';
     const roleLabel = isAdmin ? labels.administrator : labels.member;
     const dropdownItems = `
-      ${isAdminContext ? `<button type="button" data-account-action="home">${safeText((NAV_LABELS[currentLang] || NAV_LABELS.ko).home)}</button>` : ''}
+      ${isAdminContext ? `<button type="button" data-account-action="home">${safeText((NAV_LABELS[isAdminContext ? 'ko' : currentLanguage()] || NAV_LABELS.ko).home)}</button>` : ''}
       ${isAdmin ? `<button type="button" data-account-action="admin">${safeText(labels.admin)}</button>` : ''}
       <button type="button" data-account-action="mypage">${safeText(labels.myPage)}</button>
       <button type="button" data-account-action="logout">${safeText(labels.logout)}</button>`;
@@ -775,7 +775,17 @@
         authState = await fetchVerifiedAuth(1);
       } finally {
         authLoaded = true;
-        renderAccount();
+        try {
+          renderAccount();
+        } catch (renderError) {
+          console.error('[EZPK Header] account render failed', renderError);
+          const desktop = header.querySelector('#desktopAccount');
+          const mobile = document.querySelector('#mobileDrawerAccount');
+          if (desktop) desktop.innerHTML = '<button type="button" class="account-button account-login" data-account-action="login">로그인</button>';
+          if (mobile) mobile.innerHTML = '<div class="mobile-account-actions mobile-account-actions--guest"><button type="button" data-account-action="login">로그인</button></div><div class="mobile-account-divider"></div>';
+          if (desktop) bindAccountEvents(desktop);
+          if (mobile) bindAccountEvents(mobile);
+        }
         window.dispatchEvent(new CustomEvent('ezpk-auth-ready', { detail:authState }));
         authLoadPromise = null;
       }
