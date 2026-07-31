@@ -7,7 +7,7 @@
   <title>Capital War | 322 EZPK Alliance</title>
   <link rel="stylesheet" href="../style.css?v=2380">
   <link rel="stylesheet" href="../common-heading.css?v=2380">
-  <link rel="stylesheet" href="capital-war.css?v=2380">
+  <link rel="stylesheet" href="capital-war.css?v=3160">
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="capitalWar"></header>
@@ -61,6 +61,18 @@
     </section>
   </div>
 </main>
-<script src="capital-war.js?v=2380"></script>
+<div id="cwImagePreviewModal" class="cw-image-preview-modal" hidden>
+  <div class="cw-image-preview-backdrop" data-cw-preview-close></div>
+  <section id="cwImagePreviewPanel" class="cw-image-preview-panel" role="dialog" aria-modal="true" aria-labelledby="cwPreviewTitle" data-team="capital">
+    <header class="cw-image-preview-head">
+      <div><span>SERVER 322 · EZPK</span><h2 id="cwPreviewTitle"></h2></div>
+      <button id="cwPreviewCloseBtn" class="cw-preview-close" type="button" aria-label="Close">×</button>
+    </header>
+    <p id="cwPreviewGuide" class="cw-preview-guide"></p>
+    <div class="cw-preview-image-wrap"><img id="cwPreviewImage" alt="Capital War team lineup preview"></div>
+    <footer class="cw-preview-actions"><button id="cwPreviewDoneBtn" type="button"></button></footer>
+  </section>
+</div>
+<script src="capital-war.js?v=3160"></script>
 </body>
 </html>

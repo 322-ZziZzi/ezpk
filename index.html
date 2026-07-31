@@ -1,17 +1,4 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#05070b">
-  <title>EZPK 관리자</title>
-  <link rel="stylesheet" href="../style.css?v=2270">
-  <link rel="stylesheet" href="admin.css?v=3106">
-  <link rel="stylesheet" href="member-manager-v188.css?v=3090">
-  <link rel="stylesheet" href="vote-manager.css?v=3090">
-  <link rel="stylesheet" href="capital-war-manager.css?v=3090">
-  <link rel="stylesheet" href="admin-ui-v228.css?v=3090">
-  <link rel="stylesheet" href="../common-heading.css?v=1920">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>322 EZPK Alliance</title><link rel="stylesheet" href="style.css?v=2370">  <link rel="stylesheet" href="./common-heading.css?v=1020">
 
 <style>
 @media (min-width:901px){
@@ -24,350 +11,63 @@
 .spec-item{display:flex;align-items:center;gap:6px;}
 .spec-icon{flex-shrink:0;}
 </style>
-</head>
-<body>
-<header class="site-header admin-auth-host" data-shared-header data-base=".." data-home-href="../" data-active-menu="" data-admin-context="true"></header>
-<section id="adminLogin" class="admin-login-screen">
-  <div class="admin-login-card">
-    <div class="login-mark">★</div>
-    <span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span>
-    <h1>관리자 로그인</h1>
-    <p id="loginStatus">관리자 세션을 확인하고 있습니다.</p>
-    <button id="adminLoginButton" type="button" class="primary">로그인</button>
-    <a href="../" class="secondary admin-home-link">메인으로</a>
-  </div>
-</section>
-<div id="adminApp" hidden>
-<main class="admin-main">
-  <section class="admin-hero"><span class="eyebrow">EZPK ALLIANCE</span><h1>관리자 페이지</h1><p>관리자 페이지에서 EZPK 운영 데이터를 수정하세요.</p></section>
-  <section class="manager-card">
-    <nav class="admin-card-navigation" aria-label="관리자 메뉴">
-      <section class="admin-nav-card open" data-admin-group="operations">
-        <button class="admin-nav-card-toggle" type="button" aria-expanded="true">
-          <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5-5l2.1 2.1-2.4 2.4-2.1-2.1a4 4 0 0 0 5 5L5 16l3 3 7.3-7.3a4 4 0 0 0 5-5l-2.1 2.1-2.4-2.4 2.1-2.1z"/></svg></span><span>운영 관리</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
-        </button>
-        <div class="admin-nav-card-items">
-          <button type="button" data-panel="membersPanel" class="active">연맹원</button>
-          <button type="button" data-panel="eventsPanel">이벤트</button>
-          <button type="button" data-panel="votePanel">투표</button>
-        </div>
-      </section>
-      <section class="admin-nav-card" data-admin-group="teams">
-        <button class="admin-nav-card-toggle" type="button" aria-expanded="false">
-          <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5.5 4-4 4 4-4 4M3 21l7.5-7.5M5.5 1.5l17 17M2 18l4 4M8 14l2 2"/></svg></span><span>팀 편성 관리</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
-        </button>
-        <div class="admin-nav-card-items">
-          <button type="button" data-panel="bgbPanel">BGB</button>
-          <button type="button" data-panel="capitalWarPanel">수도전</button>
-          <button type="button" data-panel="season6Panel">시즌</button>
-        </div>
-      </section>
-      <section class="admin-nav-card" data-admin-group="support">
-        <button class="admin-nav-card-toggle" type="button" aria-expanded="false">
-          <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v7H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 1-2Zm16 0h-3v7h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-1-2Z"/></svg></span><span>지원</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
-        </button>
-        <div class="admin-nav-card-items">
-          <button type="button" data-panel="requestsPanel">요청</button>
-          <button type="button" data-panel="accountsPanel">계정</button>
-        </div>
-      </section>
-      <section class="admin-nav-card" data-admin-group="system">
-        <button class="admin-nav-card-toggle" type="button" aria-expanded="false">
-          <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20.3h-3v-.08a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.56-1.03H5.3v-3h.14A1.7 1.7 0 0 0 7 9.94a1.7 1.7 0 0 0-.34-1.88L6.6 8l2.12-2.12.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 11.7 4.7v-.1h3v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 8l-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03h.14v3h-.14A1.7 1.7 0 0 0 19.4 15Z"/></svg></span><span>시스템</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
-        </button>
-        <div class="admin-nav-card-items">
-          <button type="button" data-panel="menuPermissionsPanel">메뉴별 권한</button>
-          <button type="button" data-panel="activityLogsPanel">활동 로그</button>
-        </div>
-      </section>
-    </nav>
+</head><body>
+<header class="site-header" data-shared-header data-base="." data-home-href="#home" data-active-menu="home"></header><script src="shared-header.js?v=1940"></script>
+<main id="home"><section class="immigration-section"><a class="immigration-card" href="https://docs.google.com/forms/d/e/1FAIpQLSesj4jx9Cb3-qsB8tTcoAFWDoEKQhbP0gNLErNgNI794U1ANg/viewform" target="_blank" rel="noopener noreferrer" aria-label="EZPK immigration application"><span class="immigration-status" data-k="immigrationStatus"></span><h2 data-k="immigrationTitle"></h2><p class="immigration-copy" data-k="immigrationBody"></p><span class="immigration-button" data-k="immigrationButton"></span><span class="immigration-process" data-k="immigrationProcess"></span><small class="immigration-external" data-k="immigrationExternal"></small></a></section>
 
-    <div id="menuPermissionsPanel" class="admin-panel system-admin-panel">
-      <div class="admin-page-header">
-        <div class="admin-page-heading"><h2>메뉴별 권한</h2><p>부관리자의 관리자 메뉴 접근 권한을 설정합니다.</p></div>
-      </div>
-      <div class="system-permission-grid">
-        <section class="system-info-card">
-          <h3>현재 부관리자</h3>
-          <div id="subAdminInfo" class="system-empty-state"><strong>부관리자 정보를 불러오는 중입니다.</strong></div>
-        </section>
-        <section class="system-permission-card">
-          <h3>메뉴 권한</h3>
-          <p class="system-card-description">부관리자에게 허용할 관리자 메뉴를 선택하세요.</p>
-          <div id="menuPermissionEmpty" class="system-empty-state" hidden><strong>현재 부관리자가 없습니다.</strong><p>운영 관리 → 연맹원에서 부관리자를 임명해 주세요.</p></div>
-          <div id="menuPermissionGroups" class="system-permission-groups" hidden>
-            <fieldset><legend>운영 관리</legend><label><input type="checkbox" value="members"> 연맹원</label><label><input type="checkbox" value="events"> 이벤트</label><label><input type="checkbox" value="vote"> 투표</label></fieldset>
-            <fieldset><legend>팀 편성 관리</legend><label><input type="checkbox" value="bgb"> BGB</label><label><input type="checkbox" value="capitalWar"> 수도전</label><label><input type="checkbox" value="season"> 시즌</label></fieldset>
-            <fieldset><legend>지원</legend><label><input type="checkbox" value="requests"> 요청</label><label><input type="checkbox" value="accounts"> 계정</label></fieldset>
-          </div>
-          <div class="system-card-actions"><span id="menuPermissionStatus" class="system-save-status" role="status" aria-live="polite"></span><button id="saveMenuPermissions" class="primary" type="button" disabled>권한 저장</button></div>
-        </section>
-      </div>
-    </div>
+<section id="schedule" class="schedule-section" hidden><div class="head schedule-head"><span data-k="scheduleEyebrow"></span><h2 data-k="scheduleTitle"></h2><p data-k="scheduleSubtitle"></p></div><div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div><div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div></section>
+<section class="ezpk-video-section" aria-label="EZPK Alliance Video"><div class="ezpk-video-frame"><div id="ezpkYouTubePlayer"></div><button class="ezpk-video-cover" id="ezpkVideoCover" type="button" aria-label="Play EZPK Alliance video"><span>EZPK</span></button><div class="ezpk-video-overlay" aria-hidden="true"></div></div></section>
+<section class="brand-hero"><span class="eyebrow" data-k="brandKicker"></span><h1>EZPK</h1><div class="brand-manifesto"><strong data-k="brandLine1"></strong><strong data-k="brandLine2"></strong></div><p data-k="brandBody"></p><div class="brand-principles"><span data-k="brandPoint1"></span><span data-k="brandPoint2"></span><span data-k="brandPoint3"></span></div></section></main>
+<footer><b>322 EZPK ALLIANCE</b><span data-k="footer"></span></footer>
+<script src="data.js?v=1530"></script><script src="script.js?v=1530"></script><script src="schedule.js?v=2330"></script><script>document.querySelectorAll('.schedule-timezone').forEach(function(el){el.remove();});</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+(function(){
+  var player;
+  var cover = document.getElementById('ezpkVideoCover');
 
-    <div id="activityLogsPanel" class="admin-panel system-admin-panel">
-      <div class="admin-page-header">
-        <div class="admin-page-heading"><h2>활동 로그</h2><p>관리자의 작업 이력과 처리 결과를 확인합니다.</p></div>
-      </div>
-      <section class="system-log-shell admin-log-panel">
-        <div class="admin-log-toolbar admin-toolbar system-log-toolbar">
-          <input id="adminLogSearchV299" type="search" placeholder="처리자·대상·작업 검색">
-          <select id="adminLogCategoryV299" aria-label="활동 로그 메뉴 필터">
-            <option value="">전체 메뉴</option>
-            <option value="admin_permission">관리자 권한</option>
-            <option value="member">연맹원</option>
-            <option value="event">이벤트</option>
-            <option value="vote">투표</option>
-            <option value="bgb">BGB</option>
-            <option value="capital_war">수도전</option>
-            <option value="season">시즌</option>
-            <option value="request">요청</option>
-            <option value="account">계정</option>
-          </select>
-          <select id="adminLogActorLevelV310" aria-label="활동 로그 관리자 필터">
-            <option value="">전체 관리자</option>
-            <option value="super">최고 관리자</option>
-            <option value="sub">부관리자</option>
-          </select>
-          <select id="adminLogResultV310" aria-label="활동 로그 결과 필터">
-            <option value="">전체 결과</option>
-            <option value="success">성공</option>
-            <option value="failure">실패</option>
-          </select>
-          <label class="admin-log-date-field"><span>시작일</span><input id="adminLogDateFromV310" type="date" aria-label="활동 로그 시작일"></label>
-          <label class="admin-log-date-field"><span>종료일</span><input id="adminLogDateToV310" type="date" aria-label="활동 로그 종료일"></label>
-          <button id="adminLogRefreshV299" class="secondary" type="button">↻ 새로고침</button>
-        </div>
-        <div class="admin-log-table-wrap">
-          <table class="admin-log-table">
-            <thead><tr><th>일시</th><th>처리자</th><th>메뉴</th><th>작업</th><th>대상</th><th>결과</th></tr></thead>
-            <tbody id="adminLogRowsV299"><tr><td colspan="6">활동 로그를 불러오는 중입니다.</td></tr></tbody>
-          </table>
-        </div>
-        <div id="adminLogCardsV299" class="admin-log-cards"></div>
-        <nav class="v188-pagination" aria-label="활동 로그 페이지">
-          <button id="adminLogPrevV299" type="button">‹</button>
-          <strong id="adminLogPageV299">1 / 1</strong>
-          <button id="adminLogNextV299" type="button">›</button>
-        </nav>
-      </section>
-    </div>
+  function hideCover(){
+    if (cover) cover.classList.add('is-hidden');
+  }
 
-    <div id="membersPanel" class="admin-panel active">
-  <section class="v188-member-manager">
-    <div class="admin-page-header">
-      <div class="admin-page-heading"><h2>연맹원 관리</h2><p>연맹원의 계정 정보와 등급, 상태 및 세부 스펙을 관리합니다.</p></div>
-    </div>
-    <div id="memberListContentV299">
-    <div class="v188-stats" id="memberStats">
-      <article><span>전체 연맹원</span><strong data-stat="total">0</strong></article>
-      <article><span>활성 연맹원</span><strong data-stat="active">0</strong></article>
-      <article><span>정지 연맹원</span><strong data-stat="suspended">0</strong></article>
-      <article><span>탈퇴 연맹원</span><strong data-stat="left">0</strong></article>
-    </div>
+  window.onYouTubeIframeAPIReady = function(){
+    player = new YT.Player('ezpkYouTubePlayer', {
+      videoId: 'mgoCrdaiI6E',
+      playerVars: {
+        autoplay: 1,
+        mute: 1,
+        controls: 0,
+        loop: 1,
+        playlist: 'mgoCrdaiI6E',
+        playsinline: 1,
+        rel: 0,
+        disablekb: 1,
+        fs: 0,
+        iv_load_policy: 3
+      },
+      events: {
+        onReady: function(event){
+          event.target.mute();
+          event.target.playVideo();
+        },
+        onStateChange: function(event){
+          if (event.data === YT.PlayerState.PLAYING) hideCover();
+          if (event.data === YT.PlayerState.ENDED) {
+            event.target.seekTo(0);
+            event.target.playVideo();
+          }
+        }
+      }
+    });
+  };
 
-    <div class="v188-toolbar admin-toolbar">
-      <input id="memberSearchV188" type="search" placeholder="닉네임 검색">
-      <select id="memberRankV188" aria-label="연맹원 등급 필터"><option value="">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select>
-      <select id="memberSortV188" aria-label="연맹원 정렬">
-        <option value="default" selected>정렬</option>
-        <option value="vehicle1_desc">#1 높은 순</option>
-        <option value="vehicle2_desc">#2 높은 순</option>
-        <option value="industry_desc">IND. 높은 순</option>
-        <option value="power_desc">CP 높은 순</option>
-        <option value="nickname_asc">닉네임 순</option>
-        <option value="created_desc">최근 가입 순</option>
-        <option value="spec_missing_desc">스펙 미입력 순</option>
-      </select>
-      <select id="memberLimitV188" aria-label="페이지당 연맹원 수">
-        <option value="10" selected>10명 보기</option>
-        <option value="50">50명 보기</option>
-      </select>
-      <button id="memberRefreshV188" class="secondary" type="button">↻ 새로고침</button>
-      <button id="memberExportV188" class="secondary" type="button">↓ 엑셀</button>
-    </div>
-
-    <div id="memberBulkBarV188" class="v188-bulk" hidden>
-      <strong><span id="memberSelectedCountV188">0</span>명 선택</strong>
-      <select id="memberBulkFieldV188">
-        <option value="memberRank">등급 변경</option>
-        <option value="status">상태 변경</option>
-      </select>
-      <select id="memberBulkValueV188"></select>
-      <button id="memberBulkApplyV188" class="primary" type="button">적용</button>
-      <button id="memberBulkCancelV188" class="secondary" type="button">선택 해제</button>
-    </div>
-
-    <div class="v188-layout">
-      <section class="v188-list-pane">
-        <div class="v188-table-wrap">
-          <table class="v188-member-table">
-            <thead><tr><th><input id="memberSelectAllV188" type="checkbox"></th><th>Nickname</th><th>Rank</th><th>IND.</th><th>CP</th><th>#1</th><th>#2</th></tr></thead>
-            <tbody id="memberRowsV188"></tbody>
-          </table>
-        </div>
-        <div id="memberCardsV188" class="v188-member-cards"></div>
-        <nav class="v188-pagination"><button id="memberPrevV188" type="button">‹</button><strong id="memberPageV188">1 / 1</strong><button id="memberNextV188" type="button">›</button></nav>
-      </section>
-
-      <aside id="memberDetailV188" class="v188-detail-pane">
-        <div class="v188-detail-empty">연맹원을 선택하세요.</div>
-      </aside>
-    </div>
-    </div>
-  </section>
-
-  <div hidden>
-    <input id="search"><select id="rank"><option value="ALL"></option></select>
-    <button id="addMember"></button><button id="importExcel"></button><button id="exportExcel"></button>
-    <button id="downloadJson"></button><input id="excelFile" type="file"><input id="lastUpdated"><span id="count"></span>
-    <table><tbody id="memberRows"></tbody></table>
-  </div>
-</div>
-
-    <div id="bgbPanel" class="admin-panel">
-      <div class="admin-page-header bgb-manager-head"><div class="admin-page-heading"><h2>BGB 관리</h2><p>BGB 팀 편성과 참가 정보를 관리합니다.</p></div><label class="admin-page-meta">BGB 업데이트<input id="bgbLastUpdated" type="text" placeholder="2026.07.17"></label></div>
-
-      <div id="bgbTeamTabs" class="bgb-team-tabs"><button data-team="A" class="active">A팀</button><button data-team="B">B팀</button></div>
-
-      <section class="lineup-manager">
-        <div class="lineup-head">
-          <div><span class="team-chip" id="activeTeamChip">A팀</span><h3>최종 라인업</h3><p>전체 연맹원 목록은 연맹원 관리의 데이터를 사용합니다.</p></div>
-          <strong id="lineupCount">0 / 20</strong>
-        </div>
-        <div class="lineup-tools admin-toolbar"><input id="lineupSearch" type="search" placeholder="닉네임 검색"><select id="lineupRank"><option value="ALL">전체 등급</option><option>R5</option><option>R4</option><option>R3</option><option>R2</option><option>R1</option></select><select id="lineupSort"><option value="power-desc">1번 차량 파워 높은 순</option><option value="ind-desc">산업 레벨 높은 순</option><option value="name-asc">닉네임 순</option></select></div>
-        <div id="lineupMembers" class="lineup-members"></div>
-
-        <section class="final-preview-card" aria-live="polite">
-          <div class="final-preview-head">
-            <div><span class="preview-step">2단계</span><h3>최종 라인업 미리보기</h3><p>선택된 멤버만 1번 차량 파워 높은 순으로 표시됩니다. 이 단계에서는 위치에 배정되지 않습니다.</p></div>
-            <strong id="previewCount">0 / 20</strong>
-          </div>
-          <div id="finalLineupPreview" class="final-lineup-preview"></div>
-        </section>
-
-        <div class="auto-actions"><button id="autoAssign" class="primary">자동 배정</button><button id="clearTeam" class="danger">팀 배정 초기화</button></div>
-        <div id="autoSummary" class="auto-summary"></div>
-      </section>
-
-      <section class="location-manager-section">
-        <h3>위치 배정</h3>
-        <p>자동 배정 후 필요할 경우 위치별 담당자를 수동으로 조정할 수 있습니다.</p>
-        <div class="bgb-admin-grid">
-          <aside id="locationButtons" class="location-buttons"></aside>
-          <div class="assignment-manager">
-            <div class="assignment-toolbar"><div><span class="location-chip" id="selectedLocation">R1</span><strong id="selectedLocationName">REFINERY 1</strong></div><input id="assignmentSearch" type="search" placeholder="팀 내 멤버 검색"></div>
-            <div class="assignment-actions"><button id="selectAllVisible" class="secondary">검색 결과 전체 선택</button><button id="clearLocation" class="danger">현재 위치 전체 해제</button><span id="assignmentCount"></span></div>
-            <div id="assignmentMembers" class="assignment-members"></div>
-          </div>
-        </div>
-      </section>
-      <div class="bgb-manager-actions">
-        <button id="refreshBgb" class="secondary" type="button">↻ 새로고침</button>
-        <button id="downloadBgbJson" class="secondary" type="button">↓ BGB JSON 백업</button>
-        <button id="saveBgb" class="primary" type="button">BGB 저장</button>
-      </div>
-    </div>
-
-    <div id="capitalWarPanel" class="admin-panel">
-      <div class="admin-page-header cw-admin-head"><div class="admin-page-heading"><h2>수도전 관리</h2><p>수도전 팀 편성과 전략을 관리합니다.</p></div></div>
-      <section class="cw-settings">
-        <label>상대 서버<input id="cwOpponentServer" type="text" value="320"></label>
-        <label>연동 이벤트<input id="cwEventTitle" type="text" value="Capital Clash"></label>
-        <label>수도조<input id="cwTarget-capital" type="number" min="0" value="8"></label>
-        <label>포탑 집결조<input id="cwTarget-tower" type="number" min="0" value="6"></label>
-        <label>기동대<input id="cwTarget-mobile" type="number" min="0" value="20"></label>
-        <label>지원조<input id="cwTarget-support" type="number" readonly value="0"></label>
-      </section>
-      <div class="cw-admin-overview">
-        <section class="cw-rules"><h3>자동 편성 기준</h3><div class="cw-rule-tabs" role="tablist"><button class="active" data-cw-rule="capital">수도조</button><button data-cw-rule="tower">포탑 집결조</button><button data-cw-rule="mobile">기동대</button><button data-cw-rule="support">지원조</button></div><div id="cwRuleContent" class="cw-rule-content"></div></section>
-        <section class="cw-summary-wrap"><h3>팀 통계</h3><div id="cwSummary" class="cw-summary"></div></section>
-      </div>
-      <div class="manager-tools cw-tools cw-command-bar admin-toolbar"><input id="cwSearch" type="search" placeholder="닉네임 검색"><select id="cwParticipantSort" aria-label="참가자 목록 정렬"><option value="vehicle1-desc">1번 차량 높은 순</option><option value="vehicle2-desc">2번 차량 높은 순</option><option value="industry-desc">산업 레벨 높은 순</option><option value="rank-desc">등급 높은 순</option><option value="nonparticipant-first">미참가 순</option><option value="assignment-order">편성 순</option></select><button id="cwLoadVote" class="secondary" type="button">투표 불러오기</button><button id="cwLoadPublished" class="secondary" type="button">현재 노출 명단 불러오기</button><button id="cwSelectAll" class="secondary" type="button">전체 참가</button><button id="cwClearAll" class="secondary" type="button">전체 해제</button><button id="cwAutoAssign" class="primary" type="button">자동 편성</button><button id="cwReset" class="danger" type="button">초기화</button></div>
-      <div id="cwVoteSource" class="s6-vote-source" hidden></div>
-      <div class="cw-admin-main">
-        <section class="cw-participants"><h3>참가자 목록</h3><div class="cw-participant-table-wrap"><table class="cw-participant-table"><thead><tr><th>닉네임</th><th>산업 레벨</th><th>1번 차량</th><th>2번 차량</th><th>참가</th><th>고정 팀 / 개별 편성</th></tr></thead><tbody id="cwParticipantBody"></tbody></table></div></section>
-        <section class="cw-results"><h3>팀 편성 결과</h3><div class="cw-result-tabs" role="tablist"><button class="active" data-cw-result="capital">수도조</button><button data-cw-result="tower">포탑 집결조</button><button data-cw-result="mobile">기동대</button><button data-cw-result="support">지원조</button></div><div id="cwResultList" class="cw-result-list"></div></section>
-      </div>
-      <div class="cw-admin-footer"><span id="cwPublishStatus"></span><button id="cwSave" class="primary" type="button">저장</button><button id="cwPublish" class="primary cw-publish" type="button">노출</button></div>
-    </div>
-
-    <div id="season6Panel" class="admin-panel">
-      <div class="admin-page-header s6-manager-head"><div class="admin-page-heading"><h2>시즌 관리</h2><p>시즌 팀 편성과 전략을 관리합니다.</p></div><label class="admin-page-meta">팀 편성 업데이트<input id="s6LastUpdated" type="text" placeholder="2026.07.20"></label></div>
-      <div class="s6-summary" id="s6Summary"></div>
-      <details class="s6-stats-panel" id="s6StatsPanel"><summary>팀 통계 보기</summary><div id="s6StatsContent" class="s6-stats-content"></div></details>
-      <div class="manager-tools s6-tools admin-toolbar"><input id="s6Search" type="search" placeholder="닉네임 검색"><button id="s6LoadVote" class="secondary" type="button">투표 불러오기</button><button id="s6SelectAll" class="secondary" type="button">전체 참가</button><button id="s6ClearParticipants" class="secondary" type="button">전체 해제</button><button id="s6AutoAssign" class="primary" type="button">자동 배정</button><button id="s6ResetTeams" class="danger" type="button">팀 배정 초기화</button></div><div id="s6VoteSource" class="s6-vote-source" hidden></div>
-      <div id="s6ParticipantList" class="s6-participant-list"></div>
-      <div class="s6-team-grid" id="s6TeamGrid"></div>
-      <div class="s6-publish-row"><span class="help">저장된 팀 배정은 시즌6 페이지에 즉시 반영됩니다. 미배정 인원은 하단 미배정 명단에서 확인하고 다시 팀을 배정할 수 있습니다.</span><button id="downloadSeason6Json" class="secondary" type="button">↓ 시즌 6 JSON 백업</button></div>
-    </div>
-
-    <div id="eventsPanel" class="admin-panel">
-      <div class="admin-page-header event-manager-head"><div class="admin-page-heading"><h2>이벤트 관리</h2><p>연맹 이벤트를 등록하고 일정 및 진행 상태를 관리합니다.</p></div><label class="admin-page-meta">일정 업데이트<input id="eventsLastUpdated" type="text" placeholder="2026.07.17"></label></div>
-      <div class="event-manager-guide"><strong>이벤트 관리</strong><span>게임 내 서버 시간과 동일하게 입력하세요.</span><span>24시간 표기: 00:00~23:59</span><span>시작 전: 카운트다운</span><span>진행 중</span><span>종료 후</span></div>
-      <div id="eventAdminGrid" class="event-admin-grid"></div>
-      <div class="event-manager-actions">
-        <button id="refreshEvents" class="secondary" type="button">↻ 새로고침</button>
-        <button id="clearFinishedEvents" class="danger" type="button">종료된 이벤트 비활성화</button>
-        <button id="downloadEventsJson" class="secondary" type="button">↓ 이벤트 JSON 백업</button>
-        <button id="saveEvents" class="primary" type="button">이벤트 저장</button>
-      </div>
-    </div>
-    <div id="requestsPanel" class="admin-panel">
-      <div class="admin-page-header request-admin-head"><div class="admin-page-heading"><h2>요청 관리</h2><p>게시판에 등록된 요청을 확인하고 답변하거나 삭제할 수 있습니다.</p></div><button id="refreshRequests" type="button" class="secondary">새로고침</button></div>
-      <div id="requestAdminStatus" class="status" aria-live="polite"></div>
-      <div id="requestAdminList" class="request-admin-list"></div>
-    </div>
-
-
-    <div id="votePanel" class="admin-panel">
-      <section class="vote-manager">
-        <div class="admin-page-header vote-manager-head"><div class="admin-page-heading"><h2>투표 관리</h2><p>연맹 투표를 생성하고 진행 상태와 결과를 관리합니다.</p></div><button id="newVoteButton" class="primary" type="button">새 투표 만들기</button></div>
-        <div class="vote-admin-stats"><article><span>진행 중</span><strong id="voteActiveCount">0</strong></article><article><span>종료</span><strong id="voteEndedCount">0</strong></article><article><span>현재 미투표</span><strong id="voteMissingCount">0</strong></article><article><span>연속 3회 이상</span><strong id="voteRiskCount">0</strong></article></div>
-        <div id="voteEditor" class="vote-editor" hidden></div>
-        <div id="voteAdminList" class="vote-admin-list"><div class="vote-admin-empty">현재 진행 중인 투표가 없습니다.</div></div>
-        <div id="voteResultPanel" class="vote-result-panel" hidden></div>
-      </section>
-    </div>
-
-    <div id="accountsPanel" class="admin-panel">
-      <div class="admin-page-header account-admin-head"><div class="admin-page-heading"><h2>계정 관리</h2><p>등록된 계정 정보를 확인하고 수정하거나 삭제할 수 있습니다.</p></div><div class="admin-page-actions account-section-actions"><button id="refreshAccounts" class="secondary" type="button">↻ 새로고침</button><button id="saveAccounts" class="primary" type="button">계정 저장</button></div></div>
-      <section class="template-download-card"><div><strong>템플릿</strong><p>1. 표준 템플릿을 계정 판매자에게 전달하세요.<br>2. 전달받은 템플릿을 붙여넣으세요.</p></div><div class="template-actions"><button id="copyAccountTemplate" class="secondary" type="button">복사하기</button><button id="downloadAccountTemplate" class="secondary" type="button">다운로드</button></div><div id="templateActionStatus" class="mini-status"></div></section>
-      <div class="account-admin-grid"><section class="account-parser-card"><h3>1. 양식 붙여넣기</h3><textarea id="accountTemplateInput" rows="20" aria-label="Account registration template"></textarea><button id="parseAccountTemplate" class="primary" type="button">붙여넣기</button><div id="accountParseStatus" class="mini-status"></div></section><section class="account-fields-card"><h3>2. 확인 후 등록</h3><div id="accountFields" class="account-fields"></div><div class="account-form-actions"><button id="resetAccountForm" class="secondary" type="button">초기화</button><button id="registerAccount" class="primary" type="button">등록</button></div></section></div>
-      <section class="account-list-admin">
-  <div class="account-list-head"><div><h3>등록 계정</h3><p id="accountListCount" class="account-list-count">총 0개 · 프리미엄 0개</p></div></div>
-  <div class="account-mobile-tabs" role="tablist" aria-label="계정 게시 유형">
-    <button type="button" data-account-tab="all" class="active">전체 <b id="accountTabAllCount">0</b></button>
-    <button type="button" data-account-tab="premium">⭐ 프리미엄 <b id="accountTabPremiumCount">0</b></button>
-    <button type="button" data-account-tab="expiring">⚠ 만료 예정 <b id="accountTabExpiringCount">0</b></button>
-    <button type="button" data-account-tab="standard">Standard <b id="accountTabStandardCount">0</b></button>
-  </div>
-  <div class="account-list-tools admin-toolbar">
-    <label class="account-search-field"><span>검색</span><input id="accountAdminSearch" type="search" placeholder="서버, 연락처, 가격, VIP 검색"></label>
-    <label><span>게시 유형</span><select id="accountAdminFilter"><option value="all">전체</option><option value="forSale">판매중</option><option value="sold">판매완료</option><option value="premium">프리미엄</option><option value="expiring">만료 예정</option><option value="standard">스탠다드</option><option value="expired">프리미엄 만료</option></select></label>
-    <label><span>정렬</span><select id="accountAdminSort"><option value="premium">프리미엄 우선</option><option value="newest">최신 등록순</option><option value="oldest">오래된 등록순</option><option value="expiring">프리미엄 만료 임박순</option><option value="priceDesc">가격 높은순</option><option value="priceAsc">가격 낮은순</option></select></label>
-    <label><span>표시</span><select id="accountAdminPageSize"><option value="10">10개</option><option value="30">30개</option></select></label>
-  </div>
-  <div id="accountAdminList"></div>
-  <nav class="account-admin-pagination" aria-label="계정 목록 페이지">
-    <button id="accountPrevPage" type="button" aria-label="이전 페이지">‹ <span>이전</span></button>
-    <strong id="accountPageInfo">1 / 1</strong>
-    <button id="accountNextPage" type="button" aria-label="다음 페이지"><span>다음</span> ›</button>
-  </nav>
-</section>
-<div class="account-backup-actions"><button id="downloadAccountsJson" class="secondary" type="button">↓ 계정 JSON 백업</button></div>
-<div id="adminAccountImageModal" class="admin-account-image-modal" hidden><div class="admin-image-backdrop" data-admin-image-close></div><article><header><h3>계정 이미지</h3><button type="button" data-admin-image-close>×</button></header><div><img id="adminAccountImagePreview" alt="Account image preview"></div><p>모바일에서는 이미지를 길게 눌러 저장할 수 있습니다.</p><button class="secondary" type="button" data-admin-image-close>닫기</button></article></div>
-    </div>
-
-  </section>
-</main>
-</div>
-<script src="../shared-header.js?v=2950"></script>
-<script src="../vehicle-power.js?v=2740"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=3106"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
-<script src="capital-war-manager.js?v=3130"></script>
-<script src="member-manager-v188.js?v=3090"></script>
-<script src="vote-manager.js?v=2160"></script>
-</body>
-</html>
+  if (cover) {
+    cover.addEventListener('click', function(){
+      if (player && typeof player.playVideo === 'function') {
+        player.mute();
+        player.playVideo();
+      }
+    });
+  }
+})();
+</script></body></html>
