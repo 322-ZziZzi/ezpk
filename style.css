@@ -1523,3 +1523,187 @@ html[dir="rtl"] .event-badges{justify-content:flex-start}
   .portal-page{width:min(100% - 16px,900px);padding:28px 0 56px}
   .portal-page-hero{margin-bottom:18px}
 }
+
+/* v319: lightweight member-convenience home */
+[data-home-member][hidden],
+[data-home-guest][hidden],
+.schedule-section[hidden]{display:none!important}
+
+.home-main{background:#05070b}
+.home-member-content{padding:0 4vw}
+.home-section-title,
+.home-section-heading h2{margin:0;color:#fff;font-size:clamp(24px,3vw,36px);line-height:1.2;text-align:center}
+.home-section-heading{max-width:760px;margin:0 auto 28px;text-align:center}
+.home-section-heading p{margin:10px 0 0;color:#98a4b4;line-height:1.65}
+
+.home-main .brand-hero{
+  min-height:auto;
+  padding:88px 20px 42px;
+  background:linear-gradient(180deg,#070a10 0%,#05070b 100%);
+}
+.home-main .brand-hero .eyebrow{max-width:100%;color:#f5c547;font-size:12px;font-weight:800;letter-spacing:.15em;overflow-wrap:anywhere}
+.home-main .brand-hero h1{
+  margin:20px 0 24px;
+  color:#f5c547;
+  font-family:inherit;
+  font-size:clamp(64px,10vw,124px);
+  line-height:.85;
+  letter-spacing:.06em;
+  text-shadow:none;
+}
+.home-main .brand-hero .brand-headline{
+  max-width:920px;
+  margin:0 auto;
+  color:#fff;
+  font-family:inherit;
+  font-size:clamp(25px,4vw,48px);
+  font-weight:800;
+  line-height:1.2;
+  letter-spacing:-.025em;
+  text-wrap:balance;
+}
+.home-main .brand-hero .brand-description{
+  max-width:780px;
+  margin:20px auto 0;
+  color:#aeb8c7;
+  font-size:clamp(15px,1.8vw,19px);
+  line-height:1.7;
+  text-wrap:balance;
+}
+
+.home-main .ezpk-video-section{padding:0 20px 34px;background:#05070b}
+.home-main .ezpk-video-frame{
+  width:min(760px,100%);
+  border:1px solid #ffffff1a;
+  border-radius:16px;
+  box-shadow:0 16px 42px rgba(0,0,0,.3);
+}
+
+.home-account-actions{display:flex;justify-content:center;gap:12px;padding:0 20px 82px;background:#05070b}
+.home-button{
+  display:inline-flex;
+  min-width:150px;
+  min-height:48px;
+  align-items:center;
+  justify-content:center;
+  padding:12px 22px;
+  border:1px solid transparent;
+  border-radius:11px;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.25;
+  text-align:center;
+  overflow-wrap:anywhere;
+  cursor:pointer;
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease;
+}
+.home-button-primary{border-color:#f5c547;background:#f5c547;color:#171000}
+.home-button-primary:hover,.home-button-primary:focus-visible{background:#ffe07a;border-color:#ffe07a}
+.home-button-secondary{border-color:#ffffff30;background:#0d131d;color:#fff}
+.home-button-secondary:hover,.home-button-secondary:focus-visible{border-color:#ffffff66;background:#121a26}
+
+.home-features{padding:76px 4vw;background:#070a10}
+.home-feature-grid{width:min(1120px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.home-feature-card{
+  min-width:0;
+  min-height:132px;
+  padding:28px 20px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border:1px solid #ffffff16;
+  border-radius:14px;
+  background:#0d141e;
+}
+.home-feature-card h3{max-width:100%;margin:0;color:#fff;font-size:18px;line-height:1.3;overflow-wrap:anywhere}
+.home-feature-card p{max-width:100%;margin:10px 0 0;color:#98a4b4;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+
+.home-main .immigration-section{padding:82px 4vw;background:#05070b}
+.home-main .immigration-card{
+  max-width:1120px;
+  padding:48px 52px;
+  border:1px solid rgba(245,197,71,.34);
+  border-radius:16px;
+  background:#0d141e;
+  box-shadow:0 16px 42px rgba(0,0,0,.25);
+  transform:none;
+}
+.home-main .immigration-card::before{display:none!important;animation:none!important}
+.home-main .immigration-card::after{display:none}
+.home-main .immigration-card:hover,.home-main .immigration-card:focus-visible{
+  transform:none;
+  border-color:rgba(245,197,71,.68);
+  box-shadow:0 16px 42px rgba(0,0,0,.25);
+}
+.home-main .immigration-card h2{margin:16px 0 12px;font-size:clamp(30px,4vw,52px)}
+.home-main .immigration-copy{max-width:760px;margin:0 0 26px;color:#aeb8c7;font-size:17px;line-height:1.7}
+.home-main .immigration-card h2,
+.home-main .immigration-copy,
+.home-main .immigration-process,
+.home-main .immigration-external{overflow-wrap:anywhere}
+
+.home-member-content .schedule-section{
+  min-height:auto;
+  padding:78px 0 54px;
+  background:#05070b;
+}
+.home-member-content .event-schedule-grid{width:min(1400px,100%)}
+.home-member-content .event-card{box-shadow:none;background:#0d141e}
+.home-quick-section{padding:44px 0 76px;background:#05070b}
+.home-quick-grid{width:min(1200px,100%);margin:25px auto 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.home-quick-grid a{
+  min-width:0;
+  min-height:70px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #ffffff18;
+  border-radius:13px;
+  background:#0d141e;
+  color:#fff;
+  font-size:16px;
+  font-weight:800;
+  line-height:1.3;
+  text-align:center;
+  text-decoration:none;
+  overflow-wrap:anywhere;
+  hyphens:auto;
+  transition:border-color .18s ease,background-color .18s ease,color .18s ease;
+}
+.home-quick-grid a:hover,.home-quick-grid a:focus-visible{border-color:#f5c54788;background:#111a27;color:#f5c547}
+
+.home-auth-member .brand-hero{border-top:1px solid #ffffff10}
+.home-auth-member .ezpk-video-section{padding-bottom:78px}
+footer span{display:block;line-height:1.55}
+
+@media(max-width:760px){
+  .home-member-content{padding:0 12px}
+  .home-main .brand-hero{padding:62px 16px 32px}
+  .home-main .brand-hero .eyebrow{font-size:10px;letter-spacing:.1em}
+  .home-main .brand-hero h1{margin:16px 0 20px;font-size:clamp(58px,21vw,88px)}
+  .home-main .brand-hero .brand-headline{font-size:clamp(24px,8vw,36px)}
+  .home-main .brand-hero .brand-description{margin-top:16px;font-size:15px}
+  .home-main .ezpk-video-section{padding:0 12px 26px}
+  .home-account-actions{gap:9px;padding:0 12px 60px}
+  .home-button{min-width:0;flex:1;min-height:48px;padding:0 12px}
+  .home-features{padding:58px 12px}
+  .home-section-heading{margin-bottom:22px}
+  .home-feature-grid{grid-template-columns:1fr;gap:10px}
+  .home-feature-card{min-height:105px;padding:22px 15px}
+  .home-main .immigration-section{padding:58px 12px}
+  .home-main .immigration-card{padding:32px 22px}
+  .home-main .immigration-copy{font-size:15px!important}
+  .home-member-content .schedule-section{padding:56px 0 36px}
+  .home-quick-section{padding:36px 0 58px}
+  .home-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:20px}
+  .home-quick-grid a{min-height:64px;padding:10px;font-size:14px}
+  .home-auth-member .ezpk-video-section{padding-bottom:60px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .home-button,.home-quick-grid a{transition:none}
+}

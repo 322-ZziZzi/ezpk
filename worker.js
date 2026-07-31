@@ -128,7 +128,7 @@ export default {
           return handlePasswordUpdate(request, env);
 
         case "GET /api/events":
-          return handleEventsGet(env);
+          return handleEventsGet(request, env);
 
         case "GET /api/admin/events":
           return handleAdminEventsGet(request, env);
@@ -1599,7 +1599,9 @@ function normalizeAdminEventSchedule(body) {
   return payload;
 }
 
-async function handleEventsGet(env) {
+async function handleEventsGet(request, env) {
+  const member = await requireMember(request, env.DB);
+  if (member instanceof Response) return member;
   const payload = await readEventScheduleFromD1(env.DB);
   return json({ ok: true, data: payload }, 200, { "cache-control": "no-store" });
 }

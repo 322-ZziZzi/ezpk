@@ -1,73 +1,113 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>322 EZPK Alliance</title><link rel="stylesheet" href="style.css?v=2370">  <link rel="stylesheet" href="./common-heading.css?v=1020">
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>322 EZPK Alliance</title>
+  <link rel="stylesheet" href="style.css?v=3190">
+  <link rel="stylesheet" href="./common-heading.css?v=1020">
+</head>
+<body class="home-auth-pending">
+  <header class="site-header" data-shared-header data-base="." data-home-href="#home" data-active-menu="home"></header>
+  <script src="shared-header.js?v=1940"></script>
 
-<style>
-@media (min-width:901px){
-.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
-}
-@media (max-width:900px){
-.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
-}
+  <main id="home" class="home-main">
+    <div class="home-member-content" data-home-member hidden>
+      <section id="schedule" class="schedule-section" hidden>
+        <div class="head schedule-head">
+          <span data-k="scheduleEyebrow"></span>
+          <h2 data-k="scheduleTitle"></h2>
+          <p data-k="scheduleSubtitle"></p>
+        </div>
+        <div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div>
+        <div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div>
+      </section>
 
-.spec-item{display:flex;align-items:center;gap:6px;}
-.spec-icon{flex-shrink:0;}
-</style>
-</head><body>
-<header class="site-header" data-shared-header data-base="." data-home-href="#home" data-active-menu="home"></header><script src="shared-header.js?v=1940"></script>
-<main id="home"><section class="immigration-section"><a class="immigration-card" href="https://docs.google.com/forms/d/e/1FAIpQLSesj4jx9Cb3-qsB8tTcoAFWDoEKQhbP0gNLErNgNI794U1ANg/viewform" target="_blank" rel="noopener noreferrer" aria-label="EZPK immigration application"><span class="immigration-status" data-k="immigrationStatus"></span><h2 data-k="immigrationTitle"></h2><p class="immigration-copy" data-k="immigrationBody"></p><span class="immigration-button" data-k="immigrationButton"></span><span class="immigration-process" data-k="immigrationProcess"></span><small class="immigration-external" data-k="immigrationExternal"></small></a></section>
+      <section class="home-quick-section" aria-labelledby="homeQuickTitle">
+        <h2 id="homeQuickTitle" class="home-section-title" data-home-k="quickTitle"></h2>
+        <nav class="home-quick-grid" data-home-k-aria="quickTitle">
+          <a href="./vote/" data-home-k="quickVote"></a>
+          <a href="./bgb/" data-home-k="quickBgb"></a>
+          <a href="./capital-war/" data-home-k="quickCapital"></a>
+          <a href="./members/" data-home-k="quickMembers"></a>
+        </nav>
+      </section>
+    </div>
 
-<section id="schedule" class="schedule-section" hidden><div class="head schedule-head"><span data-k="scheduleEyebrow"></span><h2 data-k="scheduleTitle"></h2><p data-k="scheduleSubtitle"></p></div><div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div><div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div></section>
-<section class="ezpk-video-section" aria-label="EZPK Alliance Video"><div class="ezpk-video-frame"><div id="ezpkYouTubePlayer"></div><button class="ezpk-video-cover" id="ezpkVideoCover" type="button" aria-label="Play EZPK Alliance video"><span>EZPK</span></button><div class="ezpk-video-overlay" aria-hidden="true"></div></div></section>
-<section class="brand-hero"><span class="eyebrow" data-k="brandKicker"></span><h1>EZPK</h1><div class="brand-manifesto"><strong data-k="brandLine1"></strong><strong data-k="brandLine2"></strong></div><p data-k="brandBody"></p><div class="brand-principles"><span data-k="brandPoint1"></span><span data-k="brandPoint2"></span><span data-k="brandPoint3"></span></div></section></main>
-<footer><b>322 EZPK ALLIANCE</b><span data-k="footer"></span></footer>
-<script src="data.js?v=1530"></script><script src="script.js?v=1530"></script><script src="schedule.js?v=2330"></script><script>document.querySelectorAll('.schedule-timezone').forEach(function(el){el.remove();});</script>
-<script src="https://www.youtube.com/iframe_api"></script>
-<script>
-(function(){
-  var player;
-  var cover = document.getElementById('ezpkVideoCover');
+    <section class="brand-hero">
+      <span class="eyebrow" data-home-k="brandKicker"></span>
+      <h1>EZPK</h1>
+      <p class="brand-headline" data-home-k="brandHeadline"></p>
+      <p class="brand-description" data-home-k="brandDescription"></p>
+    </section>
 
-  function hideCover(){
-    if (cover) cover.classList.add('is-hidden');
-  }
+    <section class="ezpk-video-section" aria-label="EZPK Alliance Video">
+      <div class="ezpk-video-frame">
+        <div id="ezpkYouTubePlayer"></div>
+        <button class="ezpk-video-cover" id="ezpkVideoCover" type="button" aria-label="Play EZPK Alliance video"><span>EZPK</span></button>
+        <div class="ezpk-video-overlay" aria-hidden="true"></div>
+      </div>
+    </section>
 
-  window.onYouTubeIframeAPIReady = function(){
-    player = new YT.Player('ezpkYouTubePlayer', {
-      videoId: 'mgoCrdaiI6E',
-      playerVars: {
-        autoplay: 1,
-        mute: 1,
-        controls: 0,
-        loop: 1,
-        playlist: 'mgoCrdaiI6E',
-        playsinline: 1,
-        rel: 0,
-        disablekb: 1,
-        fs: 0,
-        iv_load_policy: 3
-      },
-      events: {
-        onReady: function(event){
-          event.target.mute();
-          event.target.playVideo();
-        },
-        onStateChange: function(event){
-          if (event.data === YT.PlayerState.PLAYING) hideCover();
-          if (event.data === YT.PlayerState.ENDED) {
-            event.target.seekTo(0);
-            event.target.playVideo();
+    <section class="home-account-actions" data-home-guest hidden aria-label="Account actions">
+      <button class="home-button home-button-primary" type="button" data-home-action="login" data-home-k="login"></button>
+      <button class="home-button home-button-secondary" type="button" data-home-action="signup" data-home-k="signup"></button>
+    </section>
+
+    <section class="home-features" data-home-guest hidden aria-labelledby="homeFeaturesTitle">
+      <div class="home-section-heading">
+        <h2 id="homeFeaturesTitle" data-home-k="featuresTitle"></h2>
+        <p data-home-k="featuresDescription"></p>
+      </div>
+      <div class="home-feature-grid">
+        <article class="home-feature-card"><h3 data-home-k="featureScheduleTitle"></h3><p data-home-k="featureScheduleBody"></p></article>
+        <article class="home-feature-card"><h3 data-home-k="featureTeamTitle"></h3><p data-home-k="featureTeamBody"></p></article>
+        <article class="home-feature-card"><h3 data-home-k="featureStrategyTitle"></h3><p data-home-k="featureStrategyBody"></p></article>
+      </div>
+    </section>
+
+    <section class="immigration-section" data-home-guest hidden>
+      <a class="immigration-card" href="https://docs.google.com/forms/d/e/1FAIpQLSesj4jx9Cb3-qsB8tTcoAFWDoEKQhbP0gNLErNgNI794U1ANg/viewform" target="_blank" rel="noopener noreferrer" data-home-k-aria="immigrationTitle">
+        <span class="immigration-status" data-home-k="immigrationStatus"></span>
+        <h2 data-home-k="immigrationTitle"></h2>
+        <p class="immigration-copy" data-home-k="immigrationBody"></p>
+        <span class="immigration-button" data-home-k="immigrationButton"></span>
+        <span class="immigration-process" data-home-k="immigrationProcess"></span>
+        <small class="immigration-external" data-home-k="immigrationExternal"></small>
+      </a>
+    </section>
+  </main>
+
+  <footer><b>322 EZPK ALLIANCE</b><span data-home-k="footer"></span></footer>
+
+  <script src="data.js?v=1530"></script>
+  <script src="script.js?v=1530"></script>
+  <script src="home-v319.js?v=3190"></script>
+  <script src="schedule.js?v=3190"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+  (function(){
+    var player;
+    var cover = document.getElementById('ezpkVideoCover');
+    function hideCover(){ if (cover) cover.classList.add('is-hidden'); }
+    window.onYouTubeIframeAPIReady = function(){
+      player = new YT.Player('ezpkYouTubePlayer', {
+        videoId: 'mgoCrdaiI6E',
+        playerVars: { autoplay:1, mute:1, controls:0, loop:1, playlist:'mgoCrdaiI6E', playsinline:1, rel:0, disablekb:1, fs:0, iv_load_policy:3 },
+        events: {
+          onReady:function(event){ event.target.mute(); event.target.playVideo(); },
+          onStateChange:function(event){
+            if (event.data === YT.PlayerState.PLAYING) hideCover();
+            if (event.data === YT.PlayerState.ENDED) { event.target.seekTo(0); event.target.playVideo(); }
           }
         }
-      }
+      });
+    };
+    if (cover) cover.addEventListener('click', function(){
+      if (player && typeof player.playVideo === 'function') { player.mute(); player.playVideo(); }
     });
-  };
-
-  if (cover) {
-    cover.addEventListener('click', function(){
-      if (player && typeof player.playVideo === 'function') {
-        player.mute();
-        player.playVideo();
-      }
-    });
-  }
-})();
-</script></body></html>
+  })();
+  </script>
+</body>
+</html>
