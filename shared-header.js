@@ -708,13 +708,55 @@
     }
   }
 
-  function renderAccount() {
+  let lastAccountRenderSignature = '';
+
+  function accountRenderSignature() {
+    const member = authState?.member || null;
+    return JSON.stringify({
+      loaded:Boolean(authLoaded),
+      authenticated:Boolean(authState?.authenticated),
+      language:currentLanguage(),
+      adminContext:Boolean(isAdminContext),
+      loginId:String(member?.loginId || ''),
+      nickname:String(member?.nickname || ''),
+      role:String(member?.role || ''),
+      rank:String(member?.memberRank || member?.member_rank || ''),
+      status:String(member?.status || '')
+    });
+  }
+
+  function renderAccount(force=false) {
     const desktop = header.querySelector('#desktopAccount');
     const mobile = document.querySelector('#mobileDrawerAccount');
+    const signature = accountRenderSignature();
+
+    // v297: PC and mobile use the same desktopAccount profile trigger in the
+    // header. Repeated auth/language refreshes with identical data must not
+    // replace that live DOM, because replacement closes the open profile menu.
+    if (!force && signature === lastAccountRenderSignature && desktop?.children.length) return;
+
+    // v296: Authentication refreshes may finish immediately after the user
+    // opens the administrator profile menu. Replacing the account markup used
+    // to destroy the open dropdown and make it appear to close by itself.
+    // Preserve the visible account-menu state across an auth re-render.
+    const desktopMenuWasOpen = Boolean(desktop?.querySelector('.account-menu:not([hidden])'));
+
     desktop.innerHTML = accountMarkup(false);
     mobile.innerHTML = accountMarkup(true);
     bindAccountEvents(desktop);
     bindAccountEvents(mobile);
+
+    lastAccountRenderSignature = signature;
+
+    if (desktopMenuWasOpen) {
+      const trigger = desktop.querySelector('.account-member-trigger');
+      const menu = desktop.querySelector('.account-menu');
+      if (trigger && menu) {
+        menu.hidden = false;
+        trigger.setAttribute('aria-expanded','true');
+      }
+    }
+
     applyStrategyMenuVisibility();
     syncMobileMenuDiscoveryCue();
     if (mobileDrawer && mobileDrawer.classList.contains('open')) resetMobileDrawerScroll();

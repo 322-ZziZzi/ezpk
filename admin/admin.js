@@ -51,8 +51,15 @@ async function verifyAdminSession(event){
       document.body.classList.add('admin-unlocked');
       if(status)status.textContent='';
 
-      // Synchronize the shared header without waiting for it.
-      window.dispatchEvent(new CustomEvent('ezpk-auth-refresh'));
+      // v296: Refresh the shared account header only when its current state
+      // does not already match the verified administrator. Re-rendering an
+      // already-correct header can close a profile menu the user just opened.
+      const sharedState=window.EZPKSharedHeader?.getAuthState?.();
+      const sharedLoginId=String(sharedState?.member?.loginId||'').trim().toLowerCase();
+      const verifiedLoginId=String(member?.loginId||'').trim().toLowerCase();
+      const headerNeedsRefresh=!sharedState?.authenticated||!sharedState?.member
+        ||(verifiedLoginId&&sharedLoginId!==verifiedLoginId);
+      if(headerNeedsRefresh)window.dispatchEvent(new CustomEvent('ezpk-auth-refresh'));
 
       if(!adminSessionReady){
         adminSessionReady=true;

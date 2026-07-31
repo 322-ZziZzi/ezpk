@@ -71,3 +71,80 @@
   #adminApp button,#adminApp .primary,#adminApp .secondary,#adminApp .danger,#adminApp .outline{min-height:46px!important;height:46px}
   .v188-spec-actions{grid-template-columns:1fr 1fr}
 }
+
+/* v298: unified admin page headers and button hierarchy */
+#adminApp .admin-page-header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  min-height:72px;
+  margin:0 0 20px;
+  padding:0 0 18px;
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+#adminApp .admin-page-heading{min-width:0}
+#adminApp .admin-page-heading h2{
+  margin:0;
+  color:var(--admin-text);
+  font-size:clamp(24px,2vw,30px);
+  font-weight:900;
+  line-height:1.2;
+  letter-spacing:-.025em;
+}
+#adminApp .admin-page-heading p{
+  max-width:820px;
+  margin:7px 0 0;
+  color:var(--admin-muted);
+  font-size:14px;
+  line-height:1.55;
+}
+#adminApp .admin-page-meta{
+  flex:0 0 220px;
+  width:220px;
+  color:var(--admin-muted);
+  font-size:12px;
+  font-weight:700;
+}
+#adminApp .admin-page-meta input{display:block;width:100%;margin-top:6px}
+#adminApp .admin-page-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+
+/* Existing page-specific heads keep content only; shared header controls layout. */
+#adminApp .bgb-manager-head,
+#adminApp .cw-admin-head,
+#adminApp .s6-manager-head,
+#adminApp .event-manager-head,
+#adminApp .request-admin-head,
+#adminApp .vote-manager-head,
+#adminApp .account-admin-head{
+  align-items:flex-end;
+  margin-bottom:20px;
+}
+
+/* Clear, reusable action hierarchy. Existing unclassified controls retain their local tab/tool styles. */
+#adminApp .secondary{
+  background:var(--admin-secondary)!important;
+  border-color:var(--admin-border)!important;
+  color:var(--admin-text)!important;
+}
+#adminApp .secondary:hover{background:var(--admin-secondary-hover)!important}
+#adminApp .primary{box-shadow:0 6px 16px rgba(21,119,255,.18)}
+#adminApp .danger,#adminApp .outline{box-shadow:none}
+
+@media(max-width:760px){
+  #adminApp .admin-page-header{
+    align-items:stretch;
+    flex-direction:column;
+    min-height:0;
+    gap:14px;
+    margin-bottom:16px;
+    padding-bottom:15px;
+  }
+  #adminApp .admin-page-heading h2{font-size:24px}
+  #adminApp .admin-page-heading p{font-size:13px}
+  #adminApp .admin-page-meta{flex-basis:auto;width:100%}
+  #adminApp .admin-page-actions{display:grid;grid-template-columns:1fr;width:100%}
+  #adminApp .admin-page-actions button{width:100%}
+  #adminApp .request-admin-head>button,
+  #adminApp .vote-manager-head>button{width:100%}
+}
