@@ -9,6 +9,7 @@ const META={
   support:{label:'지원조',w:null}
 };
 let selectedRule='capital',selectedResult='capital',participantSort='vehicle1-desc',sha='',loaded=false,voteSource=null;
+let restoredPublishedNames=new Set();
 let cw=blank();
 
 function blank(){
@@ -94,7 +95,7 @@ function setMemberTeam(n,k,{ensureParticipant=true,syncFixed=true}={}){
 }
 
 function normalizeDraftTeams(){
-  const valid=new Set(membersData.members.map(m=>m.nickname));
+  const valid=new Set([...membersData.members.map(m=>m.nickname),...restoredPublishedNames]);
   const used=new Set();
   for(const k of TEAMS){
     cw.draft.teams[k]=uniq(cw.draft.teams[k]).filter(n=>valid.has(n)&&!used.has(n));
@@ -361,27 +362,160 @@ async function load(){
   loaded=true;render();
 }
 
-function loadPublishedIntoDraft(){
-  const publishedTeams=Object.fromEntries(TEAMS.map(k=>[k,uniq(cw?.published?.teams?.[k])]));
-  const publishedNames=uniq(TEAMS.flatMap(k=>publishedTeams[k]));
-  if(!publishedNames.length){
-    alert('현재 수도전 페이지에 노출된 팀 명단이 없습니다.');
-    return;
-  }
-  const currentAssigned=TEAMS.reduce((sum,k)=>sum+(cw.draft.teams[k]||[]).length,0);
-  const warning=currentAssigned||cw.draft.participants.length
-    ?'현재 관리자 페이지에서 편집 중인 참가자 및 팀 편성 목록을 노출 중인 명단으로 교체할까요?'
-    :'현재 수도전 페이지에 노출 중인 명단을 관리자 편집 목록으로 불러올까요?';
-  if(!confirm(warning))return;
+async function loadPublishedIntoDraft(){
+  const button=document.querySelector('#cwLoadPublished');
+  const originalText=button?.textContent||'현재 노출 명단 불러오기';
+  if(button){button.disabled=true;button.textContent='현재 노출 명단 확인 중...';}
 
-  cw.draft.participants=[...publishedNames];
-  cw.draft.teams=Object.fromEntries(TEAMS.map(k=>[k,[...publishedTeams[k]]]));
-  cw.draft.fixedTeams={};
-  for(const k of TEAMS)for(const nickname of cw.draft.teams[k])cw.draft.fixedTeams[nickname]=k;
-  voteSource=null;
-  normalizeDraftTeams();
-  render();
-  showAdminToast(`현재 노출 명단 ${publishedNames.length}명을 불러왔습니다. 저장 버튼을 눌러 D1에 반영하세요.`);
+  const parseMaybeJson=value=>{
+    let current=value;
+    for(let i=0;i<4;i++){
+      if(typeof current!=='string')break;
+      const text=current.trim();
+      if(!text)break;
+      try{current=JSON.parse(text);}catch(_){break;}
+    }
+    return current;
+  };
+
+  const unwrapContent=value=>{
+    let current=parseMaybeJson(value);
+    for(let i=0;i<6;i++){
+      if(!current||typeof current!=='object'||Array.isArray(current))break;
+      if(current.published||current.draft||current.teams)break;
+      const next=current?.data?.content??current?.data??current?.content??current?.result??null;
+      if(next===null||next===current)break;
+      current=parseMaybeJson(next);
+    }
+    return current;
+  };
+
+  const hasRoster=teams=>teams&&typeof teams==='object'&&TEAMS.some(key=>Array.isArray(teams[key])&&teams[key].length>0);
+  const locateRoster=root=>{
+    const source=unwrapContent(root);
+    const direct=[
+      {teams:source?.published?.teams,kind:'published.teams'},
+      {teams:source?.teams,kind:'teams'},
+      {teams:source?.draft?.teams,kind:'draft.teams'}
+    ].find(item=>hasRoster(item.teams));
+    if(direct)return{source,teams:direct.teams,kind:direct.kind};
+
+    // 이전 버전이나 API wrapper가 한 단계 이상 중첩된 경우에도 팀 객체를 찾는다.
+    const queue=[source],seen=new Set();
+    while(queue.length){
+      const node=queue.shift();
+      if(!node||typeof node!=='object'||seen.has(node))continue;
+      seen.add(node);
+      if(hasRoster(node))return{source,teams:node,kind:'nested teams'};
+      for(const [key,value] of Object.entries(node)){
+        if(key==='published'&&hasRoster(value?.teams))return{source,teams:value.teams,kind:'nested published.teams'};
+        if(key==='draft'&&hasRoster(value?.teams))return{source,teams:value.teams,kind:'nested draft.teams'};
+        if(value&&typeof value==='object')queue.push(value);
+        else if(typeof value==='string'&&/^[\[{]/.test(value.trim()))queue.push(parseMaybeJson(value));
+      }
+    }
+    return{source,teams:null,kind:''};
+  };
+
+  const requestJson=async(url)=>{
+    const response=await fetch(url,{method:'GET',credentials:'include',cache:'no-store',headers:{accept:'application/json'}});
+    const text=await response.text();
+    let payload=null;
+    try{payload=JSON.parse(text);}catch(_){payload=text;}
+    if(!response.ok)throw new Error(`${response.status}:${payload?.code||payload?.error||'REQUEST_FAILED'}`);
+    return payload;
+  };
+
+  try{
+    const attempts=[];
+    const loaders=[
+      // 공개 수도전 페이지가 실제로 읽는 주소를 가장 먼저 사용한다.
+      ['공개 수도전 데이터',async()=>requestJson('/data/capital-war.json?restore='+Date.now())],
+      ['관리자 D1 데이터',async()=>{
+        const adminData=await githubGetFile('data/capital-war.json');
+        if(adminData?.sha)sha=adminData.sha;
+        return adminData?.data;
+      }],
+      ['회원 콘텐츠 데이터',async()=>requestJson('/api/member/content?path='+encodeURIComponent('data/capital-war.json')+'&restore='+Date.now())]
+    ];
+
+    let found=null;
+    for(const [label,loader] of loaders){
+      try{
+        const payload=await loader();
+        const located=locateRoster(payload);
+        const count=located.teams?TEAMS.reduce((sum,key)=>sum+(Array.isArray(located.teams[key])?located.teams[key].length:0),0):0;
+        attempts.push(`${label}: ${count}명${located.kind?` (${located.kind})`:''}`);
+        if(count>0){found={...located,label,count};break;}
+      }catch(error){
+        attempts.push(`${label}: 실패 (${error?.message||'UNKNOWN'})`);
+      }
+    }
+
+    if(!found){
+      console.error('Capital War restore sources contained no roster',attempts);
+      alert(`현재 노출 명단을 찾지 못했습니다.\n\n확인 결과\n- ${attempts.join('\n- ')}\n\n공개 페이지에 명단이 계속 보인다면 이 확인 결과를 알려주세요.`);
+      return;
+    }
+
+    const source=found.source||{};
+    const rawTeams=found.teams;
+    const canonical=value=>String(value??'').normalize('NFKC').trim().replace(/\s+/g,' ').toLocaleLowerCase();
+    const currentByCanonical=new Map();
+    for(const member of membersData.members||[]){
+      const key=canonical(member.nickname);
+      if(key&&!currentByCanonical.has(key))currentByCanonical.set(key,member.nickname);
+    }
+
+    const publishedTeams={};
+    const used=new Set();
+    const unmatched=[];
+    for(const key of TEAMS){
+      publishedTeams[key]=[];
+      for(const storedValue of uniq(rawTeams[key])){
+        const storedName=String(storedValue??'').trim();
+        if(!storedName)continue;
+        const matched=currentByCanonical.get(canonical(storedName))||storedName;
+        const duplicateKey=canonical(matched);
+        if(!duplicateKey||used.has(duplicateKey))continue;
+        used.add(duplicateKey);
+        publishedTeams[key].push(matched);
+        if(!currentByCanonical.has(canonical(storedName)))unmatched.push(storedName);
+      }
+    }
+
+    const publishedNames=TEAMS.flatMap(key=>publishedTeams[key]);
+    if(!publishedNames.length)throw new Error('PUBLISHED_ROSTER_EMPTY_AFTER_PARSE');
+
+    const currentAssigned=TEAMS.reduce((sum,key)=>sum+(cw.draft.teams[key]||[]).length,0);
+    const warning=currentAssigned||cw.draft.participants.length
+      ?`현재 편집 중인 목록을 현재 노출 명단 ${publishedNames.length}명으로 교체할까요?\n\n불러오기 원본: ${found.label}`
+      :`현재 노출 중인 수도전 명단 ${publishedNames.length}명을 불러올까요?\n\n불러오기 원본: ${found.label}`;
+    if(!confirm(warning))return;
+
+    restoredPublishedNames=new Set(publishedNames);
+    cw.published={
+      publishedAt:String(source?.published?.publishedAt||''),
+      lastUpdated:String(source?.published?.lastUpdated||source?.lastUpdated||''),
+      teams:Object.fromEntries(TEAMS.map(key=>[key,[...publishedTeams[key]]]))
+    };
+    cw.draft.participants=[...publishedNames];
+    cw.draft.teams=Object.fromEntries(TEAMS.map(key=>[key,[...publishedTeams[key]]]));
+    cw.draft.fixedTeams={};
+    for(const key of TEAMS)for(const nickname of cw.draft.teams[key])cw.draft.fixedTeams[nickname]=key;
+    voteSource=null;
+    normalizeDraftTeams();
+    render();
+
+    const unmatchedCount=uniq(unmatched).length;
+    const suffix=unmatchedCount?` 현재 회원 목록에 없는 ${unmatchedCount}명도 닉네임 그대로 복원했습니다.`:'';
+    showAdminToast(`현재 노출 명단 ${publishedNames.length}명을 불러왔습니다. 저장 버튼을 눌러 확정하세요.${suffix}`);
+  }catch(error){
+    console.error('Capital War published roster restore failed',error);
+    alert(`현재 노출 명단 불러오기에 실패했습니다. (${error?.message||'UNKNOWN_ERROR'})`);
+  }finally{
+    if(button){button.disabled=false;button.textContent=originalText;}
+  }
 }
 
 async function save(expose=false){
@@ -401,7 +535,7 @@ function bind(){
   document.querySelector('#cwSearch').oninput=render;
   document.querySelector('#cwParticipantSort').onchange=e=>{participantSort=e.target.value;render();};
   document.querySelector('#cwLoadVote').onclick=()=>openVote().catch(()=>alert('투표를 불러오지 못했습니다.'));
-  document.querySelector('#cwLoadPublished').onclick=loadPublishedIntoDraft;
+  document.querySelector('#cwLoadPublished').onclick=()=>loadPublishedIntoDraft();
   document.querySelector('#cwSelectAll').onclick=()=>{voteSource=null;cw.draft.participants=membersData.members.map(m=>m.nickname);render();};
   document.querySelector('#cwClearAll').onclick=()=>{voteSource=null;cw.draft.participants=[];cw.draft.teams={capital:[],tower:[],mobile:[],support:[]};render();};
   document.querySelector('#cwAutoAssign').onclick=autoAssign;
