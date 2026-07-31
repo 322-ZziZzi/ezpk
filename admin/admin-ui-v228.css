@@ -365,3 +365,34 @@
     box-sizing:border-box!important;
   }
 }
+
+/* v318: keep Member, Capital War, and Vote introductions on one shared top line */
+#adminApp #membersPanel,
+#adminApp #capitalWarPanel,
+#adminApp #votePanel,
+#adminApp #membersPanel > .v188-member-manager,
+#adminApp #votePanel > .vote-manager{
+  margin-top:0!important;
+  padding-top:0!important;
+  align-content:start;
+}
+#adminApp #membersPanel .admin-page-header,
+#adminApp #capitalWarPanel .admin-page-header,
+#adminApp #votePanel .admin-page-header{
+  margin-top:0!important;
+  box-sizing:border-box;
+}
+@media (min-width:761px){
+  #adminApp #membersPanel .admin-page-header,
+  #adminApp #capitalWarPanel .admin-page-header,
+  #adminApp #votePanel .admin-page-header{
+    padding-top:32px!important;
+  }
+}
+@media (max-width:760px){
+  #adminApp #membersPanel .admin-page-header,
+  #adminApp #capitalWarPanel .admin-page-header,
+  #adminApp #votePanel .admin-page-header{
+    padding-top:10px!important;
+  }
+}
