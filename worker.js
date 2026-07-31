@@ -151,6 +151,12 @@ export default {
           return handleAdminMembers(request, url, env);
         case "GET /api/admin/logs":
           return handleAdminLogs(request, url, env);
+        case "GET /api/admin/my-permissions":
+          return handleAdminMyPermissionsGet(request, env);
+        case "GET /api/admin/menu-permissions":
+          return handleAdminMenuPermissionsGet(request, env);
+        case "PUT /api/admin/menu-permissions":
+          return handleAdminMenuPermissionsPut(request, env);
 
         case "POST /api/admin/members/bulk":
           return handleAdminMembersBulk(request, env);
@@ -701,6 +707,7 @@ async function handleMemberMe(request, env) {
       m.industry_level,
       m.member_rank,
       m.role,
+      m.admin_level,
       m.status,
       m.must_change_password,
       m.nickname_change_count,
@@ -1289,7 +1296,7 @@ async function handleRequestDelete(request, requestId, env) {
 }
 
 async function handleAdminRequestsList(request, url, env) {
-  const admin=await requireAdmin(request,env.DB);
+  const admin=await requireAdminMenuPermission(request,env.DB,"requests");
   if(admin instanceof Response)return admin;
   const page=Math.max(1,Math.floor(Number(url.searchParams.get("page")||1)));
   const limit=Math.max(1,Math.min(50,Math.floor(Number(url.searchParams.get("limit")||15))));
@@ -1305,7 +1312,7 @@ async function handleAdminRequestsList(request, url, env) {
 }
 
 async function handleAdminRequestAnswer(request, requestId, env) {
-  const admin=await requireAdmin(request,env.DB);
+  const admin=await requireAdminMenuPermission(request,env.DB,"requests");
   if(admin instanceof Response)return admin;
   const row=await getRequestRecord(env.DB,requestId);if(!row)return jsonError("REQUEST_NOT_FOUND",404);
   const body=await readJson(request);const answer=cleanString(body.answer,5000);
@@ -1316,9 +1323,13 @@ async function handleAdminRequestAnswer(request, requestId, env) {
 }
 
 async function handleAdminRequestUpdate(request, requestId, env) {
+  const admin=await requireAdminMenuPermission(request,env.DB,"requests");
+  if(admin instanceof Response)return admin;
   return handleRequestUpdate(request,requestId,env);
 }
 async function handleAdminRequestDelete(request, requestId, env) {
+  const admin=await requireAdminMenuPermission(request,env.DB,"requests");
+  if(admin instanceof Response)return admin;
   return handleRequestDelete(request,requestId,env);
 }
 
@@ -1390,7 +1401,7 @@ async function getMemberByLoginId(db, loginId) {
   return db.prepare(`
     SELECT
       id, login_id, nickname, power,
-      industry_level, member_rank, role, status,
+      industry_level, member_rank, role, admin_level, status,
       must_change_password, nickname_change_count, nickname_updated_at,
       created_at, updated_at, last_login_at,
       password_changed_at
@@ -1437,6 +1448,15 @@ const ADMIN_CONTENT_PATHS = new Set([
   "data/accounts.json",
   "data/capital-war.json",
 ]);
+
+function adminContentPermissionKey(path) {
+  if (path === "data/bgb.json") return "bgb";
+  if (path === "data/capital-war.json") return "capitalWar";
+  if (path === "data/season6-teams.json") return "season";
+  if (path === "data/accounts.json") return "accounts";
+  if (path === "data/events.json") return "events";
+  throw new HttpError(400, "CONTENT_PATH_NOT_ALLOWED");
+}
 
 function getGithubConfig(env) {
   return {
@@ -1585,13 +1605,13 @@ async function handleEventsGet(env) {
 }
 
 async function handleAdminEventsGet(request, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "events");
   if (admin instanceof Response) return admin;
   return json({ ok: true, data: await readEventScheduleFromD1(env.DB) });
 }
 
 async function handleAdminEventsPut(request, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "events");
   if (admin instanceof Response) return admin;
   const payload = normalizeAdminEventSchedule(await readJson(request));
   const statements = [
@@ -1624,9 +1644,9 @@ async function handleAdminEventsPut(request, env) {
 }
 
 async function handleAdminContentGet(request, url, env) {
-  const admin = await requireAdmin(request, env.DB);
-  if (admin instanceof Response) return admin;
   const path = assertAdminContentPath(url.searchParams.get("path"));
+  const admin = await requireAdminMenuPermission(request, env.DB, adminContentPermissionKey(path));
+  if (admin instanceof Response) return admin;
   if (strategyContentKey(path)) {
     const stored = await readStrategyContentD1(env, url.origin, path, { preferGithub: true });
     return json({ ok: true, data: { sha: "d1", content: stored.content, storage: "d1" } });
@@ -1635,10 +1655,10 @@ async function handleAdminContentGet(request, url, env) {
 }
 
 async function handleAdminContentPut(request, env) {
-  const admin = await requireAdmin(request, env.DB);
-  if (admin instanceof Response) return admin;
   const body = await readJson(request);
   const path = assertAdminContentPath(body.path);
+  const admin = await requireAdminMenuPermission(request, env.DB, adminContentPermissionKey(path));
+  if (admin instanceof Response) return admin;
   if (body.content === undefined || body.content === null) return jsonError("VALIDATION_ERROR", 400);
   let saved;
   if (strategyContentKey(path)) saved=await writeStrategyContentD1(env,path,body.content);
@@ -1663,6 +1683,33 @@ async function requireSuperAdmin(request, db) {
   const member = await requireAdmin(request, db);
   if (member instanceof Response) return member;
   if (member.admin_level !== "super") return jsonError("SUPER_ADMIN_REQUIRED", 403);
+  return member;
+}
+
+async function loadAdminMenuPermissions(db, member) {
+  if (member.admin_level === "super") return normalizeAdminMenuPermissions({});
+  const row = await db.prepare("SELECT * FROM admin_menu_permissions WHERE member_id=?").bind(member.id).first();
+  return normalizeAdminMenuPermissions(row || {});
+}
+
+async function requireAdminMenuPermission(request, db, permissionKey) {
+  const member = await requireAdmin(request, db);
+  if (member instanceof Response) return member;
+  if (member.admin_level === "super") return member;
+  if (!ADMIN_MENU_PERMISSION_KEYS.includes(permissionKey)) return jsonError("INVALID_ADMIN_PERMISSION", 500);
+  const permissions = await loadAdminMenuPermissions(db, member);
+  if (!permissions[permissionKey]) return jsonError("ADMIN_MENU_FORBIDDEN", 403);
+  member.menu_permissions = permissions;
+  return member;
+}
+
+async function requireAnyAdminMenuPermission(request, db, permissionKeys) {
+  const member = await requireAdmin(request, db);
+  if (member instanceof Response) return member;
+  if (member.admin_level === "super") return member;
+  const permissions = await loadAdminMenuPermissions(db, member);
+  if (!permissionKeys.some(key => permissions[key])) return jsonError("ADMIN_MENU_FORBIDDEN", 403);
+  member.menu_permissions = permissions;
   return member;
 }
 
@@ -1717,7 +1764,7 @@ function adminMemberRow(row) {
 }
 
 async function handleAdminMembers(request, url, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAnyAdminMenuPermission(request, env.DB, ["members","bgb","capitalWar","season"]);
   if (admin instanceof Response) return admin;
 
   const q = cleanString(url.searchParams.get("q"), 64);
@@ -1781,7 +1828,7 @@ async function handleAdminMembers(request, url, env) {
 }
 
 async function handleAdminMemberDetail(request, memberId, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "members");
   if (admin instanceof Response) return admin;
   const row = await env.DB.prepare(`
     SELECT m.*, s.vehicle1_class, s.vehicle1_power_value, s.vehicle1_power_unit,
@@ -1804,7 +1851,7 @@ async function handleAdminMemberDetail(request, memberId, env) {
 }
 
 async function handleAdminMemberHistory(request, memberId, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "members");
   if (admin instanceof Response) return admin;
   const rows=await env.DB.prepare(`
     SELECT old_nickname,new_nickname,changed_by,changed_at
@@ -1815,7 +1862,7 @@ async function handleAdminMemberHistory(request, memberId, env) {
 }
 
 async function handleAdminMemberUpdate(request, memberId, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "members");
   if (admin instanceof Response) return admin;
   const target = await env.DB.prepare("SELECT * FROM members WHERE id=?").bind(memberId).first();
   if (!target) return jsonError("MEMBER_NOT_FOUND",404);
@@ -1830,6 +1877,10 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   if(hasAdminLevel&&![null,"sub"].includes(requestedAdminLevel)) return jsonError("VALIDATION_ERROR",400);
   if(hasAdminLevel&&admin.admin_level!=="super") return jsonError("SUPER_ADMIN_REQUIRED",403);
   if(currentAdminLevel==="super"&&hasAdminLevel&&requestedAdminLevel!=="super") return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  if (requestedAdminLevel === "sub" && currentAdminLevel !== "sub") {
+    const existingSub = await env.DB.prepare("SELECT id,nickname FROM members WHERE role='admin' AND admin_level='sub' AND id<>? LIMIT 1").bind(memberId).first();
+    if (existingSub) return jsonError("SUB_ADMIN_ALREADY_EXISTS", 409);
+  }
   if(isProtectedAdminTarget(admin,target)) return jsonError("ADMIN_ACCOUNT_PROTECTED",403);
   if(currentAdminLevel==="super" && (rank!==target.member_rank || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
   if(target.role!=="admin" && !["R1","R2","R3","R4","R5"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
@@ -1853,7 +1904,7 @@ async function handleAdminMemberUpdate(request, memberId, env) {
 }
 
 async function handleAdminMemberSpecsUpdate(request, memberId, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "members");
   if (admin instanceof Response) return admin;
   const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
@@ -1885,7 +1936,7 @@ async function handleAdminMemberSpecsUpdate(request, memberId, env) {
 }
 
 async function handleAdminMemberSpecsReset(request, memberId, env) {
-  const admin = await requireAdmin(request, env.DB);
+  const admin = await requireAdminMenuPermission(request, env.DB, "members");
   if (admin instanceof Response) return admin;
   const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
@@ -1899,7 +1950,7 @@ async function handleAdminMemberSpecsReset(request, memberId, env) {
 }
 
 async function handleAdminMemberMemo(request, memberId, env) {
-  const admin=await requireAdmin(request,env.DB);
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");
   if(admin instanceof Response)return admin;
   const body=await readJson(request);
   const memo=String(body.memo??"").trim();
@@ -1913,7 +1964,7 @@ async function handleAdminMemberMemo(request, memberId, env) {
 }
 
 async function handleAdminMembersBulk(request, env) {
-  const admin=await requireAdmin(request,env.DB);
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");
   if(admin instanceof Response)return admin;
   const body=await readJson(request);
   const ids=Array.isArray(body.memberIds)?[...new Set(body.memberIds.map(Number).filter(Number.isInteger))]:[];
@@ -1932,7 +1983,7 @@ async function handleAdminMembersBulk(request, env) {
 }
 
 async function handleAdminMemberResetPassword(request, memberId, env) {
-  const admin=await requireAdmin(request,env.DB);
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");
   if(admin instanceof Response)return admin;
   if(!env.PASSWORD_PEPPER)return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED",503);
   const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
@@ -1948,7 +1999,7 @@ async function handleAdminMemberResetPassword(request, memberId, env) {
 }
 
 async function handleAdminMemberDelete(request, memberId, env) {
-  const admin=await requireAdmin(request,env.DB);
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");
   if(admin instanceof Response)return admin;
   const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
@@ -1967,6 +2018,10 @@ async function handleAdminMemberPermissions(request, memberId, env) {
   const body=await readJson(request);
   const next=body.adminLevel===null||body.adminLevel==="member"?null:String(body.adminLevel||"");
   if(![null,"sub"].includes(next))return jsonError("VALIDATION_ERROR",400);
+  if(next === "sub" && current !== "sub"){
+    const existingSub=await env.DB.prepare("SELECT id,nickname FROM members WHERE role='admin' AND admin_level='sub' AND id<>? LIMIT 1").bind(memberId).first();
+    if(existingSub)return jsonError("SUB_ADMIN_ALREADY_EXISTS",409);
+  }
   await env.DB.batch([
     env.DB.prepare("UPDATE members SET role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(next?"admin":"member",next,memberId),
     env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId)
@@ -1975,16 +2030,78 @@ async function handleAdminMemberPermissions(request, memberId, env) {
   return json({ok:true,data:{adminLevel:next,role:next?"admin":"member"}});
 }
 
+const ADMIN_MENU_PERMISSION_KEYS=["members","events","vote","bgb","capitalWar","season","requests","accounts"];
+
+function normalizeAdminMenuPermissions(source={}){
+  return {
+    members:Boolean(source.members ?? true),
+    events:Boolean(source.events ?? true),
+    vote:Boolean(source.vote ?? true),
+    bgb:Boolean(source.bgb ?? true),
+    capitalWar:Boolean(source.capitalWar ?? source.capital_war ?? true),
+    season:Boolean(source.season ?? true),
+    requests:Boolean(source.requests ?? true),
+    accounts:Boolean(source.accounts ?? true)
+  };
+}
+
+async function findCurrentSubAdmin(db){
+  return db.prepare(`SELECT id,login_id,nickname,member_rank,admin_level,status,updated_at
+    FROM members WHERE role='admin' AND admin_level='sub' ORDER BY updated_at DESC,id ASC LIMIT 1`).first();
+}
+
+async function handleAdminMyPermissionsGet(request,env){
+  const admin=await requireAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const permissions=await loadAdminMenuPermissions(env.DB,admin);
+  return json({ok:true,data:{adminLevel:admin.admin_level,permissions}});
+}
+
+async function handleAdminMenuPermissionsGet(request,env){
+  const admin=await requireSuperAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const subAdmin=await findCurrentSubAdmin(env.DB);
+  if(!subAdmin)return json({ok:true,data:{subAdmin:null,permissions:null}});
+  const row=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
+  return json({ok:true,data:{subAdmin:{id:subAdmin.id,loginId:subAdmin.login_id,nickname:subAdmin.nickname,memberRank:subAdmin.member_rank,adminLevel:subAdmin.admin_level,status:subAdmin.status,appointedAt:subAdmin.updated_at},permissions:normalizeAdminMenuPermissions(row||{})}});
+}
+
+async function handleAdminMenuPermissionsPut(request,env){
+  const admin=await requireSuperAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const subAdmin=await findCurrentSubAdmin(env.DB);
+  if(!subAdmin)return jsonError('SUB_ADMIN_NOT_FOUND',404);
+  const body=await readJson(request);
+  const permissions=normalizeAdminMenuPermissions(body?.permissions||{});
+  const values=ADMIN_MENU_PERMISSION_KEYS.map(key=>permissions[key]?1:0);
+  const beforeRow=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
+  await env.DB.prepare(`INSERT INTO admin_menu_permissions
+    (member_id,members,events,vote,bgb,capital_war,season,requests,accounts,updated_at) VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
+    ON CONFLICT(member_id) DO UPDATE SET members=excluded.members,events=excluded.events,vote=excluded.vote,bgb=excluded.bgb,capital_war=excluded.capital_war,season=excluded.season,requests=excluded.requests,accounts=excluded.accounts,updated_at=CURRENT_TIMESTAMP`)
+    .bind(subAdmin.id,...values).run();
+  await env.DB.prepare('DELETE FROM sessions WHERE member_id=?').bind(subAdmin.id).run();
+  await writeAdminLog(env,request,{actor:admin,category:'admin_permission',action:'menu_permissions_saved',targetType:'member',targetId:subAdmin.id,targetName:subAdmin.nickname,before:beforeRow?normalizeAdminMenuPermissions(beforeRow):null,after:permissions});
+  return json({ok:true,data:{subAdmin:{id:subAdmin.id,nickname:subAdmin.nickname},permissions}});
+}
+
 async function handleAdminLogs(request,url,env){
   const admin=await requireSuperAdmin(request,env.DB);
   if(admin instanceof Response)return admin;
   const q=cleanString(url.searchParams.get("q"),64);
   const category=cleanString(url.searchParams.get("category"),40);
+  const actorLevel=cleanString(url.searchParams.get("actorLevel"),12);
+  const result=cleanString(url.searchParams.get("result"),16);
+  const dateFrom=cleanString(url.searchParams.get("dateFrom"),10);
+  const dateTo=cleanString(url.searchParams.get("dateTo"),10);
   const page=Math.max(1,Number(url.searchParams.get("page")||1));
   const limit=Math.min(100,Math.max(10,Number(url.searchParams.get("limit")||30)));
   const where=[],binds=[];
   if(q){where.push("(actor_nickname LIKE ? COLLATE NOCASE OR target_name LIKE ? COLLATE NOCASE OR action LIKE ? COLLATE NOCASE)");binds.push(`%${q}%`,`%${q}%`,`%${q}%`);}
   if(category){where.push("category=?");binds.push(category);}
+  if(["super","sub"].includes(actorLevel)){where.push("actor_admin_level=?");binds.push(actorLevel);}
+  if(["success","failure"].includes(result)){where.push("result=?");binds.push(result);}
+  if(/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)){where.push("date(created_at)>=date(?)");binds.push(dateFrom);}
+  if(/^\d{4}-\d{2}-\d{2}$/.test(dateTo)){where.push("date(created_at)<=date(?)");binds.push(dateTo);}
   const ws=where.length?`WHERE ${where.join(" AND ")}`:"";
   const count=await env.DB.prepare(`SELECT COUNT(*) total FROM admin_activity_logs ${ws}`).bind(...binds).first();
   const rows=await env.DB.prepare(`SELECT * FROM admin_activity_logs ${ws} ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?`).bind(...binds,limit,(page-1)*limit).all();
@@ -2281,11 +2398,7 @@ function addDaysIso(dateValue, days) {
 // v216 VOTE system
 // -----------------------------------------------------------------------------
 async function requireVoteAdmin(request, env) {
-  const member = await requireMember(request, env.DB, true);
-  if (member instanceof Response) return member;
-  const level=member.admin_level || (member.role==="admin"?"super":null);
-  if (member.role !== "admin" || !["super","sub"].includes(level) || member.status !== "active") throw new HttpError(403, "FORBIDDEN");
-  return member;
+  return requireAdminMenuPermission(request, env.DB, "vote");
 }
 function voteStatus(row, now = new Date()) {
   if (row.status === "ended") return "ended";

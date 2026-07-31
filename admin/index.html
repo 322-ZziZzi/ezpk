@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>EZPK 관리자</title>
   <link rel="stylesheet" href="../style.css?v=2270">
-  <link rel="stylesheet" href="admin.css?v=3070">
+  <link rel="stylesheet" href="admin.css?v=3106">
   <link rel="stylesheet" href="member-manager-v188.css?v=3090">
   <link rel="stylesheet" href="vote-manager.css?v=3090">
   <link rel="stylesheet" href="capital-war-manager.css?v=3090">
@@ -71,23 +71,93 @@
           <button type="button" data-panel="accountsPanel">계정</button>
         </div>
       </section>
+      <section class="admin-nav-card" data-admin-group="system">
+        <button class="admin-nav-card-toggle" type="button" aria-expanded="false">
+          <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.03 1.56V20.3h-3v-.08a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 7 15a1.7 1.7 0 0 0-1.56-1.03H5.3v-3h.14A1.7 1.7 0 0 0 7 9.94a1.7 1.7 0 0 0-.34-1.88L6.6 8l2.12-2.12.06.06a1.7 1.7 0 0 0 1.88.34A1.7 1.7 0 0 0 11.7 4.7v-.1h3v.1a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06L19.8 8l-.06.06a1.7 1.7 0 0 0-.34 1.88 1.7 1.7 0 0 0 1.56 1.03h.14v3h-.14A1.7 1.7 0 0 0 19.4 15Z"/></svg></span><span>시스템</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="admin-nav-card-items">
+          <button type="button" data-panel="menuPermissionsPanel">메뉴별 권한</button>
+          <button type="button" data-panel="activityLogsPanel">활동 로그</button>
+        </div>
+      </section>
     </nav>
+
+    <div id="menuPermissionsPanel" class="admin-panel system-admin-panel">
+      <div class="admin-page-header">
+        <div class="admin-page-heading"><h2>메뉴별 권한</h2><p>부관리자의 관리자 메뉴 접근 권한을 설정합니다.</p></div>
+      </div>
+      <div class="system-permission-grid">
+        <section class="system-info-card">
+          <h3>현재 부관리자</h3>
+          <div id="subAdminInfo" class="system-empty-state"><strong>부관리자 정보를 불러오는 중입니다.</strong></div>
+        </section>
+        <section class="system-permission-card">
+          <h3>메뉴 권한</h3>
+          <p class="system-card-description">부관리자에게 허용할 관리자 메뉴를 선택하세요.</p>
+          <div id="menuPermissionEmpty" class="system-empty-state" hidden><strong>현재 부관리자가 없습니다.</strong><p>운영 관리 → 연맹원에서 부관리자를 임명해 주세요.</p></div>
+          <div id="menuPermissionGroups" class="system-permission-groups" hidden>
+            <fieldset><legend>운영 관리</legend><label><input type="checkbox" value="members"> 연맹원</label><label><input type="checkbox" value="events"> 이벤트</label><label><input type="checkbox" value="vote"> 투표</label></fieldset>
+            <fieldset><legend>팀 편성 관리</legend><label><input type="checkbox" value="bgb"> BGB</label><label><input type="checkbox" value="capitalWar"> 수도전</label><label><input type="checkbox" value="season"> 시즌</label></fieldset>
+            <fieldset><legend>지원</legend><label><input type="checkbox" value="requests"> 요청</label><label><input type="checkbox" value="accounts"> 계정</label></fieldset>
+          </div>
+          <div class="system-card-actions"><span id="menuPermissionStatus" class="system-save-status" role="status" aria-live="polite"></span><button id="saveMenuPermissions" class="primary" type="button" disabled>권한 저장</button></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="activityLogsPanel" class="admin-panel system-admin-panel">
+      <div class="admin-page-header">
+        <div class="admin-page-heading"><h2>활동 로그</h2><p>관리자의 작업 이력과 처리 결과를 확인합니다.</p></div>
+      </div>
+      <section class="system-log-shell admin-log-panel">
+        <div class="admin-log-toolbar admin-toolbar system-log-toolbar">
+          <input id="adminLogSearchV299" type="search" placeholder="처리자·대상·작업 검색">
+          <select id="adminLogCategoryV299" aria-label="활동 로그 메뉴 필터">
+            <option value="">전체 메뉴</option>
+            <option value="admin_permission">관리자 권한</option>
+            <option value="member">연맹원</option>
+            <option value="event">이벤트</option>
+            <option value="vote">투표</option>
+            <option value="bgb">BGB</option>
+            <option value="capital_war">수도전</option>
+            <option value="season">시즌</option>
+            <option value="request">요청</option>
+            <option value="account">계정</option>
+          </select>
+          <select id="adminLogActorLevelV310" aria-label="활동 로그 관리자 필터">
+            <option value="">전체 관리자</option>
+            <option value="super">최고 관리자</option>
+            <option value="sub">부관리자</option>
+          </select>
+          <select id="adminLogResultV310" aria-label="활동 로그 결과 필터">
+            <option value="">전체 결과</option>
+            <option value="success">성공</option>
+            <option value="failure">실패</option>
+          </select>
+          <label class="admin-log-date-field"><span>시작일</span><input id="adminLogDateFromV310" type="date" aria-label="활동 로그 시작일"></label>
+          <label class="admin-log-date-field"><span>종료일</span><input id="adminLogDateToV310" type="date" aria-label="활동 로그 종료일"></label>
+          <button id="adminLogRefreshV299" class="secondary" type="button">↻ 새로고침</button>
+        </div>
+        <div class="admin-log-table-wrap">
+          <table class="admin-log-table">
+            <thead><tr><th>일시</th><th>처리자</th><th>메뉴</th><th>작업</th><th>대상</th><th>결과</th></tr></thead>
+            <tbody id="adminLogRowsV299"><tr><td colspan="6">활동 로그를 불러오는 중입니다.</td></tr></tbody>
+          </table>
+        </div>
+        <div id="adminLogCardsV299" class="admin-log-cards"></div>
+        <nav class="v188-pagination" aria-label="활동 로그 페이지">
+          <button id="adminLogPrevV299" type="button">‹</button>
+          <strong id="adminLogPageV299">1 / 1</strong>
+          <button id="adminLogNextV299" type="button">›</button>
+        </nav>
+      </section>
+    </div>
 
     <div id="membersPanel" class="admin-panel active">
   <section class="v188-member-manager">
     <div class="admin-page-header">
       <div class="admin-page-heading"><h2>연맹원 관리</h2><p>연맹원의 계정 정보와 등급, 상태 및 세부 스펙을 관리합니다.</p></div>
     </div>
-    <div class="admin-member-tabs" role="tablist">
-      <button id="memberListTabV299" class="active" type="button">연맹원 목록</button>
-      <button id="adminLogTabV299" type="button" hidden>관리자 활동 로그</button>
-    </div>
-    <section id="adminLogPanelV299" class="admin-log-panel" hidden>
-      <div class="admin-log-toolbar admin-toolbar"><input id="adminLogSearchV299" type="search" placeholder="처리자·대상·작업 검색"><select id="adminLogCategoryV299"><option value="">전체 메뉴</option><option value="admin_permission">관리자 권한</option><option value="member">연맹원</option><option value="event">이벤트</option><option value="vote">투표</option><option value="bgb">BGB</option><option value="capital_war">수도전</option><option value="season">시즌</option><option value="request">요청</option><option value="account">계정</option></select><button id="adminLogRefreshV299" class="secondary" type="button">↻ 새로고침</button></div>
-      <div class="admin-log-table-wrap"><table class="admin-log-table"><thead><tr><th>일시</th><th>처리자</th><th>메뉴</th><th>작업</th><th>대상</th><th>결과</th></tr></thead><tbody id="adminLogRowsV299"></tbody></table></div>
-      <div id="adminLogCardsV299" class="admin-log-cards"></div>
-      <nav class="v188-pagination"><button id="adminLogPrevV299" type="button">‹</button><strong id="adminLogPageV299">1 / 1</strong><button id="adminLogNextV299" type="button">›</button></nav>
-    </section>
     <div id="memberListContentV299">
     <div class="v188-stats" id="memberStats">
       <article><span>전체 연맹원</span><strong data-stat="total">0</strong></article>
@@ -295,7 +365,7 @@
 <script src="../shared-header.js?v=2950"></script>
 <script src="../vehicle-power.js?v=2740"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=2950"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=3106"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
 <script src="capital-war-manager.js?v=2740"></script>
 <script src="member-manager-v188.js?v=3090"></script>
 <script src="vote-manager.js?v=2160"></script>

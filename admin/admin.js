@@ -6,6 +6,53 @@ window.EZPK_ADMIN_PASSWORD='';
 let adminSessionLoading=false;
 let adminSessionReady=false;
 let adminSessionPendingState=null;
+let verifiedAdminMember=null;
+let currentAdminAccess={adminLevel:null,permissions:null,loaded:false};
+const ADMIN_PANEL_PERMISSION_MAP={membersPanel:'members',eventsPanel:'events',votePanel:'vote',bgbPanel:'bgb',capitalWarPanel:'capitalWar',season6Panel:'season',requestsPanel:'requests',accountsPanel:'accounts'};
+
+function adminHasMenuPermission(key){
+  const level=String(currentAdminAccess.adminLevel||verifiedAdminMember?.adminLevel||verifiedAdminMember?.admin_level||'').toLowerCase();
+  return level==='super'||Boolean(currentAdminAccess.permissions?.[key]);
+}
+window.EZPKAdminAccess={has:adminHasMenuPermission,get state(){return currentAdminAccess;}};
+
+async function loadCurrentAdminAccess(){
+  const level=String(verifiedAdminMember?.adminLevel||verifiedAdminMember?.admin_level||'').toLowerCase();
+  if(level==='super'){
+    currentAdminAccess={adminLevel:'super',permissions:Object.fromEntries(Object.values(ADMIN_PANEL_PERMISSION_MAP).map(key=>[key,true])),loaded:true};
+  }else{
+    const response=await fetch('/api/admin/my-permissions',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});
+    const payload=await response.json().catch(()=>null);
+    if(!response.ok||!payload?.ok)throw new Error(payload?.code||payload?.error||'ADMIN_PERMISSION_LOAD_FAILED');
+    currentAdminAccess={adminLevel:payload.data?.adminLevel||'sub',permissions:payload.data?.permissions||{},loaded:true};
+  }
+  applyAdminMenuAccess();
+  return currentAdminAccess;
+}
+
+function applyAdminMenuAccess(){
+  const level=String(currentAdminAccess.adminLevel||'').toLowerCase();
+  document.querySelectorAll('.admin-card-navigation [data-panel]').forEach(button=>{
+    const panelId=button.dataset.panel;
+    const key=ADMIN_PANEL_PERMISSION_MAP[panelId];
+    const allowed=key?adminHasMenuPermission(key):level==='super';
+    button.hidden=!allowed;
+    button.disabled=!allowed;
+    button.setAttribute('aria-hidden',String(!allowed));
+    const panel=document.getElementById(panelId);
+    if(panel){panel.hidden=!allowed;panel.setAttribute('aria-hidden',String(!allowed));}
+    if(!allowed)button.classList.remove('active');
+  });
+  document.querySelectorAll('.admin-nav-card').forEach(card=>{
+    card.hidden=![...card.querySelectorAll('[data-panel]')].some(button=>!button.hidden);
+  });
+  let active=document.querySelector('.admin-card-navigation [data-panel].active:not([hidden])');
+  if(!active){
+    active=document.querySelector('.admin-card-navigation [data-panel]:not([hidden])');
+    active?.click();
+  }
+}
+
 async function verifyAdminSession(event){
   const incomingState=event?.detail||null;
   if(adminSessionLoading){
@@ -47,6 +94,8 @@ async function verifyAdminSession(event){
     const isAdmin=state?.authenticated&&role==='admin'&&['super','sub'].includes(adminLevel)&&statusValue==='active';
 
     if(isAdmin){
+      verifiedAdminMember=member;
+      await loadCurrentAdminAccess();
       document.getElementById('adminLogin').hidden=true;
       document.getElementById('adminApp').hidden=false;
       document.body.classList.add('admin-unlocked');
@@ -80,6 +129,8 @@ async function verifyAdminSession(event){
     }
 
     adminSessionReady=false;
+    verifiedAdminMember=null;
+    currentAdminAccess={adminLevel:null,permissions:null,loaded:false};
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
@@ -151,9 +202,11 @@ function initAdminCardNavigation(){
   };
 
   const activatePanel=panelId=>{
-    menuButtons.forEach(button=>button.classList.toggle('active',button.dataset.panel===panelId));
+    const requestedButton=menuButtons.find(button=>button.dataset.panel===panelId);
+    if(!requestedButton||requestedButton.hidden||requestedButton.disabled)return;
+    menuButtons.forEach(button=>button.classList.toggle('active',button===requestedButton));
     panels.forEach(panel=>panel.classList.toggle('active',panel.id===panelId));
-    const activeButton=menuButtons.find(button=>button.dataset.panel===panelId);
+    const activeButton=requestedButton;
     const activeCard=activeButton?.closest('.admin-nav-card');
     if(mobileQuery.matches&&activeCard)cards.forEach(card=>setGroupOpen(card,card===activeCard));
     closeMobileDrawer();
@@ -184,6 +237,94 @@ function initAdminCardNavigation(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminCardNavigation,{once:true});
 else initAdminCardNavigation();
+
+
+const ADMIN_PERMISSION_KEYS=['members','events','vote','bgb','capitalWar','season','requests','accounts'];
+let menuPermissionState={subAdmin:null,permissions:null,loaded:false,baseline:''};
+
+function serializeMenuPermissions(permissions){
+  return JSON.stringify(Object.fromEntries(ADMIN_PERMISSION_KEYS.map(key=>[key,Boolean(permissions?.[key])])));
+}
+
+function readMenuPermissionForm(){
+  const groups=document.getElementById('menuPermissionGroups');
+  return Object.fromEntries(ADMIN_PERMISSION_KEYS.map(key=>[key,Boolean(groups?.querySelector(`input[value="${key}"]`)?.checked)]));
+}
+
+function syncMenuPermissionDirty(){
+  const button=document.getElementById('saveMenuPermissions');
+  const status=document.getElementById('menuPermissionStatus');
+  const dirty=Boolean(menuPermissionState.subAdmin)&&serializeMenuPermissions(readMenuPermissionForm())!==menuPermissionState.baseline;
+  if(button)button.disabled=!dirty;
+  if(status)status.textContent=dirty?'저장되지 않은 권한 변경이 있습니다.':'';
+  if(dirty)markAdminDirty('menu-permissions');else clearAdminDirty('menu-permissions');
+  return dirty;
+}
+
+async function menuPermissionRequest(method='GET',payload){
+  const response=await fetch('/api/admin/menu-permissions',{method,credentials:'include',cache:'no-store',headers:{accept:'application/json',...(method==='PUT'?{'content-type':'application/json'}:{})},body:method==='PUT'?JSON.stringify(payload):undefined});
+  const result=await response.json().catch(()=>null);
+  if(!response.ok||!result?.ok){const error=new Error(result?.error||result?.code||'MENU_PERMISSION_REQUEST_FAILED');error.code=result?.error||result?.code;throw error;}
+  return result.data;
+}
+
+function renderMenuPermissionManagement(){
+  const info=document.getElementById('subAdminInfo');
+  const empty=document.getElementById('menuPermissionEmpty');
+  const groups=document.getElementById('menuPermissionGroups');
+  const save=document.getElementById('saveMenuPermissions');
+  if(!info||!empty||!groups||!save)return;
+  const sub=menuPermissionState.subAdmin;
+  if(!sub){
+    info.className='system-empty-state';
+    info.innerHTML='<strong>현재 부관리자가 없습니다.</strong><p>운영 관리 → 연맹원에서 부관리자를 임명해 주세요.</p>';
+    empty.hidden=false;groups.hidden=true;save.disabled=true;menuPermissionState.baseline='';clearAdminDirty('menu-permissions');
+    const status=document.getElementById('menuPermissionStatus');if(status)status.textContent='';return;
+  }
+  info.className='system-subadmin-profile';
+  info.innerHTML=`<div class="profile-name">${esc(sub.nickname||'-')}</div><dl><dt>로그인 ID</dt><dd>${esc(sub.loginId||'-')}</dd><dt>역할</dt><dd>부관리자</dd><dt>등급</dt><dd>${esc(sub.memberRank||'-')}</dd><dt>상태</dt><dd>${sub.status==='active'?'활성':esc(sub.status||'-')}</dd><dt>임명일</dt><dd>${esc((sub.appointedAt||'').replace('T',' ').slice(0,16)||'-')}</dd></dl>`;
+  empty.hidden=true;groups.hidden=false;
+  groups.querySelectorAll('input[type="checkbox"]').forEach(input=>{input.checked=Boolean(menuPermissionState.permissions?.[input.value]);});
+  menuPermissionState.baseline=serializeMenuPermissions(menuPermissionState.permissions);
+  syncMenuPermissionDirty();
+}
+
+async function loadMenuPermissionManagement({force=false}={}){
+  if(menuPermissionState.loaded&&!force)return;
+  const info=document.getElementById('subAdminInfo');
+  if(info)info.innerHTML='<strong>부관리자 정보를 불러오는 중입니다.</strong>';
+  const data=await menuPermissionRequest('GET');
+  menuPermissionState={subAdmin:data?.subAdmin||null,permissions:data?.permissions||null,loaded:true};
+  renderMenuPermissionManagement();
+}
+
+async function saveMenuPermissionManagement(){
+  const groups=document.getElementById('menuPermissionGroups');
+  const button=document.getElementById('saveMenuPermissions');
+  if(!groups||!button||!menuPermissionState.subAdmin)return;
+  const permissions=readMenuPermissionForm();
+  button.disabled=true;button.textContent='저장 중...';
+  try{
+    const data=await menuPermissionRequest('PUT',{permissions});
+    menuPermissionState.permissions=data.permissions;
+    menuPermissionState.baseline=serializeMenuPermissions(data.permissions);
+    renderMenuPermissionManagement();
+    clearAdminDirty('menu-permissions');
+    showAdminToast('부관리자 메뉴 권한을 저장했습니다 ✓');
+  }catch(error){showAdminToast(adminErrorMessage(error),'error');}
+  finally{button.textContent='권한 저장';syncMenuPermissionDirty();}
+}
+
+function initMenuPermissionManagement(){
+  document.getElementById('saveMenuPermissions')?.addEventListener('click',saveMenuPermissionManagement);
+  document.getElementById('menuPermissionGroups')?.addEventListener('change',syncMenuPermissionDirty);
+  document.querySelector('[data-panel="menuPermissionsPanel"]')?.addEventListener('click',()=>{
+    const level=String(verifiedAdminMember?.adminLevel||verifiedAdminMember?.admin_level||'').toLowerCase();
+    if(level==='super')loadMenuPermissionManagement({force:true}).catch(error=>showAdminToast(adminErrorMessage(error),'error'));
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initMenuPermissionManagement,{once:true});
+else initMenuPermissionManagement();
 
 const LOCATIONS=[['R1','REFINERY 1'],['R2','REFINERY 2'],['R3','REFINERY 3'],['R4','REFINERY 4'],['R5','REFINERY 5'],['R6','REFINERY 6'],['M1','MILITARY BASE 1'],['M2','MILITARY BASE 2'],['H1','HOSPITAL 1'],['H2','HOSPITAL 2'],['CENTER','ALLOY FACTORY']];
 const TEAM_KEYS=['A','B'];
@@ -225,6 +366,8 @@ function syncEventsFromForm(){
   });
 }
 function adminErrorMessage(error){
+  if(error?.code==='ADMIN_MENU_FORBIDDEN')return '이 메뉴에 대한 접근 권한이 없습니다.';
+  if(error?.code==='SUB_ADMIN_ALREADY_EXISTS')return '부관리자는 1명만 임명할 수 있습니다. 기존 부관리자를 먼저 해임해 주세요.';
   const code=String(error?.message||error||'');
   const map={FORBIDDEN:'관리자 권한이 없습니다.',UNAUTHORIZED:'로그인 세션이 만료되었습니다.',GITHUB_NOT_CONFIGURED:'Cloudflare GitHub 환경변수가 설정되지 않았습니다.',GITHUB_READ_FAILED:'GitHub 운영 데이터를 불러오지 못했습니다.',GITHUB_WRITE_FAILED:'GitHub 운영 데이터를 저장하지 못했습니다.',CONTENT_PATH_NOT_ALLOWED:'허용되지 않은 운영 데이터 경로입니다.',INVALID_JSON_CONTENT:'저장할 JSON 데이터 형식이 올바르지 않습니다.',INVALID_EVENT_TIME:'이벤트 시작·종료시간을 확인해 주세요.',EVENTS_API_FAILED:'이벤트 API 처리에 실패했습니다.',EVENTS_LOAD_FAILED:'이벤트 데이터를 불러오지 못했습니다.'};
   return map[code]||code||'알 수 없는 오류가 발생했습니다.';
@@ -266,17 +409,22 @@ async function fetchAllAdminMembers(){
   return items;
 }
 async function loadLocal(){
-  const [adminMembers,br,er]=await Promise.all([
-    fetchAllAdminMembers(),
-    fetch('../data/bgb.json?v='+Date.now(),{cache:'no-store'}),
-    fetch('/api/admin/events',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}})
+  const needsMembers=['members','bgb','capitalWar','season'].some(adminHasMenuPermission);
+  const canEvents=adminHasMenuPermission('events');
+  const [adminMembers,br,eventResult]=await Promise.all([
+    needsMembers?fetchAllAdminMembers():Promise.resolve([]),
+    adminHasMenuPermission('bgb')?fetch('../data/bgb.json?v='+Date.now(),{cache:'no-store'}):Promise.resolve(null),
+    canEvents?fetch('/api/admin/events',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}}):Promise.resolve(null)
   ]);
-  if(!br.ok||!er.ok)throw new Error('현재 홈페이지 운영 데이터를 불러오지 못했습니다.');
+  if(br&&!br.ok)throw new Error('BGB 운영 데이터를 불러오지 못했습니다.');
+  if(eventResult&&!eventResult.ok)throw new Error('이벤트 운영 데이터를 불러오지 못했습니다.');
   membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
-  bgbData=normalizeBgb(await br.json());
-  const eventPayload=await er.json();
-  if(!eventPayload?.ok)throw new Error(eventPayload?.code||'EVENTS_LOAD_FAILED');
-  eventsData=normalizeEvents(eventPayload.data);
+  if(br)bgbData=normalizeBgb(await br.json());
+  if(eventResult){
+    const eventPayload=await eventResult.json();
+    if(!eventPayload?.ok)throw new Error(eventPayload?.code||'EVENTS_LOAD_FAILED');
+    eventsData=normalizeEvents(eventPayload.data);
+  }
   syncInputs();
   renderAll();
   window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));

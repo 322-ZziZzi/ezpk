@@ -796,10 +796,11 @@ body.admin-unlocked{overflow:auto}
 /* v280: desktop group headers are non-interactive and visually distinct */
 .admin-hero{padding-bottom:26px}
 .manager-card{padding:24px}
-.admin-card-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:18px;margin-bottom:26px}
+.admin-card-navigation{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:18px;margin-bottom:26px}
 .admin-nav-card{--group-accent:#67a7ff;--group-accent-rgb:103,167,255;display:flex;flex-direction:column;min-width:0;min-height:100%;padding:18px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(180deg,rgba(21,31,46,.96),rgba(12,19,29,.96));box-shadow:0 14px 32px rgba(0,0,0,.18)}
 .admin-nav-card[data-admin-group="teams"]{--group-accent:#f5c547;--group-accent-rgb:245,197,71}
 .admin-nav-card[data-admin-group="support"]{--group-accent:#bb8cff;--group-accent-rgb:187,140,255}
+.admin-nav-card[data-admin-group="system"]{--group-accent:#2dd4bf;--group-accent-rgb:45,212,191}
 .admin-nav-card-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;min-height:48px;padding:0 14px;border:1px solid rgba(var(--group-accent-rgb),.28);border-left:4px solid var(--group-accent);border-radius:11px;background:linear-gradient(90deg,rgba(var(--group-accent-rgb),.15),rgba(var(--group-accent-rgb),.045));color:var(--group-accent);font-size:16px;font-weight:900;text-align:left;cursor:default;pointer-events:none;appearance:none;box-shadow:none;transform:none;transition:none}
 .admin-nav-card-toggle:hover,.admin-nav-card-toggle:active,.admin-nav-card-toggle:focus{background:linear-gradient(90deg,rgba(var(--group-accent-rgb),.15),rgba(var(--group-accent-rgb),.045));color:var(--group-accent);transform:none;box-shadow:none}
 .admin-nav-card-toggle:focus-visible{outline:2px solid rgba(var(--group-accent-rgb),.55);outline-offset:2px}
@@ -966,6 +967,7 @@ body.admin-unlocked{overflow:auto}
   }
   .ezpk-mobile-drawer .admin-nav-card[data-admin-group="teams"]{--group-accent:#f5c547;--group-accent-rgb:245,197,71}
   .ezpk-mobile-drawer .admin-nav-card[data-admin-group="support"]{--group-accent:#bb8cff;--group-accent-rgb:187,140,255}
+  .ezpk-mobile-drawer .admin-nav-card[data-admin-group="system"]{--group-accent:#2dd4bf;--group-accent-rgb:45,212,191}
   .ezpk-mobile-drawer .admin-nav-card-toggle{
     display:flex!important;
     align-items:center!important;
@@ -1057,4 +1059,53 @@ body.admin-unlocked{overflow:auto}
     width:100%!important;
     min-width:0!important;
   }
+}
+
+
+/* v310 stage 1: fixed-width four-column system navigation shell */
+.system-admin-panel{min-height:360px}
+.system-permission-grid{display:grid;grid-template-columns:minmax(260px,.85fr) minmax(0,1.6fr);gap:18px}
+.system-info-card,.system-permission-card,.system-log-shell{padding:20px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:linear-gradient(180deg,rgba(17,26,39,.92),rgba(10,16,25,.92))}
+.system-info-card h3,.system-permission-card h3{margin:0 0 16px;color:#fff}
+.system-empty-state{display:grid;min-height:180px;place-content:center;text-align:center;padding:24px;border:1px dashed rgba(45,212,191,.28);border-radius:12px;background:rgba(45,212,191,.035)}
+.system-empty-state strong{color:#d8fff8}.system-empty-state p{max-width:520px;margin:8px auto 0;color:#8fa0ae;line-height:1.65}
+.system-card-actions{display:flex;justify-content:flex-end;margin-top:16px}.system-card-actions button:disabled{opacity:.45;cursor:not-allowed}
+.system-log-toolbar{margin-bottom:16px}.system-log-toolbar input{min-width:240px}
+@media(max-width:1100px) and (min-width:761px){.admin-card-navigation{gap:14px}.admin-nav-card{padding:14px}.admin-card-navigation .admin-nav-card>.admin-nav-card-toggle{padding:0 14px!important;font-size:15px!important}}
+@media(max-width:900px){.system-permission-grid{grid-template-columns:1fr}.system-log-toolbar{grid-template-columns:1fr!important}.system-log-toolbar>*{width:100%!important}}
+
+/* v310 stage3: single sub-admin menu permission management */
+.system-card-description{margin:-8px 0 16px;color:#9fb0c5;font-size:14px;line-height:1.6}
+.system-subadmin-profile{display:grid;gap:12px}
+.system-subadmin-profile .profile-name{font-size:20px;font-weight:800;color:#fff}
+.system-subadmin-profile dl{display:grid;grid-template-columns:84px 1fr;gap:9px 12px;margin:0}
+.system-subadmin-profile dt{color:#8394aa}
+.system-subadmin-profile dd{margin:0;color:#eaf1f8;font-weight:650}
+.system-permission-groups{display:grid;gap:14px}
+.system-permission-groups fieldset{margin:0;padding:15px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(5,11,18,.5)}
+.system-permission-groups legend{padding:0 7px;color:#58d5c7;font-weight:800}
+.system-permission-groups label{display:flex;align-items:center;gap:9px;min-height:38px;color:#edf5f8;cursor:pointer}
+.system-permission-groups input{width:18px;height:18px;accent-color:#2eb7aa}
+.system-card-actions{display:flex;justify-content:flex-end;margin-top:18px}
+.system-card-actions .primary{min-width:132px}
+
+
+/* v310 stage5: final system log filter and permission navigation polish */
+.system-log-toolbar{grid-template-columns:minmax(220px,1.4fr) repeat(3,minmax(135px,.7fr)) repeat(2,minmax(145px,.75fr)) auto;align-items:end}
+.admin-log-date-field{display:grid;gap:6px;color:#8fa0b4;font-size:12px;font-weight:700}
+.admin-log-date-field input{min-width:0!important;width:100%!important;margin:0!important}
+.admin-card-navigation [data-panel][hidden]{display:none!important}
+@media(max-width:1180px) and (min-width:901px){.system-log-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))}.system-log-toolbar>input[type="search"]{grid-column:1/-1}.system-log-toolbar #adminLogRefreshV299{justify-self:end}}
+@media(max-width:900px){.system-log-toolbar{grid-template-columns:1fr!important}.admin-log-date-field{width:100%}.system-log-toolbar #adminLogRefreshV299{width:100%;justify-self:stretch}}
+
+
+/* v310 stage6: final system permission UX polish */
+.system-card-actions{align-items:center;gap:14px}
+.system-save-status{margin-right:auto;color:#f5c547;font-size:13px;font-weight:700;line-height:1.4}
+.system-permission-groups label:focus-within{outline:2px solid rgba(45,212,191,.45);outline-offset:3px;border-radius:6px}
+.system-permission-groups input:focus-visible{outline:2px solid #8ff3e7;outline-offset:2px}
+@media(max-width:620px){
+  .system-card-actions{align-items:stretch;flex-direction:column}
+  .system-save-status{margin:0;text-align:center}
+  .system-card-actions .primary{width:100%}
 }
