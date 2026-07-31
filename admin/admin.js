@@ -42,8 +42,9 @@ async function verifyAdminSession(event){
     const member=state?.member;
     const role=String(member?.role||'').trim().toLowerCase();
     const rank=String(member?.memberRank||member?.member_rank||'').trim().toUpperCase();
+    const adminLevel=String(member?.adminLevel||member?.admin_level||(role==='admin'?'super':'')).trim().toLowerCase();
     const statusValue=String(member?.status||'').trim().toLowerCase();
-    const isAdmin=state?.authenticated&&role==='admin'&&rank==='R5'&&statusValue==='active';
+    const isAdmin=state?.authenticated&&role==='admin'&&['super','sub'].includes(adminLevel)&&statusValue==='active';
 
     if(isAdmin){
       document.getElementById('adminLogin').hidden=true;
@@ -84,7 +85,7 @@ async function verifyAdminSession(event){
     document.body.classList.remove('admin-unlocked');
     if(status){
       status.textContent=state?.authenticated
-        ?'이 계정은 활성 R5 관리자 권한이 없습니다.'
+        ?'이 계정은 활성 관리자 권한이 없습니다.'
         :'로그인 세션을 확인하지 못했습니다. 홈페이지에서 다시 로그인해 주세요.';
     }
     return false;

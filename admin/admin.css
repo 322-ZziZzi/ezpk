@@ -1008,3 +1008,14 @@ body.admin-unlocked{overflow:auto}
     color:var(--group-accent)!important;
   }
 }
+
+
+/* v300: administrator brand remains gold in every viewport and theme */
+.admin-auth-host .admin-context-brand,
+.admin-auth-host .admin-context-brand b{
+  color:#d4af37!important;
+}
+.admin-auth-host .admin-context-brand:hover,
+.admin-auth-host .admin-context-brand:hover b{
+  color:#f2d675!important;
+}

@@ -53,7 +53,7 @@ export default {
       if (voteExclusionMatch && request.method === "PUT") return handleVoteExclusion(request, Number(voteExclusionMatch[1]), env);
 
 
-      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs))?$/);
+      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions))?$/);
       if (adminMemberMatch) {
         const memberId = Number(adminMemberMatch[1]);
         const action = adminMemberMatch[2] || "";
@@ -63,6 +63,7 @@ export default {
         if (request.method === "PUT" && action === "memo") return handleAdminMemberMemo(request, memberId, env);
         if (request.method === "PUT" && action === "specs") return handleAdminMemberSpecsUpdate(request, memberId, env);
         if (request.method === "DELETE" && action === "specs") return handleAdminMemberSpecsReset(request, memberId, env);
+        if (request.method === "PUT" && action === "permissions") return handleAdminMemberPermissions(request, memberId, env);
         if (request.method === "POST" && action === "reset-password") return handleAdminMemberResetPassword(request, memberId, env);
         if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
       }
@@ -148,6 +149,8 @@ export default {
 
         case "GET /api/admin/members":
           return handleAdminMembers(request, url, env);
+        case "GET /api/admin/logs":
+          return handleAdminLogs(request, url, env);
 
         case "POST /api/admin/members/bulk":
           return handleAdminMembersBulk(request, env);
@@ -1308,6 +1311,7 @@ async function handleAdminRequestAnswer(request, requestId, env) {
   const body=await readJson(request);const answer=cleanString(body.answer,5000);
   if(!answer)return jsonError("VALIDATION_ERROR",400);
   await env.DB.prepare(`UPDATE member_requests SET admin_answer=?,answered_at=CURRENT_TIMESTAMP,answered_by_member_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(answer,admin.id,requestId).run();
+  await writeAdminLog(env,request,{actor:admin,category:"request",action:"request_answered",targetType:"request",targetId:requestId,targetName:row.title||row.subject||`요청 #${requestId}`,after:{answered:true}});
   return json({ok:true});
 }
 
@@ -1615,6 +1619,7 @@ async function handleAdminEventsPut(request, env) {
     `).bind(index + 1, event.title, event.start, event.end, event.enabled ? 1 : 0, event.important ? 1 : 0));
   });
   await env.DB.batch(statements);
+  await writeAdminLog(env,request,{actor:admin,category:"event",action:"events_saved",targetType:"event_schedule",targetId:"schedule",targetName:"이벤트 일정",after:{lastUpdated:payload.lastUpdated,eventCount:payload.events.length}});
   return json({ ok: true, data: payload });
 }
 
@@ -1635,19 +1640,44 @@ async function handleAdminContentPut(request, env) {
   const body = await readJson(request);
   const path = assertAdminContentPath(body.path);
   if (body.content === undefined || body.content === null) return jsonError("VALIDATION_ERROR", 400);
-  if (strategyContentKey(path)) {
-    return json({ ok: true, data: await writeStrategyContentD1(env, path, body.content) });
-  }
-  return json({ ok: true, data: await writeGithubJson(env, path, body.content, body.message) });
+  let saved;
+  if (strategyContentKey(path)) saved=await writeStrategyContentD1(env,path,body.content);
+  else saved=await writeGithubJson(env,path,body.content,body.message);
+  const category=path.includes("bgb")?"bgb":path.includes("capital-war")?"capital_war":path.includes("season")?"season":path.includes("account")?"account":"content";
+  await writeAdminLog(env,request,{actor:admin,category,action:"content_saved",targetType:"content",targetId:path,targetName:path,after:{path}});
+  return json({ok:true,data:saved});
 }
 
 async function requireAdmin(request, db) {
   const member = await requireMember(request, db);
   if (member instanceof Response) return member;
-  if (member.role !== "admin" || member.member_rank !== "R5" || member.status !== "active") {
+  const level = member.admin_level || (member.role === "admin" ? "super" : null);
+  if (member.role !== "admin" || !["super","sub"].includes(level) || member.status !== "active") {
     return jsonError("FORBIDDEN", 403);
   }
+  member.admin_level = level;
   return member;
+}
+
+async function requireSuperAdmin(request, db) {
+  const member = await requireAdmin(request, db);
+  if (member instanceof Response) return member;
+  if (member.admin_level !== "super") return jsonError("SUPER_ADMIN_REQUIRED", 403);
+  return member;
+}
+
+function isProtectedAdminTarget(actor, target) {
+  const level = target.admin_level || (target.role === "admin" ? "super" : null);
+  return actor.admin_level !== "super" && target.role === "admin" && ["super","sub"].includes(level);
+}
+
+async function writeAdminLog(env, request, data) {
+  try {
+    await env.DB.prepare(`INSERT INTO admin_activity_logs
+      (actor_member_id,actor_login_id,actor_nickname,actor_admin_level,category,action,target_type,target_id,target_name,before_data,after_data,result,failure_reason,ip_address,user_agent,request_id)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+      .bind(data.actor?.id||null,data.actor?.login_id||null,data.actor?.nickname||'unknown',data.actor?.admin_level||'sub',data.category,data.action,data.targetType||null,data.targetId==null?null:String(data.targetId),data.targetName||null,data.before?JSON.stringify(data.before):null,data.after?JSON.stringify(data.after):null,data.result||'success',data.failureReason||null,request.headers.get('CF-Connecting-IP')||null,request.headers.get('User-Agent')||null,request.headers.get('cf-ray')||null).run();
+  } catch (error) { console.error('[ADMIN_LOG_FAILED]', error); }
 }
 
 function adminMemberRow(row) {
@@ -1659,6 +1689,7 @@ function adminMemberRow(row) {
     industryLevel: row.industry_level,
     memberRank: row.member_rank,
     role: row.role,
+    adminLevel: row.admin_level || (row.role === "admin" ? "super" : null),
     status: row.status,
     approvalStatus: row.approval_status || "approved",
     mustChangePassword: Boolean(row.must_change_password),
@@ -1793,8 +1824,10 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   const rank=String(body.memberRank||"").toUpperCase();
   const status=String(body.status||"");
   if(!nickname||!isAnyMemberRank(rank)||!["active","suspended","left"].includes(status)) return jsonError("VALIDATION_ERROR",400);
-  if(target.role==="admin" && (rank!=="R5" || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
-  if(target.role!=="admin" && !["R1","R2","R3","R4"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
+  if(isProtectedAdminTarget(admin,target)) return jsonError("ADMIN_ACCOUNT_PROTECTED",403);
+  const targetLevel=target.admin_level || (target.role==="admin"?"super":null);
+  if(targetLevel==="super" && (rank!==target.member_rank || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  if(target.role!=="admin" && !["R1","R2","R3","R4","R5"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
   const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
   if(dupe) return jsonError("NICKNAME_TAKEN",409);
   const batch=[];
@@ -1803,14 +1836,16 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   }
   batch.push(env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=? WHERE id=?`).bind(nickname,rank,status,memberId));
   await env.DB.batch(batch);
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_update",targetType:"member",targetId:memberId,targetName:nickname,before:{nickname:target.nickname,memberRank:target.member_rank,status:target.status},after:{nickname,memberRank:rank,status}});
   return json({ok:true,data:{updated:true}});
 }
 
 async function handleAdminMemberSpecsUpdate(request, memberId, env) {
   const admin = await requireAdmin(request, env.DB);
   if (admin instanceof Response) return admin;
-  const target=await env.DB.prepare("SELECT id FROM members WHERE id=?").bind(memberId).first();
+  const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  if(isProtectedAdminTarget(admin,target))return jsonError("ADMIN_ACCOUNT_PROTECTED",403);
   const body=await readJson(request);
   const power=toPositiveInteger(body.power);
   const industryLevel=String(body.industryLevel??"").toUpperCase();
@@ -1840,8 +1875,9 @@ async function handleAdminMemberSpecsUpdate(request, memberId, env) {
 async function handleAdminMemberSpecsReset(request, memberId, env) {
   const admin = await requireAdmin(request, env.DB);
   if (admin instanceof Response) return admin;
-  const target=await env.DB.prepare("SELECT id FROM members WHERE id=?").bind(memberId).first();
+  const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  if(isProtectedAdminTarget(admin,target))return jsonError("ADMIN_ACCOUNT_PROTECTED",403);
   await env.DB.batch([
     env.DB.prepare(`UPDATE members SET power=NULL,industry_level=NULL WHERE id=?`).bind(memberId),
     env.DB.prepare(`INSERT INTO member_specs(member_id,profile_specs_registered) VALUES(?,0)
@@ -1887,9 +1923,9 @@ async function handleAdminMemberResetPassword(request, memberId, env) {
   const admin=await requireAdmin(request,env.DB);
   if(admin instanceof Response)return admin;
   if(!env.PASSWORD_PEPPER)return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED",503);
-  const target=await env.DB.prepare("SELECT role FROM members WHERE id=?").bind(memberId).first();
+  const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
-  if(target.role==="admin")return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  if(target.role==="admin")return jsonError("ADMIN_ACCOUNT_PROTECTED",409);
   const temporary=`EZ${randomHex(5)}9a`;
   const data=await hashPassword(temporary,env.PASSWORD_PEPPER);
   await env.DB.batch([
@@ -1902,11 +1938,45 @@ async function handleAdminMemberResetPassword(request, memberId, env) {
 async function handleAdminMemberDelete(request, memberId, env) {
   const admin=await requireAdmin(request,env.DB);
   if(admin instanceof Response)return admin;
-  const target=await env.DB.prepare("SELECT role FROM members WHERE id=?").bind(memberId).first();
+  const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
-  if(target.role==="admin")return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  if(target.role==="admin")return jsonError("ADMIN_ACCOUNT_PROTECTED",409);
   await env.DB.prepare("DELETE FROM members WHERE id=?").bind(memberId).run();
   return json({ok:true,data:{deleted:true}});
+}
+
+async function handleAdminMemberPermissions(request, memberId, env) {
+  const admin=await requireSuperAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const target=await env.DB.prepare("SELECT id,login_id,nickname,role,admin_level,status FROM members WHERE id=?").bind(memberId).first();
+  if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  const current=target.admin_level || (target.role==="admin"?"super":null);
+  if(current==="super")return jsonError("PRIMARY_ADMIN_PROTECTED",409);
+  const body=await readJson(request);
+  const next=body.adminLevel===null||body.adminLevel==="member"?null:String(body.adminLevel||"");
+  if(![null,"sub"].includes(next))return jsonError("VALIDATION_ERROR",400);
+  await env.DB.batch([
+    env.DB.prepare("UPDATE members SET role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(next?"admin":"member",next,memberId),
+    env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId)
+  ]);
+  await writeAdminLog(env,request,{actor:admin,category:"admin_permission",action:next?"admin_role_granted":"admin_role_revoked",targetType:"member",targetId:memberId,targetName:target.nickname,before:{role:target.role,adminLevel:current},after:{role:next?"admin":"member",adminLevel:next}});
+  return json({ok:true,data:{adminLevel:next,role:next?"admin":"member"}});
+}
+
+async function handleAdminLogs(request,url,env){
+  const admin=await requireSuperAdmin(request,env.DB);
+  if(admin instanceof Response)return admin;
+  const q=cleanString(url.searchParams.get("q"),64);
+  const category=cleanString(url.searchParams.get("category"),40);
+  const page=Math.max(1,Number(url.searchParams.get("page")||1));
+  const limit=Math.min(100,Math.max(10,Number(url.searchParams.get("limit")||30)));
+  const where=[],binds=[];
+  if(q){where.push("(actor_nickname LIKE ? COLLATE NOCASE OR target_name LIKE ? COLLATE NOCASE OR action LIKE ? COLLATE NOCASE)");binds.push(`%${q}%`,`%${q}%`,`%${q}%`);}
+  if(category){where.push("category=?");binds.push(category);}
+  const ws=where.length?`WHERE ${where.join(" AND ")}`:"";
+  const count=await env.DB.prepare(`SELECT COUNT(*) total FROM admin_activity_logs ${ws}`).bind(...binds).first();
+  const rows=await env.DB.prepare(`SELECT * FROM admin_activity_logs ${ws} ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?`).bind(...binds,limit,(page-1)*limit).all();
+  return json({ok:true,data:{items:rows.results||[],pagination:{page,limit,total:Number(count?.total||0),totalPages:Math.ceil(Number(count?.total||0)/limit)}}});
 }
 
 // -----------------------------------------------------------------------------
@@ -2201,7 +2271,8 @@ function addDaysIso(dateValue, days) {
 async function requireVoteAdmin(request, env) {
   const member = await requireMember(request, env.DB, true);
   if (member instanceof Response) return member;
-  if (member.role !== "admin" || member.member_rank !== "R5" || member.status !== "active") throw new HttpError(403, "FORBIDDEN");
+  const level=member.admin_level || (member.role==="admin"?"super":null);
+  if (member.role !== "admin" || !["super","sub"].includes(level) || member.status !== "active") throw new HttpError(403, "FORBIDDEN");
   return member;
 }
 function voteStatus(row, now = new Date()) {
@@ -2345,6 +2416,7 @@ function publicAuthenticatedMember(member) {
     industryLevel: member.industry_level,
     memberRank: member.member_rank,
     role: member.role,
+    adminLevel: member.admin_level || (member.role === "admin" ? "super" : null),
     status: member.status,
     mustChangePassword: Boolean(member.must_change_password),
     nicknameChangeCount: Number(member.nickname_change_count ?? 0),

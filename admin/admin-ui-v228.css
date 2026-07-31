@@ -72,18 +72,19 @@
   .v188-spec-actions{grid-template-columns:1fr 1fr}
 }
 
-/* v298: unified admin page headers and button hierarchy */
+/* v300: finalized common administrator page introduction layout */
 #adminApp .admin-page-header{
   display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:20px;
-  min-height:72px;
-  margin:0 0 20px;
-  padding:0 0 18px;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:0;
+  min-height:0;
+  margin:0 0 24px;
+  padding:32px 0 18px;
   border-bottom:1px solid rgba(255,255,255,.10);
 }
-#adminApp .admin-page-heading{min-width:0}
+#adminApp .admin-page-heading{min-width:0;width:100%}
 #adminApp .admin-page-heading h2{
   margin:0;
   color:var(--admin-text);
@@ -94,22 +95,35 @@
 }
 #adminApp .admin-page-heading p{
   max-width:820px;
-  margin:7px 0 0;
+  margin:8px 0 0;
   color:var(--admin-muted);
   font-size:14px;
   line-height:1.55;
 }
 #adminApp .admin-page-meta{
-  flex:0 0 220px;
-  width:220px;
+  flex:0 0 auto;
+  width:min(100%,220px);
+  margin-top:24px;
   color:var(--admin-muted);
   font-size:12px;
   font-weight:700;
 }
 #adminApp .admin-page-meta input{display:block;width:100%;margin-top:6px}
-#adminApp .admin-page-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+#adminApp .admin-page-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  flex-wrap:wrap;
+  width:100%;
+  margin-top:24px;
+}
+#adminApp .admin-page-header>button{
+  align-self:flex-start;
+  margin-top:24px;
+}
 
-/* Existing page-specific heads keep content only; shared header controls layout. */
+/* Existing page-specific heads use the same shared vertical introduction flow. */
 #adminApp .bgb-manager-head,
 #adminApp .cw-admin-head,
 #adminApp .s6-manager-head,
@@ -117,8 +131,26 @@
 #adminApp .request-admin-head,
 #adminApp .vote-manager-head,
 #adminApp .account-admin-head{
-  align-items:flex-end;
-  margin-bottom:20px;
+  align-items:stretch;
+  margin-bottom:24px;
+}
+
+@media(max-width:760px){
+  #adminApp .admin-page-header{
+    padding-top:10px;
+    padding-bottom:15px;
+    margin-bottom:16px;
+  }
+  #adminApp .admin-page-heading h2{font-size:24px}
+  #adminApp .admin-page-heading p{margin-top:6px;font-size:13px}
+  #adminApp .admin-page-meta,
+  #adminApp .admin-page-actions,
+  #adminApp .admin-page-header>button{margin-top:16px}
+  #adminApp .admin-page-meta{width:100%}
+  #adminApp .admin-page-actions{display:grid;grid-template-columns:1fr;width:100%}
+  #adminApp .admin-page-actions button,
+  #adminApp .request-admin-head>button,
+  #adminApp .vote-manager-head>button{width:100%}
 }
 
 /* Clear, reusable action hierarchy. Existing unclassified controls retain their local tab/tool styles. */
@@ -131,20 +163,3 @@
 #adminApp .primary{box-shadow:0 6px 16px rgba(21,119,255,.18)}
 #adminApp .danger,#adminApp .outline{box-shadow:none}
 
-@media(max-width:760px){
-  #adminApp .admin-page-header{
-    align-items:stretch;
-    flex-direction:column;
-    min-height:0;
-    gap:14px;
-    margin-bottom:16px;
-    padding-bottom:15px;
-  }
-  #adminApp .admin-page-heading h2{font-size:24px}
-  #adminApp .admin-page-heading p{font-size:13px}
-  #adminApp .admin-page-meta{flex-basis:auto;width:100%}
-  #adminApp .admin-page-actions{display:grid;grid-template-columns:1fr;width:100%}
-  #adminApp .admin-page-actions button{width:100%}
-  #adminApp .request-admin-head>button,
-  #adminApp .vote-manager-head>button{width:100%}
-}

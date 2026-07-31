@@ -163,7 +163,7 @@
 
   const ACCOUNT_LABELS = {
     ko: {
-      login:'로그인', signup:'회원가입', account:'계정', member:'멤버',
+      login:'로그인', signup:'회원가입', account:'계정', myAccount:'내 계정', member:'멤버',
       administrator:'관리자', admin:'관리자', myPage:'마이페이지', logout:'로그아웃',
       loading:'확인 중', loginId:'아이디', password:'비밀번호',
       noAccount:'계정이 없으신가요?', loginSuccess:'로그인되었습니다.',
@@ -177,7 +177,7 @@
       adminComing:'관리자 페이지는 다음 버전에서 제공됩니다.'
     },
     en: {
-      login:'LOGIN', signup:'SIGN UP', account:'ACCOUNT', member:'MEMBER',
+      login:'LOGIN', signup:'SIGN UP', account:'ACCOUNT', myAccount:'MY ACCOUNT', member:'MEMBER',
       administrator:'ADMINISTRATOR', admin:'ADMIN', myPage:'MY PAGE', logout:'LOGOUT',
       loading:'CHECKING', loginId:'Login ID', password:'Password',
       noAccount:'Do not have an account?', loginSuccess:'Logged in successfully.',
@@ -191,7 +191,7 @@
       adminComing:'The Admin page will be available in the next version.'
     },
     pt: {
-      login:'ENTRAR', signup:'CADASTRAR', account:'CONTA', member:'MEMBRO',
+      login:'ENTRAR', signup:'CADASTRAR', account:'CONTA', myAccount:'MINHA CONTA', member:'MEMBRO',
       administrator:'ADMINISTRADOR', admin:'ADMIN', myPage:'MINHA PÁGINA', logout:'SAIR',
       loading:'VERIFICANDO', loginId:'ID de login', password:'Senha',
       noAccount:'Ainda não tem uma conta?', loginSuccess:'Login realizado.',
@@ -205,7 +205,7 @@
       adminComing:'A página de administração estará disponível na próxima versão.'
     },
     vi: {
-      login:'ĐĂNG NHẬP', signup:'ĐĂNG KÝ', account:'TÀI KHOẢN', member:'THÀNH VIÊN',
+      login:'ĐĂNG NHẬP', signup:'ĐĂNG KÝ', account:'TÀI KHOẢN', myAccount:'TÀI KHOẢN CỦA TÔI', member:'THÀNH VIÊN',
       administrator:'QUẢN TRỊ VIÊN', admin:'QUẢN TRỊ', myPage:'TRANG CỦA TÔI', logout:'ĐĂNG XUẤT',
       loading:'ĐANG KIỂM TRA', loginId:'ID đăng nhập', password:'Mật khẩu',
       noAccount:'Chưa có tài khoản?', loginSuccess:'Đăng nhập thành công.',
@@ -219,7 +219,7 @@
       adminComing:'Trang quản trị sẽ có trong phiên bản tiếp theo.'
     },
     ar: {
-      login:'تسجيل الدخول', signup:'إنشاء حساب', account:'الحساب', member:'عضو',
+      login:'تسجيل الدخول', signup:'إنشاء حساب', account:'الحساب', myAccount:'حسابي', member:'عضو',
       administrator:'مسؤول', admin:'الإدارة', myPage:'صفحتي', logout:'تسجيل الخروج',
       loading:'جارٍ التحقق', loginId:'معرّف الدخول', password:'كلمة المرور',
       noAccount:'ليس لديك حساب؟', loginSuccess:'تم تسجيل الدخول.',
@@ -247,7 +247,7 @@
       adminComing:'管理ページは次のバージョンで提供されます。'
     },
     th: {
-      login:'เข้าสู่ระบบ', signup:'สมัครสมาชิก', account:'บัญชี', member:'สมาชิก',
+      login:'เข้าสู่ระบบ', signup:'สมัครสมาชิก', account:'บัญชี', myAccount:'บัญชีของฉัน', member:'สมาชิก',
       administrator:'ผู้ดูแลระบบ', admin:'ผู้ดูแล', myPage:'หน้าของฉัน', logout:'ออกจากระบบ',
       loading:'กำลังตรวจสอบ', loginId:'ไอดีเข้าสู่ระบบ', password:'รหัสผ่าน',
       noAccount:'ยังไม่มีบัญชีใช่ไหม?', loginSuccess:'เข้าสู่ระบบแล้ว',
@@ -261,7 +261,7 @@
       adminComing:'หน้าผู้ดูแลจะพร้อมใช้งานในเวอร์ชันถัดไป'
     },
     'zh-tw': {
-      login:'登入', signup:'註冊', account:'帳號', member:'成員',
+      login:'登入', signup:'註冊', account:'帳號', myAccount:'我的帳號', member:'成員',
       administrator:'管理員', admin:'管理', myPage:'我的頁面', logout:'登出',
       loading:'確認中', loginId:'登入 ID', password:'密碼',
       noAccount:'還沒有帳號嗎？', loginSuccess:'登入成功。',
@@ -641,7 +641,8 @@
 
     const member = authState.member;
     const isAdmin = member.role === 'admin';
-    const roleLabel = isAdmin ? labels.administrator : labels.member;
+    const adminLevel=member.adminLevel||member.admin_level||(isAdmin?'super':null);
+    const roleLabel = isAdmin ? (isAdminContext?(adminLevel==='sub'?'부관리자':'최고관리자'):labels.administrator) : labels.member;
     const dropdownItems = `
       ${isAdminContext ? `<button type="button" data-account-action="home">${safeText((NAV_LABELS[isAdminContext ? 'ko' : currentLanguage()] || NAV_LABELS.ko).home)}</button>` : ''}
       ${isAdmin ? `<button type="button" data-account-action="admin">${safeText(labels.admin)}</button>` : ''}
@@ -661,7 +662,7 @@
     return `
       <div class="account-member">
         <button type="button" class="account-member-trigger" aria-expanded="false">
-          <span class="account-member-name" title="${safeText(member.nickname)}">${safeText(isAdminContext ? labels.admin : member.nickname)}</span>
+          <span class="account-member-name" title="${safeText(member.nickname)}">${safeText(isAdminContext ? (labels.myAccount || '내 계정') : member.nickname)}</span>
           <span class="account-rank ${isAdmin ? 'rank-r5' : ''}">${safeText(member.memberRank)}</span>
           <span aria-hidden="true">▾</span>
         </button>
