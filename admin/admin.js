@@ -5,12 +5,17 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>S
 window.EZPK_ADMIN_PASSWORD='';
 let adminSessionLoading=false;
 let adminSessionReady=false;
+let adminSessionPendingState=null;
 async function verifyAdminSession(event){
-  if(adminSessionLoading)return false;
+  const incomingState=event?.detail||null;
+  if(adminSessionLoading){
+    if(incomingState)adminSessionPendingState=incomingState;
+    return false;
+  }
   adminSessionLoading=true;
   const status=document.getElementById('loginStatus');
   try{
-    let state=event?.detail||null;
+    let state=incomingState;
     if(!state&&window.EZPKSharedHeader){
       const current=window.EZPKSharedHeader.getAuthState?.();
       if(current&&current.member)state=current;
@@ -26,7 +31,10 @@ async function verifyAdminSession(event){
       }finally{if(timeoutId)clearTimeout(timeoutId);}
     }
     const member=state?.member;
-    if(state?.authenticated&&member?.role==='admin'&&member?.memberRank==='R5'&&member?.status==='active'){
+    const role=String(member?.role||'').toLowerCase();
+    const rank=String(member?.memberRank||member?.member_rank||'').toUpperCase();
+    const statusValue=String(member?.status||'').toLowerCase();
+    if(state?.authenticated&&role==='admin'&&rank==='R5'&&statusValue==='active'){
       document.getElementById('adminLogin').hidden=true;
       document.getElementById('adminApp').hidden=false;
       document.body.classList.add('admin-unlocked');
@@ -52,6 +60,11 @@ async function verifyAdminSession(event){
     return false;
   }finally{
     adminSessionLoading=false;
+    if(adminSessionPendingState){
+      const pending=adminSessionPendingState;
+      adminSessionPendingState=null;
+      queueMicrotask(()=>verifyAdminSession({detail:pending}));
+    }
   }
 }
 function initAdminLoginGate(){
