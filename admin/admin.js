@@ -15,61 +15,81 @@ async function verifyAdminSession(event){
   adminSessionLoading=true;
   const status=document.getElementById('loginStatus');
   try{
-    let state=incomingState;
-    if(!state&&window.EZPKSharedHeader){
-      const current=window.EZPKSharedHeader.getAuthState?.();
-      if(current&&current.member)state=current;
-      else state=await window.EZPKSharedHeader.refreshAuth?.();
+    // v290: The administrator gate verifies the server session directly.
+    // It no longer waits for the shared-header bootstrap, because header
+    // navigation/language rendering is optional UI and must not block admin.
+    let state=null;
+    const controller=typeof AbortController==='function'?new AbortController():null;
+    const timeoutId=controller?setTimeout(()=>controller.abort(),7000):null;
+    try{
+      const response=await fetch('/api/auth/me?admin_verify='+Date.now(),{
+        method:'GET',credentials:'include',headers:{accept:'application/json'},
+        cache:'no-store',signal:controller?.signal
+      });
+      const payload=await response.json().catch(()=>null);
+      state={
+        authenticated:Boolean(response.ok&&payload?.ok&&payload?.data?.authenticated),
+        member:payload?.data?.member||null
+      };
+    }finally{if(timeoutId)clearTimeout(timeoutId);}
+
+    // An already delivered header state can only supplement a failed direct
+    // response; it is never required for administrator access.
+    if((!state?.authenticated||!state?.member)&&incomingState?.authenticated&&incomingState?.member){
+      state=incomingState;
     }
-    if(!state){
-      const controller=typeof AbortController==='function'?new AbortController():null;
-      const timeoutId=controller?setTimeout(()=>controller.abort(),7000):null;
-      try{
-        const response=await fetch('/api/auth/me',{credentials:'include',headers:{accept:'application/json'},cache:'no-store',signal:controller?.signal});
-        const payload=await response.json().catch(()=>null);
-        state={authenticated:Boolean(response.ok&&payload?.ok&&payload?.data?.authenticated),member:payload?.data?.member||null};
-      }finally{if(timeoutId)clearTimeout(timeoutId);}
-    }
+
     const member=state?.member;
-    const role=String(member?.role||'').toLowerCase();
-    const rank=String(member?.memberRank||member?.member_rank||'').toUpperCase();
-    const statusValue=String(member?.status||'').toLowerCase();
-    if(state?.authenticated&&role==='admin'&&rank==='R5'&&statusValue==='active'){
+    const role=String(member?.role||'').trim().toLowerCase();
+    const rank=String(member?.memberRank||member?.member_rank||'').trim().toUpperCase();
+    const statusValue=String(member?.status||'').trim().toLowerCase();
+    const isAdmin=state?.authenticated&&role==='admin'&&rank==='R5'&&statusValue==='active';
+
+    if(isAdmin){
       document.getElementById('adminLogin').hidden=true;
       document.getElementById('adminApp').hidden=false;
       document.body.classList.add('admin-unlocked');
+      if(status)status.textContent='';
+
+      // Synchronize the shared header without waiting for it.
+      window.dispatchEvent(new CustomEvent('ezpk-auth-refresh'));
+
       if(!adminSessionReady){
         adminSessionReady=true;
         window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
-        // Authentication and admin-data loading are intentionally separated.
-        // A temporary members/events API failure must never be reported as a
-        // session failure or send an already authenticated R5 back to login.
         Promise.resolve().then(async()=>{
-          try{
-            await loadLocal();
-          }catch(dataError){
+          try{await loadLocal();}
+          catch(dataError){
             console.error('[EZPK Admin] data load failed',dataError);
             const message='관리자 로그인은 완료되었지만 운영 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
             if(window.showGlobalToast)window.showGlobalToast(message);
-            else if(status){status.textContent=message;}
+            else if(status)status.textContent=message;
             window.dispatchEvent(new CustomEvent('ezpk-admin-data-error',{detail:{error:dataError}}));
           }
         });
       }
       return true;
     }
+
     adminSessionReady=false;
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
-    if(status)status.textContent='R5 관리자 로그인이 필요합니다.';
+    if(status){
+      status.textContent=state?.authenticated
+        ?'이 계정은 활성 R5 관리자 권한이 없습니다.'
+        :'로그인 세션을 확인하지 못했습니다. 홈페이지에서 다시 로그인해 주세요.';
+    }
     return false;
   }catch(error){
+    console.error('[EZPK Admin] session verification failed',error);
     adminSessionReady=false;
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
-    if(status)status.textContent='관리자 세션을 확인하지 못했습니다. 다시 로그인해 주세요.';
+    if(status)status.textContent=error?.name==='AbortError'
+      ?'관리자 세션 확인 시간이 초과되었습니다. 페이지를 새로고침해 주세요.'
+      :'관리자 세션을 확인하지 못했습니다. 다시 로그인해 주세요.';
     return false;
   }finally{
     adminSessionLoading=false;
