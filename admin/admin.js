@@ -91,6 +91,10 @@ function initAdminLoginGate(){
   });
   window.addEventListener('ezpk-auth-ready',verifyAdminSession);
   window.addEventListener('ezpk-auth-change',verifyAdminSession);
+  window.addEventListener('pageshow',()=>verifyAdminSession());
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')verifyAdminSession();
+  });
   setTimeout(()=>verifyAdminSession(),0);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
