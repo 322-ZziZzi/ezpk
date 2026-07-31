@@ -212,7 +212,7 @@ function render(){
   const t=targets();
   document.querySelector('#cwSummary').innerHTML=`<article><span>참가자</span><b>${cw.draft.participants.length}</b></article>${TEAMS.map(k=>`<article class="cw-sum-${k}"><span>${META[k].label}</span><b>${(cw.draft.teams[k]||[]).length} / ${t[k]}</b></article>`).join('')}<article class="cw-sum-unassigned"><span>미배정</span><b>${unassignedNonParticipantCount()}</b></article>`;
   renderRules();
-  document.querySelector('#cwParticipantBody').innerHTML=participantRows()||'<tr><td colspan="6">표시할 회원이 없습니다.</td></tr>';
+  document.querySelector('#cwParticipantBody').innerHTML=participantRows()||'<tr><td colspan="6">표시할 연맹원이 없습니다.</td></tr>';
 
   document.querySelectorAll('[data-cw-participant]').forEach(x=>x.onchange=()=>{
     const n=x.dataset.cwParticipant;

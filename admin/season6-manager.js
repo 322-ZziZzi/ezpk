@@ -94,7 +94,7 @@ function applyVoteImport(modal){
   const result=modal._voteResult||{},ids=new Set(chosen.map(x=>Number(x.value))),names=new Set();
   for(const option of result.options||[])if(ids.has(Number(option.id)))for(const member of option.members||[])if(member.nickname)names.add(member.nickname);
   const valid=[...names].filter(n=>known().has(n));
-  if(!valid.length)return alert('선택한 투표 결과에서 현재 회원과 일치하는 참가자를 찾지 못했습니다.');
+  if(!valid.length)return alert('선택한 투표 결과에서 현재 연맹원과 일치하는 참가자를 찾지 못했습니다.');
   if(!confirm(`현재 참가 체크와 팀 배정을 초기화하고 ${valid.length}명을 불러오시겠습니까?`))return;
   s6.participants=valid;s6.teams={attack:[],defense:[],support:[]};
   voteImportSource={title:result.vote?.title||modal.dataset.voteTitle||'',options:chosen.map(x=>x.dataset.label||x.closest('label')?.querySelector('b')?.textContent||''),count:valid.length};

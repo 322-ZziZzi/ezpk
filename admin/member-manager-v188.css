@@ -103,8 +103,6 @@
   .v188-member-manager.detail-active .v188-stats,
   #memberManagerV188.detail-active .v188-toolbar,
   .v188-member-manager.detail-active .v188-toolbar,
-  #memberManagerV188.detail-active .v188-bulk,
-  .v188-member-manager.detail-active .v188-bulk,
   #memberManagerV188.detail-active .v188-list-pane,
   .v188-member-manager.detail-active .v188-list-pane{
     display:none!important;
@@ -173,4 +171,68 @@
   #memberManagerV188 .v188-detail-form,
   .v188-member-manager .v188-detail-form{padding:14px;gap:13px}
   #memberManagerV188 .admin-member-tabs button{width:100%}
+}
+
+/* v309: restore desktop two-column member management; preserve the existing mobile flow */
+@media (min-width:901px){
+  #membersPanel .v188-member-manager{
+    width:100%;
+    min-width:0;
+  }
+  #memberManagerV188 .v188-layout,
+  .v188-member-manager .v188-layout{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.5fr) minmax(360px,.9fr)!important;
+    gap:14px!important;
+    align-items:start!important;
+  }
+  #memberManagerV188 .v188-detail-pane,
+  .v188-member-manager .v188-detail-pane,
+  #memberManagerV188.detail-active .v188-detail-pane,
+  .v188-member-manager.detail-active .v188-detail-pane{
+    display:block!important;
+    position:sticky!important;
+    top:12px!important;
+    width:auto!important;
+    max-height:calc(100vh - 24px)!important;
+    overflow:auto!important;
+  }
+  #memberManagerV188.detail-active .admin-member-tabs,
+  .v188-member-manager.detail-active .admin-member-tabs,
+  #memberManagerV188.detail-active .v188-stats,
+  .v188-member-manager.detail-active .v188-stats,
+  #memberManagerV188.detail-active .v188-toolbar,
+  .v188-member-manager.detail-active .v188-toolbar,
+  #memberManagerV188.detail-active .v188-list-pane,
+  .v188-member-manager.detail-active .v188-list-pane{
+    display:revert!important;
+  }
+  #memberManagerV188.detail-active .v188-stats,
+  .v188-member-manager.detail-active .v188-stats,
+  #memberManagerV188.detail-active .v188-toolbar,
+  .v188-member-manager.detail-active .v188-toolbar{
+    display:grid!important;
+  }
+  #memberManagerV188.detail-active .admin-member-tabs,
+  .v188-member-manager.detail-active .admin-member-tabs{
+    display:flex!important;
+  }
+  #memberManagerV188.detail-active .v188-list-pane,
+  .v188-member-manager.detail-active .v188-list-pane{
+    display:block!important;
+  }
+  #memberManagerV188.detail-active .v188-bulk:not([hidden]),
+  .v188-member-manager.detail-active .v188-bulk:not([hidden]){
+    display:flex!important;
+  }
+  #memberManagerV188 .v188-bulk[hidden],
+  .v188-member-manager .v188-bulk[hidden]{
+    display:none!important;
+  }
+  #memberManagerV188 .v188-detail-head button,
+  .v188-member-manager .v188-detail-head button,
+  #memberManagerV188.detail-active .v188-detail-head button,
+  .v188-member-manager.detail-active .v188-detail-head button{
+    display:none!important;
+  }
 }

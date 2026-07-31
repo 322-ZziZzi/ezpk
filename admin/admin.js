@@ -258,7 +258,7 @@ async function fetchAllAdminMembers(){
   do{
     const response=await fetch(`/api/admin/members?page=${page}&limit=100&sort=power_desc`,{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});
     const payload=await response.json().catch(()=>null);
-    if(!response.ok||!payload?.ok)throw new Error(payload?.code||'관리자 회원 데이터를 불러오지 못했습니다.');
+    if(!response.ok||!payload?.ok)throw new Error(payload?.code||'관리자 연맹원 데이터를 불러오지 못했습니다.');
     items.push(...(payload.data.items||[]));
     totalPages=Math.max(1,Number(payload.data.pagination?.totalPages||1));
     page+=1;

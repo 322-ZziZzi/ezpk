@@ -309,3 +309,40 @@
   }
   #adminApp table th,#adminApp table td{padding:11px 12px}
 }
+
+/* v309: align Member, Capital War, and Vote content frames and introductions */
+#membersPanel,
+#capitalWarPanel,
+#votePanel,
+#membersPanel > .v188-member-manager,
+#votePanel > .vote-manager{
+  width:100%;
+  min-width:0;
+  max-width:none;
+  box-sizing:border-box;
+}
+#membersPanel .admin-page-header,
+#capitalWarPanel .admin-page-header,
+#votePanel .admin-page-header{
+  width:100%;
+  box-sizing:border-box;
+  margin-top:0;
+}
+@media (min-width:761px){
+  #membersPanel .admin-page-header,
+  #capitalWarPanel .admin-page-header,
+  #votePanel .admin-page-header{
+    padding-top:32px;
+    padding-bottom:18px;
+    margin-bottom:24px;
+  }
+}
+@media (max-width:760px){
+  #membersPanel .admin-page-header,
+  #capitalWarPanel .admin-page-header,
+  #votePanel .admin-page-header{
+    padding-top:10px;
+    padding-bottom:15px;
+    margin-bottom:16px;
+  }
+}

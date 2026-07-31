@@ -103,14 +103,14 @@
     const level=m.adminLevel||(m.role==="admin"?"super":null);
     const isSuper=state.currentAdmin?.adminLevel==="super";
     const adminLocked=(level==="super"||(!isSuper&&m.role==="admin"))?"disabled":"";
-    const permissionHtml=level==="super"?`<div class="admin-permission-box"><label>관리 권한<input value="최고관리자" disabled></label><small class="admin-permission-help">최고관리자 권한은 변경할 수 없습니다.</small></div>`:`<div class="admin-permission-box"><label>관리 권한<select name="adminLevel" ${isSuper?"":"disabled"}><option value="member" ${!level?"selected":""}>일반 회원</option><option value="sub" ${level==="sub"?"selected":""}>부관리자</option></select></label><small class="admin-permission-help">${isSuper?"최고관리자만 부관리자를 임명하거나 해제할 수 있습니다.":"관리자 권한은 최고관리자만 변경할 수 있습니다."}</small></div>`;
+    const permissionHtml=level==="super"?`<div class="admin-permission-box"><label>관리 권한<input value="최고관리자" disabled></label><small class="admin-permission-help">최고관리자 권한은 변경할 수 없습니다.</small></div>`:`<div class="admin-permission-box"><label>관리 권한<select name="adminLevel" ${isSuper?"":"disabled"}><option value="member" ${!level?"selected":""}>일반 연맹원</option><option value="sub" ${level==="sub"?"selected":""}>부관리자</option></select></label><small class="admin-permission-help">${isSuper?"최고관리자만 부관리자를 임명하거나 해제할 수 있습니다.":"관리자 권한은 최고관리자만 변경할 수 있습니다."}</small></div>`;
     return `<div class="v188-detail-head"><button id="memberDetailBackV188" class="secondary" type="button">← 목록</button><div><h2>${esc(m.nickname)}</h2><p>${esc(m.memberRank)} · <b class="spec-value">${esc(industry(m.industryLevel))}</b> · <b class="spec-value">${fmt(m.power)}</b></p></div></div>
     <form id="memberDetailFormV188" class="v188-detail-form">
       <details open><summary>기본 프로필</summary><div class="v188-detail-grid">
         <label>로그인 ID<input value="${esc(m.loginId)}" disabled></label>
         <label>닉네임<input name="nickname" value="${esc(m.nickname)}"></label>
-        <label>회원 등급<select name="memberRank" ${adminLocked}>${rankOptions(m)}</select></label>
-        <label>회원 상태<select name="status" ${adminLocked}>${[["active","활성"],["suspended","정지"],["left","탈퇴"]].map(([v,l])=>`<option ${v===m.status?"selected":""} value="${v}">${l}</option>`).join("")}</select></label>
+        <label>연맹원 등급<select name="memberRank" ${adminLocked}>${rankOptions(m)}</select></label>
+        <label>연맹원 상태<select name="status" ${adminLocked}>${[["active","활성"],["suspended","정지"],["left","탈퇴"]].map(([v,l])=>`<option ${v===m.status?"selected":""} value="${v}">${l}</option>`).join("")}</select></label>
         <label>가입일<input value="${date(m.createdAt)}" disabled></label>
         <label>최근 로그인<input value="${date(m.lastLoginAt)}" disabled></label>
         <label>가입 승인<input value="${esc(m.approvalStatus||"approved")}" disabled></label>
@@ -132,7 +132,7 @@
       </div><div class="v188-spec-actions"><button id="memberSpecsSaveV228" class="primary" type="button">세부 스펙 저장</button><button id="memberSpecsResetV228" class="danger" type="button">세부 스펙 초기화</button></div></details>
       <details><summary>닉네임 변경 이력</summary><ul class="v188-history">${historyHtml}</ul></details>
       <details><summary>관리자 메모</summary><textarea name="adminMemo" maxlength="1000" rows="6">${esc(m.adminMemo||"")}</textarea><button id="memberMemoSaveV188" class="secondary" type="button">메모 저장</button></details>
-      <div class="v188-detail-actions"><button class="primary" type="submit">기본 프로필 저장</button><button id="memberResetPasswordV188" class="secondary" type="button">비밀번호 초기화</button><button id="memberDeleteV188" class="danger" type="button">회원 삭제</button></div>
+      <div class="v188-detail-actions"><button class="primary" type="submit">기본 프로필 저장</button><button id="memberResetPasswordV188" class="secondary" type="button">비밀번호 초기화</button><button id="memberDeleteV188" class="danger" type="button">연맹원 삭제</button></div>
     </form>`;
   }
   function setDetailMode(open){
@@ -179,7 +179,7 @@
       const nextAdminLevel=f.adminLevel&&state.currentAdmin?.adminLevel==="super"?f.adminLevel.value:undefined;
       const currentAdminLevel=member.adminLevel||"member";
       if(nextAdminLevel!==undefined&&nextAdminLevel!==currentAdminLevel){
-        const confirmed=confirm(nextAdminLevel==="sub"?`${member.nickname} 회원을 부관리자로 임명하시겠습니까?`:`${member.nickname} 회원의 부관리자 권한을 해제하시겠습니까?`);
+        const confirmed=confirm(nextAdminLevel==="sub"?`${member.nickname} 연맹원을 부관리자로 임명하시겠습니까?`:`${member.nickname} 연맹원의 부관리자 권한을 해제하시겠습니까?`);
         if(!confirmed)return;
       }
       try{
@@ -205,13 +205,13 @@
       clean("specs");alert("세부 스펙이 저장되었습니다.");await load();if(!anyMemberDirty())await openDetail(member.id);
     };
     $("#memberSpecsResetV228").onclick=async()=>{
-      if(!confirm(`${member.nickname} 회원의 세부 스펙 전체를 초기화할까요?`))return;
+      if(!confirm(`${member.nickname} 연맹원의 세부 스펙 전체를 초기화할까요?`))return;
       await api(`/api/admin/members/${member.id}/specs`,{method:"DELETE",body:null});
       clean("specs");alert("세부 스펙이 초기화되었습니다.");await load();if(!anyMemberDirty())await openDetail(member.id);
     };
     $("#memberMemoSaveV188").onclick=async()=>{const memo=form.adminMemo.value;await api(`/api/admin/members/${member.id}/memo`,{method:"PUT",body:JSON.stringify({memo})});clean("memo");alert("메모가 저장되었습니다.")};
     $("#memberResetPasswordV188").onclick=async()=>{if(!confirm("임시 비밀번호를 발급할까요?"))return;const d=await api(`/api/admin/members/${member.id}/reset-password`,{method:"POST",body:"{}"});prompt("임시 비밀번호",d.temporaryPassword)};
-    $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 회원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});clearMemberDirty();setDetailMode(false);await load(true)};
+    $("#memberDeleteV188").onclick=async()=>{if(!confirm(`${member.nickname} 연맹원을 삭제할까요?`))return;await api(`/api/admin/members/${member.id}`,{method:"DELETE",body:null});clearMemberDirty();setDetailMode(false);await load(true)};
   }
   function bulkOptions(){
     const field=$("#memberBulkFieldV188").value;
@@ -236,7 +236,7 @@
     }));
     const wb=XLSX.utils.book_new(),ws=XLSX.utils.json_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,"Members");XLSX.writeFile(wb,`EZPK_Members_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
-  function logLabel(v){return ({admin_permission:"관리자 권한",member:"회원",event:"이벤트",vote:"투표",bgb:"BGB",capital_war:"수도전",season:"시즌",request:"요청",account:"계정"})[v]||v||"-"}
+  function logLabel(v){return ({admin_permission:"관리자 권한",member:"연맹원",event:"이벤트",vote:"투표",bgb:"BGB",capital_war:"수도전",season:"시즌",request:"요청",account:"계정"})[v]||v||"-"}
   async function loadLogs(){if(state.currentAdmin?.adminLevel!=="super")return;const p=new URLSearchParams({page:String(state.logPage),limit:"30"});const q=$("#adminLogSearchV299")?.value.trim();const c=$("#adminLogCategoryV299")?.value;if(q)p.set("q",q);if(c)p.set("category",c);const d=await api(`/api/admin/logs?${p}`);state.logTotalPages=Math.max(1,d.pagination?.totalPages||1);const rows=d.items||[];$("#adminLogRowsV299").innerHTML=rows.map(x=>`<tr><td>${date(x.created_at)}</td><td>${esc(x.actor_nickname)} ${x.actor_admin_level==="super"?"[최고]":"[부]"}</td><td>${esc(logLabel(x.category))}</td><td>${esc(x.action)}</td><td>${esc(x.target_name||"-")}</td><td>${esc(x.result)}</td></tr>`).join("")||`<tr><td colspan="6">기록이 없습니다.</td></tr>`;$("#adminLogCardsV299").innerHTML=rows.map(x=>`<article class="admin-log-card"><strong>${esc(x.action)}</strong><small>${date(x.created_at)}</small><span>처리자 ${esc(x.actor_nickname)} · ${x.actor_admin_level==="super"?"최고관리자":"부관리자"}</span><span>대상 ${esc(x.target_name||"-")}</span><span>${esc(logLabel(x.category))} · ${esc(x.result)}</span></article>`).join("");$("#adminLogPageV299").textContent=`${state.logPage} / ${state.logTotalPages}`;$("#adminLogPrevV299").disabled=state.logPage<=1;$("#adminLogNextV299").disabled=state.logPage>=state.logTotalPages;}
   function showMemberMode(logMode){
     if(logMode&&document.querySelector(".v188-member-manager")?.classList.contains("detail-active")){
