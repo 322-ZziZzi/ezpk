@@ -2149,3 +2149,36 @@ body.ezpk-mobile-menu-open{overflow:hidden!important}
   html[dir='rtl'] [data-shared-header] #navMoreMenu a{text-align:right!important}
   html[dir='rtl'] [data-shared-header] #navMoreMenu a:not(.is-locked)::after{transform:scaleX(-1)}
 }
+
+/* v334: consistent guest authentication controls across every shared PC header */
+@media(min-width:1200px){
+  [data-shared-header] .header-account{gap:8px!important}
+  [data-shared-header] .header-account .account-button,
+  [data-shared-header] .lang>#langBtn{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    width:auto!important;min-width:0!important;height:42px!important;min-height:42px!important;
+    padding:0 16px!important;border-radius:10px!important;box-sizing:border-box!important;
+    font-family:inherit!important;font-size:11px!important;font-weight:700!important;line-height:1!important;
+    letter-spacing:.02em!important;white-space:nowrap!important;box-shadow:none!important
+  }
+  [data-shared-header] .header-account .account-login{
+    margin-right:0!important;background:#d8b94f!important;border-color:#d8b94f!important;
+    color:#15120a!important
+  }
+  [data-shared-header] .header-account .account-signup,
+  [data-shared-header] .lang>#langBtn{
+    background:#111823!important;border-color:#344156!important;color:#e7ebf1!important
+  }
+  [data-shared-header] .header-account .account-signup:hover,
+  [data-shared-header] .header-account .account-signup:focus-visible,
+  [data-shared-header] .lang>#langBtn:hover,
+  [data-shared-header] .lang>#langBtn:focus-visible{
+    background:#151e2b!important;border-color:rgba(245,197,71,.72)!important;
+    color:#fff!important;outline:none!important;box-shadow:none!important
+  }
+  [data-shared-header] .header-account .account-login:hover,
+  [data-shared-header] .header-account .account-login:focus-visible{
+    background:#e3c65c!important;border-color:#e3c65c!important;color:#15120a!important;
+    outline:none!important;box-shadow:none!important
+  }
+}

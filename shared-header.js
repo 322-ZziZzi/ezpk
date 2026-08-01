@@ -380,7 +380,7 @@
   const SUPPORTED_LANGS=Object.freeze(['ko','en','pt','vi','ar','ja','th','zh-tw']);
   let authState = { authenticated:false, member:null };
   let authLoaded = false;
-  let strategyAccess = { loaded:false, bgbLocked:false, season6Locked:false, capitalWarLocked:true };
+  let strategyAccess = { loaded:false, resolved:false, bgbLocked:false, season6Locked:false, capitalWarLocked:true };
 
   function activeMemberSignedIn() {
     return Boolean(authLoaded && authState.authenticated && authState.member && authState.member.status === 'active');
@@ -400,22 +400,29 @@
   }
 
   async function loadStrategyAccess() {
+    let nextAccess = {
+      loaded:false,
+      resolved:true,
+      bgbLocked:true,
+      season6Locked:true,
+      capitalWarLocked:true
+    };
     try {
       const response = await fetch('/api/public/strategy-access?v=' + Date.now(), {
         method:'GET', credentials:'include', headers:{accept:'application/json'}, cache:'no-store'
       });
       const payload = await response.json();
       if (response.ok && payload?.ok) {
-        strategyAccess = {
+        nextAccess = {
           loaded:true,
+          resolved:true,
           bgbLocked:Boolean(payload.data?.bgbLocked),
           season6Locked:Boolean(payload.data?.season6Locked),
           capitalWarLocked:true
         };
       }
-    } catch (_) {
-      strategyAccess.loaded = false;
-    }
+    } catch (_) {}
+    strategyAccess = nextAccess;
     applyStrategyMenuVisibility();
   }
 
@@ -473,7 +480,8 @@
     }
     const ui = menuUi(lang);
     const signedIn = activeMemberSignedIn();
-    const seasonLockedForGuest = !signedIn && (!strategyAccess.loaded || strategyAccess.season6Locked);
+    const seasonAccessReady = Boolean(strategyAccess.resolved);
+    const seasonLockedForGuest = !signedIn && strategyAccess.season6Locked;
 
     if (signedIn) {
       desktopNavItems.innerHTML = ['vote','bgb','capitalWar','members'].map(key=>navLinkMarkup(key)).join('');
@@ -487,7 +495,9 @@
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
     } else {
-      desktopNavItems.innerHTML = ['immigration','seasonUpcoming','members','tip'].map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
+      const guestPrimaryKeys = ['immigration', ...(seasonAccessReady ? ['seasonUpcoming'] : []), 'members', 'tip'];
+      const guestMobileKeys = ['immigration', ...(seasonAccessReady ? ['seasonUpcoming'] : []), 'members', 'tip', 'game', 'accounts'];
+      desktopNavItems.innerHTML = guestPrimaryKeys.map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
       navMoreMenu.innerHTML = [
         menuGroupMarkup(ui.public,['game','accounts']),
         menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
@@ -495,7 +505,7 @@
         })
       ].join('');
       mobileDrawerItems.innerHTML = [
-        menuGroupMarkup('', ['immigration','seasonUpcoming','members','tip','game','accounts'],{
+        menuGroupMarkup('', guestMobileKeys,{
           seasonUpcoming:{locked:seasonLockedForGuest,comingSoon:true}
         }),
         menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
