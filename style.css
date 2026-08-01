@@ -120,6 +120,60 @@ nav a.active{color:#f5c547!important}
 .rtl .member-gate-form{text-align:right}
 @media(max-width:620px){.member-gate-wrap{padding:34px 16px}.member-gate-card{padding:38px 20px;border-radius:18px}.member-gate-icon{width:62px;height:62px;font-size:27px}.member-gate-title{font-size:clamp(2rem,10vw,2.8rem)!important}.member-gate-description{margin:16px auto 24px!important}.member-gate-row{flex-direction:column}.member-gate-row button{width:100%}}
 
+/* v339: shared member-gate UX/UI for every protected page */
+.member-gate-wrap{
+  min-height:calc(100dvh - 72px);padding:48px 20px;
+  background:radial-gradient(circle at 50% 12%,rgba(245,197,71,.11),transparent 38%)
+}
+.member-gate-card{
+  box-sizing:border-box;width:min(640px,100%);padding:48px 34px 34px;
+  border:1px solid #2c384a;border-radius:18px;
+  background:linear-gradient(180deg,#111a27,#0a1019);
+  box-shadow:0 24px 70px rgba(0,0,0,.56);text-align:center
+}
+.member-gate-icon{
+  width:62px;height:62px;margin:0 auto 17px;border:1px solid rgba(245,197,71,.32);
+  background:rgba(245,197,71,.10);color:#f5c547;font-size:27px
+}
+.member-gate-section{margin-bottom:12px;color:#f5c547;font-size:12px;line-height:1.3;letter-spacing:.18em}
+.member-gate-title{font-size:clamp(2.15rem,5.4vw,3.6rem)!important;line-height:1.1}
+.member-gate-description{max-width:540px;margin:16px auto 0!important;color:#aeb8c7!important;font-size:16px;line-height:1.7}
+.member-gate-card .member-login-actions{
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
+  max-width:500px;margin:26px auto 0!important
+}
+.member-gate-card .member-login-actions button,
+.member-gate-card .member-login-actions a{
+  box-sizing:border-box;min-height:48px!important;display:grid!important;place-items:center;
+  padding:0 16px!important;border-radius:11px!important;font:inherit;font-weight:900!important;
+  line-height:1.2;text-decoration:none!important;cursor:pointer;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease
+}
+.member-gate-card .member-login-primary{
+  border:1px solid #f5c547!important;background:#f5c547!important;color:#171000!important;
+  box-shadow:0 8px 22px rgba(245,197,71,.14)
+}
+.member-gate-card .member-login-secondary{
+  border:1px solid #344258!important;background:#151e2c!important;color:#fff!important
+}
+.member-gate-card .member-login-actions button:hover,
+.member-gate-card .member-login-actions a:hover{transform:translateY(-1px)}
+.member-gate-card .member-login-primary:hover{background:#ffd85a!important;border-color:#ffd85a!important}
+.member-gate-card .member-login-secondary:hover{background:#1b2738!important;border-color:#4a5b73!important}
+.member-gate-card .member-login-actions button:focus-visible,
+.member-gate-card .member-login-actions a:focus-visible{outline:3px solid rgba(159,205,244,.45);outline-offset:3px}
+.member-gate-error{min-height:0;margin:12px 0 0!important}
+.member-gate-error:empty{display:none}
+@media(max-width:620px){
+  .member-gate-wrap{padding:28px 14px}
+  .member-gate-card{padding:38px 20px 24px;border-radius:16px}
+  .member-gate-title{font-size:clamp(2rem,10vw,2.7rem)!important}
+  .member-gate-description{font-size:14px}
+}
+@media(max-width:480px){
+  .member-gate-card .member-login-actions{grid-template-columns:1fr!important}
+}
+
 
 /* v152: Account navigation Premium Shine Sweep 2.0 — language-independent, desktop + mobile */
 @keyframes ezpkAccountShineSweep{

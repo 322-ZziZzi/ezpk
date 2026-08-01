@@ -14,7 +14,7 @@
   const lang=()=>window.EZPKLanguage?.get?.()||localStorage.getItem('ezpk-lang-v5')||'en';
   const tx=()=>TEXT[lang()]||TEXT.en;
   function renderText(){const t=tx();document.querySelectorAll('[data-logo-k]').forEach(el=>{el.textContent=t[el.dataset.logoK]||''});document.querySelectorAll('[data-logo-gate]').forEach(el=>{el.textContent=t[el.dataset.logoGate]||''});$('[data-logo-login]').textContent=t.login;$('[data-logo-signup]').textContent=t.signup}
-  function setAccess(state){const allowed=Boolean(state?.authenticated&&state?.member?.status==='active');$('#logoLock').hidden=allowed;$('#logoProtected').hidden=!allowed;if(allowed)document.querySelectorAll('[data-logo-src]').forEach(image=>{if(!image.src)image.src=image.dataset.logoSrc});renderText()}
+  function setAccess(state){if(state?.loaded===false){$('#logoLock').hidden=true;$('#logoProtected').hidden=true;return}const allowed=Boolean(state?.authenticated&&state?.member?.status==='active');$('#logoLock').hidden=allowed;$('#logoProtected').hidden=!allowed;if(allowed)document.querySelectorAll('[data-logo-src]').forEach(image=>{if(!image.src)image.src=image.dataset.logoSrc});renderText()}
   function openPreview(button){const modal=$('#logoPreviewModal');const image=$('#logoPreviewImage');const title=button.dataset.edition||'';image.src='./'+button.dataset.logoOpen;$('#logoPreviewTitle').textContent=title;$('#logoPreviewGuide').textContent=tx().guideBody;modal.hidden=false;document.body.style.overflow='hidden'}
   function closePreview(){$('#logoPreviewModal').hidden=true;document.body.style.overflow=''}
   document.querySelectorAll('[data-logo-open]').forEach(button=>button.addEventListener('click',()=>openPreview(button)));

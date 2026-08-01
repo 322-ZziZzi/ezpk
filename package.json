@@ -1,7 +1,7 @@
 {
   "name": "ezpk-war-portal",
   "private": true,
-  "version": "3.3.8",
+  "version": "3.3.9",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",

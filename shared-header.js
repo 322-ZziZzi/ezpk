@@ -598,6 +598,7 @@
   const loginError = document.querySelector('#ezpkLoginError');
   const globalToast = document.querySelector('#ezpkGlobalToast');
   let pendingNavigation = '';
+  let loginIntentAfterAuth = false;
 
   function showGlobalToast(message, type='success') {
     globalToast.textContent = message;
@@ -627,6 +628,20 @@
   function openLogin(event) {
     if (event) event.preventDefault();
     closeMenus();
+    // v339: never paint the login dialog before the existing session has been
+    // resolved. Active members bypass the dialog and continue directly.
+    if (!authLoaded) {
+      loginIntentAfterAuth = true;
+      return;
+    }
+    if (activeMemberSignedIn()) {
+      loginIntentAfterAuth = false;
+      const returnTarget = pendingNavigation || sessionStorage.getItem('ezpk-auth-return') || '';
+      pendingNavigation = '';
+      sessionStorage.removeItem('ezpk-auth-return');
+      if (returnTarget && returnTarget !== window.location.href) window.location.href = returnTarget;
+      return;
+    }
     updateAuthModalLabels();
     loginError.hidden = true;
     loginError.textContent = '';
@@ -895,6 +910,10 @@
           if (mobile) bindAccountEvents(mobile);
         }
         window.dispatchEvent(new CustomEvent('ezpk-auth-ready', { detail:authState }));
+        if (loginIntentAfterAuth) {
+          loginIntentAfterAuth = false;
+          openLogin();
+        }
         authLoadPromise = null;
       }
       return authState;
