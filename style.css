@@ -2113,3 +2113,39 @@ body.ezpk-mobile-menu-open{overflow:hidden!important}
 
 @media(max-width:420px){.brand-mark{width:40px;height:40px;border-radius:11px;font-size:22px}[data-shared-header] .brand b{font-size:16px}}
 @media(prefers-reduced-motion:reduce){.brand-mark,.ezpk-mobile-drawer{transition:none!important}}
+
+/* v333: compact guest desktop More menu */
+@media(min-width:1200px){
+  [data-shared-header] #navMoreMenu{
+    width:300px!important;min-width:300px!important;height:auto!important;min-height:0!important;
+    max-height:min(520px,calc(100vh - 96px))!important;padding:10px!important;
+    border-radius:13px!important;overflow-y:auto!important
+  }
+  [data-shared-header] #navMoreMenu .nav-menu-group{
+    display:block!important;width:100%!important;height:auto!important;min-height:0!important;
+    margin:0!important;padding:0!important;background:transparent!important
+  }
+  [data-shared-header] #navMoreMenu .nav-menu-group+.nav-menu-group{
+    margin-top:12px!important;padding-top:12px!important;border-top:1px solid rgba(255,255,255,.09)!important
+  }
+  [data-shared-header] #navMoreMenu .nav-menu-group>h2{
+    margin:0 10px 6px!important;padding:0!important;color:#7e899b!important;
+    font-size:9px!important;line-height:1.4!important;text-align:left!important
+  }
+  [data-shared-header] #navMoreMenu .nav-menu-group-items{display:grid!important;gap:2px!important;width:100%!important}
+  [data-shared-header] #navMoreMenu a{
+    display:flex!important;align-items:center!important;justify-content:flex-start!important;
+    width:100%!important;min-height:42px!important;height:auto!important;margin:0!important;padding:9px 12px!important;
+    border-radius:9px!important;white-space:normal!important;line-height:1.25!important;text-align:left!important
+  }
+  [data-shared-header] #navMoreMenu a:not(.is-locked)::after{
+    content:'›';display:block;margin-inline-start:auto;color:#718096;font-size:19px;line-height:1
+  }
+  [data-shared-header] #navMoreMenu a.active{
+    width:100%!important;background:rgba(245,197,71,.11)!important;color:#f5c547!important
+  }
+  [data-shared-header] #navMoreMenu .nav-lock{margin-inline-start:auto!important;flex:0 0 auto}
+  html[dir='rtl'] [data-shared-header] #navMoreMenu .nav-menu-group>h2,
+  html[dir='rtl'] [data-shared-header] #navMoreMenu a{text-align:right!important}
+  html[dir='rtl'] [data-shared-header] #navMoreMenu a:not(.is-locked)::after{transform:scaleX(-1)}
+}

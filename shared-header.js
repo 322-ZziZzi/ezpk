@@ -478,13 +478,13 @@
     if (signedIn) {
       desktopNavItems.innerHTML = ['vote','bgb','capitalWar','members'].map(key=>navLinkMarkup(key)).join('');
       navMoreMenu.innerHTML = [
-        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','accounts'],{seasonUpcoming:{comingSoon:true}}),
-        menuGroupMarkup(ui.other,['game','logo'])
+        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
       mobileDrawerItems.innerHTML = [
         menuGroupMarkup(ui.activity,['vote','bgb','capitalWar','members'],{className:'nav-activity-grid'}),
-        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','accounts'],{seasonUpcoming:{comingSoon:true}}),
-        menuGroupMarkup(ui.other,['game','logo'])
+        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
     } else {
       desktopNavItems.innerHTML = ['immigration','seasonUpcoming','members','tip'].map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
