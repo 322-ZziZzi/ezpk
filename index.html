@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Alliance</title>
-  <link rel="stylesheet" href="style.css?v=3250">
+  <link rel="stylesheet" href="style.css?v=3260">
   <link rel="stylesheet" href="./common-heading.css?v=1020">
 </head>
 <body class="home-auth-pending">
@@ -14,17 +14,6 @@
 
   <main id="home" class="home-main">
     <div class="home-member-content" data-home-member hidden>
-      <section id="schedule" class="schedule-section" hidden>
-        <div class="head schedule-head">
-          <span data-k="scheduleEyebrow"></span>
-          <h2 data-k="scheduleTitle"></h2>
-          <p data-k="scheduleSubtitle"></p>
-        </div>
-        <div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div>
-        <div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div>
-        <button id="eventScheduleToggle" class="schedule-toggle" type="button" hidden aria-expanded="false"></button>
-      </section>
-
       <section class="home-quick-section" aria-labelledby="homeQuickTitle">
         <h2 id="homeQuickTitle" class="home-section-title" data-home-k="quickTitle"></h2>
         <nav class="home-quick-grid" data-home-k-aria="quickTitle">
@@ -33,6 +22,15 @@
           <a href="./capital-war/" data-home-k="quickCapital"></a>
           <a href="./members/" data-home-k="quickMembers"></a>
         </nav>
+      </section>
+
+      <section id="schedule" class="schedule-section" hidden>
+        <div class="head schedule-head">
+          <h2 data-k="scheduleTitle"></h2>
+        </div>
+        <div id="eventScheduleGrid" class="event-schedule-grid" aria-live="polite"></div>
+        <div id="eventScheduleEmpty" class="event-schedule-empty" hidden></div>
+        <button id="eventScheduleToggle" class="schedule-toggle" type="button" hidden aria-expanded="false"></button>
       </section>
     </div>
 
@@ -84,7 +82,7 @@
 
   <script src="data.js?v=1530"></script>
   <script src="script.js?v=1530"></script>
-  <script src="home-v319.js?v=3230"></script>
+  <script src="home-v319.js?v=3260"></script>
   <script src="schedule.js?v=3250"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
   <script>
