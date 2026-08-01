@@ -1,8 +1,8 @@
-/* EZPK v340: current shared heading system for pages and primary sections */
+/* EZPK v341: current shared heading system for pages and primary sections */
 :root{
   --ezpk-heading-gold:#f5c547;
   --ezpk-heading-white:#f7f8fa;
-  --ezpk-heading-sub:#9fcdf4;
+  --ezpk-heading-sub:#aeb8c5;
 }
 
 /* Primary page and section heading containers */
