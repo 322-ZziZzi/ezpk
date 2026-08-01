@@ -344,7 +344,6 @@
       <div class="ezpk-auth-backdrop" data-auth-close></div>
       <section class="ezpk-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="ezpkLoginTitle" aria-describedby="ezpkLoginSubtitle">
         <button class="ezpk-auth-close" type="button" data-auth-close aria-label="Close">×</button>
-        <p class="ezpk-auth-eyebrow">EZPK MEMBER</p>
         <h2 id="ezpkLoginTitle"></h2>
         <p class="ezpk-auth-subtitle" id="ezpkLoginSubtitle" data-auth-text="loginSubtitle"></p>
         <form id="ezpkLoginForm" novalidate>
@@ -364,10 +363,10 @@
           <p class="ezpk-auth-error" id="ezpkLoginError" role="alert" hidden></p>
           <button class="ezpk-auth-submit" type="submit"></button>
         </form>
-        <div class="ezpk-auth-switch">
+        ${isAdminContext ? '' : `<div class="ezpk-auth-switch">
           <span data-auth-text="noAccount"></span>
           <a href="${base}/signup/" data-auth-text="signup"></a>
-        </div>
+        </div>`}
       </section>
     </div>
     <div class="ezpk-global-toast" id="ezpkGlobalToast" role="status" aria-live="polite" hidden></div>
@@ -612,10 +611,14 @@
 
   function updateAuthModalLabels() {
     const labels = accountLabels();
-    document.querySelector('#ezpkLoginTitle').textContent = labels.login;
+    document.querySelector('#ezpkLoginTitle').textContent = isAdminContext ? '관리자 로그인' : labels.login;
+    document.querySelector('#ezpkLoginSubtitle').textContent = isAdminContext
+      ? '활성화된 R5 관리자 계정으로 로그인하세요.'
+      : labels.loginSubtitle;
     loginForm.querySelector('.ezpk-auth-submit').textContent = labels.login;
     loginModal.querySelectorAll('[data-auth-text]').forEach(function (element) {
       const key = element.dataset.authText;
+      if (isAdminContext && key === 'loginSubtitle') return;
       element.textContent = labels[key] || key;
     });
     const toggle = loginForm.querySelector('[data-password-toggle]');

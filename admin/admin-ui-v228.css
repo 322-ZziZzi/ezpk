@@ -42,6 +42,10 @@
 #adminApp .primary:hover,.admin-login-screen .primary:hover{background:var(--admin-primary-hover)!important;border-color:var(--admin-primary-hover)!important}
 #adminApp .secondary,.admin-login-screen .secondary{background:var(--admin-secondary)!important;border-color:var(--admin-border)!important;color:var(--admin-text)!important}
 #adminApp .secondary:hover,.admin-login-screen .secondary:hover{background:var(--admin-secondary-hover)!important}
+.admin-login-screen .primary{background:#f5c547!important;border-color:#f5c547!important;color:#171000!important}
+.admin-login-screen .primary:hover{background:#ffd85a!important;border-color:#ffd85a!important;color:#171000!important}
+.admin-login-screen .secondary{background:#172231!important;border-color:rgba(255,255,255,.14)!important;color:#fff!important}
+.admin-login-screen .secondary:hover{background:#202c3d!important;border-color:rgba(245,197,71,.42)!important}
 #adminApp .danger{background:var(--admin-danger)!important;border-color:#a23b43!important;color:#fff!important}
 #adminApp .danger:hover{background:var(--admin-danger-hover)!important}
 #adminApp .outline{background:transparent!important;border-color:var(--admin-border)!important;color:var(--admin-text)!important}

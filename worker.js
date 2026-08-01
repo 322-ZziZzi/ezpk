@@ -451,7 +451,7 @@ async function handleLogin(request, env, url) {
       id, login_id, password_hash, password_salt,
       password_algorithm, password_iterations,
       nickname, power, industry_level, member_rank,
-      role, status, must_change_password,
+      role, admin_level, status, must_change_password,
       nickname_change_count, nickname_updated_at, created_at, updated_at,
       last_login_at, password_changed_at
     FROM members
@@ -1368,6 +1368,7 @@ async function requireOptionalMember(request, db, includePassword = false) {
       m.industry_level,
       m.member_rank,
       m.role,
+      m.admin_level,
       m.status,
       m.must_change_password,
       m.nickname_change_count,
