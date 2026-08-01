@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>EZPK Alliance Layout</title>
+  <link rel="stylesheet" href="../style.css?v=3470">
+  <link rel="stylesheet" href="../common-heading.css?v=3410">
+  <link rel="stylesheet" href="alliance-layout.css?v=3520">
+</head>
+<body>
+  <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="allianceLayout"></header>
+  <script src="../shared-header.js?v=3520"></script>
+
+  <main class="alliance-layout-main">
+    <section id="allianceLayoutGate" class="member-gate-wrap" hidden>
+      <div class="member-gate-card">
+        <div class="member-gate-icon" aria-hidden="true">🔐</div>
+        <h1 id="gateTitle" class="member-gate-title"></h1>
+        <p id="gateLead" class="member-gate-description"></p>
+        <div class="member-login-actions">
+          <button id="gateLogin" type="button" class="member-login-primary"></button>
+        </div>
+      </div>
+    </section>
+
+    <div id="allianceLayoutProtected" hidden>
+      <section class="alliance-layout-hero">
+        <h1 id="pageTitle"></h1>
+        <p id="pageLead"></p>
+      </section>
+
+      <section class="layout-summary" aria-label="">
+        <article><span id="placedLabel"></span><strong id="placedCount">—</strong></article>
+        <article><span id="publishedLabel"></span><strong id="publishedDate">—</strong></article>
+      </section>
+
+      <section id="layoutState" class="layout-state" aria-live="polite"></section>
+
+      <section id="layoutContent" hidden>
+        <div class="mobile-layout-overview">
+          <div class="overview-heading"><span id="overviewTitle"></span><small id="overviewHint"></small></div>
+          <div id="miniLayoutMap" class="mini-layout-map" dir="ltr"></div>
+          <button id="openFullscreen" type="button" class="open-fullscreen"></button>
+        </div>
+
+        <section id="layoutExplorer" class="layout-explorer">
+          <header class="explorer-header">
+            <button id="closeFullscreen" class="fullscreen-back" type="button" aria-label="">←</button>
+            <div><strong id="mapTitle"></strong><small id="mapGestureHint"></small></div>
+            <span id="fullscreenCount" class="fullscreen-count"></span>
+          </header>
+          <div class="layout-tools">
+            <div class="member-search-wrap">
+              <input id="memberSearch" type="search" autocomplete="off" aria-label="">
+              <div id="searchResults" class="search-results" hidden></div>
+            </div>
+            <button id="findMe" type="button" class="find-me"></button>
+          </div>
+          <div id="mapViewport" class="layout-map-viewport" dir="ltr">
+            <div id="mapStage" class="layout-map-stage">
+              <div id="layoutMap" class="layout-map-grid"></div>
+            </div>
+          </div>
+          <aside id="memberDetail" class="member-detail" hidden aria-live="polite">
+            <div class="detail-grabber" aria-hidden="true"></div>
+            <strong id="detailNickname"></strong>
+            <div class="detail-specs"><span><b>CP</b><em id="detailCp"></em></span><span><b>IND</b><em id="detailInd"></em></span></div>
+          </aside>
+        </section>
+
+        <details id="layoutGuide" class="layout-guide" open>
+          <summary id="guideTitle"></summary>
+          <ol>
+            <li id="guide1"></li>
+            <li id="guide2"></li>
+            <li id="guide3"></li>
+            <li id="guide4"></li>
+            <li id="guide5"></li>
+          </ol>
+        </details>
+      </section>
+    </div>
+  </main>
+  <script src="alliance-layout.js?v=3520"></script>
+</body>
+</html>

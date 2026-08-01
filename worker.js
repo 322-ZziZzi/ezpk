@@ -183,7 +183,7 @@ export default {
         case "GET /api/admin/alliance-layout/publications":
           return handleAllianceLayoutPublications(request, env);
         case "GET /api/alliance-layout":
-          return handleAllianceLayoutPublic(env);
+          return handleAllianceLayoutPublic(request, env);
 
         case "POST /api/admin/members/bulk":
           return handleAdminMembersBulk(request, env);
@@ -2340,9 +2340,9 @@ async function loadAllianceVersion(db,type){
     FROM alliance_layout_versions v LEFT JOIN members cu ON cu.id=v.created_by_member_id LEFT JOIN members uu ON uu.id=v.updated_by_member_id LEFT JOIN members pu ON pu.id=v.published_by_member_id
     WHERE v.layout_type=? ORDER BY ${type==="draft"?"v.id ASC":"v.published_at DESC,v.id DESC"} LIMIT 1`).bind(type).first();
   if(!row)return null;
-  const positions=await db.prepare(`SELECT p.member_id,p.placement_rank,p.grid_row,p.grid_col,p.is_locked,m.nickname
+  const positions=await db.prepare(`SELECT p.member_id,p.placement_rank,p.grid_row,p.grid_col,p.is_locked,m.nickname,m.power,m.industry_level
     FROM alliance_layout_positions p JOIN members m ON m.id=p.member_id WHERE p.layout_version_id=? ORDER BY p.placement_rank`).bind(row.id).all();
-  return {id:row.id,type:row.layout_type,direction:row.direction,revision:Number(row.revision),targetCount:Number(row.target_count),placedCount:Number(row.placed_count),unplacedCount:Number(row.unplaced_count),missingSpecsCount:Number(row.missing_specs_count),updatedAt:row.updated_at,publishedAt:row.published_at,updatedBy:row.updated_by_name||null,publishedBy:row.published_by_name||null,positions:(positions.results||[]).map(p=>({memberId:Number(p.member_id),nickname:p.nickname,rank:Number(p.placement_rank),row:Number(p.grid_row),col:Number(p.grid_col),locked:Boolean(p.is_locked)}))};
+  return {id:row.id,type:row.layout_type,direction:row.direction,revision:Number(row.revision),targetCount:Number(row.target_count),placedCount:Number(row.placed_count),unplacedCount:Number(row.unplaced_count),missingSpecsCount:Number(row.missing_specs_count),updatedAt:row.updated_at,publishedAt:row.published_at,updatedBy:row.updated_by_name||null,publishedBy:row.published_by_name||null,positions:(positions.results||[]).map(p=>({memberId:Number(p.member_id),nickname:p.nickname,power:p.power??null,industryLevel:p.industry_level??null,rank:Number(p.placement_rank),row:Number(p.grid_row),col:Number(p.grid_col),locked:Boolean(p.is_locked)}))};
 }
 
 function validateAlliancePositions(direction,positions,eligibleIds){
@@ -2421,9 +2421,10 @@ async function handleAllianceLayoutRestore(request,id,env){
   await writeAdminLog(env,request,{actor:admin,category:"alliance_layout",action:"publication_restored",targetType:"alliance_layout",targetId:newId,targetName:String(id)});return json({ok:true,data:{id:newId}});
 }
 
-async function handleAllianceLayoutPublic(env){
+async function handleAllianceLayoutPublic(request,env){
+  const member=await requireMember(request,env.DB);if(member instanceof Response)return member;
   const layout=await loadAllianceVersion(env.DB,"published");if(!layout)return json({ok:true,data:{layout:null}});
-  return json({ok:true,data:{layout:{direction:layout.direction,publishedAt:layout.publishedAt,positions:layout.positions.map(p=>({nickname:p.nickname,rank:p.rank,row:p.row,col:p.col}))}}});
+  return json({ok:true,data:{currentMemberId:Number(member.id),layout:{direction:layout.direction,publishedAt:layout.publishedAt,placedCount:layout.positions.length,positions:layout.positions.map(p=>({memberId:p.memberId,nickname:p.nickname,power:p.power,industryLevel:p.industryLevel,rank:p.rank,row:p.row,col:p.col}))}}});
 }
 
 // -----------------------------------------------------------------------------

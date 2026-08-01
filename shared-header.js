@@ -151,14 +151,14 @@
   const SHOW_SEASON_5_MENU = false; // v239: preserve Season 5 page/data, hide menu for all users
 
   const NAV_LABELS = {
-    ko: { home:'홈', immigration:'이민 신청', vote:'투표', capitalWar:'수도전', seasonUpcoming:'시즌 6', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팁', request:'요청 게시판', accounts:'계정 마켓', game:'미니게임', logo:'로고' },
-    en: { home:'HOME', immigration:'MIGRATION', vote:'VOTE', capitalWar:'CAPITAL WAR', seasonUpcoming:'SEASON 6', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TIPS', request:'REQUEST BOARD', accounts:'ACCOUNT MARKET', game:'MINI GAMES', logo:'LOGO' },
-    pt: { home:'INÍCIO', immigration:'MIGRAÇÃO', vote:'VOTAÇÃO', capitalWar:'GUERRA DA CAPITAL', seasonUpcoming:'TEMPORADA 6', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'DICAS', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'MINIJOGOS', logo:'LOGO' },
-    vi: { home:'TRANG CHỦ', immigration:'ĐĂNG KÝ DI CƯ', vote:'BÌNH CHỌN', capitalWar:'CHIẾN TRANH THỦ ĐÔ', seasonUpcoming:'MÙA 6', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'MẸO', request:'BẢNG YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'TRÒ CHƠI NHỎ', logo:'LOGO' },
-    ar: { home:'الرئيسية', immigration:'طلب الهجرة', vote:'التصويت', capitalWar:'حرب العاصمة', seasonUpcoming:'الموسم 6', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'لوحة الطلبات', accounts:'سوق الحسابات', game:'الألعاب المصغرة', logo:'الشعار' },
-    ja: { home:'ホーム', immigration:'移民申請', vote:'投票', capitalWar:'首都戦', seasonUpcoming:'シーズン6', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト掲示板', accounts:'アカウントマーケット', game:'ミニゲーム', logo:'ロゴ' },
-    th: { home:'หน้าแรก', immigration:'สมัครย้ายเซิร์ฟเวอร์', vote:'โหวต', capitalWar:'สงครามเมืองหลวง', seasonUpcoming:'ซีซัน 6', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'กระดานคำขอ', accounts:'ตลาดบัญชี', game:'มินิเกม', logo:'โลโก้' },
-    'zh-tw': { home:'首頁', immigration:'移民申請', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', accounts:'帳號市集', game:'小遊戲', logo:'標誌' }
+    ko: { home:'홈', immigration:'이민 신청', vote:'투표', capitalWar:'수도전', seasonUpcoming:'시즌 6', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팁', request:'요청 게시판', allianceLayout:'연맹 배치도', accounts:'계정 마켓', game:'미니게임', logo:'로고' },
+    en: { home:'HOME', immigration:'MIGRATION', vote:'VOTE', capitalWar:'CAPITAL WAR', seasonUpcoming:'SEASON 6', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TIPS', request:'REQUEST BOARD', allianceLayout:'ALLIANCE LAYOUT', accounts:'ACCOUNT MARKET', game:'MINI GAMES', logo:'LOGO' },
+    pt: { home:'INÍCIO', immigration:'MIGRAÇÃO', vote:'VOTAÇÃO', capitalWar:'GUERRA DA CAPITAL', seasonUpcoming:'TEMPORADA 6', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'DICAS', request:'SOLICITAÇÕES', allianceLayout:'MAPA DA ALIANÇA', accounts:'MERCADO DE CONTAS', game:'MINIJOGOS', logo:'LOGO' },
+    vi: { home:'TRANG CHỦ', immigration:'ĐĂNG KÝ DI CƯ', vote:'BÌNH CHỌN', capitalWar:'CHIẾN TRANH THỦ ĐÔ', seasonUpcoming:'MÙA 6', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'MẸO', request:'BẢNG YÊU CẦU', allianceLayout:'SƠ ĐỒ LIÊN MINH', accounts:'CHỢ TÀI KHOẢN', game:'TRÒ CHƠI NHỎ', logo:'LOGO' },
+    ar: { home:'الرئيسية', immigration:'طلب الهجرة', vote:'التصويت', capitalWar:'حرب العاصمة', seasonUpcoming:'الموسم 6', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'لوحة الطلبات', allianceLayout:'مخطط التحالف', accounts:'سوق الحسابات', game:'الألعاب المصغرة', logo:'الشعار' },
+    ja: { home:'ホーム', immigration:'移民申請', vote:'投票', capitalWar:'首都戦', seasonUpcoming:'シーズン6', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト掲示板', allianceLayout:'同盟配置図', accounts:'アカウントマーケット', game:'ミニゲーム', logo:'ロゴ' },
+    th: { home:'หน้าแรก', immigration:'สมัครย้ายเซิร์ฟเวอร์', vote:'โหวต', capitalWar:'สงครามเมืองหลวง', seasonUpcoming:'ซีซัน 6', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'กระดานคำขอ', allianceLayout:'ผังพันธมิตร', accounts:'ตลาดบัญชี', game:'มินิเกม', logo:'โลโก้' },
+    'zh-tw': { home:'首頁', immigration:'移民申請', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', allianceLayout:'聯盟配置圖', accounts:'帳號市集', game:'小遊戲', logo:'標誌' }
   };
 
   const MENU_UI = {
@@ -299,6 +299,7 @@
     { key:'capitalWar', href:`${base}/capital-war/` },
     { key:'vote', href:`${base}/vote/` },
     { key:'request', href:`${base}/request/` },
+    { key:'allianceLayout', href:`${base}/alliance-layout/` },
     { key:'logo', href:`${base}/logo/` }
   ];
   const menuByKey = new Map(menuItems.map(item => [item.key,item]));
@@ -510,12 +511,12 @@
     if (signedIn) {
       desktopNavItems.innerHTML = ['vote','bgb','capitalWar','members'].map(key=>navLinkMarkup(key)).join('');
       navMoreMenu.innerHTML = [
-        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','allianceLayout'],{seasonUpcoming:{comingSoon:true}}),
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
       mobileDrawerItems.innerHTML = [
         menuGroupMarkup(ui.activity,['vote','bgb','capitalWar','members'],{className:'nav-activity-grid'}),
-        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','allianceLayout'],{seasonUpcoming:{comingSoon:true}}),
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
     } else {
@@ -524,6 +525,7 @@
       desktopNavItems.innerHTML = guestPrimaryKeys.map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
       navMoreMenu.innerHTML = [
         menuGroupMarkup(ui.public,['game','accounts']),
+        menuGroupMarkup(ui.information,['allianceLayout'],{allianceLayout:{locked:true}}),
         menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
           bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
         })
@@ -532,6 +534,7 @@
         menuGroupMarkup('', guestMobileKeys,{
           seasonUpcoming:{locked:seasonLockedForGuest,comingSoon:true}
         }),
+        menuGroupMarkup(ui.information,['allianceLayout'],{allianceLayout:{locked:true}}),
         menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
           bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
         })
