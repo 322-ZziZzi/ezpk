@@ -351,6 +351,78 @@
   }
 }
 
+/* v348: shared EZPK frame applied without changing admin action semantics */
+:root{
+  --admin-page-bg:#05070b;
+  --admin-surface:#111823;
+  --admin-surface-deep:#0b1018;
+  --admin-common-border:rgba(255,255,255,.10);
+  --admin-common-muted:#aeb8c7;
+  --admin-common-radius:16px;
+  --admin-brand:#f5c547;
+}
+body{background:var(--admin-page-bg)}
+.admin-auth-host .admin-context-brand,
+.admin-auth-host .admin-context-brand b{color:var(--admin-brand)!important}
+#adminApp .admin-hero h1{color:var(--admin-brand)}
+#adminApp .admin-hero p{color:var(--admin-common-muted)}
+@media(min-width:761px){
+  #adminApp .manager-card{
+    border:1px solid var(--admin-common-border)!important;
+    border-radius:var(--admin-common-radius)!important;
+    background:linear-gradient(180deg,var(--admin-surface),var(--admin-surface-deep))!important;
+    box-shadow:0 18px 48px rgba(0,0,0,.24)!important;
+  }
+}
+@media(max-width:760px){
+  #adminApp .manager-card{background:transparent!important;box-shadow:none!important}
+}
+#adminApp .admin-page-header{border-bottom-color:var(--admin-common-border)}
+#adminApp .admin-page-heading h2{color:#fff}
+#adminApp .admin-page-heading p{color:var(--admin-common-muted)}
+#adminApp input:not([type="checkbox"]):not([type="radio"]),
+#adminApp select,
+#adminApp textarea{
+  border-color:rgba(255,255,255,.14)!important;
+  background:#080d15!important;
+  color:#fff!important;
+}
+#adminApp input:not([type="checkbox"]):not([type="radio"]):hover,
+#adminApp select:hover,
+#adminApp textarea:hover{border-color:rgba(255,255,255,.24)!important}
+#adminApp .table-wrap,
+#adminApp .v188-table-wrap,
+#adminApp .admin-log-table-wrap{border-color:var(--admin-common-border)}
+.s6-vote-modal-card,
+.admin-account-image-modal article{
+  border-color:var(--admin-common-border)!important;
+  border-radius:var(--admin-common-radius)!important;
+  background:linear-gradient(180deg,var(--admin-surface),var(--admin-surface-deep))!important;
+}
+#adminApp .v188-detail-empty,
+#adminApp .vote-admin-empty,
+#adminApp .account-empty-admin,
+#adminApp .empty-admin,
+#adminApp .s6-empty,
+#adminApp .system-empty-state{
+  border-color:rgba(255,255,255,.12)!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.025)!important;
+  color:var(--admin-common-muted)!important;
+}
+.admin-toast{border-radius:12px;border-color:rgba(77,225,129,.28);background:#142019;color:#d9ffe6}
+.admin-toast.error{border-color:rgba(239,68,68,.30);background:#2a1517;color:#ffd8dc}
+@media(max-width:760px){
+  #adminApp .admin-panel{padding-inline:0!important}
+  #adminApp .admin-page-header{padding-inline:0!important}
+  #adminApp .admin-page-heading p{line-height:1.55}
+  .s6-vote-modal,.admin-account-image-modal{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  #adminApp .admin-panel{animation:none}
+  #adminApp button,#adminApp input,#adminApp select,#adminApp textarea{transition:none!important}
+}
+
 /* v317: final shared width authority for Member, Capital War, and Vote */
 @media (min-width:761px){
   #adminApp #membersPanel,

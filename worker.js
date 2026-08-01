@@ -602,6 +602,17 @@ async function readStrategyContentD1(env, origin, path, options = {}) {
 async function writeStrategyContentD1(env, path, content) {
   const key = strategyContentKey(path);
   if (!key) throw new HttpError(400, "CONTENT_PATH_NOT_ALLOWED");
+  const previous = await env.DB.prepare(
+    "SELECT content_json FROM strategy_content WHERE content_key = ?"
+  ).bind(key).first();
+  if (previous?.content_json) {
+    // Keep a server-side snapshot before every overwrite. History failure must
+    // not silently turn a protected save into an unprotected one.
+    await env.DB.prepare(`
+      INSERT INTO strategy_content_history(content_key, content_json, created_at)
+      VALUES(?, ?, CURRENT_TIMESTAMP)
+    `).bind(key, previous.content_json).run();
+  }
   await env.DB.prepare(`
     INSERT INTO strategy_content(content_key, content_json, updated_at)
     VALUES(?, ?, CURRENT_TIMESTAMP)

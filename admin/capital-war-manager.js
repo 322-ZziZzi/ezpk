@@ -8,7 +8,8 @@ const META={
   mobile:{label:'기동대',w:{v1:.60,v2:.05,ind:.20,power:.15}},
   support:{label:'지원조',w:null}
 };
-let selectedRule='capital',selectedResult='capital',participantSort='vehicle1-desc',sha='',loaded=false,voteSource=null;
+let selectedRule='capital',selectedResult='capital',participantSort='vehicle1-desc',sha='',loaded=false,membersReady=false,bound=false,loadError=null,voteSource=null;
+let loadedRosterCount=0;
 let restoredPublishedNames=new Set();
 let cw=blank();
 
@@ -26,22 +27,24 @@ const map=()=>new Map(membersData.members.map(m=>[m.nickname,m]));
 const uniq=a=>[...new Set(Array.isArray(a)?a.map(String):[])];
 
 function normalize(d){
-  const o=blank(),names=new Set(membersData.members.map(m=>m.nickname));
+  const o=blank();
   Object.assign(o.settings,d?.settings||{});
   o.settings.targets={...o.settings.targets,...(d?.settings?.targets||{})};
   o.lastUpdated=String(d?.lastUpdated||'');
-  o.draft.participants=uniq(d?.draft?.participants).filter(n=>names.has(n));
+  // Persisted assignments are authoritative. Member status changes, nickname
+  // changes, or a temporarily unavailable member API must never erase them.
+  o.draft.participants=uniq(d?.draft?.participants);
   o.draft.fixedTeams={};
   for(const [n,k] of Object.entries(d?.draft?.fixedTeams||{})){
-    if(names.has(n)&&['auto',...TEAMS,'exclude'].includes(k))o.draft.fixedTeams[n]=k;
+    if(['auto',...TEAMS,'exclude'].includes(k))o.draft.fixedTeams[n]=k;
   }
   const used=new Set();
   for(const k of TEAMS){
     // Keep valid saved assignments even when the participant checkbox is currently off.
     // Duplicate assignments are resolved by retaining the first valid team in TEAMS order.
-    o.draft.teams[k]=uniq(d?.draft?.teams?.[k]).filter(n=>names.has(n)&&!used.has(n));
+    o.draft.teams[k]=uniq(d?.draft?.teams?.[k]).filter(n=>!used.has(n));
     o.draft.teams[k].forEach(n=>used.add(n));
-    o.published.teams[k]=uniq(d?.published?.teams?.[k]).filter(n=>names.has(n));
+    o.published.teams[k]=uniq(d?.published?.teams?.[k]);
   }
   o.published.publishedAt=String(d?.published?.publishedAt||'');
   o.published.lastUpdated=String(d?.published?.lastUpdated||'');
@@ -54,7 +57,11 @@ function power(m){return Number(m?.power||0)||0;}
 function fvp(x){return window.EZPKVehiclePower?.formatNormalized(x,{maximumFractionDigits:1,mMaximumFractionDigits:0})||'-';}
 function fcp(x){return window.EZPKVehiclePower?.formatCombatPower(x)||'-';}
 function find(x){return window.EZPKVehiclePower?.formatIndustryLevel(x)||'-';}
-function memberMeta(n){const m=map().get(n);return `${find(ind(m))} • ${fvp(v(m,1))} • ${fvp(v(m,2))} • CP ${fcp(power(m))}`;}
+function memberMeta(n){const m=map().get(n);return m?`${find(ind(m))} • ${fvp(v(m,1))} • ${fvp(v(m,2))} • CP ${fcp(power(m))}`:'현재 회원 목록에 없음 · 저장 명단 유지';}
+
+function rosterCount(data=cw,section='draft'){
+  return TEAMS.reduce((sum,key)=>sum+(Array.isArray(data?.[section]?.teams?.[key])?data[section].teams[key].length:0),0);
+}
 
 function targets(){
   const n=cw.draft.participants.length,t=cw.settings.targets||{};
@@ -95,10 +102,9 @@ function setMemberTeam(n,k,{ensureParticipant=true,syncFixed=true}={}){
 }
 
 function normalizeDraftTeams(){
-  const valid=new Set([...membersData.members.map(m=>m.nickname),...restoredPublishedNames]);
   const used=new Set();
   for(const k of TEAMS){
-    cw.draft.teams[k]=uniq(cw.draft.teams[k]).filter(n=>valid.has(n)&&!used.has(n));
+    cw.draft.teams[k]=uniq(cw.draft.teams[k]).filter(n=>!used.has(n));
     cw.draft.teams[k].forEach(n=>used.add(n));
   }
 }
@@ -252,7 +258,7 @@ function render(){
 
   const list=cw.draft.teams[selectedResult]||[];
   document.querySelector('#cwResultList').innerHTML=list.length
-    ?list.map(n=>`<label><span><b>${esc(n)}</b><small>${esc(memberMeta(n))}</small></span><select data-cw-move="${esc(n)}">${TEAMS.map(k=>`<option value="${k}" ${k===selectedResult?'selected':''}>${META[k].label}</option>`).join('')}<option value="none">미배정</option></select></label>`).join('')
+    ?list.map(n=>`<label class="${map().has(n)?'':'cw-member-unavailable'}"><span><b>${esc(n)}</b><small>${esc(memberMeta(n))}</small></span><select data-cw-move="${esc(n)}">${TEAMS.map(k=>`<option value="${k}" ${k===selectedResult?'selected':''}>${META[k].label}</option>`).join('')}<option value="none">미배정</option></select></label>`).join('')
     :'<p class="s6-empty">배정된 멤버가 없습니다.</p>';
 
   document.querySelectorAll('[data-cw-move]').forEach(x=>x.onchange=()=>{
@@ -354,11 +360,21 @@ async function openVote(){
 }
 
 async function load(){
+  if(!membersReady)return;
+  loadError=null;
   try{
-    const r=await githubGetFile('data/capital-war.json');sha=r.sha;cw=normalize(r.data);
+    const r=await githubGetFile('data/capital-war.json');
+    if(!r?.data||typeof r.data!=='object')throw new Error('CAPITAL_WAR_CONTENT_INVALID');
+    sha=r.sha;cw=normalize(r.data);
   }catch(e){
-    const r=await fetch('../data/capital-war.json?v='+Date.now(),{cache:'no-store'});cw=normalize(await r.json());
+    loadError=e;
+    loaded=false;
+    console.error('Capital War D1 load failed',e);
+    alert('수도전 편성 데이터를 불러오지 못했습니다. 데이터 보호를 위해 저장과 노출을 중지합니다. 페이지를 새로고침한 뒤 다시 확인해 주세요.');
+    return;
   }
+  loadedRosterCount=Math.max(rosterCount(cw,'draft'),rosterCount(cw,'published'));
+  restoredPublishedNames=new Set(TEAMS.flatMap(key=>cw.published.teams[key]||[]));
   loaded=true;render();
 }
 
@@ -519,17 +535,26 @@ async function loadPublishedIntoDraft(){
 }
 
 async function save(expose=false){
+  if(loadError||!loaded)throw new Error('CAPITAL_WAR_NOT_SAFELY_LOADED');
   syncSettings();
   normalizeDraftTeams();
+  const currentCount=rosterCount(cw,'draft');
+  if(loadedRosterCount>0&&currentCount===0){
+    const confirmed=confirm(`기존 수도전 편성 ${loadedRosterCount}명이 있었지만 현재 편집 명단은 0명입니다.\n\n전체 편성을 의도적으로 삭제하는 경우에만 확인을 눌러주세요.`);
+    if(!confirmed)throw new Error('CAPITAL_WAR_EMPTY_SAVE_CANCELLED');
+  }
   cw.lastUpdated=todayKst();
   if(expose)cw.published={publishedAt:new Date().toISOString(),lastUpdated:cw.lastUpdated,teams:Object.fromEntries(TEAMS.map(k=>[k,[...(cw.draft.teams[k]||[])]]))};
   if(!sha){const r=await githubGetFile('data/capital-war.json');sha=r.sha;}
   sha=await githubPutFile('data/capital-war.json',cw,sha,`${expose?'Publish':'Save'} Capital War ${cw.lastUpdated}`);
+  loadedRosterCount=Math.max(rosterCount(cw,'draft'),rosterCount(cw,'published'));
   render();
   showAdminToast(expose?'수도전 노출 완료 ✓':'수도전 저장 완료 ✓');
 }
 
 function bind(){
+  if(bound)return;
+  bound=true;
   document.querySelectorAll('[data-cw-rule]').forEach(b=>b.onclick=()=>{selectedRule=b.dataset.cwRule;renderRules();});
   document.querySelectorAll('[data-cw-result]').forEach(b=>b.onclick=()=>{selectedResult=b.dataset.cwResult;render();});
   document.querySelector('#cwSearch').oninput=render;
@@ -540,12 +565,19 @@ function bind(){
   document.querySelector('#cwClearAll').onclick=()=>{voteSource=null;cw.draft.participants=[];cw.draft.teams={capital:[],tower:[],mobile:[],support:[]};render();};
   document.querySelector('#cwAutoAssign').onclick=autoAssign;
   document.querySelector('#cwReset').onclick=()=>{if(confirm('현재 팀 배정을 초기화할까요?')){cw.draft.teams={capital:[],tower:[],mobile:[],support:[]};render();}};
-  document.querySelector('#cwSave').onclick=()=>save(false).catch(e=>alert(adminErrorMessage(e)));
-  document.querySelector('#cwPublish').onclick=()=>save(true).catch(e=>alert(adminErrorMessage(e)));
+  const handleSaveError=e=>{
+    if(e?.message==='CAPITAL_WAR_EMPTY_SAVE_CANCELLED')return;
+    alert(adminErrorMessage(e));
+  };
+  document.querySelector('#cwSave').onclick=()=>save(false).catch(handleSaveError);
+  document.querySelector('#cwPublish').onclick=()=>save(true).catch(handleSaveError);
   document.querySelectorAll('#capitalWarPanel input').forEach(x=>x.onchange=()=>{syncSettings();render();});
 }
 
-window.addEventListener('ezpk-admin-ready',()=>load().then(bind));
-window.addEventListener('ezpk-admin-members-updated',()=>{if(loaded){cw=normalize(cw);render();}else load().then(bind);});
-if(document.readyState!=='loading')setTimeout(()=>{if(document.querySelector('#adminApp')&&!loaded)load().then(bind).catch(()=>{});},500);
+window.addEventListener('ezpk-admin-ready',()=>{bind();});
+window.addEventListener('ezpk-admin-members-updated',()=>{
+  membersReady=true;
+  if(loaded)render();
+  else load().then(bind).catch(error=>console.error('Capital War load failed',error));
+});
 })();
