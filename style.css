@@ -1707,7 +1707,7 @@ html[dir="rtl"] .event-badges{justify-content:flex-start}
 .home-member-content .event-schedule-grid{width:min(1400px,100%)}
 .home-member-content .event-card{box-shadow:none;background:#0d141e}
 .home-quick-section{padding:44px 0 76px;background:#05070b}
-.home-quick-grid{width:min(1200px,100%);margin:25px auto 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.home-quick-grid{width:min(1200px,100%);margin:25px auto 0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
 .home-quick-grid a{
   min-width:0;
   min-height:70px;
@@ -1754,6 +1754,7 @@ footer span{display:block;line-height:1.55}
   .home-member-content .schedule-section{padding:56px 0 36px}
   .home-quick-section{padding:36px 0 58px}
   .home-quick-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:20px}
+  .home-quick-grid .home-quick-specs{grid-column:1/-1}
   .home-quick-grid a{min-height:64px;padding:10px;font-size:14px}
   .home-auth-member .ezpk-video-section{padding-bottom:60px}
 }
