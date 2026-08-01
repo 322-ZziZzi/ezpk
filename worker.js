@@ -225,14 +225,12 @@ async function handleSetupAdmin(request, env, url) {
   const password = String(body.password ?? "");
   const passwordConfirm = String(body.passwordConfirm ?? "");
   const nickname = cleanString(body.nickname, 64);
-  const power = toPositiveInteger(body.power);
-  const industryLevel = String(body.industryLevel ?? "").toUpperCase();
 
   if (!setupKey || !constantTimeEqual(setupKey, env.ADMIN_SETUP_KEY)) {
     return jsonError("INVALID_SETUP_KEY", 403);
   }
 
-  if (!nickname || !power || !isIndustryLevel(industryLevel)) {
+  if (!nickname) {
     return jsonError("VALIDATION_ERROR", 400);
   }
 
@@ -271,13 +269,13 @@ async function handleSetupAdmin(request, env, url) {
       passwordData.salt,
       passwordData.iterations,
       nickname,
-      power,
-      industryLevel,
+      null,
+      null,
     ),
 
     env.DB.prepare(`
-      INSERT INTO member_specs (member_id)
-      SELECT id FROM members WHERE login_id = ?
+      INSERT INTO member_specs (member_id, profile_specs_registered)
+      SELECT id, 0 FROM members WHERE login_id = ?
     `).bind(adminLoginId),
 
     env.DB.prepare(`

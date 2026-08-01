@@ -21,3 +21,39 @@
   background:rgba(255,196,64,.14);
   border:1px solid rgba(255,215,102,.36);
 }
+
+/* v350: shared authentication color system for the initial administrator flow */
+.admin-setup-section{
+  --auth-blue:#2563eb;
+  --auth-blue-hover:#1d4ed8;
+  --auth-blue-focus:#60a5fa;
+  --auth-gold:#d8b94f;
+  background:linear-gradient(180deg,rgba(17,26,39,.72),rgba(8,13,21,.72));
+}
+.controls .admin-setup-section[open] summary{color:var(--auth-gold)}
+.admin-setup-section .admin-setup-hint{
+  border-color:rgba(216,185,79,.28);
+  background:rgba(216,185,79,.07);
+  color:#cbd5e1;
+}
+.admin-setup-section .form-grid input{
+  min-height:46px;
+  border-color:#344155;
+  background:#0b121d;
+  color:#fff;
+}
+.admin-setup-section .form-grid input:hover{border-color:#46566d}
+.admin-setup-section .form-grid input:focus{
+  border-color:var(--auth-gold);
+  box-shadow:0 0 0 3px rgba(216,185,79,.11);
+}
+.admin-setup-section .button.primary{
+  min-height:48px;
+  border-color:#3b82f6;
+  background:var(--auth-blue);
+  color:#fff;
+}
+.admin-setup-section .button.primary:hover{
+  border-color:var(--auth-blue-focus);
+  background:var(--auth-blue-hover);
+}

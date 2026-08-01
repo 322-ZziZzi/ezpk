@@ -119,7 +119,6 @@ document.querySelectorAll('[data-action]').forEach(button => {
 document.querySelector('#adminForm').addEventListener('submit', async event => {
   event.preventDefault();
   const data = formObject(event.currentTarget);
-  data.power = Number(data.power);
   const result = await jsonPost('/api/setup/admin', data);
   if (result.response.ok) applyMemberToDeveloperCenter(result.body?.data?.member || null);
 });

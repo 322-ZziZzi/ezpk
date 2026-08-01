@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <title>EZPK Developer Center</title>
-  <link rel="stylesheet" href="./dev.css">
+  <link rel="stylesheet" href="./dev.css?v=3500">
 
 <style>
 @media (min-width:901px){
@@ -60,16 +60,14 @@
           </div>
         </details>
 
-        <details>
+        <details class="admin-setup-section">
           <summary>최초 관리자 생성</summary>
-          <p class="hint danger">관리자 생성 전용입니다. 생성되는 ezpk_admin 계정은 관리자 전용 R5로 저장됩니다. ADMIN_SETUP_KEY와 관리자 비밀번호를 입력하세요. 성공 후에는 setup key를 다시 노출하지 마세요.</p>
+          <p class="hint admin-setup-hint">관리자 생성 전용입니다. 생성되는 ezpk_admin 계정은 관리자 전용 R5로 저장됩니다. 전투력과 산업 레벨은 로그인 후 세부 스펙에서 등록하세요. 성공 후에는 setup key를 다시 노출하지 마세요.</p>
           <form id="adminForm" class="form-grid">
             <label>ADMIN_SETUP_KEY<input name="setupKey" type="password" autocomplete="off" required></label>
             <label>관리자 비밀번호<input name="password" type="password" autocomplete="new-password" required></label>
             <label>비밀번호 확인<input name="passwordConfirm" type="password" autocomplete="new-password" required></label>
             <label>닉네임<input name="nickname" value="Alliance Bot" required></label>
-            <label>전투력<input name="power" type="number" min="1" value="1" required></label>
-            <label>산업 레벨<select name="industryLevel"><option>I10</option><option>I9</option><option>I8</option></select></label>
             <button class="button primary full" type="submit">ezpk_admin 생성</button>
           </form>
         </details>
