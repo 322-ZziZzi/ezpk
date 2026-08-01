@@ -461,6 +461,16 @@
       if (navMore) navMore.hidden = true;
       return;
     }
+    // v331: never paint the guest menu while an existing session is still
+    // being verified. This prevents Immigration from flashing after a signed-in
+    // member follows Vote or another protected navigation link.
+    if (!authLoaded) {
+      desktopNavItems.innerHTML = '';
+      navMoreMenu.innerHTML = '';
+      mobileDrawerItems.innerHTML = '';
+      navMore.hidden = true;
+      return;
+    }
     const ui = menuUi(lang);
     const signedIn = activeMemberSignedIn();
     const seasonLockedForGuest = !signedIn && (!strategyAccess.loaded || strategyAccess.season6Locked);
@@ -1074,7 +1084,9 @@
   });
   mobileDrawer.addEventListener('click', function (event) {
     if (!event.target.closest('a')) return;
-    if (!event.target.closest('a[data-nav-locked="true"]')) setMobileMenuOpen(false);
+    // A real navigation must not call history.back(); doing so can win the
+    // race against the clicked href and restore the previous guest menu.
+    if (!event.target.closest('a[data-nav-locked="true"]')) setMobileMenuOpen(false,true);
   });
 
   document.addEventListener('click',function(e){
