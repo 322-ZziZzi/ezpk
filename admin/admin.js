@@ -8,7 +8,7 @@ let adminSessionReady=false;
 let adminSessionPendingState=null;
 let verifiedAdminMember=null;
 let currentAdminAccess={adminLevel:null,permissions:null,loaded:false};
-const ADMIN_PANEL_PERMISSION_MAP={membersPanel:'members',eventsPanel:'events',votePanel:'vote',bgbPanel:'bgb',capitalWarPanel:'capitalWar',season6Panel:'season',requestsPanel:'requests',accountsPanel:'accounts'};
+const ADMIN_PANEL_PERMISSION_MAP={membersPanel:'members',eventsPanel:'events',votePanel:'vote',allianceLayoutPanel:'allianceLayout',bgbPanel:'bgb',capitalWarPanel:'capitalWar',season6Panel:'season',requestsPanel:'requests',accountsPanel:'accounts'};
 
 function adminHasMenuPermission(key){
   const level=String(currentAdminAccess.adminLevel||verifiedAdminMember?.adminLevel||verifiedAdminMember?.admin_level||'').toLowerCase();
@@ -637,4 +637,3 @@ function adminPersistedSection(target){
 document.addEventListener('input',event=>{const section=adminPersistedSection(event.target);if(section)markAdminDirty(section)});
 document.addEventListener('change',event=>{const section=adminPersistedSection(event.target);if(section)markAdminDirty(section)});
 window.addEventListener('beforeunload',event=>{if(!window.ezpkAdminDirty)return;event.preventDefault();event.returnValue=''});
-

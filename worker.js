@@ -90,6 +90,11 @@ export default {
         if (request.method === "DELETE" && !action) return handleAdminRequestDelete(request, requestId, env);
       }
 
+      const alliancePublicationMatch = url.pathname.match(/^\/api\/admin\/alliance-layout\/publications\/(\d+)\/restore$/);
+      if (alliancePublicationMatch && request.method === "POST") {
+        return handleAllianceLayoutRestore(request, Number(alliancePublicationMatch[1]), env);
+      }
+
       switch (route) {
         case "GET /api/db-test":
           return handleDbTest(env);
@@ -165,6 +170,20 @@ export default {
           return handleAdminMenuPermissionsGet(request, env);
         case "PUT /api/admin/menu-permissions":
           return handleAdminMenuPermissionsPut(request, env);
+        case "GET /api/admin/alliance-layout":
+          return handleAllianceLayoutAdminGet(request, env);
+        case "GET /api/admin/alliance-layout/members":
+          return handleAllianceLayoutMembers(request, env);
+        case "POST /api/admin/alliance-layout/auto-place":
+          return handleAllianceLayoutAutoPlace(request, env);
+        case "PUT /api/admin/alliance-layout/draft":
+          return handleAllianceLayoutDraftPut(request, env);
+        case "POST /api/admin/alliance-layout/publish":
+          return handleAllianceLayoutPublish(request, env);
+        case "GET /api/admin/alliance-layout/publications":
+          return handleAllianceLayoutPublications(request, env);
+        case "GET /api/alliance-layout":
+          return handleAllianceLayoutPublic(env);
 
         case "POST /api/admin/members/bulk":
           return handleAdminMembersBulk(request, env);
@@ -2110,13 +2129,14 @@ async function handleAdminMemberPermissions(request, memberId, env) {
   return json({ok:true,data:{adminLevel:next,role:next?"admin":"member"}});
 }
 
-const ADMIN_MENU_PERMISSION_KEYS=["members","events","vote","bgb","capitalWar","season","requests","accounts"];
+const ADMIN_MENU_PERMISSION_KEYS=["members","events","vote","allianceLayout","bgb","capitalWar","season","requests","accounts"];
 
 function normalizeAdminMenuPermissions(source={}){
   return {
     members:Boolean(source.members ?? true),
     events:Boolean(source.events ?? true),
     vote:Boolean(source.vote ?? true),
+    allianceLayout:Boolean(source.allianceLayout ?? source.alliance_layout ?? true),
     bgb:Boolean(source.bgb ?? true),
     capitalWar:Boolean(source.capitalWar ?? source.capital_war ?? true),
     season:Boolean(source.season ?? true),
@@ -2156,8 +2176,8 @@ async function handleAdminMenuPermissionsPut(request,env){
   const values=ADMIN_MENU_PERMISSION_KEYS.map(key=>permissions[key]?1:0);
   const beforeRow=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
   await env.DB.prepare(`INSERT INTO admin_menu_permissions
-    (member_id,members,events,vote,bgb,capital_war,season,requests,accounts,updated_at) VALUES(?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
-    ON CONFLICT(member_id) DO UPDATE SET members=excluded.members,events=excluded.events,vote=excluded.vote,bgb=excluded.bgb,capital_war=excluded.capital_war,season=excluded.season,requests=excluded.requests,accounts=excluded.accounts,updated_at=CURRENT_TIMESTAMP`)
+    (member_id,members,events,vote,alliance_layout,bgb,capital_war,season,requests,accounts,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
+    ON CONFLICT(member_id) DO UPDATE SET members=excluded.members,events=excluded.events,vote=excluded.vote,alliance_layout=excluded.alliance_layout,bgb=excluded.bgb,capital_war=excluded.capital_war,season=excluded.season,requests=excluded.requests,accounts=excluded.accounts,updated_at=CURRENT_TIMESTAMP`)
     .bind(subAdmin.id,...values).run();
   await env.DB.prepare('DELETE FROM sessions WHERE member_id=?').bind(subAdmin.id).run();
   await writeAdminLog(env,request,{actor:admin,category:'admin_permission',action:'menu_permissions_saved',targetType:'member',targetId:subAdmin.id,targetName:subAdmin.nickname,before:beforeRow?normalizeAdminMenuPermissions(beforeRow):null,after:permissions});
@@ -2258,6 +2278,152 @@ async function sha256Hex(value) {
     new TextEncoder().encode(value),
   );
   return bytesToHex(new Uint8Array(digest));
+}
+
+// -----------------------------------------------------------------------------
+// v351 Alliance layout
+// -----------------------------------------------------------------------------
+
+const ALLIANCE_DIRECTIONS=["top","bottom","left","right"];
+
+function allianceFrame(direction){
+  if(direction==="top")return {rs:3,re:4,cs:4,ce:7};
+  if(direction==="bottom")return {rs:5,re:6,cs:4,ce:7};
+  if(direction==="left")return {rs:4,re:5,cs:3,ce:6};
+  return {rs:4,re:5,cs:4,ce:7};
+}
+
+function allianceTemplate(direction){
+  const frame=allianceFrame(direction),cells=[];
+  const inside=(row,col)=>row>=frame.rs&&row<=frame.re&&col>=frame.cs&&col<=frame.ce;
+  for(let row=0;row<10;row++)for(let col=0;col<11;col++)if(!inside(row,col)){
+    const dx=col<frame.cs?frame.cs-col:col>frame.ce?col-frame.ce:0;
+    const dy=row<frame.rs?frame.rs-row:row>frame.re?row-frame.re:0;
+    let angle=Math.atan2(col-(frame.cs+frame.ce)/2,(frame.rs+frame.re)/2-row);
+    if(angle<0)angle+=Math.PI*2;
+    cells.push({row,col,distance:Math.max(dx,dy),angle});
+  }
+  cells.sort((a,b)=>a.distance-b.distance||a.angle-b.angle||a.row-b.row||a.col-b.col);
+  const fixedColumns=direction==="right"?new Map([[97,2],[98,3],[99,4],[100,5],[73,6],[74,7]])
+    :direction==="left"?new Map([[97,1],[98,2],[99,3],[100,4],[73,5],[74,6],[75,7],[76,8]]):new Map();
+  const fixed=new Map([...fixedColumns].map(([rank,col])=>[rank,cells.find(cell=>cell.row===0&&cell.col===col)]));
+  const fixedKeys=new Set([...fixed.values()].map(cell=>`${cell.row}-${cell.col}`));
+  const emptyKeys=direction==="left"?new Set(["9-9","9-10"]):direction==="top"?new Set(["9-0","9-1"]):direction==="bottom"?new Set(["0-0","0-1"]):new Set();
+  const available=cells.filter(cell=>!fixedKeys.has(`${cell.row}-${cell.col}`)&&!emptyKeys.has(`${cell.row}-${cell.col}`));
+  const result=[];let next=0;
+  for(let rank=1;rank<=100;rank++)result.push({...((fixed.get(rank)||available[next++])),rank});
+  return result;
+}
+
+async function allianceEligibleMembers(db){
+  const rows=await db.prepare(`SELECT m.id,m.nickname,m.industry_level,m.power,m.updated_at,
+    s.profile_specs_registered,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,
+    s.vehicle2_class,s.vehicle2_power_value,s.vehicle2_power_unit,s.vehicle2_power_normalized
+    FROM members m LEFT JOIN member_specs s ON s.member_id=m.id
+    WHERE m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).all();
+  return (rows.results||[]).map(row=>({
+    id:Number(row.id),nickname:row.nickname,industryLevel:row.industry_level,power:row.power,
+    vehicle1Class:row.vehicle1_class,vehicle1PowerValue:row.vehicle1_power_value,vehicle1PowerUnit:row.vehicle1_power_unit,vehicle1PowerNormalized:row.vehicle1_power_normalized,
+    vehicle2Class:row.vehicle2_class,vehicle2PowerValue:row.vehicle2_power_value,vehicle2PowerUnit:row.vehicle2_power_unit,vehicle2PowerNormalized:row.vehicle2_power_normalized,
+    specsRegistered:Boolean(row.profile_specs_registered)&&row.industry_level!==null&&row.vehicle1_power_normalized!==null&&row.vehicle2_power_normalized!==null,
+    updatedAt:row.updated_at
+  }));
+}
+
+function allianceSortMembers(items){
+  const industry=value=>Number(String(value||"").replace(/\D/g,""))||0;
+  return [...items].sort((a,b)=>Number(b.vehicle1PowerNormalized||0)-Number(a.vehicle1PowerNormalized||0)||Number(b.vehicle2PowerNormalized||0)-Number(a.vehicle2PowerNormalized||0)||industry(b.industryLevel)-industry(a.industryLevel)||String(a.nickname).localeCompare(String(b.nickname),"en",{sensitivity:"base"})||a.id-b.id);
+}
+
+async function loadAllianceVersion(db,type){
+  const row=await db.prepare(`SELECT v.*,cu.nickname created_by_name,uu.nickname updated_by_name,pu.nickname published_by_name
+    FROM alliance_layout_versions v LEFT JOIN members cu ON cu.id=v.created_by_member_id LEFT JOIN members uu ON uu.id=v.updated_by_member_id LEFT JOIN members pu ON pu.id=v.published_by_member_id
+    WHERE v.layout_type=? ORDER BY ${type==="draft"?"v.id ASC":"v.published_at DESC,v.id DESC"} LIMIT 1`).bind(type).first();
+  if(!row)return null;
+  const positions=await db.prepare(`SELECT p.member_id,p.placement_rank,p.grid_row,p.grid_col,p.is_locked,m.nickname
+    FROM alliance_layout_positions p JOIN members m ON m.id=p.member_id WHERE p.layout_version_id=? ORDER BY p.placement_rank`).bind(row.id).all();
+  return {id:row.id,type:row.layout_type,direction:row.direction,revision:Number(row.revision),targetCount:Number(row.target_count),placedCount:Number(row.placed_count),unplacedCount:Number(row.unplaced_count),missingSpecsCount:Number(row.missing_specs_count),updatedAt:row.updated_at,publishedAt:row.published_at,updatedBy:row.updated_by_name||null,publishedBy:row.published_by_name||null,positions:(positions.results||[]).map(p=>({memberId:Number(p.member_id),nickname:p.nickname,rank:Number(p.placement_rank),row:Number(p.grid_row),col:Number(p.grid_col),locked:Boolean(p.is_locked)}))};
+}
+
+function validateAlliancePositions(direction,positions,eligibleIds){
+  if(!ALLIANCE_DIRECTIONS.includes(direction)||!Array.isArray(positions)||positions.length>100)return false;
+  const allowed=new Set(allianceTemplate(direction).map(cell=>`${cell.row}-${cell.col}`)),members=new Set(),coords=new Set(),ranks=new Set();
+  for(const item of positions){
+    const memberId=Number(item.memberId),rank=Number(item.rank),row=Number(item.row),col=Number(item.col),coord=`${row}-${col}`;
+    if(!eligibleIds.has(memberId)||!Number.isInteger(rank)||rank<1||rank>100||!allowed.has(coord)||members.has(memberId)||coords.has(coord)||ranks.has(rank))return false;
+    members.add(memberId);coords.add(coord);ranks.add(rank);
+  }
+  return true;
+}
+
+async function handleAllianceLayoutAdminGet(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const [draft,published,members]=await Promise.all([loadAllianceVersion(env.DB,"draft"),loadAllianceVersion(env.DB,"published"),allianceEligibleMembers(env.DB)]);
+  return json({ok:true,data:{draft,published,summary:{target:members.length,missingSpecs:members.filter(m=>!m.specsRegistered).length}}});
+}
+
+async function handleAllianceLayoutMembers(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const members=allianceSortMembers(await allianceEligibleMembers(env.DB));
+  return json({ok:true,data:{items:members,targetCount:members.length,missingSpecsCount:members.filter(m=>!m.specsRegistered).length}});
+}
+
+async function handleAllianceLayoutAutoPlace(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const body=await readJson(request),direction=String(body.direction||"");if(!ALLIANCE_DIRECTIONS.includes(direction))return jsonError("INVALID_DIRECTION",400);
+  const members=allianceSortMembers(await allianceEligibleMembers(env.DB)),memberMap=new Map(members.map(m=>[m.id,m])),template=allianceTemplate(direction),allowed=new Set(template.map(x=>`${x.row}-${x.col}`));
+  const locked=(Array.isArray(body.lockedPositions)?body.lockedPositions:[]).filter(x=>memberMap.has(Number(x.memberId))&&allowed.has(`${Number(x.row)}-${Number(x.col)}`)).slice(0,100);
+  const usedMembers=new Set(locked.map(x=>Number(x.memberId))),usedCoords=new Set(locked.map(x=>`${Number(x.row)}-${Number(x.col)}`));
+  const positions=locked.map(x=>({memberId:Number(x.memberId),rank:0,row:Number(x.row),col:Number(x.col),locked:true}));
+  const remainingMembers=members.filter(m=>!usedMembers.has(m.id)).slice(0,100-positions.length),remainingCells=template.filter(c=>!usedCoords.has(`${c.row}-${c.col}`));
+  remainingMembers.forEach((member,index)=>positions.push({memberId:member.id,rank:0,row:remainingCells[index].row,col:remainingCells[index].col,locked:false}));
+  const placedIds=new Set(positions.map(p=>p.memberId)),rankedMembers=members.filter(m=>placedIds.has(m.id)),rankMap=new Map(rankedMembers.map((m,i)=>[m.id,i+1]));positions.forEach(p=>p.rank=rankMap.get(p.memberId));positions.sort((a,b)=>a.rank-b.rank);
+  return json({ok:true,data:{direction,positions,targetCount:members.length,placedCount:positions.length,unplacedCount:Math.max(0,members.length-positions.length),missingSpecsCount:members.filter(m=>!m.specsRegistered).length}});
+}
+
+async function handleAllianceLayoutDraftPut(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const body=await readJson(request),direction=String(body.direction||""),positions=Array.isArray(body.positions)?body.positions:[],members=await allianceEligibleMembers(env.DB),eligibleIds=new Set(members.map(m=>m.id));
+  if(!validateAlliancePositions(direction,positions,eligibleIds))return jsonError("INVALID_LAYOUT",400);
+  const current=await env.DB.prepare("SELECT id,revision FROM alliance_layout_versions WHERE layout_type='draft' LIMIT 1").first(),expected=Number(body.revision||0);
+  if(current&&expected!==Number(current.revision))return jsonError("LAYOUT_REVISION_CONFLICT",409);
+  const counts={target:members.length,placed:positions.length,unplaced:Math.max(0,members.length-positions.length),missing:members.filter(m=>!m.specsRegistered).length};
+  let id,revision;
+  if(current){id=current.id;revision=Number(current.revision)+1;await env.DB.prepare(`UPDATE alliance_layout_versions SET direction=?,revision=?,target_count=?,placed_count=?,unplaced_count=?,missing_specs_count=?,updated_by_member_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(direction,revision,counts.target,counts.placed,counts.unplaced,counts.missing,admin.id,id).run();await env.DB.prepare("DELETE FROM alliance_layout_positions WHERE layout_version_id=?").bind(id).run();}
+  else{const result=await env.DB.prepare(`INSERT INTO alliance_layout_versions(layout_type,direction,revision,target_count,placed_count,unplaced_count,missing_specs_count,created_by_member_id,updated_by_member_id) VALUES('draft',?,1,?,?,?,?,?,?)`).bind(direction,counts.target,counts.placed,counts.unplaced,counts.missing,admin.id,admin.id).run();id=Number(result.meta.last_row_id);revision=1;}
+  if(positions.length)await env.DB.batch(positions.map(p=>env.DB.prepare(`INSERT INTO alliance_layout_positions(layout_version_id,member_id,placement_rank,grid_row,grid_col,is_locked) VALUES(?,?,?,?,?,?)`).bind(id,Number(p.memberId),Number(p.rank),Number(p.row),Number(p.col),p.locked?1:0)));
+  await writeAdminLog(env,request,{actor:admin,category:"alliance_layout",action:"draft_saved",targetType:"alliance_layout",targetId:id,targetName:`${direction}:${revision}`,after:counts});
+  return json({ok:true,data:{id,revision,...counts}});
+}
+
+async function handleAllianceLayoutPublish(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const body=await readJson(request),draft=await loadAllianceVersion(env.DB,"draft");if(!draft)return jsonError("LAYOUT_DRAFT_NOT_FOUND",404);
+  if(Number(body.revision)!==draft.revision)return jsonError("LAYOUT_REVISION_CONFLICT",409);
+  const members=await allianceEligibleMembers(env.DB);if(draft.positions.length!==members.length||members.length>100)return jsonError("LAYOUT_MEMBERS_CHANGED",409);
+  const result=await env.DB.prepare(`INSERT INTO alliance_layout_versions(layout_type,direction,revision,target_count,placed_count,unplaced_count,missing_specs_count,created_by_member_id,updated_by_member_id,published_by_member_id,published_at) VALUES('published',?,1,?,?,0,?,?,?, ?,CURRENT_TIMESTAMP)`).bind(draft.direction,members.length,draft.positions.length,members.filter(m=>!m.specsRegistered).length,admin.id,admin.id,admin.id).run();
+  const id=Number(result.meta.last_row_id);await env.DB.batch(draft.positions.map(p=>env.DB.prepare(`INSERT INTO alliance_layout_positions(layout_version_id,member_id,placement_rank,grid_row,grid_col,is_locked) VALUES(?,?,?,?,?,?)`).bind(id,p.memberId,p.rank,p.row,p.col,p.locked?1:0)));
+  await writeAdminLog(env,request,{actor:admin,category:"alliance_layout",action:"published",targetType:"alliance_layout",targetId:id,targetName:draft.direction,after:{placed:draft.positions.length}});
+  return json({ok:true,data:{id,publishedAt:new Date().toISOString()}});
+}
+
+async function handleAllianceLayoutPublications(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const rows=await env.DB.prepare(`SELECT v.id,v.direction,v.target_count,v.placed_count,v.missing_specs_count,v.published_at,m.nickname published_by FROM alliance_layout_versions v LEFT JOIN members m ON m.id=v.published_by_member_id WHERE v.layout_type='published' ORDER BY v.published_at DESC,v.id DESC LIMIT 30`).all();
+  return json({ok:true,data:{items:rows.results||[]}});
+}
+
+async function handleAllianceLayoutRestore(request,id,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
+  const source=await env.DB.prepare("SELECT * FROM alliance_layout_versions WHERE id=? AND layout_type='published'").bind(id).first();if(!source)return jsonError("LAYOUT_PUBLICATION_NOT_FOUND",404);
+  const result=await env.DB.prepare(`INSERT INTO alliance_layout_versions(layout_type,direction,revision,target_count,placed_count,unplaced_count,missing_specs_count,created_by_member_id,updated_by_member_id,published_by_member_id,published_at) VALUES('published',?,1,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`).bind(source.direction,source.target_count,source.placed_count,source.unplaced_count,source.missing_specs_count,admin.id,admin.id,admin.id).run();
+  const newId=Number(result.meta.last_row_id);await env.DB.prepare(`INSERT INTO alliance_layout_positions(layout_version_id,member_id,placement_rank,grid_row,grid_col,is_locked) SELECT ?,member_id,placement_rank,grid_row,grid_col,is_locked FROM alliance_layout_positions WHERE layout_version_id=?`).bind(newId,id).run();
+  await writeAdminLog(env,request,{actor:admin,category:"alliance_layout",action:"publication_restored",targetType:"alliance_layout",targetId:newId,targetName:String(id)});return json({ok:true,data:{id:newId}});
+}
+
+async function handleAllianceLayoutPublic(env){
+  const layout=await loadAllianceVersion(env.DB,"published");if(!layout)return json({ok:true,data:{layout:null}});
+  return json({ok:true,data:{layout:{direction:layout.direction,publishedAt:layout.publishedAt,positions:layout.positions.map(p=>({nickname:p.nickname,rank:p.rank,row:p.row,col:p.col}))}}});
 }
 
 // -----------------------------------------------------------------------------

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="capital-war-manager.css?v=3090">
   <link rel="stylesheet" href="admin-ui-v228.css?v=3480">
   <link rel="stylesheet" href="../common-heading.css?v=3410">
+  <link rel="stylesheet" href="alliance-layout-manager.css?v=3510">
 
 <style>
 @media (min-width:901px){
@@ -56,6 +57,7 @@
           <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5.5 4-4 4 4-4 4M3 21l7.5-7.5M5.5 1.5l17 17M2 18l4 4M8 14l2 2"/></svg></span><span>팀 편성 관리</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
         </button>
         <div class="admin-nav-card-items">
+          <button type="button" data-panel="allianceLayoutPanel">연맹 배치</button>
           <button type="button" data-panel="bgbPanel">BGB</button>
           <button type="button" data-panel="capitalWarPanel">수도전</button>
           <button type="button" data-panel="season6Panel">시즌</button>
@@ -96,7 +98,7 @@
           <div id="menuPermissionEmpty" class="system-empty-state" hidden><strong>현재 부관리자가 없습니다.</strong><p>운영 관리 → 연맹원에서 부관리자를 임명해 주세요.</p></div>
           <div id="menuPermissionGroups" class="system-permission-groups" hidden>
             <fieldset><legend>운영 관리</legend><label><input type="checkbox" value="members"> 연맹원</label><label><input type="checkbox" value="events"> 이벤트</label><label><input type="checkbox" value="vote"> 투표</label></fieldset>
-            <fieldset><legend>팀 편성 관리</legend><label><input type="checkbox" value="bgb"> BGB</label><label><input type="checkbox" value="capitalWar"> 수도전</label><label><input type="checkbox" value="season"> 시즌</label></fieldset>
+            <fieldset><legend>팀 편성 관리</legend><label><input type="checkbox" value="allianceLayout"> 연맹 배치</label><label><input type="checkbox" value="bgb"> BGB</label><label><input type="checkbox" value="capitalWar"> 수도전</label><label><input type="checkbox" value="season"> 시즌</label></fieldset>
             <fieldset><legend>지원</legend><label><input type="checkbox" value="requests"> 요청</label><label><input type="checkbox" value="accounts"> 계정</label></fieldset>
           </div>
           <div class="system-card-actions"><span id="menuPermissionStatus" class="system-save-status" role="status" aria-live="polite"></span><button id="saveMenuPermissions" class="primary" type="button" disabled>권한 저장</button></div>
@@ -122,6 +124,7 @@
             <option value="season">시즌</option>
             <option value="request">요청</option>
             <option value="account">계정</option>
+            <option value="alliance_layout">연맹 배치</option>
           </select>
           <select id="adminLogActorLevelV310" aria-label="활동 로그 관리자 필터">
             <option value="">전체 관리자</option>
@@ -233,6 +236,18 @@
     <table><tbody id="memberRows"></tbody></table>
   </div>
 </div>
+
+    <div id="allianceLayoutPanel" class="admin-panel alliance-layout-panel">
+      <div class="admin-page-header"><div class="admin-page-heading"><h2>연맹 배치 관리</h2><p>연맹원 세부 스펙을 기준으로 프랭키 주변 배치를 관리합니다.</p></div><span id="alSaveBadge" class="al-save-badge">저장본 없음</span></div>
+      <div class="al-summary"><article><span>배치 대상</span><strong id="alTargetCount">0</strong></article><article><span>배치 완료</span><strong id="alPlacedCount">0</strong></article><article><span>미배치</span><strong id="alUnplacedCount">0</strong></article><article><span>스펙 미등록</span><strong id="alMissingCount">0</strong></article></div>
+      <section class="al-direction"><div><strong>프랭키 방향</strong><div class="al-direction-buttons"><button data-al-direction="top">상</button><button data-al-direction="bottom">하</button><button data-al-direction="left">좌</button><button data-al-direction="right" class="active">우</button></div></div><div class="al-direction-state"><span>현재 저장 방향 <b id="alSavedDirection">-</b></span><span>미리보기 방향 <b id="alPreviewDirection">우</b></span><button id="alApplyDirection" class="secondary" disabled>선택 방향 적용</button></div></section>
+      <div class="al-toolbar admin-toolbar"><button id="alRefreshMembers" class="secondary">연맹원 새로고침</button><button id="alAutoPlace" class="primary">자동 배치</button><button id="alManualMode" class="secondary">수동 배치</button><button id="alUnlockAll" class="secondary">전체 고정 해제</button><button id="alRevert" class="secondary" disabled>저장 상태로 되돌리기</button></div>
+      <p id="alStatus" class="al-status" role="status" aria-live="polite"></p>
+      <div class="al-workspace"><section class="al-map-section"><div class="al-map-head"><strong>배치도</strong><span id="alMapLabel">우 배치 · 11×10</span></div><div class="al-map-viewport"><div id="alMap" class="al-map" aria-label="연맹 배치도"></div></div><p class="al-map-help">모바일: 두 손가락 확대·축소 · 한 손가락 이동 · 건물 터치 선택</p><section id="alSelected" class="al-selected"><span>선택된 연맹원</span><strong>건물을 선택하세요.</strong></section></section><aside class="al-side"><input id="alMemberSearch" type="search" placeholder="닉네임 검색"><div id="alMemberList" class="al-member-list"></div><section id="alMemberDetail" class="al-member-detail"><span>선택 정보</span><strong>연맹원을 선택하세요.</strong></section></aside></div>
+      <div class="al-save-row"><span><strong id="alDirtyState">변경사항 없음</strong><small id="alUpdatedMeta">아직 저장된 배치가 없습니다.</small></span><div><button id="alSaveDraft" class="secondary" disabled>임시 저장</button><button id="alPublish" class="primary" disabled>게시</button></div></div>
+      <details class="al-publications"><summary>이전 게시본</summary><div id="alPublicationList"></div></details>
+      <dialog id="alSwapDialog" class="al-swap-dialog"><h3>수동 위치 변경</h3><p id="alSwapMessage"></p><div><button id="alSwapCancel" class="secondary" type="button">취소</button><button id="alSwapConfirm" class="primary" type="button">변경</button></div></dialog>
+    </div>
 
     <div id="bgbPanel" class="admin-panel">
       <div class="admin-page-header bgb-manager-head"><div class="admin-page-heading"><h2>BGB 관리</h2><p>BGB 팀 편성과 참가 정보를 관리합니다.</p></div><label class="admin-page-meta">BGB 업데이트<input id="bgbLastUpdated" type="text" placeholder="2026.07.17"></label></div>
@@ -378,5 +393,6 @@
 <script src="capital-war-manager.js?v=3490"></script>
 <script src="member-manager-v188.js?v=3430"></script>
 <script src="vote-manager.js?v=2160"></script>
+<script src="alliance-layout-manager.js?v=3510"></script>
 </body>
 </html>
