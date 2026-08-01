@@ -2293,7 +2293,7 @@ function allianceFrame(direction){
   return {rs:4,re:5,cs:4,ce:7};
 }
 
-function allianceTemplate(direction){
+function allianceFullTemplate(direction){
   const frame=allianceFrame(direction),cells=[];
   const inside=(row,col)=>row>=frame.rs&&row<=frame.re&&col>=frame.cs&&col<=frame.ce;
   for(let row=0;row<10;row++)for(let col=0;col<11;col++)if(!inside(row,col)){
@@ -2313,6 +2313,59 @@ function allianceTemplate(direction){
   const result=[];let next=0;
   for(let rank=1;rank<=100;rank++)result.push({...((fixed.get(rank)||available[next++])),rank});
   return result;
+}
+
+function allianceOuterSlots(direction,count){
+  const slots=[],take=(items,amount)=>slots.push(...items.slice(0,Math.max(0,amount)));
+  let remaining=Math.max(0,Math.min(28,Number(count)||0));
+  if(direction==="right"){
+    const top=Array.from({length:11},(_,col)=>({row:0,col})),topCount=Math.min(11,remaining);
+    take(top.slice(11-topCount),topCount);remaining-=topCount;
+    const side=Array.from({length:9},(_,index)=>({row:index+1,col:0})),sideCount=Math.min(9,remaining);
+    take(side,sideCount);remaining-=sideCount;
+    const bottom=Array.from({length:10},(_,index)=>({row:9,col:index+1})),bottomCount=Math.min(8,remaining);
+    take(bottom.slice(10-bottomCount),bottomCount);
+  }else if(direction==="left"){
+    const top=Array.from({length:11},(_,col)=>({row:0,col})),topCount=Math.min(11,remaining);
+    take(top,topCount);remaining-=topCount;
+    const side=Array.from({length:9},(_,index)=>({row:index+1,col:10})),sideCount=Math.min(9,remaining);
+    take(side,sideCount);remaining-=sideCount;
+    const bottom=Array.from({length:10},(_,col)=>({row:9,col})),bottomCount=Math.min(8,remaining);
+    take(bottom,bottomCount);
+  }else if(direction==="top"){
+    const side=Array.from({length:8},(_,row)=>({row,col:0})),sideCount=Math.min(8,remaining);
+    take(side,sideCount);remaining-=sideCount;
+    const lowerFirst=Array.from({length:11},(_,col)=>({row:8,col})),firstCount=Math.min(11,remaining);
+    take(lowerFirst,firstCount);remaining-=firstCount;
+    const lowerLast=Array.from({length:9},(_,index)=>({row:9,col:index+2})),lastCount=Math.min(9,remaining);
+    take(lowerLast,lastCount);
+  }else{
+    const side=Array.from({length:8},(_,index)=>({row:9-index,col:0})),sideCount=Math.min(8,remaining);
+    take(side,sideCount);remaining-=sideCount;
+    const upperFirst=Array.from({length:11},(_,col)=>({row:1,col})),firstCount=Math.min(11,remaining);
+    take(upperFirst,firstCount);remaining-=firstCount;
+    const upperLast=Array.from({length:9},(_,index)=>({row:0,col:index+2})),lastCount=Math.min(9,remaining);
+    take(upperLast,lastCount);
+  }
+  return slots;
+}
+
+function allianceTemplate(direction,targetCount=100){
+  const count=Math.max(0,Math.min(100,Number(targetCount)||0)),full=allianceFullTemplate(direction);
+  if(count>=100)return full;
+  if(count<=72)return full.slice(0,count);
+  const result=full.slice(0,72),outer=allianceOuterSlots(direction,count-72);
+  outer.forEach((cell,index)=>result.push({...cell,rank:73+index}));
+  return result;
+}
+
+function allianceAllowedCells(direction){
+  const frame=allianceFrame(direction),cells=[];
+  for(let row=0;row<10;row++)for(let col=0;col<11;col++){
+    if(row>=frame.rs&&row<=frame.re&&col>=frame.cs&&col<=frame.ce)continue;
+    cells.push({row,col});
+  }
+  return cells;
 }
 
 async function allianceEligibleMembers(db){
@@ -2347,7 +2400,7 @@ async function loadAllianceVersion(db,type){
 
 function validateAlliancePositions(direction,positions,eligibleIds){
   if(!ALLIANCE_DIRECTIONS.includes(direction)||!Array.isArray(positions)||positions.length>100)return false;
-  const allowed=new Set(allianceTemplate(direction).map(cell=>`${cell.row}-${cell.col}`)),members=new Set(),coords=new Set(),ranks=new Set();
+  const allowed=new Set(allianceAllowedCells(direction).map(cell=>`${cell.row}-${cell.col}`)),members=new Set(),coords=new Set(),ranks=new Set();
   for(const item of positions){
     const memberId=Number(item.memberId),rank=Number(item.rank),row=Number(item.row),col=Number(item.col),coord=`${row}-${col}`;
     if(!eligibleIds.has(memberId)||!Number.isInteger(rank)||rank<1||rank>100||!allowed.has(coord)||members.has(memberId)||coords.has(coord)||ranks.has(rank))return false;
@@ -2371,7 +2424,7 @@ async function handleAllianceLayoutMembers(request,env){
 async function handleAllianceLayoutAutoPlace(request,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
   const body=await readJson(request),direction=String(body.direction||"");if(!ALLIANCE_DIRECTIONS.includes(direction))return jsonError("INVALID_DIRECTION",400);
-  const members=allianceSortMembers(await allianceEligibleMembers(env.DB)),memberMap=new Map(members.map(m=>[m.id,m])),template=allianceTemplate(direction),allowed=new Set(template.map(x=>`${x.row}-${x.col}`));
+  const members=allianceSortMembers(await allianceEligibleMembers(env.DB)),memberMap=new Map(members.map(m=>[m.id,m])),template=allianceTemplate(direction,Math.min(100,members.length)),allowed=new Set(allianceAllowedCells(direction).map(x=>`${x.row}-${x.col}`));
   const locked=(Array.isArray(body.lockedPositions)?body.lockedPositions:[]).filter(x=>memberMap.has(Number(x.memberId))&&allowed.has(`${Number(x.row)}-${Number(x.col)}`)).slice(0,100);
   const usedMembers=new Set(locked.map(x=>Number(x.memberId))),usedCoords=new Set(locked.map(x=>`${Number(x.row)}-${Number(x.col)}`));
   const positions=locked.map(x=>({memberId:Number(x.memberId),rank:0,row:Number(x.row),col:Number(x.col),locked:true}));
