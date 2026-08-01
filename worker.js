@@ -17,6 +17,12 @@ export default {
         if (request.method === "GET" && (url.pathname === "/data/bgb.json" || url.pathname === "/data/season6-teams.json" || url.pathname === "/data/capital-war.json")) {
           return handleConditionalStrategyAsset(request, url, env);
         }
+        if (request.method === "GET" && /^\/logo\/(?:Legacy|Royal)%20Edition\.webp$/i.test(url.pathname)) {
+          const member = await requireMember(request, env.DB);
+          if (member instanceof Response) return member;
+          if (member.status !== "active") return jsonError("FORBIDDEN", 403);
+          return env.ASSETS.fetch(request);
+        }
         return env.ASSETS.fetch(request);
       }
 
@@ -618,7 +624,8 @@ async function strategyAccessState(env, origin) {
   return {
     bgbAssignedCount,
     season6AssignedCount,
-    bgbLocked: bgbAssignedCount > 0,
+    // v330: BGB is an alliance-member feature even before assignments exist.
+    bgbLocked: true,
     season6Locked: season6AssignedCount > 0,
     capitalWarLocked: true,
   };
@@ -639,7 +646,7 @@ async function handleConditionalStrategyAsset(request, url, env) {
   const isBgb = url.pathname === "/data/bgb.json";
   const isCapitalWar = url.pathname === "/data/capital-war.json";
   const state = await strategyAccessState(env, url.origin);
-  const locked = isCapitalWar ? true : (isBgb ? state.bgbLocked : state.season6Locked);
+  const locked = (isCapitalWar || isBgb) ? true : state.season6Locked;
   if (locked) {
     const member = await requireMember(request, env.DB);
     if (member instanceof Response) return member;

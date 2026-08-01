@@ -151,14 +151,25 @@
   const SHOW_SEASON_5_MENU = false; // v239: preserve Season 5 page/data, hide menu for all users
 
   const NAV_LABELS = {
-    ko: { home:'홈', vote:'투표', capitalWar:'수도전', seasonUpcoming:'시즌 6 (준비중)', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팁', request:'요청 게시판', accounts:'계정 마켓', game:'🎮 미니게임', logo:'로고' },
-    en: { home:'HOME', vote:'VOTE', capitalWar:'CAPITAL WAR', seasonUpcoming:'SEASON 6 (COMING SOON)', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TIP', request:'REQUEST', accounts:'ACCOUNT MARKET', game:'🎮 MINI GAME', logo:'LOGO' },
-    pt: { home:'INÍCIO', vote:'VOTAÇÃO', capitalWar:'GUERRA DA CAPITAL', seasonUpcoming:'TEMPORADA 6 (EM BREVE)', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'DICAS', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'🎮 MINI GAME', logo:'LOGO' },
-    vi: { home:'TRANG CHỦ', vote:'BÌNH CHỌN', capitalWar:'CHIẾN TRANH THỦ ĐÔ', seasonUpcoming:'MÙA 6 (SẮP RA MẮT)', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'MẸO', request:'YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'🎮 MINI GAME', logo:'LOGO' },
-    ar: { home:'الرئيسية', vote:'التصويت', capitalWar:'حرب العاصمة', seasonUpcoming:'الموسم 6 (قريبًا)', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'الطلبات', accounts:'سوق الحسابات', game:'🎮 الألعاب المصغرة', logo:'الشعار' },
-    ja: { home:'ホーム', vote:'投票', capitalWar:'首都戦', seasonUpcoming:'シーズン6（準備中）', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト', accounts:'アカウントマーケット', game:'🎮 ミニゲーム', logo:'ロゴ' },
-    th: { home:'หน้าแรก', vote:'โหวต', capitalWar:'สงครามเมืองหลวง', seasonUpcoming:'ซีซัน 6 (เร็ว ๆ นี้)', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'คำขอ', accounts:'ตลาดบัญชี', game:'🎮 มินิเกม', logo:'โลโก้' },
-    'zh-tw': { home:'首頁', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季（準備中）', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', accounts:'帳號市集', game:'🎮 小遊戲', logo:'標誌' }
+    ko: { home:'홈', immigration:'이민 신청', vote:'투표', capitalWar:'수도전', seasonUpcoming:'시즌 6', seasonArchive:'시즌 5 (종료)', members:'멤버', bgb:'BGB', tip:'팁', request:'요청 게시판', accounts:'계정 마켓', game:'미니게임', logo:'로고' },
+    en: { home:'HOME', immigration:'MIGRATION', vote:'VOTE', capitalWar:'CAPITAL WAR', seasonUpcoming:'SEASON 6', seasonArchive:'SEASON 5 (ENDED)', members:'MEMBERS', bgb:'BGB', tip:'TIPS', request:'REQUEST BOARD', accounts:'ACCOUNT MARKET', game:'MINI GAMES', logo:'LOGO' },
+    pt: { home:'INÍCIO', immigration:'MIGRAÇÃO', vote:'VOTAÇÃO', capitalWar:'GUERRA DA CAPITAL', seasonUpcoming:'TEMPORADA 6', seasonArchive:'TEMPORADA 5 (ENCERRADA)', members:'MEMBROS', bgb:'BGB', tip:'DICAS', request:'SOLICITAÇÕES', accounts:'MERCADO DE CONTAS', game:'MINIJOGOS', logo:'LOGO' },
+    vi: { home:'TRANG CHỦ', immigration:'ĐĂNG KÝ DI CƯ', vote:'BÌNH CHỌN', capitalWar:'CHIẾN TRANH THỦ ĐÔ', seasonUpcoming:'MÙA 6', seasonArchive:'MÙA 5 (ĐÃ KẾT THÚC)', members:'THÀNH VIÊN', bgb:'BGB', tip:'MẸO', request:'BẢNG YÊU CẦU', accounts:'CHỢ TÀI KHOẢN', game:'TRÒ CHƠI NHỎ', logo:'LOGO' },
+    ar: { home:'الرئيسية', immigration:'طلب الهجرة', vote:'التصويت', capitalWar:'حرب العاصمة', seasonUpcoming:'الموسم 6', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'لوحة الطلبات', accounts:'سوق الحسابات', game:'الألعاب المصغرة', logo:'الشعار' },
+    ja: { home:'ホーム', immigration:'移民申請', vote:'投票', capitalWar:'首都戦', seasonUpcoming:'シーズン6', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト掲示板', accounts:'アカウントマーケット', game:'ミニゲーム', logo:'ロゴ' },
+    th: { home:'หน้าแรก', immigration:'สมัครย้ายเซิร์ฟเวอร์', vote:'โหวต', capitalWar:'สงครามเมืองหลวง', seasonUpcoming:'ซีซัน 6', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'กระดานคำขอ', accounts:'ตลาดบัญชี', game:'มินิเกม', logo:'โลโก้' },
+    'zh-tw': { home:'首頁', immigration:'移民申請', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', accounts:'帳號市集', game:'小遊戲', logo:'標誌' }
+  };
+
+  const MENU_UI = {
+    ko:{more:'더보기',public:'공개',memberOnly:'연맹원 전용',activity:'연맹 활동',information:'정보·지원',other:'기타',comingSoon:'준비 중',locked:'로그인 필요',menu:'메뉴',closeMenu:'메뉴 닫기'},
+    en:{more:'MORE',public:'PUBLIC',memberOnly:'MEMBERS ONLY',activity:'ALLIANCE ACTIVITY',information:'INFO & SUPPORT',other:'OTHER',comingSoon:'COMING SOON',locked:'LOGIN REQUIRED',menu:'MENU',closeMenu:'CLOSE MENU'},
+    pt:{more:'MAIS',public:'PÚBLICO',memberOnly:'SÓ MEMBROS',activity:'ATIVIDADE DA ALIANÇA',information:'INFORMAÇÕES E SUPORTE',other:'OUTROS',comingSoon:'EM BREVE',locked:'LOGIN NECESSÁRIO',menu:'MENU',closeMenu:'FECHAR MENU'},
+    vi:{more:'THÊM',public:'CÔNG KHAI',memberOnly:'CHỈ THÀNH VIÊN',activity:'HOẠT ĐỘNG LIÊN MINH',information:'THÔNG TIN & HỖ TRỢ',other:'KHÁC',comingSoon:'SẮP RA MẮT',locked:'CẦN ĐĂNG NHẬP',menu:'MENU',closeMenu:'ĐÓNG MENU'},
+    ar:{more:'المزيد',public:'عام',memberOnly:'للأعضاء فقط',activity:'نشاط التحالف',information:'المعلومات والدعم',other:'أخرى',comingSoon:'قريبًا',locked:'يتطلب تسجيل الدخول',menu:'القائمة',closeMenu:'إغلاق القائمة'},
+    ja:{more:'その他',public:'公開',memberOnly:'メンバー限定',activity:'同盟活動',information:'情報・サポート',other:'その他',comingSoon:'準備中',locked:'ログインが必要',menu:'メニュー',closeMenu:'メニューを閉じる'},
+    th:{more:'เพิ่มเติม',public:'สาธารณะ',memberOnly:'เฉพาะสมาชิก',activity:'กิจกรรมพันธมิตร',information:'ข้อมูลและการสนับสนุน',other:'อื่น ๆ',comingSoon:'เร็ว ๆ นี้',locked:'ต้องเข้าสู่ระบบ',menu:'เมนู',closeMenu:'ปิดเมนู'},
+    'zh-tw':{more:'更多',public:'公開',memberOnly:'成員專用',activity:'聯盟活動',information:'資訊與支援',other:'其他',comingSoon:'準備中',locked:'需要登入',menu:'選單',closeMenu:'關閉選單'}
   };
 
   const ACCOUNT_LABELS = {
@@ -276,42 +287,27 @@
     }
   };
 
+  const immigrationHref = `${String(homeHref).replace(/#.*$/, '')}#immigration`;
   const menuItems = [
-    { key: 'home', href: homeHref },
-    { key: 'vote', href: `${base}/vote/` },
-    { key: 'capitalWar', href: `${base}/capital-war/` },
-    { key: 'seasonUpcoming', href: `${base}/season6/` },
-    { key: 'seasonArchive', href: `${base}/season5/` },
-    { key: 'members', href: `${base}/members/` },
-    { key: 'bgb', href: `${base}/bgb/` },
-    { key: 'tip', href: `${base}/tip/` },
-    { key: 'request', href: `${base}/request/` },
-    { key: 'accounts', href: `${base}/accounts/` },
-    { key: 'game', href: `${base}/game/` },
-    { key: 'logo', href: `${base}/logo/` }
+    { key:'immigration', href:immigrationHref },
+    { key:'seasonUpcoming', href:`${base}/season6/` },
+    { key:'members', href:`${base}/members/` },
+    { key:'tip', href:`${base}/tip/` },
+    { key:'game', href:`${base}/game/` },
+    { key:'accounts', href:`${base}/accounts/` },
+    { key:'bgb', href:`${base}/bgb/` },
+    { key:'capitalWar', href:`${base}/capital-war/` },
+    { key:'vote', href:`${base}/vote/` },
+    { key:'request', href:`${base}/request/` },
+    { key:'logo', href:`${base}/logo/` }
   ];
-
-  const menuHtml = menuItems.map(function (item) {
-    const isActive = item.key === activeMenu;
-    const classes = [item.key === 'bgb' ? 'nav-bgb' : '', item.key === 'accounts' ? 'nav-account-shine' : '', isActive ? 'active' : '']
-      .filter(Boolean)
-      .join(' ');
-    const attrs = [
-      `href="${item.href}"`,
-      `data-menu="${item.key}"`,
-      `data-nav-key="${item.key}"`,
-      classes ? `class="${classes}"` : '',
-      isActive ? 'aria-current="page"' : '',
-      (item.key === 'bgb' || item.key === 'seasonUpcoming' || item.key === 'capitalWar' || (item.key === 'seasonArchive' && !SHOW_SEASON_5_MENU)) ? 'hidden' : ''
-    ].filter(Boolean).join(' ');
-    return `<a ${attrs}></a>`;
-  }).join('');
+  const menuByKey = new Map(menuItems.map(item => [item.key,item]));
 
   header.innerHTML = `
-    <a href="${homeHref}" class="brand${isAdminContext ? ' admin-context-brand' : ''}">${isAdminContext ? '' : '★ '}<span><b>${isAdminContext ? 'EZPK ADMIN' : '322 EZPK'}</b>${isAdminContext ? '' : '<small>ALLIANCE PORTAL</small>'}</span></a>
+    <a href="${homeHref}" class="brand${isAdminContext ? ' admin-context-brand' : ''}">${isAdminContext ? '' : '<span class="brand-mark" aria-hidden="true">★</span>'}<span><b>${isAdminContext ? 'EZPK ADMIN' : '322 EZPK'}</b>${isAdminContext ? '' : '<small>ALLIANCE PORTAL</small>'}</span></a>
     <nav id="nav">
-      <div class="desktop-nav-items" id="desktopNavItems">${menuHtml}</div>
-      <div class="nav-more" id="navMore" hidden>
+      <div class="desktop-nav-items" id="desktopNavItems"></div>
+      <div class="nav-more" id="navMore">
         <button id="navMoreButton" type="button" aria-haspopup="true" aria-expanded="false"></button>
         <div id="navMoreMenu" hidden></div>
       </div>
@@ -338,10 +334,10 @@
     <button id="menuBtn" class="ezpk-menu-discovery-cue" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
 
   document.body.insertAdjacentHTML('beforeend', `
-    <aside class="ezpk-mobile-drawer" id="ezpkMobileDrawer" aria-hidden="true">
+    <aside class="ezpk-mobile-drawer" id="ezpkMobileDrawer" role="dialog" aria-modal="true" aria-hidden="true">
       <div class="ezpk-mobile-drawer-scroll" id="ezpkMobileDrawerScroll">
         <section class="mobile-account-slot" id="mobileDrawerAccount" aria-live="polite"></section>
-        <nav class="mobile-menu-list${isAdminContext ? ' admin-mobile-navigation-host' : ''}" id="mobileDrawerItems">${isAdminContext ? '' : menuHtml}</nav>
+        <nav class="mobile-menu-list${isAdminContext ? ' admin-mobile-navigation-host' : ''}" id="mobileDrawerItems"></nav>
       </div>
     </aside>
     <div class="ezpk-auth-modal" id="ezpkLoginModal" hidden>
@@ -399,19 +395,7 @@
   }
 
   function applyStrategyMenuVisibility() {
-    const memberCanSeeAll = activeMemberSignedIn();
-    document.querySelectorAll('[data-menu="bgb"]').forEach(function (link) {
-      link.hidden = !strategyAccess.loaded || Boolean(strategyAccess.bgbLocked && !memberCanSeeAll);
-    });
-    document.querySelectorAll('[data-menu="seasonUpcoming"]').forEach(function (link) {
-      link.hidden = !strategyAccess.loaded || Boolean(strategyAccess.season6Locked && !memberCanSeeAll);
-    });
-    document.querySelectorAll('[data-menu="capitalWar"]').forEach(function (link) {
-      link.hidden = !memberCanSeeAll;
-    });
-    document.querySelectorAll('[data-menu="seasonArchive"]').forEach(function (link) {
-      link.hidden = !SHOW_SEASON_5_MENU;
-    });
+    renderNavigation(currentLanguage());
     requestAnimationFrame(updateResponsiveNavigation);
   }
 
@@ -440,17 +424,7 @@
   function accountLabels() { return ACCOUNT_LABELS[currentLanguage()] || ACCOUNT_LABELS.en; }
 
   function renderNavLabels(lang) {
-    const labels = NAV_LABELS[lang] || NAV_LABELS.en;
-    document.querySelectorAll('[data-nav-key]').forEach(function (link) {
-      const key = link.dataset.navKey;
-      link.textContent = labels[key] || NAV_LABELS.en[key] || key;
-    });
-    const moreButton = header.querySelector('#navMoreButton');
-    if (moreButton) {
-      const moreLabels = {ko:'더보기',en:'MORE',pt:'MAIS',vi:'THÊM',ar:'المزيد',ja:'その他',th:'เพิ่มเติม','zh-tw':'更多'};
-      moreButton.textContent = `${moreLabels[lang] || moreLabels.en} ▾`;
-    }
-    requestAnimationFrame(updateResponsiveNavigation);
+    renderNavigation(lang);
   }
 
 
@@ -459,7 +433,77 @@
   const navMore = header.querySelector('#navMore');
   const navMoreButton = header.querySelector('#navMoreButton');
   const navMoreMenu = header.querySelector('#navMoreMenu');
-  const navOrder = new Map(menuItems.map((item,index)=>[item.key,index]));
+  const mobileDrawerItems = document.querySelector('#mobileDrawerItems');
+
+  function menuUi(lang=currentLanguage()) { return MENU_UI[lang] || MENU_UI.en; }
+
+  function navLinkMarkup(key, options={}) {
+    const item = menuByKey.get(key);
+    if (!item) return '';
+    const labels = NAV_LABELS[currentLanguage()] || NAV_LABELS.en;
+    const ui = menuUi();
+    const active = key === activeMenu;
+    const locked = Boolean(options.locked);
+    const classes = [active?'active':'',locked?'is-locked':'',key==='immigration'?'nav-immigration':''].filter(Boolean).join(' ');
+    const badge = key === 'seasonUpcoming' && options.comingSoon
+      ? `<span class="nav-status-badge">${safeText(ui.comingSoon)}</span>` : '';
+    const lock = locked ? `<span class="nav-lock" aria-hidden="true">🔒</span>` : '';
+    return `<a href="${item.href}" data-menu="${key}" data-nav-key="${key}"${locked?' data-nav-locked="true"':''}${classes?` class="${classes}"`:''}${active?' aria-current="page"':''}><span class="nav-label">${safeText(labels[key] || key)}</span>${badge}${lock}</a>`;
+  }
+
+  function menuGroupMarkup(title, keys, options={}) {
+    const links = keys.map(key=>navLinkMarkup(key, options[key] || {})).join('');
+    return `<section class="nav-menu-group${options.className?` ${options.className}`:''}"><h2>${safeText(title)}</h2><div class="nav-menu-group-items">${links}</div></section>`;
+  }
+
+  function renderNavigation(lang=currentLanguage()) {
+    if (isAdminContext) {
+      if (navMore) navMore.hidden = true;
+      return;
+    }
+    const ui = menuUi(lang);
+    const signedIn = activeMemberSignedIn();
+    const seasonLockedForGuest = !signedIn && (!strategyAccess.loaded || strategyAccess.season6Locked);
+
+    if (signedIn) {
+      desktopNavItems.innerHTML = ['vote','bgb','capitalWar','members'].map(key=>navLinkMarkup(key)).join('');
+      navMoreMenu.innerHTML = [
+        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','accounts'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.other,['game','logo'])
+      ].join('');
+      mobileDrawerItems.innerHTML = [
+        menuGroupMarkup(ui.activity,['vote','bgb','capitalWar','members'],{className:'nav-activity-grid'}),
+        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','accounts'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.other,['game','logo'])
+      ].join('');
+    } else {
+      desktopNavItems.innerHTML = ['immigration','seasonUpcoming','members','tip'].map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
+      navMoreMenu.innerHTML = [
+        menuGroupMarkup(ui.public,['game','accounts']),
+        menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
+          bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
+        })
+      ].join('');
+      mobileDrawerItems.innerHTML = [
+        menuGroupMarkup('', ['immigration','seasonUpcoming','members','tip','game','accounts'],{
+          seasonUpcoming:{locked:seasonLockedForGuest,comingSoon:true}
+        }),
+        menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
+          bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
+        })
+      ].join('');
+    }
+    navMore.hidden = false;
+    navMoreButton.textContent = `${ui.more} ▾`;
+    navMore.classList.toggle('active',Boolean(navMoreMenu.querySelector('.active')));
+
+    const mobileAccount = document.querySelector('#mobileDrawerAccount');
+    const drawerScroll = document.querySelector('#ezpkMobileDrawerScroll');
+    if (mobileAccount && drawerScroll && mobileDrawerItems) {
+      if (signedIn) drawerScroll.insertBefore(mobileAccount,mobileDrawerItems);
+      else drawerScroll.appendChild(mobileAccount);
+    }
+  }
 
   function closeMoreMenu() {
     if (!navMoreButton || !navMoreMenu) return;
@@ -467,36 +511,9 @@
     navMoreButton.setAttribute('aria-expanded','false');
   }
 
-  function restoreMoreLinks() {
-    if (!desktopNavItems || !navMoreMenu) return;
-    [...navMoreMenu.querySelectorAll('a[data-nav-key]')]
-      .sort((a,b)=>(navOrder.get(a.dataset.navKey) ?? 999)-(navOrder.get(b.dataset.navKey) ?? 999))
-      .forEach(link=>desktopNavItems.appendChild(link));
-  }
-
   function updateResponsiveNavigation() {
-    if (!responsiveNav || !desktopNavItems || !navMore || !navMoreMenu) return;
-    restoreMoreLinks();
-    closeMoreMenu();
-
-    if (window.innerWidth <= 900) {
-      navMore.hidden = true;
-      return;
-    }
-
-    navMore.hidden = false;
-    navMore.style.visibility = 'hidden';
-    const available = Math.max(0, responsiveNav.clientWidth - navMore.offsetWidth - 8);
-    const links = [...desktopNavItems.querySelectorAll('a[data-nav-key]')];
-
-    while (links.length && desktopNavItems.scrollWidth > available) {
-      navMoreMenu.prepend(links.pop());
-    }
-
-    const hasOverflow = navMoreMenu.children.length > 0;
-    navMore.hidden = !hasOverflow;
-    navMore.style.visibility = '';
-    navMore.classList.toggle('active', Boolean(navMoreMenu.querySelector('.active,[aria-current="page"]')));
+    if (!responsiveNav || !navMore) return;
+    navMore.hidden = Boolean(isAdminContext || window.innerWidth <= 1199);
   }
 
   navMoreButton?.addEventListener('click', function(event) {
@@ -534,6 +551,7 @@
   const loginForm = document.querySelector('#ezpkLoginForm');
   const loginError = document.querySelector('#ezpkLoginError');
   const globalToast = document.querySelector('#ezpkGlobalToast');
+  let pendingNavigation = '';
 
   function showGlobalToast(message, type='success') {
     globalToast.textContent = message;
@@ -644,14 +662,14 @@
     const adminLevel=member.adminLevel||member.admin_level||(isAdmin?'super':null);
     const roleLabel = isAdmin ? (isAdminContext?(adminLevel==='sub'?'부관리자':'최고관리자'):labels.administrator) : labels.member;
     const dropdownItems = `
-      ${isAdminContext ? `<button type="button" data-account-action="home">${safeText((NAV_LABELS[isAdminContext ? 'ko' : currentLanguage()] || NAV_LABELS.ko).home)}</button>` : ''}
-      ${isAdmin ? `<button type="button" data-account-action="admin">${safeText(labels.admin)}</button>` : ''}
-      <button type="button" data-account-action="mypage">${safeText(labels.myPage)}</button>
-      <button type="button" data-account-action="logout">${safeText(labels.logout)}</button>`;
+      ${isAdminContext ? `<button type="button" class="account-action-home" data-account-action="home">${safeText((NAV_LABELS[isAdminContext ? 'ko' : currentLanguage()] || NAV_LABELS.ko).home)}</button>` : ''}
+      ${isAdmin ? `<button type="button" class="account-action-admin" data-account-action="admin">${safeText(labels.admin)}</button>` : ''}
+      <button type="button" class="account-action-mypage" data-account-action="mypage">${safeText(labels.myPage)}</button>
+      <button type="button" class="account-action-logout" data-account-action="logout">${safeText(labels.logout)}</button>`;
 
     if (mobile) {
       return `
-        <div class="mobile-account-profile">
+        <div class="mobile-account-profile${isAdmin ? ' is-admin' : ''}">
           <strong title="${safeText(member.nickname)}">${safeText(member.nickname)}</strong>
           <span class="${isAdmin ? 'rank-r5' : ''}">${safeText(member.memberRank)} · ${safeText(roleLabel)}</span>
         </div>
@@ -721,6 +739,7 @@
       loginId:String(member?.loginId || ''),
       nickname:String(member?.nickname || ''),
       role:String(member?.role || ''),
+      adminLevel:String(member?.adminLevel || member?.admin_level || ''),
       rank:String(member?.memberRank || member?.member_rank || ''),
       status:String(member?.status || '')
     });
@@ -849,12 +868,15 @@
     const menuBtn = header.querySelector('#menuBtn');
     if (langMenu) langMenu.hidden = true;
     if (nav) nav.classList.remove('open');
-    if (drawer) {
-      drawer.classList.remove('open');
-      drawer.setAttribute('aria-hidden','true');
+    if (drawer?.classList.contains('open')) setMobileMenuOpen(false);
+    else {
+      document.body.classList.remove('ezpk-mobile-menu-open');
+      if (menuBtn) {
+        menuBtn.textContent='☰';
+        menuBtn.setAttribute('aria-expanded','false');
+        menuBtn.setAttribute('aria-label',menuUi().menu);
+      }
     }
-    document.body.classList.remove('ezpk-mobile-menu-open');
-    if (menuBtn) menuBtn.setAttribute('aria-expanded','false');
     header.querySelectorAll('.account-menu').forEach(function (menu) { menu.hidden = true; });
     header.querySelectorAll('.account-member-trigger').forEach(function (button) { button.setAttribute('aria-expanded','false'); });
   }
@@ -927,6 +949,10 @@
       closeLogin();
       showGlobalToast(accountLabels().loginSuccess);
       window.dispatchEvent(new CustomEvent('ezpk-auth-change', { detail:authState }));
+      const returnTarget = pendingNavigation || sessionStorage.getItem('ezpk-auth-return') || '';
+      pendingNavigation = '';
+      sessionStorage.removeItem('ezpk-auth-return');
+      if (returnTarget) window.location.href = returnTarget;
     } catch (_) {
       loginError.textContent = accountLabels().requestFailed;
       loginError.hidden = false;
@@ -944,6 +970,14 @@
   document.addEventListener('click', function (event) {
     if (navMore && !navMore.contains(event.target)) closeMoreMenu();
   });
+  document.addEventListener('click', function (event) {
+    const lockedLink = event.target.closest('a[data-nav-locked="true"]');
+    if (!lockedLink) return;
+    event.preventDefault();
+    pendingNavigation = lockedLink.href;
+    sessionStorage.setItem('ezpk-auth-return',pendingNavigation);
+    openLogin(event);
+  });
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') closeMoreMenu();
   });
@@ -951,9 +985,10 @@
 
   const mobileDrawer = document.querySelector('#ezpkMobileDrawer');
   const mobileDrawerScroll = document.querySelector('#ezpkMobileDrawerScroll');
+  let mobileMenuHistoryActive = false;
 
   function syncMobileDrawerMetrics() {
-    if (window.innerWidth > 900) return;
+    if ((isAdminContext && window.innerWidth > 900) || (!isAdminContext && window.innerWidth > 1199)) return;
     const rect = header.getBoundingClientRect();
     const headerBottom = Math.max(0, Math.round(rect.bottom));
     document.documentElement.style.setProperty('--ezpk-mobile-header-height', `${headerBottom}px`);
@@ -968,15 +1003,30 @@
     });
   }
 
-  function setMobileMenuOpen(open) {
+  function setMobileMenuOpen(open, fromHistory=false) {
     const next = Boolean(open);
     document.body.classList.toggle('ezpk-mobile-menu-open', next);
     if (!mobileDrawer) return;
     mobileDrawer.classList.toggle('open', next);
     mobileDrawer.setAttribute('aria-hidden', String(!next));
+    const button = header.querySelector('#menuBtn');
+    if (button) {
+      button.textContent = next ? '×' : '☰';
+      button.setAttribute('aria-expanded',String(next));
+      button.setAttribute('aria-label',next ? menuUi().closeMenu : menuUi().menu);
+    }
     if (next) {
       syncMobileDrawerMetrics();
       resetMobileDrawerScroll();
+      if (!mobileMenuHistoryActive) {
+        history.pushState({ezpkMobileMenu:true},'',window.location.href);
+        mobileMenuHistoryActive = true;
+      }
+      requestAnimationFrame(()=>mobileDrawer.querySelector('a,button')?.focus());
+    } else {
+      if (mobileMenuHistoryActive && !fromHistory) history.back();
+      mobileMenuHistoryActive = false;
+      if (!fromHistory) requestAnimationFrame(()=>button?.focus());
     }
   }
 
@@ -985,9 +1035,15 @@
   window.addEventListener('orientationchange', function () {
     requestAnimationFrame(syncMobileDrawerMetrics);
   });
+  window.addEventListener('popstate', function () {
+    if (mobileDrawer?.classList.contains('open')) setMobileMenuOpen(false,true);
+  });
 
   const initialLang = isAdminContext ? 'ko' : currentLanguage();
   applyLanguage(initialLang,false);
+  if (new URLSearchParams(window.location.search).get('login') === '1') {
+    setTimeout(()=>openLogin(),0);
+  }
 
   const langBtn=header.querySelector('#langBtn');
   const langMenu=header.querySelector('#langMenu');
@@ -1015,13 +1071,10 @@
     const willOpen = !mobileDrawer.classList.contains('open');
     closeMenus();
     setMobileMenuOpen(willOpen);
-    menuBtn.setAttribute('aria-expanded',String(willOpen));
   });
-  mobileDrawer.querySelectorAll('a').forEach(function (link) {
-    link.addEventListener('click', function () {
-      setMobileMenuOpen(false);
-      menuBtn.setAttribute('aria-expanded','false');
-    });
+  mobileDrawer.addEventListener('click', function (event) {
+    if (!event.target.closest('a')) return;
+    if (!event.target.closest('a[data-nav-locked="true"]')) setMobileMenuOpen(false);
   });
 
   document.addEventListener('click',function(e){
@@ -1032,6 +1085,16 @@
         langMenu.hidden=true;
         langBtn.setAttribute('aria-expanded','false');
       }
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if (e.key === 'Escape' && mobileDrawer?.classList.contains('open')) setMobileMenuOpen(false);
+    if (e.key === 'Tab' && mobileDrawer?.classList.contains('open')) {
+      const focusable=[...mobileDrawer.querySelectorAll('a[href],button:not([disabled])')].filter(el=>!el.hidden&&el.getClientRects().length);
+      if (!focusable.length) return;
+      const first=focusable[0],last=focusable[focusable.length-1];
+      if (e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
     }
   });
   window.addEventListener('storage',function(e){if(e.key===STORAGE_KEY)applyLanguage(e.newValue,false)});

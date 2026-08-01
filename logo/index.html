@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Logo | 322 EZPK Alliance</title>
-  <link rel="stylesheet" href="../style.css?v=2270">
-  <link rel="stylesheet" href="logo.css?v=950">
+  <link rel="stylesheet" href="../style.css?v=3300">
+  <link rel="stylesheet" href="logo.css?v=3300">
   <link rel="stylesheet" href="../common-heading.css?v=1020">
 
 <style>
@@ -23,8 +23,20 @@
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="logo"></header>
-<script src="../shared-header.js?v=1940"></script>
-<main class="logo-main">
+<script src="../shared-header.js?v=3300"></script>
+<section id="logoLock" class="member-gate-wrap" hidden>
+  <div class="member-gate-card">
+    <div class="member-gate-icon" aria-hidden="true">🔐</div>
+    <span class="member-gate-section" data-logo-gate="section"></span>
+    <h1 class="member-gate-title" data-logo-gate="title"></h1>
+    <p class="member-gate-description" data-logo-gate="lead"></p>
+    <div class="member-login-actions">
+      <button type="button" class="member-login-primary" data-logo-login></button>
+      <a class="member-login-secondary" href="../signup/" data-logo-signup></a>
+    </div>
+  </div>
+</section>
+<main id="logoProtected" class="logo-main" hidden>
   <section class="logo-hero">
     <span class="logo-kicker">SERVER 322 · EZPK ALLIANCE</span>
     <h1 data-logo-k="title"></h1>
@@ -44,7 +56,7 @@
     <div class="logo-grid">
       <article class="logo-card">
         <button class="logo-image-button" type="button" data-logo-open="Legacy Edition.webp" data-edition="Legacy Edition" aria-label="Open Legacy Edition image">
-          <img src="./Legacy Edition.webp?v=950" alt="EZPK Legacy Edition emblem">
+          <img data-logo-src="./Legacy Edition.webp?v=3300" alt="EZPK Legacy Edition emblem">
         </button>
         <h2>Legacy Edition</h2>
         <p data-logo-k="legacyDescription"></p>
@@ -53,7 +65,7 @@
 
       <article class="logo-card">
         <button class="logo-image-button" type="button" data-logo-open="Royal Edition.webp" data-edition="Royal Edition" aria-label="Open Royal Edition image">
-          <img src="./Royal Edition.webp?v=950" alt="EZPK Royal Edition emblem">
+          <img data-logo-src="./Royal Edition.webp?v=3300" alt="EZPK Royal Edition emblem">
         </button>
         <h2>Royal Edition</h2>
         <p data-logo-k="royalDescription"></p>
@@ -79,6 +91,6 @@
 </div>
 
 <script src="../data.js?v=1530"></script>
-<script src="logo.js?v=1530"></script>
+<script src="logo.js?v=3300"></script>
 </body>
 </html>
