@@ -307,7 +307,7 @@
     <a href="${homeHref}" class="brand${isAdminContext ? ' admin-context-brand' : ''}">${isAdminContext ? '' : '<span class="brand-mark" aria-hidden="true">★</span>'}<span><b>${isAdminContext ? 'EZPK ADMIN' : '322 EZPK'}</b>${isAdminContext ? '' : '<small>ALLIANCE PORTAL</small>'}</span></a>
     <nav id="nav">
       <div class="desktop-nav-items" id="desktopNavItems"></div>
-      <div class="nav-more" id="navMore">
+      <div class="nav-more" id="navMore" hidden>
         <button id="navMoreButton" type="button" aria-haspopup="true" aria-expanded="false"></button>
         <div id="navMoreMenu" hidden></div>
       </div>
@@ -450,6 +450,7 @@
   const navMore = header.querySelector('#navMore');
   const navMoreButton = header.querySelector('#navMoreButton');
   const navMoreMenu = header.querySelector('#navMoreMenu');
+  let navigationReady = false;
   const mobileDrawerItems = document.querySelector('#mobileDrawerItems');
 
   function menuUi(lang=currentLanguage()) { return MENU_UI[lang] || MENU_UI.en; }
@@ -475,6 +476,7 @@
 
   function renderNavigation(lang=currentLanguage()) {
     if (isAdminContext) {
+      navigationReady = false;
       if (navMore) navMore.hidden = true;
       return;
     }
@@ -482,6 +484,7 @@
     // being verified. This prevents Immigration from flashing after a signed-in
     // member follows Vote or another protected navigation link.
     if (!authLoaded) {
+      navigationReady = false;
       desktopNavItems.innerHTML = '';
       navMoreMenu.innerHTML = '';
       mobileDrawerItems.innerHTML = '';
@@ -495,6 +498,7 @@
     // Season 6 access are known. Rendering the other links first and inserting
     // Season 6 later caused the desktop and mobile menu order to visibly shift.
     if (!signedIn && !strategyAccess.resolved) {
+      navigationReady = false;
       desktopNavItems.innerHTML = '';
       navMoreMenu.innerHTML = '';
       mobileDrawerItems.innerHTML = '';
@@ -534,7 +538,8 @@
         })
       ].join('');
     }
-    navMore.hidden = false;
+    navigationReady = true;
+    navMore.hidden = window.innerWidth <= 1199;
     navMoreButton.textContent = `${ui.more} ▾`;
     navMore.classList.toggle('active',Boolean(navMoreMenu.querySelector('.active')));
 
@@ -554,7 +559,7 @@
 
   function updateResponsiveNavigation() {
     if (!responsiveNav || !navMore) return;
-    navMore.hidden = Boolean(isAdminContext || window.innerWidth <= 1199);
+    navMore.hidden = Boolean(isAdminContext || !navigationReady || window.innerWidth <= 1199);
   }
 
   navMoreButton?.addEventListener('click', function(event) {
