@@ -155,6 +155,8 @@ export default {
 
         case "GET /api/admin/members":
           return handleAdminMembers(request, url, env);
+        case "POST /api/admin/members/create-bulk":
+          return handleAdminMembersCreateBulk(request, env);
         case "GET /api/admin/logs":
           return handleAdminLogs(request, url, env);
         case "GET /api/admin/my-permissions":
@@ -1834,6 +1836,65 @@ async function handleAdminMembers(request, url, env) {
     stats:{total:Number(stats?.total||0),active:Number(stats?.active||0),suspended:Number(stats?.suspended||0),left:Number(stats?.left_count||0)},
     pagination:{page,limit,total:Number(countRow?.total||0),totalPages:Math.ceil(Number(countRow?.total||0)/limit)}
   }});
+}
+
+async function handleAdminMembersCreateBulk(request, env) {
+  const admin = await requireAdminMenuPermission(request, env.DB, "members");
+  if (admin instanceof Response) return admin;
+  if (!env.PASSWORD_PEPPER) return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED", 503);
+
+  const body = await readJson(request);
+  const source = Array.isArray(body.accounts) ? body.accounts : [];
+  const temporaryPassword = String(body.temporaryPassword ?? "");
+  if (!source.length || source.length > 50 || temporaryPassword.length < 6 || temporaryPassword.length > 128 || /\s/.test(temporaryPassword)) {
+    return jsonError("VALIDATION_ERROR", 400);
+  }
+
+  const accounts = source.map((item) => ({
+    loginId: normalizeLoginId(item?.loginId),
+    nickname: cleanString(item?.nickname, 64),
+  }));
+  if (accounts.some((item) => !isLoginId(item.loginId) || !item.nickname)) return jsonError("VALIDATION_ERROR", 400);
+
+  const loginIds = accounts.map((item) => item.loginId);
+  const nicknameKeys = accounts.map((item) => item.nickname.toLocaleLowerCase());
+  if (new Set(loginIds).size !== loginIds.length) return jsonError("DUPLICATE_LOGIN_ID_IN_REQUEST", 409);
+  if (new Set(nicknameKeys).size !== nicknameKeys.length) return jsonError("DUPLICATE_NICKNAME_IN_REQUEST", 409);
+
+  const reservedAdminId = ((await getSetting(env.DB, "primary_admin_login_id")) || "ezpk_admin").toLowerCase();
+  if (loginIds.includes(reservedAdminId)) return jsonError("LOGIN_ID_RESERVED", 409);
+
+  const loginPlaceholders = loginIds.map(() => "?").join(",");
+  const nicknamePlaceholders = accounts.map(() => "?").join(",");
+  const existingLogin = await env.DB.prepare(`SELECT login_id FROM members WHERE login_id IN (${loginPlaceholders}) LIMIT 1`).bind(...loginIds).first();
+  if (existingLogin) return jsonError("LOGIN_ID_TAKEN", 409, { value: existingLogin.login_id });
+  const existingNickname = await env.DB.prepare(`SELECT nickname FROM members WHERE nickname COLLATE NOCASE IN (${nicknamePlaceholders}) LIMIT 1`).bind(...accounts.map((item) => item.nickname)).first();
+  if (existingNickname) return jsonError("NICKNAME_TAKEN", 409, { value: existingNickname.nickname });
+
+  const statements = [];
+  for (const account of accounts) {
+    const passwordData = await hashPassword(temporaryPassword, env.PASSWORD_PEPPER);
+    statements.push(
+      env.DB.prepare(`INSERT INTO members (
+        login_id,password_hash,password_salt,password_algorithm,password_iterations,
+        nickname,power,industry_level,member_rank,role,status,must_change_password,
+        nickname_updated_at,password_changed_at
+      ) VALUES (?, ?, ?, 'pbkdf2-sha256', ?, ?, NULL, NULL, 'R1', 'member', 'active', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`)
+        .bind(account.loginId,passwordData.hash,passwordData.salt,passwordData.iterations,account.nickname),
+      env.DB.prepare(`INSERT INTO member_specs (member_id,profile_specs_registered)
+        SELECT id,0 FROM members WHERE login_id=?`).bind(account.loginId),
+    );
+  }
+
+  try {
+    await env.DB.batch(statements);
+  } catch (error) {
+    if (String(error).toLowerCase().includes("unique")) return jsonError("ACCOUNT_DUPLICATE", 409);
+    throw error;
+  }
+
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"members_created_bulk",targetType:"member",targetName:`${accounts.length} members`,after:{count:accounts.length,loginIds}});
+  return json({ok:true,data:{created:accounts.length,accounts:accounts.map((item)=>({loginId:item.loginId,nickname:item.nickname,memberRank:"R1",status:"active",mustChangePassword:true}))}},201);
 }
 
 async function handleAdminMemberDetail(request, memberId, env) {

@@ -7,7 +7,7 @@
   <title>EZPK 관리자</title>
   <link rel="stylesheet" href="../style.css?v=3390">
   <link rel="stylesheet" href="admin.css?v=3106">
-  <link rel="stylesheet" href="member-manager-v188.css?v=3170">
+  <link rel="stylesheet" href="member-manager-v188.css?v=3430">
   <link rel="stylesheet" href="vote-manager.css?v=3170">
   <link rel="stylesheet" href="capital-war-manager.css?v=3090">
   <link rel="stylesheet" href="admin-ui-v228.css?v=3180">
@@ -158,6 +158,16 @@
     <div class="admin-page-header">
       <div class="admin-page-heading"><h2>연맹원 관리</h2><p>연맹원의 계정 정보와 등급, 상태 및 세부 스펙을 관리합니다.</p></div>
     </div>
+    <details class="v188-create-card">
+      <summary>＋ 연맹원 계정 생성</summary>
+      <div class="v188-create-body">
+        <label>계정 목록<textarea id="memberCreateAccountsV343" rows="5" placeholder="로그인 ID / 닉네임&#10;ezpk_example / Example"></textarea></label>
+        <label>공통 임시 비밀번호<input id="memberCreatePasswordV343" type="password" minlength="6" maxlength="128" autocomplete="new-password" placeholder="6자 이상 입력"></label>
+        <p>한 줄에 한 명씩 입력합니다. 생성 계정은 R1·활성 상태이며 비밀번호 변경 필요로 표시됩니다.</p>
+        <button id="memberCreateSubmitV343" class="primary" type="button">계정 일괄 생성</button>
+        <div id="memberCreateStatusV343" class="mini-status" role="status"></div>
+      </div>
+    </details>
     <div id="memberListContentV299">
     <div class="v188-stats" id="memberStats">
       <article><span>전체 연맹원</span><strong data-stat="total">0</strong></article>
@@ -367,7 +377,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=3106"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
 <script src="capital-war-manager.js?v=3140"></script>
-<script src="member-manager-v188.js?v=3090"></script>
+<script src="member-manager-v188.js?v=3430"></script>
 <script src="vote-manager.js?v=2160"></script>
 </body>
 </html>

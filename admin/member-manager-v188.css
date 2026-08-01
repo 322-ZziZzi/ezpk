@@ -1,4 +1,5 @@
 .v188-member-manager{display:grid;gap:14px;min-width:0}
+.v188-create-card{border:1px solid #33445c;border-radius:14px;background:#0b111a;overflow:hidden}.v188-create-card summary{padding:15px 17px;color:#f5c547;font-weight:900;cursor:pointer}.v188-create-body{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,.7fr);gap:12px;padding:0 16px 16px;border-top:1px solid #263245}.v188-create-body label{display:grid;gap:6px;padding-top:14px;color:#aeb8c5;font-size:12px;font-weight:800}.v188-create-body textarea,.v188-create-body input{width:100%;box-sizing:border-box;border:1px solid #303d50;border-radius:10px;background:#080d14;color:#fff;padding:11px;font:inherit}.v188-create-body p{grid-column:1/-1;margin:0;color:#8795a8;font-size:12px}.v188-create-body button{min-height:46px;border:0;border-radius:10px;background:#f5c547;color:#111;font-weight:900;cursor:pointer}.v188-create-body .mini-status{align-self:center;color:#aeb8c5;font-size:13px}
 .v188-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .v188-stats article{padding:14px;border:1px solid #263245;border-radius:14px;background:#0b111a}
 .v188-stats span{display:block;color:#8795a8;font-size:12px}.v188-stats strong{display:block;margin-top:5px;font-size:24px}
@@ -31,6 +32,7 @@
 .v188-detail-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.v188-detail-actions .primary{grid-column:1/-1}.danger{min-height:44px;border:1px solid #7f3030;border-radius:10px;background:#351313;color:#ff9d9d}
 @media(max-width:1180px){.v188-toolbar{grid-template-columns:repeat(3,minmax(0,1fr));}.v188-toolbar input{grid-column:1/-1}.v188-toolbar #memberLimitV188,.v188-toolbar button{grid-row:auto}.v188-layout{grid-template-columns:minmax(0,1.3fr) minmax(320px,.8fr)}}
 @media(max-width:900px){
+ .v188-create-body{grid-template-columns:1fr}
  .v188-stats{grid-template-columns:1fr 1fr}
  .v188-toolbar{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
  .v188-toolbar input{grid-column:1/-1}.v188-toolbar #memberLimitV188,.v188-toolbar button{grid-row:auto}

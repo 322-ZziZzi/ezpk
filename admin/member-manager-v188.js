@@ -26,6 +26,34 @@
     render();
     syncShared();
   }
+  function parseCreateAccounts(){
+    return $("#memberCreateAccountsV343").value.split(/\r?\n/).map((line,index)=>{
+      const separator=line.indexOf("/");
+      if(separator<0)return line.trim()?{error:index+1}:null;
+      const loginId=line.slice(0,separator).trim().toLowerCase();
+      const nickname=line.slice(separator+1).trim();
+      return loginId&&nickname?{loginId,nickname}:{error:index+1};
+    }).filter(Boolean);
+  }
+  async function createMembers(){
+    const status=$("#memberCreateStatusV343"),button=$("#memberCreateSubmitV343");
+    const parsed=parseCreateAccounts(),invalid=parsed.find(item=>item.error);
+    const temporaryPassword=$("#memberCreatePasswordV343").value;
+    if(invalid){status.textContent=`${invalid.error}번째 줄의 형식을 확인해 주세요.`;return}
+    if(!parsed.length){status.textContent="생성할 계정을 입력해 주세요.";return}
+    if(temporaryPassword.length<6||/\s/.test(temporaryPassword)){status.textContent="임시 비밀번호는 공백 없이 6자 이상 입력해 주세요.";return}
+    if(!confirm(`${parsed.length}개의 R1 활성 계정을 생성할까요?`))return;
+    try{
+      button.disabled=true;status.textContent="계정을 생성하고 있습니다.";
+      const data=await api("/api/admin/members/create-bulk",{method:"POST",body:JSON.stringify({accounts:parsed,temporaryPassword})});
+      status.textContent=`${data.created}개 계정을 생성했습니다.`;
+      $("#memberCreateAccountsV343").value="";$("#memberCreatePasswordV343").value="";
+      await load(true);
+    }catch(error){
+      const messages={VALIDATION_ERROR:"입력값을 다시 확인해 주세요.",DUPLICATE_LOGIN_ID_IN_REQUEST:"입력 목록에 중복 로그인 ID가 있습니다.",DUPLICATE_NICKNAME_IN_REQUEST:"입력 목록에 중복 닉네임이 있습니다.",LOGIN_ID_RESERVED:"관리자 전용 로그인 ID는 사용할 수 없습니다.",LOGIN_ID_TAKEN:`이미 사용 중인 로그인 ID입니다${error.payload?.value?`: ${error.payload.value}`:"."}`,NICKNAME_TAKEN:`이미 사용 중인 닉네임입니다${error.payload?.value?`: ${error.payload.value}`:"."}`,ACCOUNT_DUPLICATE:"기존 계정과 중복되는 정보가 있습니다."};
+      status.textContent=messages[error.code]||"계정 생성에 실패했습니다.";
+    }finally{button.disabled=false}
+  }
   function syncShared(){
     if(typeof window.membersData!=="undefined"){
       window.membersData={lastUpdated:new Date().toISOString().slice(0,10),members:state.items.map(m=>window.normalizeMember?window.normalizeMember(m):m)};
@@ -240,6 +268,7 @@
   async function loadLogs(){if(state.currentAdmin?.adminLevel!=="super")return;const p=new URLSearchParams({page:String(state.logPage),limit:"30"});const q=$("#adminLogSearchV299")?.value.trim();const c=$("#adminLogCategoryV299")?.value;const actorLevel=$("#adminLogActorLevelV310")?.value;const result=$("#adminLogResultV310")?.value;const dateFrom=$("#adminLogDateFromV310")?.value;const dateTo=$("#adminLogDateToV310")?.value;if(q)p.set("q",q);if(c)p.set("category",c);if(actorLevel)p.set("actorLevel",actorLevel);if(result)p.set("result",result);if(dateFrom)p.set("dateFrom",dateFrom);if(dateTo)p.set("dateTo",dateTo);const d=await api(`/api/admin/logs?${p}`);state.logTotalPages=Math.max(1,d.pagination?.totalPages||1);if(state.logPage>state.logTotalPages){state.logPage=state.logTotalPages;return loadLogs()}const rows=d.items||[];$("#adminLogRowsV299").innerHTML=rows.map(x=>`<tr><td>${date(x.created_at)}</td><td>${esc(x.actor_nickname)} ${x.actor_admin_level==="super"?"[최고]":"[부]"}</td><td>${esc(logLabel(x.category))}</td><td>${esc(x.action)}</td><td>${esc(x.target_name||"-")}</td><td>${esc(x.result)}</td></tr>`).join("")||`<tr><td colspan="6">조건에 맞는 기록이 없습니다.</td></tr>`;$("#adminLogCardsV299").innerHTML=rows.map(x=>`<article class="admin-log-card"><strong>${esc(x.action)}</strong><small>${date(x.created_at)}</small><span>처리자 ${esc(x.actor_nickname)} · ${x.actor_admin_level==="super"?"최고관리자":"부관리자"}</span><span>대상 ${esc(x.target_name||"-")}</span><span>${esc(logLabel(x.category))} · ${esc(x.result)}</span></article>`).join("");$("#adminLogPageV299").textContent=`${state.logPage} / ${state.logTotalPages}`;$("#adminLogPrevV299").disabled=state.logPage<=1;$("#adminLogNextV299").disabled=state.logPage>=state.logTotalPages;}
   function init(){
     if(!$("#memberRowsV188"))return;
+    $("#memberCreateSubmitV343").onclick=createMembers;
     $("#memberSearchV188").oninput=e=>{clearTimeout(init.t);init.t=setTimeout(()=>{state.query=e.target.value.trim();load(true)},250)};
     $("#memberRankV188").onchange=e=>{state.rank=e.target.value;load(true)};
     $("#memberSortV188").onchange=e=>{state.sort=e.target.value;load(true)};
