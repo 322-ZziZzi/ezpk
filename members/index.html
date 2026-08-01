@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#05070b">
   <title>322 EZPK Members</title>
   <link rel="stylesheet" href="../style.css?v=3390">
-  <link rel="stylesheet" href="members.css?v=2760">
+  <link rel="stylesheet" href="members.css?v=3440">
   <link rel="stylesheet" href="../common-heading.css?v=3410">
 </head>
 <body>
@@ -23,6 +23,10 @@
     </div>
   </section>
   <section class="members-content">
+    <div id="memberViewSwitch" class="member-view-switch" hidden>
+      <button id="tierViewButton" type="button" data-member-view="tier"></button>
+      <button id="generalViewButton" type="button" data-member-view="general"></button>
+    </div>
     <div class="member-tools">
       <input id="memberSearch" type="search" autocomplete="off">
       <select id="rankFilter" aria-label="Rank filter"></select>
@@ -42,6 +46,6 @@
 <footer><b>322 EZPK ALLIANCE</b><span id="memberFooter"></span></footer>
 <script src="../data.js?v=1530"></script>
 <script src="../vehicle-power.js?v=2750"></script>
-<script src="members.js?v=2760"></script>
+<script src="members.js?v=3440"></script>
 </body>
 </html>
