@@ -176,7 +176,7 @@
     ko: {
       login:'로그인', signup:'회원가입', account:'계정', myAccount:'내 계정', member:'멤버',
       administrator:'관리자', admin:'관리자', myPage:'마이페이지', logout:'로그아웃',
-      loading:'확인 중', loginId:'아이디', password:'비밀번호',
+      loading:'확인 중', loginId:'아이디', password:'비밀번호', loginSubtitle:'연맹원 계정으로 로그인하세요.',
       noAccount:'계정이 없으신가요?', loginSuccess:'로그인되었습니다.',
       logoutSuccess:'로그아웃되었습니다.',
       invalidLogin:'아이디 또는 비밀번호가 올바르지 않습니다.',
@@ -190,7 +190,7 @@
     en: {
       login:'LOGIN', signup:'SIGN UP', account:'ACCOUNT', myAccount:'MY ACCOUNT', member:'MEMBER',
       administrator:'ADMINISTRATOR', admin:'ADMIN', myPage:'MY PAGE', logout:'LOGOUT',
-      loading:'CHECKING', loginId:'Login ID', password:'Password',
+      loading:'CHECKING', loginId:'Login ID', password:'Password', loginSubtitle:'Sign in with your alliance member account.',
       noAccount:'Do not have an account?', loginSuccess:'Logged in successfully.',
       logoutSuccess:'Logged out successfully.',
       invalidLogin:'Invalid login ID or password.',
@@ -204,7 +204,7 @@
     pt: {
       login:'ENTRAR', signup:'CADASTRAR', account:'CONTA', myAccount:'MINHA CONTA', member:'MEMBRO',
       administrator:'ADMINISTRADOR', admin:'ADMIN', myPage:'MINHA PÁGINA', logout:'SAIR',
-      loading:'VERIFICANDO', loginId:'ID de login', password:'Senha',
+      loading:'VERIFICANDO', loginId:'ID de login', password:'Senha', loginSubtitle:'Entre com sua conta de membro da aliança.',
       noAccount:'Ainda não tem uma conta?', loginSuccess:'Login realizado.',
       logoutSuccess:'Sessão encerrada.',
       invalidLogin:'ID de login ou senha inválidos.',
@@ -218,7 +218,7 @@
     vi: {
       login:'ĐĂNG NHẬP', signup:'ĐĂNG KÝ', account:'TÀI KHOẢN', myAccount:'TÀI KHOẢN CỦA TÔI', member:'THÀNH VIÊN',
       administrator:'QUẢN TRỊ VIÊN', admin:'QUẢN TRỊ', myPage:'TRANG CỦA TÔI', logout:'ĐĂNG XUẤT',
-      loading:'ĐANG KIỂM TRA', loginId:'ID đăng nhập', password:'Mật khẩu',
+      loading:'ĐANG KIỂM TRA', loginId:'ID đăng nhập', password:'Mật khẩu', loginSubtitle:'Đăng nhập bằng tài khoản thành viên liên minh.',
       noAccount:'Chưa có tài khoản?', loginSuccess:'Đăng nhập thành công.',
       logoutSuccess:'Đã đăng xuất.',
       invalidLogin:'ID đăng nhập hoặc mật khẩu không đúng.',
@@ -232,7 +232,7 @@
     ar: {
       login:'تسجيل الدخول', signup:'إنشاء حساب', account:'الحساب', myAccount:'حسابي', member:'عضو',
       administrator:'مسؤول', admin:'الإدارة', myPage:'صفحتي', logout:'تسجيل الخروج',
-      loading:'جارٍ التحقق', loginId:'معرّف الدخول', password:'كلمة المرور',
+      loading:'جارٍ التحقق', loginId:'معرّف الدخول', password:'كلمة المرور', loginSubtitle:'سجّل الدخول بحساب عضو التحالف.',
       noAccount:'ليس لديك حساب؟', loginSuccess:'تم تسجيل الدخول.',
       logoutSuccess:'تم تسجيل الخروج.',
       invalidLogin:'معرّف تسجيل الدخول أو كلمة المرور غير صحيحة.',
@@ -246,7 +246,7 @@
     ja: {
       login:'ログイン', signup:'新規登録', account:'アカウント', member:'メンバー',
       administrator:'管理者', admin:'管理', myPage:'マイページ', logout:'ログアウト',
-      loading:'確認中', loginId:'ログインID', password:'パスワード',
+      loading:'確認中', loginId:'ログインID', password:'パスワード', loginSubtitle:'同盟メンバーアカウントでログインしてください。',
       noAccount:'アカウントをお持ちでないですか？', loginSuccess:'ログインしました。',
       logoutSuccess:'ログアウトしました。',
       invalidLogin:'ログインIDまたはパスワードが正しくありません。',
@@ -260,7 +260,7 @@
     th: {
       login:'เข้าสู่ระบบ', signup:'สมัครสมาชิก', account:'บัญชี', myAccount:'บัญชีของฉัน', member:'สมาชิก',
       administrator:'ผู้ดูแลระบบ', admin:'ผู้ดูแล', myPage:'หน้าของฉัน', logout:'ออกจากระบบ',
-      loading:'กำลังตรวจสอบ', loginId:'ไอดีเข้าสู่ระบบ', password:'รหัสผ่าน',
+      loading:'กำลังตรวจสอบ', loginId:'ไอดีเข้าสู่ระบบ', password:'รหัสผ่าน', loginSubtitle:'เข้าสู่ระบบด้วยบัญชีสมาชิกพันธมิตร',
       noAccount:'ยังไม่มีบัญชีใช่ไหม?', loginSuccess:'เข้าสู่ระบบแล้ว',
       logoutSuccess:'ออกจากระบบแล้ว',
       invalidLogin:'รหัสเข้าสู่ระบบหรือรหัสผ่านไม่ถูกต้อง',
@@ -274,7 +274,7 @@
     'zh-tw': {
       login:'登入', signup:'註冊', account:'帳號', myAccount:'我的帳號', member:'成員',
       administrator:'管理員', admin:'管理', myPage:'我的頁面', logout:'登出',
-      loading:'確認中', loginId:'登入 ID', password:'密碼',
+      loading:'確認中', loginId:'登入 ID', password:'密碼', loginSubtitle:'使用聯盟成員帳號登入。',
       noAccount:'還沒有帳號嗎？', loginSuccess:'登入成功。',
       logoutSuccess:'已登出。',
       invalidLogin:'登入 ID 或密碼不正確。',
@@ -342,10 +342,11 @@
     </aside>
     <div class="ezpk-auth-modal" id="ezpkLoginModal" hidden>
       <div class="ezpk-auth-backdrop" data-auth-close></div>
-      <section class="ezpk-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="ezpkLoginTitle">
+      <section class="ezpk-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="ezpkLoginTitle" aria-describedby="ezpkLoginSubtitle">
         <button class="ezpk-auth-close" type="button" data-auth-close aria-label="Close">×</button>
         <p class="ezpk-auth-eyebrow">EZPK MEMBER</p>
         <h2 id="ezpkLoginTitle"></h2>
+        <p class="ezpk-auth-subtitle" id="ezpkLoginSubtitle" data-auth-text="loginSubtitle"></p>
         <form id="ezpkLoginForm" novalidate>
           <label>
             <span data-auth-text="loginId"></span>
@@ -407,9 +408,14 @@
       season6Locked:true,
       capitalWarLocked:true
     };
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timeoutId = setTimeout(function () {
+      if (controller) controller.abort();
+    }, 2500);
     try {
       const response = await fetch('/api/public/strategy-access?v=' + Date.now(), {
-        method:'GET', credentials:'include', headers:{accept:'application/json'}, cache:'no-store'
+        method:'GET', credentials:'include', headers:{accept:'application/json'}, cache:'no-store',
+        ...(controller ? { signal:controller.signal } : {})
       });
       const payload = await response.json();
       if (response.ok && payload?.ok) {
@@ -421,7 +427,11 @@
           capitalWarLocked:true
         };
       }
-    } catch (_) {}
+    } catch (_) {
+      // The conservative locked fallback above is rendered once after timeout.
+    } finally {
+      clearTimeout(timeoutId);
+    }
     strategyAccess = nextAccess;
     applyStrategyMenuVisibility();
   }
@@ -480,7 +490,18 @@
     }
     const ui = menuUi(lang);
     const signedIn = activeMemberSignedIn();
-    const seasonAccessReady = Boolean(strategyAccess.resolved);
+
+    // v335: A guest navigation must be painted only once, after both auth and
+    // Season 6 access are known. Rendering the other links first and inserting
+    // Season 6 later caused the desktop and mobile menu order to visibly shift.
+    if (!signedIn && !strategyAccess.resolved) {
+      desktopNavItems.innerHTML = '';
+      navMoreMenu.innerHTML = '';
+      mobileDrawerItems.innerHTML = '';
+      navMore.hidden = true;
+      return;
+    }
+
     const seasonLockedForGuest = !signedIn && strategyAccess.season6Locked;
 
     if (signedIn) {
@@ -495,8 +516,8 @@
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
     } else {
-      const guestPrimaryKeys = ['immigration', ...(seasonAccessReady ? ['seasonUpcoming'] : []), 'members', 'tip'];
-      const guestMobileKeys = ['immigration', ...(seasonAccessReady ? ['seasonUpcoming'] : []), 'members', 'tip', 'game', 'accounts'];
+      const guestPrimaryKeys = ['immigration','seasonUpcoming','members','tip'];
+      const guestMobileKeys = ['immigration','seasonUpcoming','members','tip','game','accounts'];
       desktopNavItems.innerHTML = guestPrimaryKeys.map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
       navMoreMenu.innerHTML = [
         menuGroupMarkup(ui.public,['game','accounts']),
@@ -916,6 +937,7 @@
     const submit = loginForm.querySelector('.ezpk-auth-submit');
     loginError.hidden = true;
     submit.disabled = true;
+    submit.setAttribute('aria-busy','true');
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -978,6 +1000,7 @@
       loginError.hidden = false;
     } finally {
       submit.disabled = false;
+      submit.setAttribute('aria-busy','false');
     }
   });
 

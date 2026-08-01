@@ -2061,6 +2061,52 @@ body.ezpk-mobile-menu-open{overflow:hidden!important}
   [data-shared-header] #navMoreMenu{width:260px;min-width:260px;padding:9px}
 }
 
+/* v336: shared authentication UX and distinct Login / Sign Up actions */
+.ezpk-auth-modal{overflow-y:auto;overscroll-behavior:contain}
+.ezpk-auth-dialog{
+  width:min(440px,100%);padding:30px;border:1px solid #2c384a;border-radius:16px;
+  background:linear-gradient(180deg,#111a27,#0a1019);box-shadow:0 24px 70px rgba(0,0,0,.56)
+}
+.ezpk-auth-eyebrow{margin-bottom:8px;color:#d8b94f;font-size:11px;letter-spacing:.17em}
+.ezpk-auth-dialog h2{margin:0;font-size:30px;line-height:1.15}
+.ezpk-auth-subtitle{margin:9px 34px 22px 0;color:#929fb2;font-size:14px;line-height:1.55}
+#ezpkLoginForm{gap:16px}
+#ezpkLoginForm label{gap:7px;color:#d2d9e3;font-weight:800}
+#ezpkLoginForm input{
+  min-height:48px;padding:0 14px;border-color:#344155;border-radius:10px;background:#080d15;
+  transition:border-color .16s ease,background .16s ease
+}
+#ezpkLoginForm input:hover{border-color:#46566d}
+#ezpkLoginForm input:focus{outline:none;border-color:#d8b94f;box-shadow:0 0 0 3px rgba(216,185,79,.11)}
+.ezpk-password-toggle{top:4px;right:4px;border:1px solid transparent;border-radius:8px;color:#b6c1cf}
+.ezpk-password-toggle:hover,.ezpk-password-toggle:focus-visible{border-color:#45556d;color:#fff;outline:none}
+.ezpk-auth-error{border-radius:10px;background:rgba(239,68,68,.08)}
+.ezpk-auth-submit{
+  min-height:48px;border:1px solid #d8b94f;border-radius:10px;background:#d8b94f;
+  color:#15120a;font-weight:900;transition:background .16s ease,border-color .16s ease
+}
+.ezpk-auth-submit:hover,.ezpk-auth-submit:focus-visible{background:#e3c65c;border-color:#e3c65c;outline:none}
+.ezpk-auth-switch{
+  display:grid;gap:10px;margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08);
+  color:#98a4b5;text-align:center
+}
+.ezpk-auth-switch a{
+  display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:0 16px;
+  border:1px solid #3f78a8;border-radius:10px;background:#1d4f7a;color:#fff;font-weight:900;
+  white-space:normal;line-height:1.25;transition:background .16s ease,border-color .16s ease
+}
+.ezpk-auth-switch a:hover,.ezpk-auth-switch a:focus-visible{background:#245f91;border-color:#69a6d7;outline:none}
+html[dir='rtl'] .ezpk-auth-subtitle{margin-right:0;margin-left:34px}
+
+@media(max-width:640px){
+  .ezpk-auth-modal{display:flex;align-items:flex-start;padding:12px;padding-top:max(12px,env(safe-area-inset-top));padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  .ezpk-auth-dialog{width:100%;min-height:0;margin:auto 0;padding:58px 18px 22px;border:1px solid #2c384a;border-radius:16px;overflow:visible}
+  .ezpk-auth-close{top:10px;right:10px}
+  .ezpk-auth-dialog h2{font-size:28px}
+  .ezpk-auth-subtitle{margin-bottom:20px}
+  html[dir='rtl'] .ezpk-auth-close{right:auto;left:10px}
+}
+
 @media(max-width:1199px){
   [data-shared-header]{z-index:1000!important}
   [data-shared-header].site-header:not(.admin-auth-host){display:grid!important;grid-template-columns:minmax(0,1fr) 44px 44px!important;gap:7px!important;min-height:68px!important;padding:10px 12px!important;direction:ltr}
@@ -2180,5 +2226,25 @@ body.ezpk-mobile-menu-open{overflow:hidden!important}
   [data-shared-header] .header-account .account-login:focus-visible{
     background:#e3c65c!important;border-color:#e3c65c!important;color:#15120a!important;
     outline:none!important;box-shadow:none!important
+  }
+}
+
+/* v336 final action-color precedence */
+@media(min-width:1200px){
+  [data-shared-header] .header-account .account-signup{
+    background:#1d4f7a!important;border-color:#3f78a8!important;color:#fff!important
+  }
+  [data-shared-header] .header-account .account-signup:hover,
+  [data-shared-header] .header-account .account-signup:focus-visible{
+    background:#245f91!important;border-color:#69a6d7!important;color:#fff!important
+  }
+}
+@media(max-width:1199px){
+  .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action='signup']{
+    border-color:#3f78a8!important;background:#1d4f7a!important;color:#fff!important
+  }
+  .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action='signup']:hover,
+  .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action='signup']:focus-visible{
+    border-color:#69a6d7!important;background:#245f91!important;color:#fff!important;outline:none!important
   }
 }

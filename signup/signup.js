@@ -68,6 +68,7 @@
     }
 
     submit.disabled = true;
+    submit.setAttribute("aria-busy", "true");
     try {
       const response = await fetch("/api/auth/signup", {
         method:"POST",
@@ -110,6 +111,7 @@
       showError(tr("failed"));
     } finally {
       submit.disabled = false;
+      submit.setAttribute("aria-busy", "false");
     }
   });
 
