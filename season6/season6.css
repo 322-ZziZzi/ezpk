@@ -2,8 +2,6 @@
 
 /* v338: one clean, shared title rhythm for every Season 6 content section */
 .section-title-block{text-align:center;padding:72px 24px 36px;margin:0}
-.section-title-block h2{margin:0;color:#fff;font-family:inherit;font-size:clamp(42px,7vw,72px);font-weight:900;line-height:1.08;letter-spacing:-.04em;text-shadow:none;-webkit-text-stroke:0}
-.section-title-block p{max-width:680px;margin:16px auto 0;color:#9fcdf4;font-size:16px;font-weight:500;line-height:1.75;letter-spacing:-.02em}
 .section-title-block small{display:block;color:#788497;margin-top:10px}
 .season6-content-section{margin-top:0}
 .season6-content-section+ .season6-content-section{margin-top:28px}
@@ -36,8 +34,6 @@
 @media(max-width:620px){
   .season6-page{padding:0 10px 40px}
   .section-title-block{padding:54px 18px 28px}
-  .section-title-block h2{font-size:clamp(38px,11vw,52px);letter-spacing:-.04em}
-  .section-title-block p{margin-top:14px;font-size:14px;line-height:1.7}
   .season6-content-section+ .season6-content-section{margin-top:14px}
   .team-card-head{padding:18px 14px 16px;gap:10px}
   .team-card-identity{gap:10px}

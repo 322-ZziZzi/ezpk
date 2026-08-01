@@ -1,4 +1,4 @@
-/* EZPK v102: shared heading system for all pages and primary page sections */
+/* EZPK v340: current shared heading system for pages and primary sections */
 :root{
   --ezpk-heading-gold:#f5c547;
   --ezpk-heading-white:#f7f8fa;
@@ -8,6 +8,8 @@
 /* Primary page and section heading containers */
 :is(
   .admin-hero,
+  .accounts-hero,
+  .cw-hero,
   .map-section > .section-head,
   .location-section > .section-head,
   .assignment-section .section-head,
@@ -26,9 +28,11 @@
   text-align:center !important;
 }
 
-/* Eyebrow / kicker */
+/* v340: decorative eyebrow / kicker labels are removed site-wide. */
 :is(
   .admin-hero,
+  .accounts-hero,
+  .cw-hero,
   .section-head,
   .mini-game-hero,
   .logo-hero,
@@ -42,22 +46,18 @@
   .vote-hero,
   .schedule-section > .head
 ) > :is(span,.eyebrow,.logo-kicker){
-  display:inline-block !important;
-  margin:0 0 16px !important;
-  color:var(--ezpk-heading-gold) !important;
-  font-family:Arial,'Noto Sans KR',sans-serif !important;
-  font-size:12px !important;
-  font-weight:900 !important;
-  line-height:1.3 !important;
-  letter-spacing:.18em !important;
-  text-transform:uppercase !important;
-  text-shadow:none !important;
-  -webkit-text-stroke:0 !important;
+  display:none !important;
 }
+.brand-hero > .eyebrow,
+.accounts-hero > .accounts-kicker,
+.cw-hero > .cw-kicker,
+.admin-login-card > .eyebrow{display:none !important}
 
 /* Main title */
 :is(
   .admin-hero,
+  .accounts-hero,
+  .cw-hero,
   .section-head,
   .mini-game-hero,
   .logo-hero,
@@ -85,6 +85,8 @@
 /* Subtitle */
 :is(
   .admin-hero,
+  .accounts-hero,
+  .cw-hero,
   .section-head,
   .mini-game-hero,
   .logo-hero,
@@ -118,7 +120,7 @@
 }
 
 /* RTL keeps hierarchy while respecting reading direction */
-.rtl :is(.admin-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
+.rtl :is(.admin-hero,.accounts-hero,.cw-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
   direction:rtl;
   text-align:center !important;
 }
@@ -126,6 +128,8 @@
 @media(max-width:760px){
   :is(
     .admin-hero,
+    .accounts-hero,
+    .cw-hero,
     .section-head,
     .mini-game-hero,
     .logo-hero,
@@ -135,23 +139,8 @@
     .section-title-block,
     .team-section-head,
     .tip-hero,
-    .schedule-section > .head
-  ) > :is(span,.eyebrow,.logo-kicker){
-    margin-bottom:13px !important;
-    font-size:11px !important;
-  }
-
-  :is(
-    .admin-hero,
-    .section-head,
-    .mini-game-hero,
-    .logo-hero,
-    .members-hero,
-    .request-hero,
-    .record-hero,
-    .section-title-block,
-    .team-section-head,
-    .tip-hero,
+    .vote-home-heading,
+    .vote-hero,
     .schedule-section > .head
   ) > :is(h1,h2){
     font-size:clamp(38px,11vw,52px) !important;
@@ -160,6 +149,8 @@
 
   :is(
     .admin-hero,
+    .accounts-hero,
+    .cw-hero,
     .section-head,
     .mini-game-hero,
     .logo-hero,
@@ -169,6 +160,8 @@
     .section-title-block,
     .team-section-head,
     .tip-hero,
+    .vote-home-heading,
+    .vote-hero,
     .schedule-section > .head
   ) > p{
     margin-top:15px !important;
