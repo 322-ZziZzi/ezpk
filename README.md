@@ -1,4 +1,12 @@
-# EZPK War Portal v375
+# EZPK War Portal v376
+
+## v376 · My Page session compatibility fix
+
+- Keeps My Page available when the optional v374 notice-dismiss migration is
+  still pending in D1.
+- Preserves the valid login session and skips only the unavailable rank-change
+  notice instead of showing the login-required state.
+- Existing rolling 365-day login behavior remains unchanged.
 
 ## v375 · Collapsible protection status and Korean promotion labels
 

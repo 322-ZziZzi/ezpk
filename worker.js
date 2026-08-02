@@ -1576,8 +1576,17 @@ async function rankProtectionState(db,memberId){
   return row?{active:true,type:row.change_type,until:row.protection_until,startedAt:row.created_at}:null;
 }
 async function memberRankChangeNotice(db,memberId){
-  const row=await db.prepare(`SELECT id,change_type,from_rank,to_rank,created_at FROM member_rank_changes WHERE member_id=? AND dismissed_at IS NULL AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
-  return row?{id:row.id,type:row.change_type,fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
+  try{
+    const row=await db.prepare(`SELECT id,change_type,from_rank,to_rank,created_at FROM member_rank_changes WHERE member_id=? AND dismissed_at IS NULL AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
+    return row?{id:row.id,type:row.change_type,fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
+  }catch(error){
+    // v376 compatibility guard: v374 added dismissed_at in a separate
+    // migration. A deployment can update the Worker before that migration is
+    // applied; the optional notice must never make /api/member/me look logged
+    // out while the member session itself is still valid.
+    console.warn('[EZPK] rank-change notice unavailable',error?.message||error);
+    return null;
+  }
 }
 
 async function handleRankChangeNoticeDismiss(request,env){
