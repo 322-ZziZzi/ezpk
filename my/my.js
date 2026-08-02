@@ -27,6 +27,16 @@
     R4: "Officer",
     R5: "Leader"
   });
+  const PROMOTION_LABELS={
+    ko:{title:"승급 조건",current:"현재",required:"필요",congrats:"승급 조건 달성을 축하합니다.",body:"승급 요청은 요청 게시판에 남겨 주세요.",request:"승급 요청하기",pending:"이미 처리 대기 중인 승급 요청이 있습니다.",view:"요청글 보기"},
+    en:{title:"Promotion Requirements",current:"Current",required:"Required",congrats:"Congratulations! You met the promotion requirements.",body:"Please submit your promotion request on the Request Board.",request:"REQUEST PROMOTION",pending:"A promotion request is already pending.",view:"VIEW REQUEST"},
+    ja:{title:"昇級条件",current:"現在",required:"必要",congrats:"昇級条件の達成、おめでとうございます。",body:"昇級申請はリクエスト掲示板に投稿してください。",request:"昇級を申請",pending:"処理待ちの昇級申請があります。",view:"申請を見る"},
+    "zh-tw":{title:"晉級條件",current:"目前",required:"需要",congrats:"恭喜您達成晉級條件。",body:"請至請求留言板提交晉級申請。",request:"申請晉級",pending:"已有待處理的晉級申請。",view:"查看申請"},
+    vi:{title:"Điều kiện thăng hạng",current:"Hiện tại",required:"Yêu cầu",congrats:"Chúc mừng bạn đã đạt điều kiện thăng hạng.",body:"Vui lòng gửi yêu cầu trên Bảng Yêu Cầu.",request:"YÊU CẦU THĂNG HẠNG",pending:"Đã có yêu cầu thăng hạng đang chờ xử lý.",view:"XEM YÊU CẦU"},
+    th:{title:"เงื่อนไขเลื่อนระดับ",current:"ปัจจุบัน",required:"ต้องการ",congrats:"ยินดีด้วย คุณผ่านเงื่อนไขการเลื่อนระดับแล้ว",body:"โปรดส่งคำขอที่กระดานคำขอ",request:"ขอเลื่อนระดับ",pending:"มีคำขอเลื่อนระดับที่รอดำเนินการอยู่แล้ว",view:"ดูคำขอ"},
+    pt:{title:"Requisitos de promoção",current:"Atual",required:"Necessário",congrats:"Parabéns! Você atingiu os requisitos de promoção.",body:"Envie o pedido no Quadro de Pedidos.",request:"PEDIR PROMOÇÃO",pending:"Já existe um pedido de promoção pendente.",view:"VER PEDIDO"},
+    ar:{title:"شروط الترقية",current:"الحالي",required:"المطلوب",congrats:"تهانينا، لقد حققت شروط الترقية.",body:"يرجى إرسال طلب الترقية في لوحة الطلبات.",request:"طلب الترقية",pending:"يوجد طلب ترقية قيد الانتظار بالفعل.",view:"عرض الطلب"}
+  };
 
   function normalizeMemberRank(value){
     const rank = String(value || "R1").toUpperCase();
@@ -99,6 +109,7 @@
   function renderMember(){
     if (!memberData) return;
     const m = memberData.member, s = memberData.specs || {};
+    renderPromotion(memberData.promotion);
     $("#summaryNickname").textContent = m.nickname;
     const profileRegistered = m.profileSpecsRegistered !== false && m.power != null && m.industryLevel;
     $("#summaryPower").textContent = profileRegistered ? formatPower(m.power) : "-";
@@ -137,6 +148,7 @@
     $("#nicknameInput").disabled = !available;
     $("#nicknameSubmit").disabled = !available;
   }
+  function renderPromotion(p){const card=$("#promotionCardV367");if(!card)return;card.hidden=!p;if(!p)return;const l=PROMOTION_LABELS[lang]||PROMOTION_LABELS.en;$("#promotionRouteV367").textContent=`${p.currentRank} → ${p.targetRank}`;$("#promotionTitleV367").textContent=l.title;$("#promotionCountV367").textContent=`${p.completed} / 2`;$("#promotionProgressV367").style.width=`${p.completed*50}%`;const ind=$("#promotionIndustryV367"),v=$("#promotionVehicleV367");ind.textContent=`${l.current} ${p.industry.current||'-'} · ${l.required} ${p.industry.required}`;v.textContent=`${l.current} ${p.vehicle1.currentNormalized==null?'-':(p.vehicle1.currentNormalized/1000).toFixed(2)+'G'} · ${l.required} ${(p.vehicle1.requiredNormalized/1000).toFixed(1)}G`;ind.className=p.industry.passed?'passed':'failed';v.className=p.vehicle1.passed?'passed':'failed';const done=$("#promotionCongratsV367");done.hidden=!p.eligible;if(p.eligible){$("#promotionCongratsTitleV367").textContent=l.congrats;$("#promotionCongratsBodyV367").textContent=p.pendingRequestId?l.pending:l.body;const a=$("#promotionRequestV367");a.textContent=p.pendingRequestId?l.view:l.request;a.href=p.pendingRequestId?`../request/#request-${p.pendingRequestId}`:`../request/?type=promotion&target=${p.targetRank}`}}
 
   async function loadMember(){
     try {

@@ -1,5 +1,12 @@
 # EZPK War Portal v256
 
+## v367 · Promotion workflow
+
+- Configurable R1→R2 and R2→R3 requirements stored in D1.
+- Eight-language My Page progress card and promotion-request handoff.
+- Admin candidate view with final confirmation, latest-data revalidation, immediate rank update, and activity logs.
+- Migration: `0022_v367_promotion_system.sql`.
+
 Current baseline: v256 Capital War assignment synchronization and unassigned statistics.
 
 This version retains the v255 in-app browser guidance and canonical host normalization fixes.

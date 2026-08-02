@@ -59,7 +59,7 @@ export default {
       if (voteExclusionMatch && request.method === "PUT") return handleVoteExclusion(request, Number(voteExclusionMatch[1]), env);
 
 
-      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions))?$/);
+      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions|promote))?$/);
       if (adminMemberMatch) {
         const memberId = Number(adminMemberMatch[1]);
         const action = adminMemberMatch[2] || "";
@@ -71,6 +71,7 @@ export default {
         if (request.method === "DELETE" && action === "specs") return handleAdminMemberSpecsReset(request, memberId, env);
         if (request.method === "PUT" && action === "permissions") return handleAdminMemberPermissions(request, memberId, env);
         if (request.method === "POST" && action === "reset-password") return handleAdminMemberResetPassword(request, memberId, env);
+        if (request.method === "POST" && action === "promote") return handleAdminMemberPromote(request, memberId, env);
         if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
       }
 
@@ -160,6 +161,12 @@ export default {
 
         case "GET /api/admin/members":
           return handleAdminMembers(request, url, env);
+        case "GET /api/admin/promotion-candidates":
+          return handleAdminPromotionCandidates(request, env);
+        case "GET /api/admin/promotion-rules":
+          return handleAdminPromotionRulesGet(request, env);
+        case "PUT /api/admin/promotion-rules":
+          return handleAdminPromotionRulesPut(request, env);
         case "POST /api/admin/members/create-bulk":
           return handleAdminMembersCreateBulk(request, env);
         case "GET /api/admin/logs":
@@ -789,6 +796,12 @@ async function handleMemberMe(request, env) {
   const nicknameChangeCount = Number(record.nickname_change_count ?? 0);
   const firstNicknameChangeFree = nicknameChangeCount === 0;
 
+  const rules=await getPromotionRules(env.DB);
+  const promotion=promotionState(record,rules);
+  if(promotion){
+    const pending=await env.DB.prepare(`SELECT id FROM member_requests WHERE member_id=? AND request_type='promotion' AND promotion_target_rank=? AND (admin_answer IS NULL OR TRIM(admin_answer)='') ORDER BY id DESC LIMIT 1`).bind(member.id,promotion.targetRank).first();
+    promotion.pendingRequestId=pending?Number(pending.id):null;
+  }
   return json({
     ok: true,
     data: {
@@ -815,6 +828,7 @@ async function handleMemberMe(request, env) {
         passwordChangedAt: record.password_changed_at,
       },
       specs: specsResponse(record),
+      promotion,
     },
   });
 }
@@ -1273,6 +1287,8 @@ function requestRow(row, viewerId = 0, isAdmin = false) {
     canEdit: isAdmin || Number(row.member_id) === Number(viewerId),
     canDelete: isAdmin || Number(row.member_id) === Number(viewerId),
     legacy: Boolean(row.is_legacy),
+    requestType: row.request_type || "general",
+    promotionTargetRank: row.promotion_target_rank || null,
   };
 }
 
@@ -1305,10 +1321,19 @@ async function handleRequestCreate(request, env) {
   const title = cleanString(body.title, 120);
   const message = cleanString(body.message, 3000);
   if (!title || !message) return jsonError("VALIDATION_ERROR", 400);
+  const requestType=body.requestType==="promotion"?"promotion":"general";
+  const targetRank=requestType==="promotion"?String(body.promotionTargetRank||"").toUpperCase():null;
+  if(requestType==="promotion"){
+    const fresh=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(member.id).first();
+    const state=promotionState(fresh,await getPromotionRules(env.DB));
+    if(!state||!state.eligible||state.targetRank!==targetRank)return jsonError("PROMOTION_NOT_ELIGIBLE",409);
+    const duplicate=await env.DB.prepare(`SELECT id FROM member_requests WHERE member_id=? AND request_type='promotion' AND promotion_target_rank=? AND (admin_answer IS NULL OR TRIM(admin_answer)='') LIMIT 1`).bind(member.id,targetRank).first();
+    if(duplicate)return jsonError("PROMOTION_REQUEST_PENDING",409,{requestId:Number(duplicate.id)});
+  }
   const result = await env.DB.prepare(`
-    INSERT INTO member_requests(member_id, author_nickname_snapshot, title, message)
-    VALUES(?,?,?,?)
-  `).bind(member.id, member.nickname, title, message).run();
+    INSERT INTO member_requests(member_id, author_nickname_snapshot, title, message,request_type,promotion_target_rank)
+    VALUES(?,?,?,?,?,?)
+  `).bind(member.id, member.nickname, title, message,requestType,targetRank).run();
   return json({ok:true,data:{id:Number(result.meta?.last_row_id || 0)}},201);
 }
 
@@ -1462,6 +1487,31 @@ async function getSetting(db, key) {
     .bind(key)
     .first();
   return row?.value ?? null;
+}
+
+const DEFAULT_PROMOTION_RULES = Object.freeze({
+  R2:{industryLevel:7,vehicle1PowerNormalized:1000},
+  R3:{industryLevel:8,vehicle1PowerNormalized:1300},
+});
+async function getPromotionRules(db){
+  try{
+    const raw=await getSetting(db,"promotion_rules_v1"), parsed=raw?JSON.parse(raw):{};
+    const rules={R2:{...DEFAULT_PROMOTION_RULES.R2,...parsed.R2},R3:{...DEFAULT_PROMOTION_RULES.R3,...parsed.R3}};
+    return validatePromotionRules(rules)?rules:structuredClone(DEFAULT_PROMOTION_RULES);
+  }catch(_){return structuredClone(DEFAULT_PROMOTION_RULES)}
+}
+function validatePromotionRules(rules){
+  const r2=rules?.R2,r3=rules?.R3;
+  return [r2?.industryLevel,r3?.industryLevel,r2?.vehicle1PowerNormalized,r3?.vehicle1PowerNormalized].every(Number.isFinite)
+    &&r2.industryLevel>=1&&r3.industryLevel<=10&&r3.industryLevel>=r2.industryLevel
+    &&r2.vehicle1PowerNormalized>0&&r3.vehicle1PowerNormalized>=r2.vehicle1PowerNormalized;
+}
+function industryNumber(v){const n=Number(String(v||"").toUpperCase().replace("I",""));return Number.isFinite(n)?n:0}
+function promotionState(row,rules){
+  const target=row.member_rank==="R1"?"R2":row.member_rank==="R2"?"R3":null;if(!target)return null;
+  const rule=rules[target],ind=industryNumber(row.industry_level),v1=Number(row.vehicle1_power_normalized||0);
+  const active=row.status==="active"&&(row.approval_status||"approved")==="approved";
+  return {currentRank:row.member_rank,targetRank:target,completed:Number(ind>=rule.industryLevel)+Number(v1>=rule.vehicle1PowerNormalized),eligible:active&&ind>=rule.industryLevel&&v1>=rule.vehicle1PowerNormalized,industry:{required:`I${rule.industryLevel}`,current:row.industry_level||null,passed:ind>=rule.industryLevel},vehicle1:{requiredNormalized:rule.vehicle1PowerNormalized,currentNormalized:row.vehicle1_power_normalized??null,passed:v1>=rule.vehicle1PowerNormalized}};
 }
 
 async function getSessionDurationDays(db) {
@@ -1894,6 +1944,42 @@ async function handleAdminMembers(request, url, env) {
     stats:{total:Number(stats?.total||0),active:Number(stats?.active||0),suspended:Number(stats?.suspended||0),left:Number(stats?.left_count||0)},
     pagination:{page,limit,total:Number(countRow?.total||0),totalPages:Math.ceil(Number(countRow?.total||0)/limit)}
   }});
+}
+
+async function promotionCandidateRows(db){
+  const rules=await getPromotionRules(db);
+  const rows=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.member_rank IN ('R1','R2') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).all();
+  const items=(rows.results||[]).map(row=>({row,state:promotionState(row,rules)})).filter(x=>x.state?.eligible).sort((a,b)=>(a.state.targetRank==="R3"?-1:1)-(b.state.targetRank==="R3"?-1:1)||String(a.row.nickname).localeCompare(String(b.row.nickname),"ko"));
+  return {rules,items:items.map(({row,state})=>({...adminMemberRow(row),promotion:state}))};
+}
+async function handleAdminPromotionCandidates(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
+  const data=await promotionCandidateRows(env.DB);
+  return json({ok:true,data:{items:data.items,counts:{total:data.items.length,R2:data.items.filter(x=>x.promotion.targetRank==="R2").length,R3:data.items.filter(x=>x.promotion.targetRank==="R3").length}}});
+}
+async function handleAdminPromotionRulesGet(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
+  return json({ok:true,data:{rules:await getPromotionRules(env.DB),editable:admin.admin_level==="super"}});
+}
+async function handleAdminPromotionRulesPut(request,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const body=await readJson(request),rules={R2:{industryLevel:Number(body?.R2?.industryLevel),vehicle1PowerNormalized:Number(body?.R2?.vehicle1PowerNormalized)},R3:{industryLevel:Number(body?.R3?.industryLevel),vehicle1PowerNormalized:Number(body?.R3?.vehicle1PowerNormalized)}};
+  if(!validatePromotionRules(rules))return jsonError("INVALID_PROMOTION_RULES",400);
+  const before=await getPromotionRules(env.DB);
+  await env.DB.prepare(`INSERT INTO settings(key,value,updated_at,updated_by) VALUES('promotion_rules_v1',?,CURRENT_TIMESTAMP,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by`).bind(JSON.stringify(rules),admin.login_id).run();
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"promotion_rules_updated",targetType:"setting",targetId:"promotion_rules_v1",targetName:"승급 조건",before,after:rules});
+  return json({ok:true,data:{rules}});
+}
+async function handleAdminMemberPromote(request,memberId,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
+  if(!row)return jsonError("MEMBER_NOT_FOUND",404);
+  const state=promotionState(row,await getPromotionRules(env.DB));
+  if(!state?.eligible){await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promotion_failed",targetType:"member",targetId:memberId,targetName:row.nickname,result:"failure",failureReason:"PROMOTION_NOT_ELIGIBLE"});return jsonError("PROMOTION_NOT_ELIGIBLE",409)}
+  const result=await env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved' AND CAST(REPLACE(UPPER(COALESCE(industry_level,'')),'I','') AS INTEGER)>=? AND EXISTS(SELECT 1 FROM member_specs s WHERE s.member_id=members.id AND s.vehicle1_power_normalized>=?)`).bind(state.targetRank,memberId,state.currentRank,Number(state.industry.required.slice(1)),state.vehicle1.requiredNormalized).run();
+  if(Number(result.meta?.changes||0)!==1)return jsonError("PROMOTION_STATE_CHANGED",409);
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promoted",targetType:"member",targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank},after:{memberRank:state.targetRank}});
+  return json({ok:true,data:{memberId,memberRank:state.targetRank}});
 }
 
 async function handleAdminMembersCreateBulk(request, env) {

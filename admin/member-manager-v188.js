@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const state={items:[],stats:{},page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",sort:"default",limit:10,longPress:null,currentAdmin:null,logPage:1,logTotalPages:1};
+  const state={items:[],stats:{},candidates:[],rules:null,page:1,totalPages:1,selected:new Set(),activeId:null,query:"",rank:"",sort:"default",limit:10,longPress:null,currentAdmin:null,logPage:1,logTotalPages:1};
   const $=s=>document.querySelector(s);
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
   const fmt=n=>window.EZPKVehiclePower?.formatCombatPower(n)??"-";
@@ -23,6 +23,7 @@
     if(reset)state.page=1;
     const data=await api(`/api/admin/members?${params()}`);
     state.items=data.items||[];state.stats=data.stats||{};state.totalPages=Math.max(1,data.pagination?.totalPages||1);
+    try{const c=await api('/api/admin/promotion-candidates');state.candidates=c.items||[];state.stats.promotion=c.counts?.total||0}catch(_){state.candidates=[];state.stats.promotion=0}
     render();
     syncShared();
   }
@@ -61,6 +62,18 @@
     window.dispatchEvent(new CustomEvent("ezpk-admin-members-updated",{detail:{members:state.items}}));
   }
   function renderStats(){document.querySelectorAll("[data-stat]").forEach(el=>{const value=Number(state.stats[el.dataset.stat]||0);el.textContent=Number.isFinite(value)?Math.max(0,Math.floor(value)).toLocaleString("ko-KR"):"0"})}
+  function renderCandidates(){
+    const box=$("#promotionCandidateListV367");if(!box)return;
+    const r2=state.candidates.filter(x=>x.promotion?.targetRank==="R2").length,r3=state.candidates.length-r2;
+    $("#promotionCandidateSummaryV367").textContent=`전체 ${state.candidates.length}명 · R3 ${r3}명 · R2 ${r2}명`;
+    const readOnly=state.currentAdmin?.adminLevel!=="super";
+    box.innerHTML=state.candidates.length?state.candidates.map(m=>`<article class="promotion-candidate" data-id="${m.id}"><button class="v188-open secondary" type="button"><span class="promotion-candidate-info"><strong>${esc(m.nickname)}</strong><small>${esc(m.memberRank)} · ${esc(industry(m.industryLevel))} · #1 ${esc(vehicle(m,1))}</small></span></button><span class="promotion-target">${m.promotion.targetRank} 승급 예정</span><button class="primary promote-member" type="button" ${readOnly?'disabled title="최고관리자만 승급할 수 있습니다."':''}>${m.promotion.targetRank}로 승급</button></article>`).join(""):'<p class="help">현재 승급 조건을 달성한 연맹원이 없습니다.</p>';
+    box.querySelectorAll('.v188-open').forEach(b=>b.onclick=()=>openDetail(Number(b.closest('[data-id]').dataset.id)));
+    box.querySelectorAll('.promote-member').forEach(b=>b.onclick=()=>promoteMember(Number(b.closest('[data-id]').dataset.id),b));
+  }
+  async function promoteMember(id,button){const m=state.candidates.find(x=>x.id===id);if(!m)return;const p=m.promotion;if(!confirm(`${m.nickname} 연맹원을 ${p.targetRank}로 승급할까요?\n\nIND ${p.industry.current} / ${p.industry.required}\n1번 차량 ${vehicle(m,1)} / ${(p.vehicle1.requiredNormalized/1000).toFixed(1)}G\n\n확인하면 D1에 즉시 반영됩니다.`))return;button.disabled=true;try{await api(`/api/admin/members/${id}/promote`,{method:'POST',body:'{}'});alert(`${m.nickname} 연맹원을 ${p.targetRank}로 승급했습니다.`);await load(true);renderCandidates()}catch(e){alert(e.code==='PROMOTION_STATE_CHANGED'?'정보가 변경되었습니다. 새로고침 후 다시 시도해 주세요.':'최신 승급 조건을 충족하지 않아 처리하지 못했습니다.');await load(true);renderCandidates()}finally{button.disabled=false}}
+  async function loadPromotionRules(){const d=await api('/api/admin/promotion-rules');state.rules=d.rules;['R2','R3'].forEach(rank=>{$(`#promotion${rank}IndustryV367`).innerHTML=Array.from({length:10},(_,i)=>10-i).map(n=>`<option value="${n}">I${n}</option>`).join('');$(`#promotion${rank}IndustryV367`).value=d.rules[rank].industryLevel;$(`#promotion${rank}VehicleV367`).value=d.rules[rank].vehicle1PowerNormalized/1000});const disabled=!d.editable;document.querySelectorAll('#promotionSettingsV367 select,#promotionSettingsV367 input,#promotionRulesSaveV367').forEach(x=>x.disabled=disabled);if(disabled)$('#promotionRulesStatusV367').textContent='승급 조건은 최고관리자만 변경할 수 있습니다.'}
+  async function savePromotionRules(){const rules={R2:{industryLevel:Number($('#promotionR2IndustryV367').value),vehicle1PowerNormalized:Number($('#promotionR2VehicleV367').value)*1000},R3:{industryLevel:Number($('#promotionR3IndustryV367').value),vehicle1PowerNormalized:Number($('#promotionR3VehicleV367').value)*1000}};if(!confirm('승급 조건을 저장할까요?\n\n승급 예정자와 마이페이지 달성 상태가 다시 계산되며 기존 등급은 변경되지 않습니다.'))return;try{await api('/api/admin/promotion-rules',{method:'PUT',body:JSON.stringify(rules)});$('#promotionRulesStatusV367').textContent='승급 조건을 저장했습니다.';await load(true)}catch(e){$('#promotionRulesStatusV367').textContent=e.code==='INVALID_PROMOTION_RULES'?'R3 조건은 R2보다 낮을 수 없습니다.':'저장하지 못했습니다.'}}
   function roleBadge(m){const level=m.adminLevel||(m.role==="admin"?"super":null);return level?`<span class="admin-role-badge ${level}">${level==="super"?"최고관리자":"부관리자"}</span>`:""}
   function row(m){
     const checked=state.selected.has(m.id)?"checked":"";
@@ -85,6 +98,7 @@
     $("#memberPageV188").textContent=`${state.page} / ${state.totalPages}`;
     $("#memberPrevV188").disabled=state.page<=1;$("#memberNextV188").disabled=state.page>=state.totalPages;
     bindRows();updateBulk();
+    renderCandidates();
   }
   function bindRows(){
     document.querySelectorAll("#memberRowsV188 tr").forEach(tr=>{
@@ -269,6 +283,10 @@
   function init(){
     if(!$("#memberRowsV188"))return;
     $("#memberCreateSubmitV343").onclick=createMembers;
+    $("#promotionCandidatesOpenV367").onclick=()=>{$('.v188-member-manager').classList.add('promotion-mode');$('#promotionCandidatesV367').hidden=false;renderCandidates()};
+    $("#promotionCandidatesBackV367").onclick=()=>{$('.v188-member-manager').classList.remove('promotion-mode');$('#promotionCandidatesV367').hidden=true};
+    $("#promotionCandidatesRefreshV367").onclick=async()=>{await load(true);renderCandidates()};
+    $("#promotionRulesSaveV367").onclick=savePromotionRules;
     $("#memberSearchV188").oninput=e=>{clearTimeout(init.t);init.t=setTimeout(()=>{state.query=e.target.value.trim();load(true)},250)};
     $("#memberRankV188").onchange=e=>{state.rank=e.target.value;load(true)};
     $("#memberSortV188").onchange=e=>{state.sort=e.target.value;load(true)};
@@ -280,7 +298,7 @@
     $("#memberSelectAllV188").onchange=e=>{state.items.forEach(m=>e.target.checked?state.selected.add(m.id):state.selected.delete(m.id));render()};
     $("#memberBulkFieldV188").onchange=bulkOptions;$("#memberBulkApplyV188").onclick=applyBulk;
     $("#memberBulkCancelV188").onclick=()=>{state.selected.clear();render()};bulkOptions();
-    window.addEventListener("ezpk-admin-ready",e=>{state.currentAdmin=e.detail?.member||null;const level=state.currentAdmin?.adminLevel||(state.currentAdmin?.role==="admin"?"super":null);if(state.currentAdmin)state.currentAdmin.adminLevel=level;load(true);if(level==="super")loadLogs()});
+    window.addEventListener("ezpk-admin-ready",e=>{state.currentAdmin=e.detail?.member||null;const level=state.currentAdmin?.adminLevel||(state.currentAdmin?.role==="admin"?"super":null);if(state.currentAdmin)state.currentAdmin.adminLevel=level;load(true);loadPromotionRules();if(level==="super")loadLogs()});
     $("#adminLogRefreshV299").onclick=()=>loadLogs();["#adminLogCategoryV299","#adminLogActorLevelV310","#adminLogResultV310","#adminLogDateFromV310","#adminLogDateToV310"].forEach(selector=>{const el=$(selector);if(el)el.onchange=()=>{state.logPage=1;loadLogs()}});$("#adminLogSearchV299").oninput=()=>{clearTimeout(init.lt);init.lt=setTimeout(()=>{state.logPage=1;loadLogs()},250)};$("#adminLogPrevV299").onclick=()=>{if(state.logPage>1){state.logPage--;loadLogs()}};$("#adminLogNextV299").onclick=()=>{if(state.logPage<state.logTotalPages){state.logPage++;loadLogs()}};
   }
   window.EZPKMemberManagerV188={load,renderFromShared:()=>{}};
