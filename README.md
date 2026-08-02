@@ -1,4 +1,18 @@
-# EZPK War Portal v371
+# EZPK War Portal v373
+
+## v373 · Fully vertical multilingual mobile promotion card
+
+- Keeps the PC promotion layout unchanged.
+- Converts the mobile title, progress count, spec requirements, and every activity requirement into independent full-width rows.
+- Prevents overflow for all eight languages and enlarged mobile text with min-width, wrapping, and bounded progress rules.
+- Adds correct Portuguese and English singular/plural activity units.
+
+## v372 · Mobile promotion requirement layout
+
+- Keeps the established two-column promotion layout on PC.
+- Stacks IND and Vehicle #1 as full-width mobile rows.
+- Separates translated Current/Required labels from their values so all eight languages fit cleanly.
+- Uses the shared labels `IND` and `Vehicle #1` in every language.
 
 ## v371 · Rank maintenance and demotion review
 
