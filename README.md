@@ -1,4 +1,10 @@
-# EZPK War Portal v380
+# EZPK War Portal v381
+
+## v381 · PC placement action controls
+
+- Adds explicit add, move, and remove buttons to the PC member detail panel.
+- Disables position changes for fixed members and shows the fixed-position guidance beside the controls.
+- Keeps PC drag-and-drop and member exchange behavior unchanged.
 
 ## v380 · Mobile alliance placement panel
 
