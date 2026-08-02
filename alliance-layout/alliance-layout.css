@@ -54,5 +54,5 @@ html[dir="rtl"] .layout-summary,html[dir="rtl"] .layout-guide{text-align:right}
   .is-fullscreen .layout-map-viewport{flex:1 1 auto;height:auto;min-height:0}.is-fullscreen .member-detail{flex:0 0 auto;display:block;padding:8px 14px 14px}.detail-grabber{display:block;width:34px;height:4px;margin:0 auto 8px;border-radius:4px;background:#364354}.member-detail>strong{display:block;min-width:0;margin-bottom:8px}.detail-specs{display:grid;grid-template-columns:1fr 1fr}.detail-specs span{justify-content:space-between}
   .layout-guide{margin-top:18px;padding:15px}.layout-guide ol{font-size:.9rem}
   .alliance-layout-main .layout-state:not(:empty){min-height:160px;padding:22px}
-  .layout-image-dialog{width:100%;max-width:none;max-height:100dvh;margin:auto 0 0;border-width:1px 0 0;border-radius:18px 18px 0 0}.layout-image-dialog header{padding:12px}.layout-image-dialog img{max-height:calc(100dvh - 78px)}
+  .layout-image-dialog{width:calc(100% - 24px);max-width:none;max-height:calc(100dvh - 24px);margin:auto;border-width:1px;border-radius:18px;overflow-y:auto}.layout-image-dialog header{padding:12px}.layout-image-dialog img{max-height:none}
 }
