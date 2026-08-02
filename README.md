@@ -1,4 +1,10 @@
-# EZPK War Portal v378
+# EZPK War Portal v379
+
+## v379 · Publish with unplaced members
+
+- Allows a valid partial alliance layout to be published when one or more active members remain unplaced.
+- Shows the administrator a confirmation warning with the placed and unplaced counts before publishing.
+- Still blocks empty layouts, duplicate members, duplicate ranks, duplicate coordinates, inactive members, and positions outside the fixed 100 slots.
 
 ## v378 · Project file cleanup
 

@@ -2749,11 +2749,14 @@ async function handleAllianceLayoutPublish(request,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
   const body=await readJson(request),draft=await loadAllianceVersion(env.DB,"draft");if(!draft)return jsonError("LAYOUT_DRAFT_NOT_FOUND",404);
   if(Number(body.revision)!==draft.revision)return jsonError("LAYOUT_REVISION_CONFLICT",409);
-  const members=await allianceEligibleMembers(env.DB);if(draft.positions.length!==members.length||members.length>100)return jsonError("LAYOUT_MEMBERS_CHANGED",409);
-  const result=await env.DB.prepare(`INSERT INTO alliance_layout_versions(layout_type,direction,revision,target_count,placed_count,unplaced_count,missing_specs_count,created_by_member_id,updated_by_member_id,published_by_member_id,published_at) VALUES('published',?,1,?,?,0,?,?,?, ?,CURRENT_TIMESTAMP)`).bind(draft.direction,members.length,draft.positions.length,members.filter(m=>!m.specsRegistered).length,admin.id,admin.id,admin.id).run();
+  const members=await allianceEligibleMembers(env.DB),eligibleIds=new Set(members.map(m=>m.id));
+  if(members.length>100||draft.positions.length<1)return jsonError("INVALID_LAYOUT",400);
+  if(!validateAlliancePositions(draft.direction,draft.positions,eligibleIds))return jsonError("LAYOUT_MEMBERS_CHANGED",409);
+  const unplacedCount=Math.max(0,members.length-draft.positions.length);
+  const result=await env.DB.prepare(`INSERT INTO alliance_layout_versions(layout_type,direction,revision,target_count,placed_count,unplaced_count,missing_specs_count,created_by_member_id,updated_by_member_id,published_by_member_id,published_at) VALUES('published',?,1,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)`).bind(draft.direction,members.length,draft.positions.length,unplacedCount,members.filter(m=>!m.specsRegistered).length,admin.id,admin.id,admin.id).run();
   const id=Number(result.meta.last_row_id);await env.DB.batch(draft.positions.map(p=>env.DB.prepare(`INSERT INTO alliance_layout_positions(layout_version_id,member_id,placement_rank,grid_row,grid_col,is_locked) VALUES(?,?,?,?,?,?)`).bind(id,p.memberId,p.rank,p.row,p.col,p.locked?1:0)));
-  await writeAdminLog(env,request,{actor:admin,category:"alliance_layout",action:"published",targetType:"alliance_layout",targetId:id,targetName:draft.direction,after:{placed:draft.positions.length}});
-  return json({ok:true,data:{id,publishedAt:new Date().toISOString()}});
+  await writeAdminLog(env,request,{actor:admin,category:"alliance_layout",action:"published",targetType:"alliance_layout",targetId:id,targetName:draft.direction,after:{target:members.length,placed:draft.positions.length,unplaced:unplacedCount}});
+  return json({ok:true,data:{id,publishedAt:new Date().toISOString(),targetCount:members.length,placedCount:draft.positions.length,unplacedCount}});
 }
 
 async function handleAllianceLayoutPublications(request,env){
