@@ -1,4 +1,11 @@
-# EZPK War Portal v379
+# EZPK War Portal v380
+
+## v380 · Mobile alliance placement panel
+
+- Adds a mobile full-screen member picker with unplaced/placed tabs and nickname search.
+- Supports adding, moving, exchanging, and removing members through explicit action buttons.
+- Keeps fixed-position guidance in the selection panel and picker badge while preserving nickname space inside map buildings.
+- Keeps PC drag-and-drop and mobile long-press movement, undo, dirty-state preservation, and partial-layout publishing.
 
 ## v379 · Publish with unplaced members
 
