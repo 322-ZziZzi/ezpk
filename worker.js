@@ -697,13 +697,20 @@ async function handleAuthMe(request, env) {
     });
   }
 
-  return json({
-    ok: true,
-    data: {
-      authenticated: true,
-      member: publicAuthenticatedMember(member),
+  const refreshedSession = await refreshSessionData(request, env.DB);
+  return json(
+    {
+      ok: true,
+      data: {
+        authenticated: true,
+        member: publicAuthenticatedMember(member),
+      },
     },
-  });
+    200,
+    refreshedSession
+      ? { "set-cookie": buildSessionCookie(refreshedSession.token, refreshedSession.maxAge) }
+      : {},
+  );
 }
 
 
@@ -1457,14 +1464,19 @@ async function getSetting(db, key) {
   return row?.value ?? null;
 }
 
-async function createSessionData(db) {
+async function getSessionDurationDays(db) {
   const durationDays = Number(
-    (await getSetting(db, "session_duration_days")) || "30",
+    (await getSetting(db, "session_duration_days")) || "365",
   );
-  const safeDays =
+  return (
     Number.isFinite(durationDays) && durationDays > 0
       ? Math.min(durationDays, 365)
-      : 30;
+      : 365
+  );
+}
+
+async function createSessionData(db) {
+  const safeDays = await getSessionDurationDays(db);
 
   const token = randomHex(32);
   return {
@@ -1475,6 +1487,23 @@ async function createSessionData(db) {
     ).toISOString(),
     maxAge: safeDays * 86400,
   };
+}
+
+async function refreshSessionData(request, db) {
+  const token = getCookie(request, SESSION_COOKIE);
+  if (!token) return null;
+
+  const safeDays = await getSessionDurationDays(db);
+  const tokenHash = await sha256Hex(token);
+  const expiresAt = new Date(Date.now() + safeDays * 86400000).toISOString();
+  await db.prepare(`
+    UPDATE sessions
+    SET expires_at = ?, last_used_at = CURRENT_TIMESTAMP
+    WHERE token_hash = ?
+      AND expires_at > CURRENT_TIMESTAMP
+  `).bind(expiresAt, tokenHash).run();
+
+  return { token, maxAge: safeDays * 86400 };
 }
 
 
