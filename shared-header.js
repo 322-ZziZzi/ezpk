@@ -515,8 +515,8 @@
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
       mobileDrawerItems.innerHTML = [
-        menuGroupMarkup(ui.activity,['vote','bgb','capitalWar','members'],{className:'nav-activity-grid'}),
-        menuGroupMarkup(ui.information,['seasonUpcoming','tip','request','allianceLayout'],{seasonUpcoming:{comingSoon:true}}),
+        menuGroupMarkup(ui.activity,['vote','bgb','capitalWar','allianceLayout'],{className:'nav-activity-grid'}),
+        menuGroupMarkup(ui.information,['seasonUpcoming','members','tip','request'],{seasonUpcoming:{comingSoon:true}}),
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
     } else {
@@ -525,18 +525,16 @@
       desktopNavItems.innerHTML = guestPrimaryKeys.map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
       navMoreMenu.innerHTML = [
         menuGroupMarkup(ui.public,['game','accounts']),
-        menuGroupMarkup(ui.information,['allianceLayout'],{allianceLayout:{locked:true}}),
-        menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
-          bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
+        menuGroupMarkup(ui.memberOnly,['allianceLayout','bgb','capitalWar','vote','request','logo'],{
+          allianceLayout:{locked:true},bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
         })
       ].join('');
       mobileDrawerItems.innerHTML = [
         menuGroupMarkup('', guestMobileKeys,{
           seasonUpcoming:{locked:seasonLockedForGuest,comingSoon:true}
         }),
-        menuGroupMarkup(ui.information,['allianceLayout'],{allianceLayout:{locked:true}}),
-        menuGroupMarkup(ui.memberOnly,['bgb','capitalWar','vote','request','logo'],{
-          bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
+        menuGroupMarkup(ui.memberOnly,['allianceLayout','bgb','capitalWar','vote','request','logo'],{
+          allianceLayout:{locked:true},bgb:{locked:true},capitalWar:{locked:true},vote:{locked:true},request:{locked:true},logo:{locked:true}
         })
       ].join('');
     }
@@ -714,12 +712,14 @@
       if (mobile) {
         return `
           <div class="mobile-account-actions mobile-account-actions--guest">
+            <button type="button" class="account-action-home${activeMenu==='home'?' is-current':''}" data-account-action="home">${safeText((NAV_LABELS[currentLanguage()] || NAV_LABELS.en).home)}</button>
             <button type="button" data-account-action="login">${safeText(labels.login)}</button>
             <button type="button" class="mobile-account-signup" data-account-action="signup">${safeText(labels.signup)}</button>
           </div>
           <div class="mobile-account-divider"></div>`;
       }
       return `
+        <button type="button" class="account-button account-home${activeMenu==='home'?' is-current':''}" data-account-action="home">${safeText((NAV_LABELS[currentLanguage()] || NAV_LABELS.en).home)}</button>
         <button type="button" class="account-button account-login" data-account-action="login">${safeText(labels.login)}</button>
         <button type="button" class="account-button account-signup" data-account-action="signup">${safeText(labels.signup)}</button>`;
     }
@@ -729,7 +729,7 @@
     const adminLevel=member.adminLevel||member.admin_level||(isAdmin?'super':null);
     const roleLabel = isAdmin ? (isAdminContext?(adminLevel==='sub'?'부관리자':'최고관리자'):labels.administrator) : labels.member;
     const dropdownItems = `
-      ${isAdminContext ? `<button type="button" class="account-action-home" data-account-action="home">${safeText((NAV_LABELS[isAdminContext ? 'ko' : currentLanguage()] || NAV_LABELS.ko).home)}</button>` : ''}
+      <button type="button" class="account-action-home${activeMenu==='home'?' is-current':''}" data-account-action="home">${safeText((NAV_LABELS[isAdminContext ? 'ko' : currentLanguage()] || NAV_LABELS.ko).home)}</button>
       ${isAdmin ? `<button type="button" class="account-action-admin" data-account-action="admin">${safeText(labels.admin)}</button>` : ''}
       <button type="button" class="account-action-mypage" data-account-action="mypage">${safeText(labels.myPage)}</button>
       <button type="button" class="account-action-logout" data-account-action="logout">${safeText(labels.logout)}</button>`;
