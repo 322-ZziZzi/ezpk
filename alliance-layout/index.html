@@ -7,7 +7,7 @@
   <title>EZPK Alliance Layout</title>
   <link rel="stylesheet" href="../style.css?v=3560">
   <link rel="stylesheet" href="../common-heading.css?v=3570">
-  <link rel="stylesheet" href="alliance-layout.css?v=3570">
+  <link rel="stylesheet" href="alliance-layout.css?v=3630">
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="allianceLayout"></header>
@@ -43,6 +43,7 @@
           <div class="overview-heading"><span id="overviewTitle"></span><small id="overviewHint"></small></div>
           <div id="miniLayoutMap" class="mini-layout-map" dir="ltr"></div>
           <button id="openFullscreen" type="button" class="open-fullscreen"></button>
+          <button type="button" class="layout-image-view" data-layout-image></button>
         </div>
 
         <section id="layoutExplorer" class="layout-explorer">
@@ -62,6 +63,7 @@
               <div id="searchResults" class="search-results" hidden></div>
             </div>
             <button id="findMe" type="button" class="find-me"></button>
+            <button type="button" class="layout-image-view" data-layout-image></button>
           </div>
           <div class="mobile-layout-zoom" aria-label="">
             <div><button type="button" data-layout-zoom="out" aria-label="">−</button><button type="button" data-layout-zoom="in" aria-label="">＋</button><button type="button" data-layout-zoom="reset" aria-label="">↺</button></div>
@@ -89,9 +91,18 @@
             <li id="guide5"></li>
           </ol>
         </details>
+
+        <dialog id="layoutImageDialog" class="layout-image-dialog">
+          <header>
+            <div><strong id="layoutImageTitle"></strong><small id="layoutImageGuide"></small></div>
+            <button id="layoutImageClose" type="button" aria-label="">×</button>
+          </header>
+          <div id="layoutImageState" class="layout-image-state" aria-live="polite"></div>
+          <img id="layoutImagePreview" alt="" draggable="false">
+        </dialog>
       </section>
     </div>
   </main>
-  <script src="alliance-layout.js?v=3600"></script>
+  <script src="alliance-layout.js?v=3630"></script>
 </body>
 </html>
