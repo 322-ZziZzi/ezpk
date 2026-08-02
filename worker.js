@@ -126,6 +126,9 @@ export default {
         case "GET /api/member/me":
           return handleMemberMe(request, env);
 
+        case "POST /api/member/rank-change-notice/dismiss":
+          return handleRankChangeNoticeDismiss(request, env);
+
         case "GET /api/member/content":
           return handleMemberContentGet(request, url, env);
 
@@ -1573,8 +1576,18 @@ async function rankProtectionState(db,memberId){
   return row?{active:true,type:row.change_type,until:row.protection_until,startedAt:row.created_at}:null;
 }
 async function memberRankChangeNotice(db,memberId){
-  const row=await db.prepare(`SELECT change_type,from_rank,to_rank,created_at FROM member_rank_changes WHERE member_id=? AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
-  return row?{type:row.change_type,fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
+  const row=await db.prepare(`SELECT id,change_type,from_rank,to_rank,created_at FROM member_rank_changes WHERE member_id=? AND dismissed_at IS NULL AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
+  return row?{id:row.id,type:row.change_type,fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
+}
+
+async function handleRankChangeNoticeDismiss(request,env){
+  const member=await requireMember(request,env.DB);
+  if(member instanceof Response)return member;
+  const body=await readJson(request),changeId=Number(body.changeId);
+  if(!Number.isInteger(changeId)||changeId<1)return jsonError("VALIDATION_ERROR",400);
+  const result=await env.DB.prepare(`UPDATE member_rank_changes SET dismissed_at=datetime('now') WHERE id=? AND member_id=? AND dismissed_at IS NULL`).bind(changeId,member.id).run();
+  if(!Number(result.meta?.changes||0))return jsonError("RANK_CHANGE_NOTICE_NOT_FOUND",404);
+  return json({ok:true,data:{dismissed:true}});
 }
 async function demotionExclusionState(db,memberId,includePrivate=false){
   const row=await db.prepare(`SELECT e.id,e.excluded_until,e.reason,e.created_at,m.nickname created_by FROM member_demotion_exclusions e LEFT JOIN members m ON m.id=e.created_by_member_id WHERE e.member_id=? AND e.revoked_at IS NULL AND e.excluded_until>datetime('now') ORDER BY e.created_at DESC LIMIT 1`).bind(memberId).first();

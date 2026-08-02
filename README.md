@@ -1,4 +1,18 @@
-# EZPK War Portal v373
+# EZPK War Portal v375
+
+## v375 · Collapsible protection status and Korean promotion labels
+
+- Rank-protection information is collapsed to a one-line `title · D-day` summary by default.
+- Members can expand the summary to read the protection reason and end date.
+- The expanded/collapsed preference is remembered in the current browser.
+- Korean promotion labels now use `산업 레벨` and `차량 #1`; other languages retain `IND` and `Vehicle #1`.
+
+## v374 · Multilingual rank-change notice dismissal
+
+- Added a translated `다시 보지 않기` action in all 8 supported languages.
+- Dismissal is stored per member and per rank-change record in D1, so it applies across devices.
+- A later promotion or demotion creates a new notice and is shown normally.
+- Undismissed notices still expire automatically after 30 days.
 
 ## v373 · Fully vertical multilingual mobile promotion card
 
