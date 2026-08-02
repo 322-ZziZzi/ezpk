@@ -1,5 +1,10 @@
 # EZPK War Portal v256
 
+## v368 · Multilingual promotion requests
+
+- Localizes the prefilled promotion-request title, body, and duplicate-pending notice in all eight supported languages.
+- Reloads the member's latest rank, IND, and Vehicle #1 value before composing the request.
+
 ## v367 · Promotion workflow
 
 - Configurable R1→R2 and R2→R3 requirements stored in D1.
