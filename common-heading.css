@@ -7,6 +7,7 @@
 
 /* Primary page and section heading containers */
 :is(
+  .alliance-layout-hero,
   .admin-hero,
   .accounts-hero,
   .cw-hero,
@@ -30,6 +31,7 @@
 
 /* v340: decorative eyebrow / kicker labels are removed site-wide. */
 :is(
+  .alliance-layout-hero,
   .admin-hero,
   .accounts-hero,
   .cw-hero,
@@ -55,6 +57,7 @@
 
 /* Main title */
 :is(
+  .alliance-layout-hero,
   .admin-hero,
   .accounts-hero,
   .cw-hero,
@@ -84,6 +87,7 @@
 
 /* Subtitle */
 :is(
+  .alliance-layout-hero,
   .admin-hero,
   .accounts-hero,
   .cw-hero,
@@ -120,13 +124,14 @@
 }
 
 /* RTL keeps hierarchy while respecting reading direction */
-.rtl :is(.admin-hero,.accounts-hero,.cw-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
+.rtl :is(.alliance-layout-hero,.admin-hero,.accounts-hero,.cw-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
   direction:rtl;
   text-align:center !important;
 }
 
 @media(max-width:760px){
   :is(
+    .alliance-layout-hero,
     .admin-hero,
     .accounts-hero,
     .cw-hero,
@@ -148,6 +153,7 @@
   }
 
   :is(
+    .alliance-layout-hero,
     .admin-hero,
     .accounts-hero,
     .cw-hero,
