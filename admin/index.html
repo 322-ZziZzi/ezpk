@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="capital-war-manager.css?v=3090">
   <link rel="stylesheet" href="admin-ui-v228.css?v=3480">
   <link rel="stylesheet" href="../common-heading.css?v=3570">
-  <link rel="stylesheet" href="alliance-layout-manager.css?v=3530">
+  <link rel="stylesheet" href="alliance-layout-manager.css?v=3580">
 
 <style>
 @media (min-width:901px){
@@ -244,10 +244,11 @@
       <p class="al-dynamic-rule">자동 배치는 현재 연맹원 수를 기준으로 방향별 빈칸 규칙을 적용합니다. 연맹원 새로고침만으로 기존 위치는 변경되지 않습니다.</p>
       <div class="al-toolbar admin-toolbar"><button id="alRefreshMembers" class="secondary">연맹원 새로고침</button><button id="alAutoPlace" class="primary">자동 배치</button><button id="alManualMode" class="secondary">수동 배치</button><button id="alUnlockAll" class="secondary">전체 고정 해제</button><button id="alRevert" class="secondary" disabled>저장 상태로 되돌리기</button></div>
       <p id="alStatus" class="al-status" role="status" aria-live="polite"></p>
-      <div class="al-workspace"><section class="al-map-section"><div class="al-map-head"><strong>배치도</strong><span id="alMapLabel">우 배치 · 11×10</span></div><div class="al-map-viewport"><div id="alMap" class="al-map" aria-label="연맹 배치도"></div></div><p class="al-map-help">모바일: 두 손가락 확대·축소 · 한 손가락 이동 · 건물 터치 선택</p><section id="alSelected" class="al-selected"><span>선택된 연맹원</span><strong>건물을 선택하세요.</strong></section></section><aside class="al-side"><input id="alMemberSearch" type="search" placeholder="닉네임 검색"><div id="alMemberList" class="al-member-list"></div><section id="alMemberDetail" class="al-member-detail"><span>선택 정보</span><strong>연맹원을 선택하세요.</strong></section></aside></div>
+      <div class="al-workspace"><section class="al-map-section"><div class="al-map-head"><button id="alCloseMapEditor" class="al-mobile-back secondary" type="button" aria-label="전체 화면 편집 닫기">←</button><strong>배치도</strong><span id="alMapLabel">우 배치 · 11×10</span></div><div class="al-mobile-map-actions"><button id="alOpenMapEditor" class="primary" type="button">전체 화면에서 수정</button><button id="alOpenSearchSwap" class="secondary" type="button">닉네임으로 위치 변경</button></div><div class="al-mobile-zoom"><span>이동 · 확대/축소</span><div><button id="alZoomOut" class="secondary" type="button" aria-label="축소">−</button><button id="alZoomIn" class="secondary" type="button" aria-label="확대">＋</button><button id="alZoomReset" class="secondary" type="button">원래대로</button></div></div><div class="al-map-viewport"><div id="alMap" class="al-map" aria-label="연맹 배치도"></div></div><p class="al-map-help">모바일: 두 손가락 확대·축소 · 한 손가락 이동 · 건물 터치 선택</p><section id="alSelected" class="al-selected"><span>선택된 연맹원</span><strong>건물을 선택하세요.</strong></section></section><aside class="al-side"><input id="alMemberSearch" type="search" placeholder="닉네임 검색"><div id="alMemberList" class="al-member-list"></div><section id="alMemberDetail" class="al-member-detail"><span>선택 정보</span><strong>연맹원을 선택하세요.</strong></section></aside></div>
       <div class="al-save-row"><span><strong id="alDirtyState">변경사항 없음</strong><small id="alUpdatedMeta">아직 저장된 배치가 없습니다.</small></span><div><button id="alSaveDraft" class="secondary" disabled>임시 저장</button><button id="alPublish" class="primary" disabled>게시</button></div></div>
       <details class="al-publications"><summary>이전 게시본</summary><div id="alPublicationList"></div></details>
       <dialog id="alSwapDialog" class="al-swap-dialog"><h3>수동 위치 변경</h3><p id="alSwapMessage"></p><div><button id="alSwapCancel" class="secondary" type="button">취소</button><button id="alSwapConfirm" class="primary" type="button">변경</button></div></dialog>
+      <dialog id="alSearchSwapDialog" class="al-search-swap-dialog"><header><button id="alSearchSwapClose" class="secondary" type="button" aria-label="닉네임 위치 변경 닫기">←</button><h3>닉네임으로 위치 변경</h3></header><div class="al-search-swap-body"><section><label for="alSwapSearchA">첫 번째 연맹원</label><input id="alSwapSearchA" type="search" placeholder="닉네임 검색" autocomplete="off"><div id="alSwapResultsA" class="al-swap-results"></div></section><section><label for="alSwapSearchB">두 번째 연맹원</label><input id="alSwapSearchB" type="search" placeholder="닉네임 검색" autocomplete="off"><div id="alSwapResultsB" class="al-swap-results"></div></section><div id="alSearchSwapPreview" class="al-search-swap-preview"><span>Member A</span><strong>첫 번째 연맹원을 선택하세요.</strong><b>⇄</b><span>Member B</span><strong>두 번째 연맹원을 선택하세요.</strong></div><div class="al-search-swap-actions"><button id="alSearchSwapCancel" class="secondary" type="button">취소</button><button id="alSearchSwapConfirm" class="primary" type="button" disabled>변경</button></div></div></dialog>
     </div>
 
     <div id="bgbPanel" class="admin-panel">
@@ -394,6 +395,6 @@
 <script src="capital-war-manager.js?v=3490"></script>
 <script src="member-manager-v188.js?v=3430"></script>
 <script src="vote-manager.js?v=2160"></script>
-<script src="alliance-layout-manager.js?v=3530"></script>
+<script src="alliance-layout-manager.js?v=3580"></script>
 </body>
 </html>
