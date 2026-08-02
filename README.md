@@ -1,4 +1,19 @@
-# EZPK War Portal v256
+# EZPK War Portal v371
+
+## v371 · Rank maintenance and demotion review
+
+- Adds the multilingual 30-day rank-maintenance card for R2 and R3 members.
+- Reuses the same activity evidence for 14-day promotion and 30-day maintenance evaluation.
+- Adds matching admin demotion review, required confirmation reason, temporary exclusions, protection visibility, and rank-change history.
+- Protects promoted members for 10 days and R3→R2 demoted members from further review for 30 days.
+- Grants demotion operations to subadmins with Member Management permission.
+- Migration: `0024_v371_rank_maintenance.sql`.
+
+## v370 · Promotion admin UX and delegated permissions
+
+- Replaces the native white activity dialog with a responsive dark PC/mobile confirmation modal.
+- Adds selectable activity cards, a 100-character memo counter, disabled-until-valid submit, dirty-close confirmation, and duplicate-submit protection.
+- Grants every promotion operation to subadmins who have Member Management permission, including rule changes, activity confirmation, cancellation, and R2/R3 promotion.
 
 ## v369 · Promotion activity requirements
 

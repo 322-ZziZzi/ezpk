@@ -47,6 +47,26 @@
     pt:{title:"Atividade nos últimos 14 dias",vote:"Participação em votações",visit:"Visitas ao site",spec:"Atualização própria de atributos",admin:"Confirmação de atividade pela liderança",times:"vezes",days:"dias",required:"Necessário",confirmed:"Confirmado",unconfirmed:"Não confirmado",met:"Requisitos de atividade para promoção atingidos.",need:n=>`Falta${n>1?'m':''} ${n} requisito${n>1?'s':''} de atividade.`,last:"Última atualização",none:"Sem registro de atualização",unchanged:"Nenhuma alteração encontrada."},
     ar:{title:"النشاط خلال آخر 14 يومًا",vote:"المشاركة في التصويت",visit:"زيارة الموقع",spec:"تحديث المواصفات ذاتيًا",admin:"تأكيد النشاط من الإدارة",times:"مرات",days:"أيام",required:"المطلوب",confirmed:"تم التأكيد",unconfirmed:"غير مؤكد",met:"تم استيفاء شروط نشاط الترقية.",need:n=>`تحتاج إلى ${n} من شروط النشاط الإضافية.`,last:"آخر تحديث",none:"لا يوجد سجل تحديث",unchanged:"لا توجد تغييرات."}
   };
+  const MAINTENANCE_LABELS={
+    ko:{title:"등급 유지 상태",guide:"최근 30일 활동 조건을 2개 이상 충족해야 현재 등급이 유지됩니다.",vote:"투표 참여",visit:"사이트 방문",spec:"본인 스펙 업데이트",admin:"운영진 활동 확인",times:"회",days:"일",confirmed:"확인 완료",unconfirmed:"미확인",last:"최근",none:"기록 없음",met:"등급 유지 조건을 충족했습니다.",need:"최근 30일 활동이 부족합니다. 등급 유지 조건을 확인해 주세요.",protection:"등급 유지 보호 기간",promotionProtect:d=>`승급 후 10일 동안 강등 검토 대상에서 제외됩니다. · ${d}까지`,demotionProtect:d=>`강등 후 30일 동안 추가 강등 검토 대상에서 제외됩니다. · ${d}까지`,exclusion:d=>`표시된 날짜까지 등급 유지 검토에서 제외됩니다. · ${d}까지`},
+    en:{title:"Rank maintenance status",guide:"Meet at least 2 activity requirements in the last 30 days to maintain your current rank.",vote:"Vote participation",visit:"Site visits",spec:"My spec update",admin:"Leader activity confirmation",times:"times",days:"days",confirmed:"Confirmed",unconfirmed:"Not confirmed",last:"Latest",none:"No record",met:"Rank maintenance requirements met.",need:"Activity in the last 30 days is insufficient. Please review the rank maintenance requirements.",protection:"Rank protection period",promotionProtect:d=>`Excluded from demotion review for 10 days after promotion · Until ${d}`,demotionProtect:d=>`Excluded from further demotion review for 30 days after demotion · Until ${d}`,exclusion:d=>`Excluded from rank maintenance review until ${d}`},
+    ja:{title:"ランク維持状況",guide:"現在のランクを維持するには、過去30日間の活動条件を2つ以上満たす必要があります。",vote:"投票参加",visit:"サイト訪問",spec:"本人によるスペック更新",admin:"運営チームの活動確認",times:"回",days:"日",confirmed:"確認済み",unconfirmed:"未確認",last:"最新",none:"記録なし",met:"ランク維持条件を満たしています。",need:"過去30日間の活動が不足しています。ランク維持条件を確認してください。",protection:"ランク保護期間",promotionProtect:d=>`昇級後10日間は降格審査の対象外です · ${d}まで`,demotionProtect:d=>`降格後30日間は追加の降格審査の対象外です · ${d}まで`,exclusion:d=>`${d}までランク維持審査の対象外です`},
+    "zh-tw":{title:"等級維持狀態",guide:"最近30天內須達成至少2項活動條件，才能維持目前等級。",vote:"投票參與",visit:"網站造訪",spec:"本人規格更新",admin:"管理團隊活動確認",times:"次",days:"天",confirmed:"已確認",unconfirmed:"未確認",last:"最近",none:"沒有紀錄",met:"已達成等級維持條件。",need:"最近30天的活動不足，請確認等級維持條件。",protection:"等級保護期間",promotionProtect:d=>`晉級後10天內不列入降級審查 · 至 ${d}`,demotionProtect:d=>`降級後30天內不列入再次降級審查 · 至 ${d}`,exclusion:d=>`至 ${d} 前不列入等級維持審查`},
+    vi:{title:"Trạng thái duy trì hạng",guide:"Cần đạt ít nhất 2 điều kiện hoạt động trong 30 ngày gần nhất để duy trì hạng hiện tại.",vote:"Tham gia bỏ phiếu",visit:"Truy cập trang web",spec:"Tự cập nhật thông số",admin:"Xác nhận hoạt động từ ban quản lý",times:"lần",days:"ngày",confirmed:"Đã xác nhận",unconfirmed:"Chưa xác nhận",last:"Gần nhất",none:"Không có dữ liệu",met:"Đã đạt điều kiện duy trì hạng.",need:"Hoạt động trong 30 ngày gần nhất chưa đủ. Vui lòng kiểm tra điều kiện duy trì hạng.",protection:"Thời gian bảo vệ hạng",promotionProtect:d=>`Không bị xét giáng hạng trong 10 ngày sau khi thăng hạng · Đến ${d}`,demotionProtect:d=>`Không bị xét giáng hạng thêm trong 30 ngày sau khi giáng hạng · Đến ${d}`,exclusion:d=>`Không bị xét duy trì hạng đến ${d}`},
+    th:{title:"สถานะการรักษาระดับ",guide:"ต้องผ่านเงื่อนไขกิจกรรมอย่างน้อย 2 ข้อใน 30 วันที่ผ่านมาเพื่อรักษาระดับปัจจุบัน",vote:"เข้าร่วมโหวต",visit:"เยี่ยมชมเว็บไซต์",spec:"อัปเดตสเปกด้วยตนเอง",admin:"การยืนยันกิจกรรมโดยทีมบริหาร",times:"ครั้ง",days:"วัน",confirmed:"ยืนยันแล้ว",unconfirmed:"ยังไม่ยืนยัน",last:"ล่าสุด",none:"ไม่มีข้อมูล",met:"ผ่านเงื่อนไขการรักษาระดับแล้ว",need:"กิจกรรมใน 30 วันที่ผ่านมายังไม่เพียงพอ โปรดตรวจสอบเงื่อนไขการรักษาระดับ",protection:"ช่วงคุ้มครองระดับ",promotionProtect:d=>`ไม่ถูกพิจารณาลดระดับเป็นเวลา 10 วันหลังเลื่อนระดับ · ถึง ${d}`,demotionProtect:d=>`ไม่ถูกพิจารณาลดระดับเพิ่มเติมเป็นเวลา 30 วันหลังลดระดับ · ถึง ${d}`,exclusion:d=>`ไม่ถูกพิจารณาการรักษาระดับจนถึง ${d}`},
+    pt:{title:"Status de manutenção da patente",guide:"Cumpra pelo menos 2 requisitos de atividade nos últimos 30 dias para manter a patente atual.",vote:"Participação em votações",visit:"Visitas ao site",spec:"Atualização própria de atributos",admin:"Confirmação de atividade pela liderança",times:"vezes",days:"dias",confirmed:"Confirmado",unconfirmed:"Não confirmado",last:"Mais recente",none:"Sem registro",met:"Requisitos de manutenção da patente atingidos.",need:"A atividade nos últimos 30 dias é insuficiente. Verifique os requisitos de manutenção da patente.",protection:"Período de proteção da patente",promotionProtect:d=>`Fora da revisão de rebaixamento por 10 dias após a promoção · Até ${d}`,demotionProtect:d=>`Fora de nova revisão de rebaixamento por 30 dias após o rebaixamento · Até ${d}`,exclusion:d=>`Fora da revisão de manutenção da patente até ${d}`},
+    ar:{title:"حالة الحفاظ على الرتبة",guide:"يجب استيفاء شرطين على الأقل من شروط النشاط خلال آخر 30 يومًا للحفاظ على الرتبة الحالية.",vote:"المشاركة في التصويت",visit:"زيارة الموقع",spec:"تحديث المواصفات ذاتيًا",admin:"تأكيد النشاط من الإدارة",times:"مرات",days:"أيام",confirmed:"تم التأكيد",unconfirmed:"غير مؤكد",last:"الأحدث",none:"لا يوجد سجل",met:"تم استيفاء شروط الحفاظ على الرتبة.",need:"النشاط خلال آخر 30 يومًا غير كافٍ. يرجى مراجعة شروط الحفاظ على الرتبة.",protection:"فترة حماية الرتبة",promotionProtect:d=>`مستبعد من مراجعة خفض الرتبة لمدة 10 أيام بعد الترقية · حتى ${d}`,demotionProtect:d=>`مستبعد من مراجعة خفض إضافية لمدة 30 يومًا بعد خفض الرتبة · حتى ${d}`,exclusion:d=>`مستبعد من مراجعة الحفاظ على الرتبة حتى ${d}`}
+  };
+  const RANK_CHANGE_LABELS={
+    ko:{title:"등급이 변경되었습니다.",body:(a,b)=>`${a}에서 ${b}로 변경되었습니다.`,date:"등급 변경일",help:"자세한 내용은 운영진에게 문의해 주세요."},
+    en:{title:"Your rank has changed.",body:(a,b)=>`Changed from ${a} to ${b}.`,date:"Rank change date",help:"Please contact the leadership team for details."},
+    ja:{title:"ランクが変更されました。",body:(a,b)=>`${a}から${b}に変更されました。`,date:"ランク変更日",help:"詳細は運営チームにお問い合わせください。"},
+    "zh-tw":{title:"您的等級已變更。",body:(a,b)=>`已從 ${a} 變更為 ${b}。`,date:"等級變更日期",help:"詳情請洽管理團隊。"},
+    vi:{title:"Hạng của bạn đã thay đổi.",body:(a,b)=>`Đã đổi từ ${a} sang ${b}.`,date:"Ngày đổi hạng",help:"Vui lòng liên hệ ban quản lý để biết chi tiết."},
+    th:{title:"ระดับของคุณมีการเปลี่ยนแปลง",body:(a,b)=>`เปลี่ยนจาก ${a} เป็น ${b}`,date:"วันที่เปลี่ยนระดับ",help:"โปรดติดต่อทีมบริหารเพื่อสอบถามรายละเอียด"},
+    pt:{title:"Sua patente foi alterada.",body:(a,b)=>`Alterada de ${a} para ${b}.`,date:"Data da alteração",help:"Entre em contato com a liderança para mais detalhes."},
+    ar:{title:"تم تغيير رتبتك.",body:(a,b)=>`تم التغيير من ${a} إلى ${b}.`,date:"تاريخ تغيير الرتبة",help:"يرجى التواصل مع الإدارة لمزيد من التفاصيل."}
+  };
 
   function normalizeMemberRank(value){
     const rank = String(value || "R1").toUpperCase();
@@ -111,6 +131,12 @@
     const d = new Date(value);
     return Number.isNaN(d.getTime()) ? value : new Intl.DateTimeFormat(lang === "zh-tw" ? "zh-TW" : lang, {dateStyle:"medium",timeStyle:"short"}).format(d);
   }
+  function formatDateOnly(value){
+    if(!value)return "-";
+    const d=new Date(String(value).includes("T")?value:String(value).replace(" ","T")+"Z");
+    return Number.isNaN(d.getTime())?String(value):new Intl.DateTimeFormat(lang==="zh-tw"?"zh-TW":lang,{dateStyle:"medium",timeZone:"Asia/Seoul"}).format(d);
+  }
+  function remainingDays(value){const raw=String(value||''),parsed=/Z$|[+-]\d\d:?\d\d$/.test(raw)?raw:raw.replace(' ','T')+'Z',n=Math.ceil((new Date(parsed).getTime()-Date.now())/86400000);return Number.isFinite(n)?`D-${Math.max(0,n)}`:""}
   function setValue(form, name, value){ if (form.elements[name]) form.elements[name].value = value ?? ""; }
   const REQUEST_LABELS={ko:{label:"내 요청글",open:"요청 게시판 열기",empty:"작성한 요청글이 없습니다.",waiting:"답변 대기",answered:"답변 완료"},en:{label:"My Requests",open:"OPEN REQUEST BOARD",empty:"You have no requests.",waiting:"Waiting",answered:"Answered"},ja:{label:"自分のリクエスト",open:"掲示板を開く",empty:"作成したリクエストはありません。",waiting:"回答待ち",answered:"回答済み"},"zh-tw":{label:"我的請求",open:"開啟請求留言板",empty:"沒有已提交的請求。",waiting:"等待回覆",answered:"已回覆"},vi:{label:"Yêu cầu của tôi",open:"MỞ BẢNG YÊU CẦU",empty:"Bạn chưa có yêu cầu.",waiting:"Đang chờ",answered:"Đã trả lời"},th:{label:"คำขอของฉัน",open:"เปิดกระดานคำขอ",empty:"ยังไม่มีคำขอ",waiting:"รอคำตอบ",answered:"ตอบแล้ว"},pt:{label:"Meus Pedidos",open:"ABRIR QUADRO",empty:"Você não possui pedidos.",waiting:"Aguardando",answered:"Respondido"},ar:{label:"طلباتي",open:"فتح لوحة الطلبات",empty:"لا توجد طلبات مكتوبة.",waiting:"بانتظار الرد",answered:"تم الرد"}};
   function requestLabels(){return REQUEST_LABELS[lang]||REQUEST_LABELS.en}
@@ -120,6 +146,8 @@
     if (!memberData) return;
     const m = memberData.member, s = memberData.specs || {};
     renderPromotion(memberData.promotion);
+    renderRankMaintenance(memberData.rankMaintenance);
+    renderRankChangeNotice(memberData.rankChangeNotice);
     $("#summaryNickname").textContent = m.nickname;
     const profileRegistered = m.profileSpecsRegistered !== false && m.power != null && m.industryLevel;
     $("#summaryPower").textContent = profileRegistered ? formatPower(m.power) : "-";
@@ -171,6 +199,21 @@
     setActivity("#activityVoteV369",activity.items.vote,`${activity.items.vote.count}${a.times} · ${a.required} ${activity.items.vote.required}${a.times}`);setActivity("#activityVisitV369",activity.items.visit,`${activity.items.visit.count}${a.days} · ${a.required} ${activity.items.visit.required}${a.days}`);setActivity("#activitySpecV369",activity.items.specUpdate,`${activity.items.specUpdate.count}${a.times} · ${a.required} ${activity.items.specUpdate.required}${a.times}`);setActivity("#activityAdminV369",activity.items.adminConfirmation,activity.items.adminConfirmation.passed?a.confirmed:a.unconfirmed);$("#promotionActivityMessageV369").textContent=activity.eligible?a.met:a.need(Math.max(0,activity.required-activity.completed));
     const done=$("#promotionCongratsV367");done.hidden=!p.eligible;if(p.eligible){$("#promotionCongratsTitleV367").textContent=l.congrats;$("#promotionCongratsBodyV367").textContent=p.pendingRequestId?l.pending:l.body;const link=$("#promotionRequestV367");link.textContent=p.pendingRequestId?l.view:l.request;link.href=p.pendingRequestId?`../request/#request-${p.pendingRequestId}`:`../request/?type=promotion&target=${p.targetRank}`}
   }
+  function renderRankMaintenance(state){
+    const card=$("#rankMaintenanceCardV371");if(!card)return;card.hidden=!state;if(!state)return;
+    const l=MAINTENANCE_LABELS[lang]||MAINTENANCE_LABELS.en,a=state.activity,i=a.items;
+    $("#maintenanceRankV371").textContent=state.currentRank;$("#maintenanceTitleV371").textContent=l.title;$("#maintenanceCountV371").textContent=`${a.completed} / 4`;$("#maintenanceProgressV371").style.width=`${a.completed*25}%`;$("#maintenanceGuideV371").textContent=l.guide;
+    $("#maintenanceVoteLabelV371").textContent=l.vote;$("#maintenanceVisitLabelV371").textContent=l.visit;$("#maintenanceSpecLabelV371").textContent=l.spec;$("#maintenanceAdminLabelV371").textContent=l.admin;
+    const set=(valueId,dateId,item,labelText,last)=>{const valueEl=$(valueId);valueEl.textContent=valueId.includes('Admin')?(item.passed?l.confirmed:l.unconfirmed):labelText;valueEl.className=item.passed?'passed':'failed';$(dateId).textContent=last?`${l.last} ${formatDateOnly(last)}`:l.none};
+    set("#maintenanceVoteV371","#maintenanceVoteDateV371",i.vote,`${i.vote.count}${l.times}`,i.vote.latestAt);
+    set("#maintenanceVisitV371","#maintenanceVisitDateV371",i.visit,`${i.visit.count}${l.days}`,i.visit.latestAt);
+    set("#maintenanceSpecV371","#maintenanceSpecDateV371",i.specUpdate,`${i.specUpdate.count}${l.times}`,i.specUpdate.latestAt);
+    set("#maintenanceAdminV371","#maintenanceAdminDateV371",i.adminConfirmation,"",i.adminConfirmation.confirmedAt);
+    const box=$("#maintenanceProtectionV371"),protectedState=state.protection?.active||state.exclusion?.active;box.hidden=!protectedState;
+    if(protectedState){$("#maintenanceProtectionTitleV371").textContent=l.protection;const until=state.exclusion?.active?state.exclusion.until:state.protection.until,body=state.exclusion?.active?l.exclusion(formatDateOnly(until)):state.protection.type==='demotion'?l.demotionProtect(formatDateOnly(until)):l.promotionProtect(formatDateOnly(until));$("#maintenanceProtectionBodyV371").textContent=`${body} · ${remainingDays(until)}`}
+    const message=$("#maintenanceMessageV371");message.textContent=a.eligible?l.met:l.need;message.className=`maintenance-message ${a.eligible?'passed':'failed'}`;
+  }
+  function renderRankChangeNotice(change){const box=$("#rankChangeNoticeV371");if(!box)return;box.hidden=!change;if(!change)return;const l=RANK_CHANGE_LABELS[lang]||RANK_CHANGE_LABELS.en;$("#rankChangeNoticeTitleV371").textContent=l.title;$("#rankChangeNoticeBodyV371").textContent=`${l.body(change.fromRank,change.toRank)} ${l.help}`;$("#rankChangeNoticeDateV371").textContent=`${l.date} · ${formatDateOnly(change.createdAt)}`}
 
   async function loadMember(){
     try {

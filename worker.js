@@ -59,7 +59,7 @@ export default {
       if (voteExclusionMatch && request.method === "PUT") return handleVoteExclusion(request, Number(voteExclusionMatch[1]), env);
 
 
-      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions|promote|activity-confirmation))?$/);
+      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions|promote|demote|activity-confirmation|demotion-exclusion))?$/);
       if (adminMemberMatch) {
         const memberId = Number(adminMemberMatch[1]);
         const action = adminMemberMatch[2] || "";
@@ -72,8 +72,11 @@ export default {
         if (request.method === "PUT" && action === "permissions") return handleAdminMemberPermissions(request, memberId, env);
         if (request.method === "POST" && action === "reset-password") return handleAdminMemberResetPassword(request, memberId, env);
         if (request.method === "POST" && action === "promote") return handleAdminMemberPromote(request, memberId, env);
+        if (request.method === "POST" && action === "demote") return handleAdminMemberDemote(request, memberId, env);
         if (request.method === "POST" && action === "activity-confirmation") return handleAdminActivityConfirm(request, memberId, env);
         if (request.method === "DELETE" && action === "activity-confirmation") return handleAdminActivityConfirmRevoke(request, memberId, env);
+        if (request.method === "POST" && action === "demotion-exclusion") return handleAdminDemotionExclusion(request, memberId, env);
+        if (request.method === "DELETE" && action === "demotion-exclusion") return handleAdminDemotionExclusionRevoke(request, memberId, env);
         if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
       }
 
@@ -165,6 +168,10 @@ export default {
           return handleAdminMembers(request, url, env);
         case "GET /api/admin/promotion-candidates":
           return handleAdminPromotionCandidates(request, env);
+        case "GET /api/admin/demotion-candidates":
+          return handleAdminDemotionCandidates(request, env);
+        case "GET /api/admin/rank-change-history":
+          return handleAdminRankChangeHistory(request, url, env);
         case "GET /api/admin/promotion-rules":
           return handleAdminPromotionRulesGet(request, env);
         case "PUT /api/admin/promotion-rules":
@@ -801,7 +808,7 @@ async function handleMemberMe(request, env) {
   const firstNicknameChangeFree = nicknameChangeCount === 0;
 
   const rules=await getPromotionRules(env.DB);
-  const activity=await memberActivityStatus(env.DB,member.id);
+  const activity=await memberActivityStatus(env.DB,member.id,false,14);
   const promotion=promotionState(record,rules,activity);
   if(promotion){
     const pending=await env.DB.prepare(`SELECT id FROM member_requests WHERE member_id=? AND request_type='promotion' AND promotion_target_rank=? AND (admin_answer IS NULL OR TRIM(admin_answer)='') ORDER BY id DESC LIMIT 1`).bind(member.id,promotion.targetRank).first();
@@ -834,6 +841,8 @@ async function handleMemberMe(request, env) {
       },
       specs: specsResponse(record),
       promotion,
+      rankMaintenance:await rankMaintenanceState(env.DB,record,false),
+      rankChangeNotice:await memberRankChangeNotice(env.DB,member.id),
     },
   });
 }
@@ -1543,17 +1552,42 @@ function promotionState(row,rules,activity=null){
   return {currentRank:row.member_rank,targetRank:target,completed:Number(ind>=rule.industryLevel)+Number(v1>=rule.vehicle1PowerNormalized),specEligible,activityEligible,eligible:specEligible&&activityEligible,industry:{required:`I${rule.industryLevel}`,current:row.industry_level||null,passed:ind>=rule.industryLevel},vehicle1:{requiredNormalized:rule.vehicle1PowerNormalized,currentNormalized:row.vehicle1_power_normalized??null,passed:v1>=rule.vehicle1PowerNormalized},activity};
 }
 
-async function memberActivityStatus(db,memberId){
+async function memberActivityStatus(db,memberId,includePrivate=false,windowDays=14){
+  const days=Math.max(1,Math.min(90,Number(windowDays)||14)),dateOffset=`-${days-1} days`,timeOffset=`-${days} days`,expiryOffset=`+${days} days`;
   const [votes,visits,specs,confirmation]=await Promise.all([
-    db.prepare(`SELECT COUNT(DISTINCT vr.vote_id) count FROM vote_responses vr WHERE vr.member_id=? AND vr.updated_at>=datetime('now','-14 days') AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id)`).bind(memberId).first(),
-    db.prepare(`SELECT COUNT(*) count FROM member_daily_visits WHERE member_id=? AND visit_date>=date('now','+9 hours','-13 days')`).bind(memberId).first(),
-    db.prepare(`SELECT COUNT(*) count,MAX(created_at) latest FROM member_activity_logs WHERE member_id=? AND activity_type='specs_update' AND source='member' AND created_at>=datetime('now','-14 days')`).bind(memberId).first(),
-    db.prepare(`SELECT c.id,c.confirmed_at,datetime(c.confirmed_at,'+14 days') expires_at,a.nickname confirmed_by FROM member_activity_confirmations c LEFT JOIN members a ON a.id=c.confirmed_by_member_id WHERE c.member_id=? AND c.revoked_at IS NULL AND c.confirmed_at>=datetime('now','-14 days') ORDER BY c.confirmed_at DESC LIMIT 1`).bind(memberId).first(),
+    db.prepare(`SELECT COUNT(DISTINCT vr.vote_id) count,MAX(vr.updated_at) latest FROM vote_responses vr WHERE vr.member_id=? AND vr.updated_at>=datetime('now',?) AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id)`).bind(memberId,timeOffset).first(),
+    db.prepare(`SELECT COUNT(*) count,MAX(visit_date) latest FROM member_daily_visits WHERE member_id=? AND visit_date>=date('now','+9 hours',?)`).bind(memberId,dateOffset).first(),
+    db.prepare(`SELECT COUNT(*) count,MAX(created_at) latest FROM member_activity_logs WHERE member_id=? AND activity_type='specs_update' AND source='member' AND created_at>=datetime('now',?)`).bind(memberId,timeOffset).first(),
+    db.prepare(`SELECT c.id,c.confirmed_at,datetime(c.confirmed_at,?) expires_at,c.checked_login,c.checked_event,c.checked_alliance,c.memo,a.nickname confirmed_by FROM member_activity_confirmations c LEFT JOIN members a ON a.id=c.confirmed_by_member_id WHERE c.member_id=? AND c.revoked_at IS NULL AND c.confirmed_at>=datetime('now',?) ORDER BY c.confirmed_at DESC LIMIT 1`).bind(expiryOffset,memberId,timeOffset).first(),
   ]);
   const voteCount=Number(votes?.count||0),visitDays=Number(visits?.count||0),specUpdateCount=Number(specs?.count||0);
-  const items={vote:{count:voteCount,required:1,passed:voteCount>=1},visit:{count:visitDays,required:2,passed:visitDays>=2},specUpdate:{count:specUpdateCount,required:1,passed:specUpdateCount>=1,latestAt:specs?.latest||null},adminConfirmation:{passed:Boolean(confirmation),confirmedAt:confirmation?.confirmed_at||null,expiresAt:confirmation?.expires_at||null,confirmedBy:confirmation?.confirmed_by||null}};
+  const adminConfirmation={passed:Boolean(confirmation),confirmedAt:confirmation?.confirmed_at||null,expiresAt:confirmation?.expires_at||null};
+  if(includePrivate&&confirmation)Object.assign(adminConfirmation,{confirmedBy:confirmation.confirmed_by||null,checkedLogin:Boolean(confirmation.checked_login),checkedEvent:Boolean(confirmation.checked_event),checkedAlliance:Boolean(confirmation.checked_alliance),memo:confirmation.memo||""});
+  const items={vote:{count:voteCount,required:1,passed:voteCount>=1,latestAt:votes?.latest||null},visit:{count:visitDays,required:2,passed:visitDays>=2,latestAt:visits?.latest||null},specUpdate:{count:specUpdateCount,required:1,passed:specUpdateCount>=1,latestAt:specs?.latest||null},adminConfirmation};
   const completed=Object.values(items).filter(x=>x.passed).length;
-  return {windowDays:14,required:2,completed,eligible:completed>=2,items};
+  return {windowDays:days,required:2,completed,eligible:completed>=2,items};
+}
+
+async function rankProtectionState(db,memberId){
+  const row=await db.prepare(`SELECT change_type,protection_until,created_at FROM member_rank_changes WHERE member_id=? AND protection_until IS NOT NULL AND protection_until>datetime('now') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
+  return row?{active:true,type:row.change_type,until:row.protection_until,startedAt:row.created_at}:null;
+}
+async function memberRankChangeNotice(db,memberId){
+  const row=await db.prepare(`SELECT change_type,from_rank,to_rank,created_at FROM member_rank_changes WHERE member_id=? AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
+  return row?{type:row.change_type,fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
+}
+async function demotionExclusionState(db,memberId,includePrivate=false){
+  const row=await db.prepare(`SELECT e.id,e.excluded_until,e.reason,e.created_at,m.nickname created_by FROM member_demotion_exclusions e LEFT JOIN members m ON m.id=e.created_by_member_id WHERE e.member_id=? AND e.revoked_at IS NULL AND e.excluded_until>datetime('now') ORDER BY e.created_at DESC LIMIT 1`).bind(memberId).first();
+  if(!row)return null;
+  const state={active:true,until:row.excluded_until};
+  if(includePrivate)Object.assign(state,{id:row.id,reason:row.reason,createdAt:row.created_at,createdBy:row.created_by});
+  return state;
+}
+async function rankMaintenanceState(db,row,includePrivate=false){
+  if(!['R2','R3'].includes(row?.member_rank))return null;
+  const [activity,protection,exclusion]=await Promise.all([memberActivityStatus(db,row.id,includePrivate,30),rankProtectionState(db,row.id),demotionExclusionState(db,row.id,includePrivate)]);
+  const active=row.status==='active'&&(row.approval_status||'approved')==='approved';
+  return {currentRank:row.member_rank,targetRank:row.member_rank==='R3'?'R2':'R1',activity,maintained:activity.eligible,protection,exclusion,reviewEligible:active&&!activity.eligible&&!protection?.active&&!exclusion?.active};
 }
 
 async function getSessionDurationDays(db) {
@@ -1992,7 +2026,7 @@ async function promotionCandidateRows(db){
   const rules=await getPromotionRules(db);
   const rows=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.member_rank IN ('R1','R2') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).all();
   const specRows=(rows.results||[]).filter(row=>promotionState(row,rules)?.specEligible);
-  const items=await Promise.all(specRows.map(async row=>({row,state:promotionState(row,rules,await memberActivityStatus(db,row.id))})));
+  const items=await Promise.all(specRows.map(async row=>({row,state:promotionState(row,rules,await memberActivityStatus(db,row.id,true))})));
   items.sort((a,b)=>(a.state.targetRank==="R3"?-1:1)-(b.state.targetRank==="R3"?-1:1)||String(a.row.nickname).localeCompare(String(b.row.nickname),"ko"));
   return {rules,items:items.map(({row,state})=>({...adminMemberRow(row),promotion:state}))};
 }
@@ -2001,12 +2035,68 @@ async function handleAdminPromotionCandidates(request,env){
   const data=await promotionCandidateRows(env.DB);
   return json({ok:true,data:{items:data.items,counts:{total:data.items.length,R2:data.items.filter(x=>x.promotion.targetRank==="R2").length,R3:data.items.filter(x=>x.promotion.targetRank==="R3").length}}});
 }
+async function demotionCandidateRows(db){
+  const rows=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.member_rank IN ('R2','R3') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).all();
+  const evaluated=await Promise.all((rows.results||[]).map(async row=>({row,state:await rankMaintenanceState(db,row,true)})));
+  const order=(a,b)=>(a.state.currentRank==='R3'?-1:1)-(b.state.currentRank==='R3'?-1:1)||String(a.row.nickname).localeCompare(String(b.row.nickname),'ko');
+  const review=evaluated.filter(x=>x.state.reviewEligible).sort(order);
+  const deferred=evaluated.filter(x=>x.state.protection?.active||x.state.exclusion?.active).sort(order);
+  const map=({row,state})=>({...adminMemberRow(row),maintenance:state});
+  return {items:review.map(map),deferred:deferred.map(map)};
+}
+async function handleAdminDemotionCandidates(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
+  const data=await demotionCandidateRows(env.DB),r3=data.items.filter(x=>x.maintenance.currentRank==='R3').length;
+  return json({ok:true,data:{items:data.items,deferred:data.deferred,counts:{total:data.items.length,R3:r3,R2:data.items.length-r3,deferred:data.deferred.length}}});
+}
+async function handleAdminMemberDemote(request,memberId,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
+  const body=await readJson(request),reason=cleanString(body.reason,100)||'';
+  if(!reason)return jsonError('DEMOTION_REASON_REQUIRED',400);
+  const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
+  if(!row)return jsonError('MEMBER_NOT_FOUND',404);
+  const state=await rankMaintenanceState(env.DB,row,true);
+  if(!state?.reviewEligible){await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demotion_failed',targetType:'member',targetId:memberId,targetName:row.nickname,result:'failure',failureReason:'DEMOTION_NOT_ELIGIBLE'});return jsonError('DEMOTION_STATE_CHANGED',409)}
+  const result=await env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved'`).bind(state.targetRank,memberId,state.currentRank).run();
+  if(Number(result.meta?.changes||0)!==1)return jsonError('DEMOTION_STATE_CHANGED',409);
+  await env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,reason,activity_snapshot,changed_by_member_id,protection_until) VALUES(?,'demotion',?,?,?,?,?,CASE WHEN ?='R2' THEN datetime('now','+30 days') ELSE NULL END)`).bind(memberId,state.currentRank,state.targetRank,reason,JSON.stringify(state.activity),admin.id,state.targetRank).run();
+  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demoted',targetType:'member',targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank,activity:state.activity},after:{memberRank:state.targetRank,reason,protectionDays:state.targetRank==='R2'?30:0}});
+  return json({ok:true,data:{memberId,memberRank:state.targetRank,protectionDays:state.targetRank==='R2'?30:0}});
+}
+async function handleAdminDemotionExclusion(request,memberId,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
+  const target=await env.DB.prepare(`SELECT id,nickname,member_rank FROM members WHERE id=?`).bind(memberId).first();if(!target)return jsonError('MEMBER_NOT_FOUND',404);
+  if(!['R2','R3'].includes(target.member_rank))return jsonError('DEMOTION_EXCLUSION_NOT_ALLOWED',409);
+  const body=await readJson(request),date=String(body.excludedUntil||''),reason=cleanString(body.reason,100)||'';
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!reason)return jsonError('VALIDATION_ERROR',400);
+  const until=`${date} 14:59:59`;
+  const future=await env.DB.prepare(`SELECT CASE WHEN ?>datetime('now') THEN 1 ELSE 0 END ok`).bind(until).first();if(!Number(future?.ok))return jsonError('EXCLUSION_DATE_REQUIRED',400);
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE member_demotion_exclusions SET revoked_at=CURRENT_TIMESTAMP,revoked_by_member_id=? WHERE member_id=? AND revoked_at IS NULL`).bind(admin.id,memberId),
+    env.DB.prepare(`INSERT INTO member_demotion_exclusions(member_id,excluded_until,reason,created_by_member_id) VALUES(?,?,?,?)`).bind(memberId,until,reason,admin.id),
+  ]);
+  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demotion_excluded',targetType:'member',targetId:memberId,targetName:target.nickname,after:{excludedUntil:until,reason}});
+  return json({ok:true,data:{exclusion:await demotionExclusionState(env.DB,memberId,true)}});
+}
+async function handleAdminDemotionExclusionRevoke(request,memberId,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
+  const target=await env.DB.prepare(`SELECT id,nickname FROM members WHERE id=?`).bind(memberId).first();if(!target)return jsonError('MEMBER_NOT_FOUND',404);
+  const result=await env.DB.prepare(`UPDATE member_demotion_exclusions SET revoked_at=CURRENT_TIMESTAMP,revoked_by_member_id=? WHERE member_id=? AND revoked_at IS NULL`).bind(admin.id,memberId).run();
+  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demotion_exclusion_revoked',targetType:'member',targetId:memberId,targetName:target.nickname,after:{revoked:Number(result.meta?.changes||0)}});
+  return json({ok:true,data:{revoked:Number(result.meta?.changes||0)}});
+}
+async function handleAdminRankChangeHistory(request,url,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
+  const limit=Math.max(1,Math.min(100,Number(url.searchParams.get('limit'))||30));
+  const rows=await env.DB.prepare(`SELECT h.*,m.nickname,a.nickname changed_by FROM member_rank_changes h JOIN members m ON m.id=h.member_id LEFT JOIN members a ON a.id=h.changed_by_member_id ORDER BY h.created_at DESC LIMIT ?`).bind(limit).all();
+  return json({ok:true,data:{items:(rows.results||[]).map(x=>({id:x.id,memberId:x.member_id,nickname:x.nickname,type:x.change_type,fromRank:x.from_rank,toRank:x.to_rank,reason:x.reason,changedBy:x.changed_by,protectionUntil:x.protection_until,createdAt:x.created_at}))}});
+}
 async function handleAdminPromotionRulesGet(request,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
-  return json({ok:true,data:{rules:await getPromotionRules(env.DB),editable:admin.admin_level==="super"}});
+  return json({ok:true,data:{rules:await getPromotionRules(env.DB),editable:true}});
 }
 async function handleAdminPromotionRulesPut(request,env){
-  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
   const body=await readJson(request),rules={R2:{industryLevel:Number(body?.R2?.industryLevel),vehicle1PowerNormalized:Number(body?.R2?.vehicle1PowerNormalized)},R3:{industryLevel:Number(body?.R3?.industryLevel),vehicle1PowerNormalized:Number(body?.R3?.vehicle1PowerNormalized)}};
   if(!validatePromotionRules(rules))return jsonError("INVALID_PROMOTION_RULES",400);
   const before=await getPromotionRules(env.DB);
@@ -2015,13 +2105,14 @@ async function handleAdminPromotionRulesPut(request,env){
   return json({ok:true,data:{rules}});
 }
 async function handleAdminMemberPromote(request,memberId,env){
-  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
   const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
   if(!row)return jsonError("MEMBER_NOT_FOUND",404);
   const state=promotionState(row,await getPromotionRules(env.DB),await memberActivityStatus(env.DB,memberId));
   if(!state?.eligible){await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promotion_failed",targetType:"member",targetId:memberId,targetName:row.nickname,result:"failure",failureReason:"PROMOTION_NOT_ELIGIBLE"});return jsonError("PROMOTION_NOT_ELIGIBLE",409)}
   const result=await env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved' AND CAST(REPLACE(UPPER(COALESCE(industry_level,'')),'I','') AS INTEGER)>=? AND EXISTS(SELECT 1 FROM member_specs s WHERE s.member_id=members.id AND s.vehicle1_power_normalized>=?)`).bind(state.targetRank,memberId,state.currentRank,Number(state.industry.required.slice(1)),state.vehicle1.requiredNormalized).run();
   if(Number(result.meta?.changes||0)!==1)return jsonError("PROMOTION_STATE_CHANGED",409);
+  await env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,activity_snapshot,changed_by_member_id,protection_until) VALUES(?,'promotion',?,?,?, ?,datetime('now','+10 days'))`).bind(memberId,state.currentRank,state.targetRank,JSON.stringify(state.activity),admin.id).run();
   await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promoted",targetType:"member",targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank},after:{memberRank:state.targetRank}});
   return json({ok:true,data:{memberId,memberRank:state.targetRank}});
 }
@@ -2029,7 +2120,7 @@ async function handleAdminMemberPromote(request,memberId,env){
 async function handleAdminActivityConfirm(request,memberId,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
   const target=await env.DB.prepare(`SELECT id,nickname FROM members WHERE id=?`).bind(memberId).first();if(!target)return jsonError("MEMBER_NOT_FOUND",404);
-  const body=await readJson(request),checkedLogin=body.checkedLogin===true,checkedEvent=body.checkedEvent===true,checkedAlliance=body.checkedAlliance===true,memo=cleanString(body.memo,500)||"";
+  const body=await readJson(request),checkedLogin=body.checkedLogin===true,checkedEvent=body.checkedEvent===true,checkedAlliance=body.checkedAlliance===true,memo=cleanString(body.memo,100)||"";
   if(!checkedLogin&&!checkedEvent&&!checkedAlliance)return jsonError("ACTIVITY_CONFIRMATION_REQUIRED",400);
   await env.DB.batch([
     env.DB.prepare(`UPDATE member_activity_confirmations SET revoked_at=CURRENT_TIMESTAMP,revoked_by_member_id=? WHERE member_id=? AND revoked_at IS NULL`).bind(admin.id,memberId),
@@ -2170,6 +2261,10 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   const batch=[];
   if(nickname!==target.nickname){
     batch.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) VALUES(?,?,?,'admin',?)`).bind(memberId,target.nickname,nickname,admin.id));
+  }
+  if(rank!==target.member_rank){
+    const rankNumber=v=>Number(String(v).replace('R',''))||0,higher=rankNumber(rank)>rankNumber(target.member_rank),protectionModifier=higher?'+10 days':(!higher&&rank==='R2'?'+30 days':null);
+    batch.push(env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,reason,changed_by_member_id,protection_until) VALUES(?,'manual',?,?,'관리자 직접 변경',?,CASE WHEN ? IS NULL THEN NULL ELSE datetime('now',?) END)`).bind(memberId,target.member_rank,rank,admin.id,protectionModifier,protectionModifier));
   }
   batch.push(env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=?,role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(nickname,rank,status,nextRole,nextLevel,memberId));
   if(permissionChanged) batch.push(env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId));
