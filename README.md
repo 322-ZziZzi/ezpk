@@ -1,4 +1,15 @@
-# EZPK War Portal v376
+# EZPK War Portal v378
+
+## v378 · Project file cleanup
+
+- Consolidates release history in this README and removes accumulated `V###_*.md` files.
+- Merges the one-time new-game ranking normalization SQL into `SUPABASE_GAME_SETUP.sql`.
+- Removes the superseded standalone ranking FIX SQL; runtime JS, CSS, migrations, and setup files remain intact.
+
+## v377 · Fixed 100-slot alliance layout
+
+- Adds selectable empty buildings, unplaced-member placement, PC drag and drop,
+  mobile long-press movement, undo, publish validation, and 100-slot public rendering.
 
 ## v376 · My Page session compatibility fix
 

@@ -10,6 +10,13 @@ create table if not exists public.game_scores (
 alter table public.game_scores
   add column if not exists game_id varchar(32) not null default 'survival';
 
+-- Normalize legacy page-slug IDs so older scores remain in the current
+-- underscore-based leaderboards. This incorporates the former one-off FIX SQL.
+update public.game_scores set game_id='treasure_hunter' where game_id='treasure-hunter';
+update public.game_scores set game_id='zombie_defense' where game_id='zombie-defense';
+update public.game_scores set game_id='portal_escape' where game_id='portal-escape';
+update public.game_scores set game_id='hero_merge' where game_id='hero-merge';
+
 create index if not exists game_scores_game_month_score_idx
   on public.game_scores (game_id, created_at desc, score desc);
 
