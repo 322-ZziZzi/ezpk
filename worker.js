@@ -59,7 +59,7 @@ export default {
       if (voteExclusionMatch && request.method === "PUT") return handleVoteExclusion(request, Number(voteExclusionMatch[1]), env);
 
 
-      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions|promote))?$/);
+      const adminMemberMatch = url.pathname.match(/^\/api\/admin\/members\/(\d+)(?:\/(memo|reset-password|history|specs|permissions|promote|activity-confirmation))?$/);
       if (adminMemberMatch) {
         const memberId = Number(adminMemberMatch[1]);
         const action = adminMemberMatch[2] || "";
@@ -72,6 +72,8 @@ export default {
         if (request.method === "PUT" && action === "permissions") return handleAdminMemberPermissions(request, memberId, env);
         if (request.method === "POST" && action === "reset-password") return handleAdminMemberResetPassword(request, memberId, env);
         if (request.method === "POST" && action === "promote") return handleAdminMemberPromote(request, memberId, env);
+        if (request.method === "POST" && action === "activity-confirmation") return handleAdminActivityConfirm(request, memberId, env);
+        if (request.method === "DELETE" && action === "activity-confirmation") return handleAdminActivityConfirmRevoke(request, memberId, env);
         if (request.method === "DELETE" && !action) return handleAdminMemberDelete(request, memberId, env);
       }
 
@@ -318,7 +320,6 @@ async function handleSetupAdmin(request, env, url) {
       adminLoginId,
     ),
   ]);
-
   const member = await getMemberByLoginId(env.DB, adminLoginId);
 
   return json(
@@ -704,6 +705,8 @@ async function handleAuthMe(request, env) {
     });
   }
 
+  await env.DB.prepare(`INSERT OR IGNORE INTO member_daily_visits(member_id,visit_date) VALUES(?,date('now','+9 hours'))`).bind(member.id).run();
+
   const refreshedSession = await refreshSessionData(request, env.DB);
   return json(
     {
@@ -783,6 +786,7 @@ async function handleMemberMe(request, env) {
       COALESCE(s.profile_specs_registered, 1) AS profile_specs_registered,
       s.created_at AS spec_created_at,
       s.updated_at AS spec_updated_at
+      ,s.member_self_updated_at
     FROM members AS m
     LEFT JOIN member_specs AS s
       ON s.member_id = m.id
@@ -797,7 +801,8 @@ async function handleMemberMe(request, env) {
   const firstNicknameChangeFree = nicknameChangeCount === 0;
 
   const rules=await getPromotionRules(env.DB);
-  const promotion=promotionState(record,rules);
+  const activity=await memberActivityStatus(env.DB,member.id);
+  const promotion=promotionState(record,rules,activity);
   if(promotion){
     const pending=await env.DB.prepare(`SELECT id FROM member_requests WHERE member_id=? AND request_type='promotion' AND promotion_target_rank=? AND (admin_answer IS NULL OR TRIM(admin_answer)='') ORDER BY id DESC LIMIT 1`).bind(member.id,promotion.targetRank).first();
     promotion.pendingRequestId=pending?Number(pending.id):null;
@@ -1042,6 +1047,21 @@ async function handleSpecsUpdate(request, env) {
     ? null
     : vehicle2PowerValue * (vehicle2PowerUnit === "G" ? 1000 : 1);
 
+  const previous=await env.DB.prepare(`SELECT m.power,m.industry_level,s.vehicle1_class,s.vehicle1_power_normalized,s.vehicle2_class,s.vehicle2_power_normalized,s.season_war_available,s.bgb_available_hour,s.discord,s.telegram FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(member.id).first();
+  const same=(a,b)=>String(a??"")===String(b??"");
+  const changedFields=[];
+  if(!same(previous?.power,power))changedFields.push("power");
+  if(!same(previous?.industry_level,industryLevel))changedFields.push("industryLevel");
+  if(!same(previous?.vehicle1_class,vehicle1Class))changedFields.push("vehicle1Class");
+  if(Number(previous?.vehicle1_power_normalized||0)!==Number(vehicle1PowerNormalized||0))changedFields.push("vehicle1Power");
+  if(!same(previous?.vehicle2_class,vehicle2Class))changedFields.push("vehicle2Class");
+  if(Number(previous?.vehicle2_power_normalized||0)!==Number(vehicle2PowerNormalized||0))changedFields.push("vehicle2Power");
+  if(!same(previous?.season_war_available,seasonWarAvailable===null?null:Number(seasonWarAvailable)))changedFields.push("seasonWarAvailable");
+  if(!same(previous?.bgb_available_hour,bgbAvailableHour))changedFields.push("bgbAvailableHour");
+  if(!same(previous?.discord,discord))changedFields.push("discord");
+  if(!same(previous?.telegram,telegram))changedFields.push("telegram");
+  const actualChange=changedFields.length>0;
+
   // v274: Store normalized vehicle values explicitly. D1 triggers remain as a
   // secondary safeguard, but correct sorting no longer depends on them.
   await env.DB.batch([
@@ -1056,9 +1076,9 @@ async function handleSpecsUpdate(request, env) {
         vehicle1_class, vehicle1_power_value, vehicle1_power_unit, vehicle1_power_normalized,
         vehicle2_class, vehicle2_power_value, vehicle2_power_unit, vehicle2_power_normalized,
         season_war_available, bgb_available_hour,
-        discord, telegram
+        discord, telegram, member_self_updated_at
       )
-      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE NULL END)
       ON CONFLICT(member_id) DO UPDATE SET
         profile_specs_registered = 1,
         vehicle1_class = excluded.vehicle1_class,
@@ -1072,7 +1092,8 @@ async function handleSpecsUpdate(request, env) {
         season_war_available = excluded.season_war_available,
         bgb_available_hour = excluded.bgb_available_hour,
         discord = excluded.discord,
-        telegram = excluded.telegram
+        telegram = excluded.telegram,
+        member_self_updated_at = CASE WHEN ? THEN CURRENT_TIMESTAMP ELSE member_specs.member_self_updated_at END
     `).bind(
       member.id,
       vehicle1Class,
@@ -1087,8 +1108,12 @@ async function handleSpecsUpdate(request, env) {
       bgbAvailableHour,
       discord,
       telegram,
+      actualChange?1:0,
+      actualChange?1:0,
     ),
+    env.DB.prepare(`INSERT INTO member_activity_logs(member_id,activity_type,source,changed_fields) SELECT ?,'specs_update','member',? WHERE ?=1`).bind(member.id,JSON.stringify(changedFields),actualChange?1:0),
   ]);
+  const savedSpecMeta=await env.DB.prepare(`SELECT member_self_updated_at FROM member_specs WHERE member_id=?`).bind(member.id).first();
 
   return json({
     ok: true,
@@ -1113,7 +1138,9 @@ async function handleSpecsUpdate(request, env) {
         bgbAvailableHour,
         discord,
         telegram,
+        memberSelfUpdatedAt: savedSpecMeta?.member_self_updated_at || null,
       },
+      changed: actualChange,
     },
   });
 }
@@ -1325,7 +1352,7 @@ async function handleRequestCreate(request, env) {
   const targetRank=requestType==="promotion"?String(body.promotionTargetRank||"").toUpperCase():null;
   if(requestType==="promotion"){
     const fresh=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(member.id).first();
-    const state=promotionState(fresh,await getPromotionRules(env.DB));
+    const state=promotionState(fresh,await getPromotionRules(env.DB),await memberActivityStatus(env.DB,member.id));
     if(!state||!state.eligible||state.targetRank!==targetRank)return jsonError("PROMOTION_NOT_ELIGIBLE",409);
     const duplicate=await env.DB.prepare(`SELECT id FROM member_requests WHERE member_id=? AND request_type='promotion' AND promotion_target_rank=? AND (admin_answer IS NULL OR TRIM(admin_answer)='') LIMIT 1`).bind(member.id,targetRank).first();
     if(duplicate)return jsonError("PROMOTION_REQUEST_PENDING",409,{requestId:Number(duplicate.id)});
@@ -1507,11 +1534,26 @@ function validatePromotionRules(rules){
     &&r2.vehicle1PowerNormalized>0&&r3.vehicle1PowerNormalized>=r2.vehicle1PowerNormalized;
 }
 function industryNumber(v){const n=Number(String(v||"").toUpperCase().replace("I",""));return Number.isFinite(n)?n:0}
-function promotionState(row,rules){
+function promotionState(row,rules,activity=null){
   const target=row.member_rank==="R1"?"R2":row.member_rank==="R2"?"R3":null;if(!target)return null;
   const rule=rules[target],ind=industryNumber(row.industry_level),v1=Number(row.vehicle1_power_normalized||0);
   const active=row.status==="active"&&(row.approval_status||"approved")==="approved";
-  return {currentRank:row.member_rank,targetRank:target,completed:Number(ind>=rule.industryLevel)+Number(v1>=rule.vehicle1PowerNormalized),eligible:active&&ind>=rule.industryLevel&&v1>=rule.vehicle1PowerNormalized,industry:{required:`I${rule.industryLevel}`,current:row.industry_level||null,passed:ind>=rule.industryLevel},vehicle1:{requiredNormalized:rule.vehicle1PowerNormalized,currentNormalized:row.vehicle1_power_normalized??null,passed:v1>=rule.vehicle1PowerNormalized}};
+  const specEligible=active&&ind>=rule.industryLevel&&v1>=rule.vehicle1PowerNormalized;
+  const activityEligible=Boolean(activity?.eligible);
+  return {currentRank:row.member_rank,targetRank:target,completed:Number(ind>=rule.industryLevel)+Number(v1>=rule.vehicle1PowerNormalized),specEligible,activityEligible,eligible:specEligible&&activityEligible,industry:{required:`I${rule.industryLevel}`,current:row.industry_level||null,passed:ind>=rule.industryLevel},vehicle1:{requiredNormalized:rule.vehicle1PowerNormalized,currentNormalized:row.vehicle1_power_normalized??null,passed:v1>=rule.vehicle1PowerNormalized},activity};
+}
+
+async function memberActivityStatus(db,memberId){
+  const [votes,visits,specs,confirmation]=await Promise.all([
+    db.prepare(`SELECT COUNT(DISTINCT vr.vote_id) count FROM vote_responses vr WHERE vr.member_id=? AND vr.updated_at>=datetime('now','-14 days') AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id)`).bind(memberId).first(),
+    db.prepare(`SELECT COUNT(*) count FROM member_daily_visits WHERE member_id=? AND visit_date>=date('now','+9 hours','-13 days')`).bind(memberId).first(),
+    db.prepare(`SELECT COUNT(*) count,MAX(created_at) latest FROM member_activity_logs WHERE member_id=? AND activity_type='specs_update' AND source='member' AND created_at>=datetime('now','-14 days')`).bind(memberId).first(),
+    db.prepare(`SELECT c.id,c.confirmed_at,datetime(c.confirmed_at,'+14 days') expires_at,a.nickname confirmed_by FROM member_activity_confirmations c LEFT JOIN members a ON a.id=c.confirmed_by_member_id WHERE c.member_id=? AND c.revoked_at IS NULL AND c.confirmed_at>=datetime('now','-14 days') ORDER BY c.confirmed_at DESC LIMIT 1`).bind(memberId).first(),
+  ]);
+  const voteCount=Number(votes?.count||0),visitDays=Number(visits?.count||0),specUpdateCount=Number(specs?.count||0);
+  const items={vote:{count:voteCount,required:1,passed:voteCount>=1},visit:{count:visitDays,required:2,passed:visitDays>=2},specUpdate:{count:specUpdateCount,required:1,passed:specUpdateCount>=1,latestAt:specs?.latest||null},adminConfirmation:{passed:Boolean(confirmation),confirmedAt:confirmation?.confirmed_at||null,expiresAt:confirmation?.expires_at||null,confirmedBy:confirmation?.confirmed_by||null}};
+  const completed=Object.values(items).filter(x=>x.passed).length;
+  return {windowDays:14,required:2,completed,eligible:completed>=2,items};
 }
 
 async function getSessionDurationDays(db) {
@@ -1949,7 +1991,9 @@ async function handleAdminMembers(request, url, env) {
 async function promotionCandidateRows(db){
   const rules=await getPromotionRules(db);
   const rows=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.member_rank IN ('R1','R2') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).all();
-  const items=(rows.results||[]).map(row=>({row,state:promotionState(row,rules)})).filter(x=>x.state?.eligible).sort((a,b)=>(a.state.targetRank==="R3"?-1:1)-(b.state.targetRank==="R3"?-1:1)||String(a.row.nickname).localeCompare(String(b.row.nickname),"ko"));
+  const specRows=(rows.results||[]).filter(row=>promotionState(row,rules)?.specEligible);
+  const items=await Promise.all(specRows.map(async row=>({row,state:promotionState(row,rules,await memberActivityStatus(db,row.id))})));
+  items.sort((a,b)=>(a.state.targetRank==="R3"?-1:1)-(b.state.targetRank==="R3"?-1:1)||String(a.row.nickname).localeCompare(String(b.row.nickname),"ko"));
   return {rules,items:items.map(({row,state})=>({...adminMemberRow(row),promotion:state}))};
 }
 async function handleAdminPromotionCandidates(request,env){
@@ -1974,12 +2018,32 @@ async function handleAdminMemberPromote(request,memberId,env){
   const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
   const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
   if(!row)return jsonError("MEMBER_NOT_FOUND",404);
-  const state=promotionState(row,await getPromotionRules(env.DB));
+  const state=promotionState(row,await getPromotionRules(env.DB),await memberActivityStatus(env.DB,memberId));
   if(!state?.eligible){await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promotion_failed",targetType:"member",targetId:memberId,targetName:row.nickname,result:"failure",failureReason:"PROMOTION_NOT_ELIGIBLE"});return jsonError("PROMOTION_NOT_ELIGIBLE",409)}
   const result=await env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved' AND CAST(REPLACE(UPPER(COALESCE(industry_level,'')),'I','') AS INTEGER)>=? AND EXISTS(SELECT 1 FROM member_specs s WHERE s.member_id=members.id AND s.vehicle1_power_normalized>=?)`).bind(state.targetRank,memberId,state.currentRank,Number(state.industry.required.slice(1)),state.vehicle1.requiredNormalized).run();
   if(Number(result.meta?.changes||0)!==1)return jsonError("PROMOTION_STATE_CHANGED",409);
   await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promoted",targetType:"member",targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank},after:{memberRank:state.targetRank}});
   return json({ok:true,data:{memberId,memberRank:state.targetRank}});
+}
+
+async function handleAdminActivityConfirm(request,memberId,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
+  const target=await env.DB.prepare(`SELECT id,nickname FROM members WHERE id=?`).bind(memberId).first();if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  const body=await readJson(request),checkedLogin=body.checkedLogin===true,checkedEvent=body.checkedEvent===true,checkedAlliance=body.checkedAlliance===true,memo=cleanString(body.memo,500)||"";
+  if(!checkedLogin&&!checkedEvent&&!checkedAlliance)return jsonError("ACTIVITY_CONFIRMATION_REQUIRED",400);
+  await env.DB.batch([
+    env.DB.prepare(`UPDATE member_activity_confirmations SET revoked_at=CURRENT_TIMESTAMP,revoked_by_member_id=? WHERE member_id=? AND revoked_at IS NULL`).bind(admin.id,memberId),
+    env.DB.prepare(`INSERT INTO member_activity_confirmations(member_id,confirmed_by_member_id,checked_login,checked_event,checked_alliance,memo) VALUES(?,?,?,?,?,?)`).bind(memberId,admin.id,checkedLogin?1:0,checkedEvent?1:0,checkedAlliance?1:0,memo),
+  ]);
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_activity_confirmed",targetType:"member",targetId:memberId,targetName:target.nickname,after:{checkedLogin,checkedEvent,checkedAlliance,memo}});
+  return json({ok:true,data:{activity:await memberActivityStatus(env.DB,memberId)}});
+}
+async function handleAdminActivityConfirmRevoke(request,memberId,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
+  const target=await env.DB.prepare(`SELECT id,nickname FROM members WHERE id=?`).bind(memberId).first();if(!target)return jsonError("MEMBER_NOT_FOUND",404);
+  const result=await env.DB.prepare(`UPDATE member_activity_confirmations SET revoked_at=CURRENT_TIMESTAMP,revoked_by_member_id=? WHERE member_id=? AND revoked_at IS NULL`).bind(admin.id,memberId).run();
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_activity_confirmation_revoked",targetType:"member",targetId:memberId,targetName:target.nickname,after:{revoked:Number(result.meta?.changes||0)}});
+  return json({ok:true,data:{activity:await memberActivityStatus(env.DB,memberId)}});
 }
 
 async function handleAdminMembersCreateBulk(request, env) {
@@ -3000,6 +3064,7 @@ function specsResponse(row) {
     telegram: row.telegram,
     createdAt: row.spec_created_at,
     updatedAt: row.spec_updated_at,
+    memberSelfUpdatedAt: row.member_self_updated_at || null,
     completed,
   };
 }

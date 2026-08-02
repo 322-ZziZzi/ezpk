@@ -258,3 +258,4 @@
     display:none!important;
   }
 }
+.promotion-activity{display:grid;gap:4px;color:#aeb9c8}.promotion-activity b{color:#fff}.promotion-candidate-actions{display:flex;gap:8px;flex-wrap:wrap}.promotion-candidate-actions button{white-space:nowrap}

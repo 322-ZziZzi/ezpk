@@ -37,6 +37,16 @@
     pt:{title:"Requisitos de promoção",current:"Atual",required:"Necessário",congrats:"Parabéns! Você atingiu os requisitos de promoção.",body:"Envie o pedido no Quadro de Pedidos.",request:"PEDIR PROMOÇÃO",pending:"Já existe um pedido de promoção pendente.",view:"VER PEDIDO"},
     ar:{title:"شروط الترقية",current:"الحالي",required:"المطلوب",congrats:"تهانينا، لقد حققت شروط الترقية.",body:"يرجى إرسال طلب الترقية في لوحة الطلبات.",request:"طلب الترقية",pending:"يوجد طلب ترقية قيد الانتظار بالفعل.",view:"عرض الطلب"}
   };
+  const ACTIVITY_LABELS={
+    ko:{title:"최근 14일 활동",vote:"투표 참여",visit:"사이트 방문",spec:"본인 스펙 업데이트",admin:"운영진 활동 확인",times:"회",days:"일",required:"필요",confirmed:"확인 완료",unconfirmed:"미확인",met:"승급 활동 조건을 달성했습니다.",need:n=>`활동 조건이 ${n}개 더 필요합니다.`,last:"최근 업데이트",none:"업데이트 기록 없음",unchanged:"변경된 내용이 없습니다."},
+    en:{title:"Activity in the last 14 days",vote:"Vote participation",visit:"Site visits",spec:"My spec update",admin:"Leader activity confirmation",times:"times",days:"days",required:"Required",confirmed:"Confirmed",unconfirmed:"Not confirmed",met:"Promotion activity requirements met.",need:n=>`${n} more activity requirement${n>1?'s':''} needed.`,last:"Last updated",none:"No update record",unchanged:"No changes were found."},
+    ja:{title:"最近14日間の活動",vote:"投票参加",visit:"サイト訪問",spec:"本人によるスペック更新",admin:"運営チームの活動確認",times:"回",days:"日",required:"必要",confirmed:"確認済み",unconfirmed:"未確認",met:"昇級の活動条件を達成しました。",need:n=>`活動条件があと${n}件必要です。`,last:"最終更新",none:"更新履歴なし",unchanged:"変更内容はありません。"},
+    "zh-tw":{title:"最近 14 天活動",vote:"投票參與",visit:"網站造訪",spec:"本人規格更新",admin:"管理團隊活動確認",times:"次",days:"天",required:"需要",confirmed:"已確認",unconfirmed:"未確認",met:"已達成晉級活動條件。",need:n=>`還需要 ${n} 項活動條件。`,last:"最近更新",none:"沒有更新紀錄",unchanged:"沒有變更內容。"},
+    vi:{title:"Hoạt động trong 14 ngày gần nhất",vote:"Tham gia bỏ phiếu",visit:"Truy cập trang web",spec:"Tự cập nhật thông số",admin:"Xác nhận hoạt động từ ban quản lý",times:"lần",days:"ngày",required:"Cần",confirmed:"Đã xác nhận",unconfirmed:"Chưa xác nhận",met:"Đã đạt điều kiện hoạt động thăng hạng.",need:n=>`Cần thêm ${n} điều kiện hoạt động.`,last:"Cập nhật gần nhất",none:"Chưa có lịch sử cập nhật",unchanged:"Không có thay đổi."},
+    th:{title:"กิจกรรมใน 14 วันที่ผ่านมา",vote:"เข้าร่วมโหวต",visit:"เยี่ยมชมเว็บไซต์",spec:"อัปเดตสเปกด้วยตนเอง",admin:"การยืนยันกิจกรรมโดยทีมบริหาร",times:"ครั้ง",days:"วัน",required:"ต้องการ",confirmed:"ยืนยันแล้ว",unconfirmed:"ยังไม่ยืนยัน",met:"ผ่านเงื่อนไขกิจกรรมสำหรับเลื่อนระดับแล้ว",need:n=>`ต้องการเงื่อนไขกิจกรรมเพิ่มอีก ${n} รายการ`,last:"อัปเดตล่าสุด",none:"ไม่มีประวัติการอัปเดต",unchanged:"ไม่มีข้อมูลที่เปลี่ยนแปลง"},
+    pt:{title:"Atividade nos últimos 14 dias",vote:"Participação em votações",visit:"Visitas ao site",spec:"Atualização própria de atributos",admin:"Confirmação de atividade pela liderança",times:"vezes",days:"dias",required:"Necessário",confirmed:"Confirmado",unconfirmed:"Não confirmado",met:"Requisitos de atividade para promoção atingidos.",need:n=>`Falta${n>1?'m':''} ${n} requisito${n>1?'s':''} de atividade.`,last:"Última atualização",none:"Sem registro de atualização",unchanged:"Nenhuma alteração encontrada."},
+    ar:{title:"النشاط خلال آخر 14 يومًا",vote:"المشاركة في التصويت",visit:"زيارة الموقع",spec:"تحديث المواصفات ذاتيًا",admin:"تأكيد النشاط من الإدارة",times:"مرات",days:"أيام",required:"المطلوب",confirmed:"تم التأكيد",unconfirmed:"غير مؤكد",met:"تم استيفاء شروط نشاط الترقية.",need:n=>`تحتاج إلى ${n} من شروط النشاط الإضافية.`,last:"آخر تحديث",none:"لا يوجد سجل تحديث",unchanged:"لا توجد تغييرات."}
+  };
 
   function normalizeMemberRank(value){
     const rank = String(value || "R1").toUpperCase();
@@ -136,6 +146,9 @@
     setValue($("#specsForm"),"bgbAvailableHour",s.bgbAvailableHour);
     setValue($("#specsForm"),"discord",s.discord);
     setValue($("#specsForm"),"telegram",s.telegram);
+    const activityText=ACTIVITY_LABELS[lang]||ACTIVITY_LABELS.en;
+    $("#specLastUpdatedLabelV369").textContent=activityText.last;
+    $("#specLastUpdatedV369").textContent=s.memberSelfUpdatedAt?formatDate(s.memberSelfUpdatedAt):activityText.none;
     $("#currentNickname").textContent = m.nickname;
 
     const availableAt = m.nicknameChangeAvailableAt ? Date.parse(m.nicknameChangeAvailableAt) : NaN;
@@ -148,7 +161,16 @@
     $("#nicknameInput").disabled = !available;
     $("#nicknameSubmit").disabled = !available;
   }
-  function renderPromotion(p){const card=$("#promotionCardV367");if(!card)return;card.hidden=!p;if(!p)return;const l=PROMOTION_LABELS[lang]||PROMOTION_LABELS.en;$("#promotionRouteV367").textContent=`${p.currentRank} → ${p.targetRank}`;$("#promotionTitleV367").textContent=l.title;$("#promotionCountV367").textContent=`${p.completed} / 2`;$("#promotionProgressV367").style.width=`${p.completed*50}%`;const ind=$("#promotionIndustryV367"),v=$("#promotionVehicleV367");ind.textContent=`${l.current} ${p.industry.current||'-'} · ${l.required} ${p.industry.required}`;v.textContent=`${l.current} ${p.vehicle1.currentNormalized==null?'-':(p.vehicle1.currentNormalized/1000).toFixed(2)+'G'} · ${l.required} ${(p.vehicle1.requiredNormalized/1000).toFixed(1)}G`;ind.className=p.industry.passed?'passed':'failed';v.className=p.vehicle1.passed?'passed':'failed';const done=$("#promotionCongratsV367");done.hidden=!p.eligible;if(p.eligible){$("#promotionCongratsTitleV367").textContent=l.congrats;$("#promotionCongratsBodyV367").textContent=p.pendingRequestId?l.pending:l.body;const a=$("#promotionRequestV367");a.textContent=p.pendingRequestId?l.view:l.request;a.href=p.pendingRequestId?`../request/#request-${p.pendingRequestId}`:`../request/?type=promotion&target=${p.targetRank}`}}
+  function renderPromotion(p){
+    const card=$("#promotionCardV367");if(!card)return;card.hidden=!p;if(!p)return;
+    const l=PROMOTION_LABELS[lang]||PROMOTION_LABELS.en,a=ACTIVITY_LABELS[lang]||ACTIVITY_LABELS.en,activity=p.activity;
+    $("#promotionRouteV367").textContent=`${p.currentRank} → ${p.targetRank}`;$("#promotionTitleV367").textContent=l.title;$("#promotionCountV367").textContent=`${p.completed} / 2`;$("#promotionProgressV367").style.width=`${p.completed*50}%`;
+    const ind=$("#promotionIndustryV367"),v=$("#promotionVehicleV367");ind.textContent=`${l.current} ${p.industry.current||'-'} · ${l.required} ${p.industry.required}`;v.textContent=`${l.current} ${p.vehicle1.currentNormalized==null?'-':(p.vehicle1.currentNormalized/1000).toFixed(2)+'G'} · ${l.required} ${(p.vehicle1.requiredNormalized/1000).toFixed(1)}G`;ind.className=p.industry.passed?'passed':'failed';v.className=p.vehicle1.passed?'passed':'failed';
+    $("#promotionActivityTitleV369").textContent=a.title;$("#promotionActivityCountV369").textContent=`${activity.completed} / 4`;$("#activityVoteLabelV369").textContent=a.vote;$("#activityVisitLabelV369").textContent=a.visit;$("#activitySpecLabelV369").textContent=a.spec;$("#activityAdminLabelV369").textContent=a.admin;
+    const setActivity=(id,item,text)=>{const el=$(id);el.textContent=text;el.className=item.passed?'passed':'failed'};
+    setActivity("#activityVoteV369",activity.items.vote,`${activity.items.vote.count}${a.times} · ${a.required} ${activity.items.vote.required}${a.times}`);setActivity("#activityVisitV369",activity.items.visit,`${activity.items.visit.count}${a.days} · ${a.required} ${activity.items.visit.required}${a.days}`);setActivity("#activitySpecV369",activity.items.specUpdate,`${activity.items.specUpdate.count}${a.times} · ${a.required} ${activity.items.specUpdate.required}${a.times}`);setActivity("#activityAdminV369",activity.items.adminConfirmation,activity.items.adminConfirmation.passed?a.confirmed:a.unconfirmed);$("#promotionActivityMessageV369").textContent=activity.eligible?a.met:a.need(Math.max(0,activity.required-activity.completed));
+    const done=$("#promotionCongratsV367");done.hidden=!p.eligible;if(p.eligible){$("#promotionCongratsTitleV367").textContent=l.congrats;$("#promotionCongratsBodyV367").textContent=p.pendingRequestId?l.pending:l.body;const link=$("#promotionRequestV367");link.textContent=p.pendingRequestId?l.view:l.request;link.href=p.pendingRequestId?`../request/#request-${p.pendingRequestId}`:`../request/?type=promotion&target=${p.targetRank}`}
+  }
 
   async function loadMember(){
     try {
@@ -273,7 +295,9 @@
       memberData.member.profileSpecsRegistered = true;
       memberData.specs = {...memberData.specs, ...payload.data.specs};
       renderMember();
-      showToast(t("saved"));
+      const activityText=ACTIVITY_LABELS[lang]||ACTIVITY_LABELS.en;
+      showToast(payload.data.changed?t("saved"):activityText.unchanged);
+      if(payload.data.changed)await loadMember();
     } catch (e) { showToast(e.code === "VALIDATION_ERROR" ? t("validation") : t("failed"),"error"); }
   });
 

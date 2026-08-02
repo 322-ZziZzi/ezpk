@@ -1,5 +1,13 @@
 # EZPK War Portal v256
 
+## v369 · Promotion activity requirements
+
+- Requires two of four recent-14-day activity signals in addition to both promotion spec requirements.
+- Tracks KST daily visits, vote participation, real member-owned spec changes, and 14-day admin confirmations.
+- Adds Korean admin confirmation controls and an eight-language member activity view.
+- Shows the member's latest successful self-update timestamp in Detailed Specs.
+- Migration: `0023_v369_promotion_activity.sql`.
+
 ## v368 · Multilingual promotion requests
 
 - Localizes the prefilled promotion-request title, body, and duplicate-pending notice in all eight supported languages.
