@@ -6,7 +6,7 @@
 .al-mobile-map-actions,.al-mobile-zoom,.al-mobile-back{display:none}
 .alliance-layout-panel .al-map-section{padding:0}
 .al-cell{width:auto;height:auto;min-height:0;padding:0;overflow:hidden}
-.al-cell-rank{display:block;line-height:1}.al-cell-nickname{display:none;max-width:calc(100% - 4px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;font-weight:800;line-height:1.25}
+.al-cell-member{display:flex;max-width:100%;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}.al-cell-rank{display:block;line-height:1}.al-cell-nickname{display:none;width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:7px;font-weight:800;line-height:1.15;text-align:center}
 .al-cell.selected-a,.al-cell.selected-b{position:relative;border-width:2px;box-shadow:0 0 0 3px #0006,0 0 0 5px currentColor}
 .al-cell.selected-a{border-color:var(--al-gold);background:#5b4a1f;color:#ffe28c}
 .al-cell.selected-b{border-color:#5ca9ff;background:#183d63;color:#bdddff}
@@ -47,8 +47,8 @@
   .al-mobile-fullscreen .al-map-viewport{touch-action:none}
   .al-mobile-fullscreen .al-map{width:748px;height:580px;grid-template-columns:repeat(11,62px);grid-template-rows:repeat(10,52px);gap:4px;padding:12px;pointer-events:auto}
   .al-mobile-fullscreen .al-cell{min-width:44px;min-height:44px;border-radius:8px;font-size:13px}
-  .al-mobile-fullscreen .al-map.show-nicknames .al-cell-nickname,.al-mobile-fullscreen .al-cell.selected .al-cell-nickname{display:block}
-  .al-mobile-fullscreen .al-map.large-nicknames .al-cell-nickname{font-size:10px}
+  .al-mobile-fullscreen .al-cell-member{width:100%;padding:0 2px}
+  .al-mobile-fullscreen .al-cell-nickname{display:block}
   .al-mobile-fullscreen .al-empty{border-radius:8px}
   .al-mobile-fullscreen .al-frankie{border-radius:12px;font-size:17px}
   .al-mobile-fullscreen .al-selected{flex:0 0 auto;display:grid;gap:5px;margin:0;padding:12px 14px;border-width:1px 0 0;border-radius:0;background:#0b121d}
