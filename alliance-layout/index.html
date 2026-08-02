@@ -7,7 +7,7 @@
   <title>EZPK Alliance Layout</title>
   <link rel="stylesheet" href="../style.css?v=3470">
   <link rel="stylesheet" href="../common-heading.css?v=3410">
-  <link rel="stylesheet" href="alliance-layout.css?v=3520">
+  <link rel="stylesheet" href="alliance-layout.css?v=3540">
 </head>
 <body>
   <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="allianceLayout"></header>
@@ -49,6 +49,11 @@
           <header class="explorer-header">
             <button id="closeFullscreen" class="fullscreen-back" type="button" aria-label="">←</button>
             <div><strong id="mapTitle"></strong><small id="mapGestureHint"></small></div>
+            <div class="desktop-layout-zoom" aria-label="">
+              <button type="button" data-layout-zoom="out"><span aria-hidden="true">−</span><em data-zoom-label="out"></em></button>
+              <button type="button" data-layout-zoom="in"><span aria-hidden="true">＋</span><em data-zoom-label="in"></em></button>
+              <button type="button" data-layout-zoom="reset"><span aria-hidden="true">↺</span><em data-zoom-label="reset"></em></button>
+            </div>
             <span id="fullscreenCount" class="fullscreen-count"></span>
           </header>
           <div class="layout-tools">
@@ -57,6 +62,10 @@
               <div id="searchResults" class="search-results" hidden></div>
             </div>
             <button id="findMe" type="button" class="find-me"></button>
+          </div>
+          <div class="mobile-layout-zoom" aria-label="">
+            <div><button type="button" data-layout-zoom="out" aria-label="">−</button><button type="button" data-layout-zoom="in" aria-label="">＋</button><button type="button" data-layout-zoom="reset" aria-label="">↺</button></div>
+            <span data-layout-zoom-value>100%</span>
           </div>
           <div id="mapViewport" class="layout-map-viewport" dir="ltr">
             <div id="mapStage" class="layout-map-stage">
@@ -83,6 +92,6 @@
       </section>
     </div>
   </main>
-  <script src="alliance-layout.js?v=3520"></script>
+  <script src="alliance-layout.js?v=3540"></script>
 </body>
 </html>
