@@ -23,14 +23,14 @@
     ko:{out:'축소',in:'확대',reset:'원래대로',controls:'배치도 확대 및 축소'},en:{out:'Zoom out',in:'Zoom in',reset:'Reset',controls:'Layout zoom controls'},pt:{out:'Reduzir',in:'Ampliar',reset:'Restaurar',controls:'Controles de zoom do mapa'},vi:{out:'Thu nhỏ',in:'Phóng to',reset:'Đặt lại',controls:'Điều khiển thu phóng sơ đồ'},ar:{out:'تصغير',in:'تكبير',reset:'إعادة',controls:'عناصر تكبير المخطط'},ja:{out:'縮小',in:'拡大',reset:'元に戻す',controls:'配置図の拡大縮小'},th:{out:'ย่อ',in:'ขยาย',reset:'คืนค่า',controls:'การซูมผัง'},'zh-tw':{out:'縮小',in:'放大',reset:'還原',controls:'配置圖縮放控制'}
   };
   const IMAGE_T={
-    ko:{view:'배치도 이미지 보기',title:'배치도 이미지',pc:'이미지를 마우스 오른쪽 버튼으로 클릭해 저장하세요.',mobile:'이미지를 길게 눌러 저장하세요.',loading:'배치도 이미지를 만드는 중입니다.',alt:'저장용 연맹 배치도 이미지',close:'닫기'},
-    en:{view:'View layout image',title:'Layout image',pc:'Right-click the image to save it.',mobile:'Press and hold the image to save it.',loading:'Creating the layout image.',alt:'Alliance layout image for saving',close:'Close'},
-    pt:{view:'Ver imagem do mapa',title:'Imagem do mapa',pc:'Clique com o botão direito na imagem para salvá-la.',mobile:'Pressione e segure a imagem para salvá-la.',loading:'Criando a imagem do mapa.',alt:'Imagem do mapa da aliança para salvar',close:'Fechar'},
-    vi:{view:'Xem ảnh sơ đồ',title:'Ảnh sơ đồ',pc:'Nhấp chuột phải vào ảnh để lưu.',mobile:'Nhấn và giữ ảnh để lưu.',loading:'Đang tạo ảnh sơ đồ.',alt:'Ảnh sơ đồ liên minh để lưu',close:'Đóng'},
-    ar:{view:'عرض صورة المخطط',title:'صورة المخطط',pc:'انقر بزر الفأرة الأيمن على الصورة لحفظها.',mobile:'اضغط مطولاً على الصورة لحفظها.',loading:'جارٍ إنشاء صورة المخطط.',alt:'صورة مخطط التحالف للحفظ',close:'إغلاق'},
-    ja:{view:'配置図画像を見る',title:'配置図画像',pc:'画像を右クリックして保存してください。',mobile:'画像を長押しして保存してください。',loading:'配置図画像を作成しています。',alt:'保存用の同盟配置図画像',close:'閉じる'},
-    th:{view:'ดูรูปผัง',title:'รูปผัง',pc:'คลิกขวาที่รูปเพื่อบันทึก',mobile:'แตะรูปค้างไว้เพื่อบันทึก',loading:'กำลังสร้างรูปผัง',alt:'รูปผังพันธมิตรสำหรับบันทึก',close:'ปิด'},
-    'zh-tw':{view:'查看配置圖圖片',title:'配置圖圖片',pc:'在圖片上按滑鼠右鍵即可儲存。',mobile:'長按圖片即可儲存。',loading:'正在建立配置圖圖片。',alt:'可儲存的聯盟配置圖圖片',close:'關閉'}
+    ko:{view:'배치도 다운로드',title:'배치도 이미지',pc:'이미지를 마우스 오른쪽 버튼으로 클릭해 저장하세요.',mobile:'이미지를 길게 눌러 저장하세요.',loading:'배치도 이미지를 만드는 중입니다.',alt:'저장용 연맹 배치도 이미지',close:'닫기'},
+    en:{view:'Download layout',title:'Layout image',pc:'Right-click the image to save it.',mobile:'Press and hold the image to save it.',loading:'Creating the layout image.',alt:'Alliance layout image for saving',close:'Close'},
+    pt:{view:'Baixar mapa',title:'Imagem do mapa',pc:'Clique com o botão direito na imagem para salvá-la.',mobile:'Pressione e segure a imagem para salvá-la.',loading:'Criando a imagem do mapa.',alt:'Imagem do mapa da aliança para salvar',close:'Fechar'},
+    vi:{view:'Tải sơ đồ',title:'Ảnh sơ đồ',pc:'Nhấp chuột phải vào ảnh để lưu.',mobile:'Nhấn và giữ ảnh để lưu.',loading:'Đang tạo ảnh sơ đồ.',alt:'Ảnh sơ đồ liên minh để lưu',close:'Đóng'},
+    ar:{view:'تنزيل المخطط',title:'صورة المخطط',pc:'انقر بزر الفأرة الأيمن على الصورة لحفظها.',mobile:'اضغط مطولاً على الصورة لحفظها.',loading:'جارٍ إنشاء صورة المخطط.',alt:'صورة مخطط التحالف للحفظ',close:'إغلاق'},
+    ja:{view:'配置図をダウンロード',title:'配置図画像',pc:'画像を右クリックして保存してください。',mobile:'画像を長押しして保存してください。',loading:'配置図画像を作成しています。',alt:'保存用の同盟配置図画像',close:'閉じる'},
+    th:{view:'ดาวน์โหลดผัง',title:'รูปผัง',pc:'คลิกขวาที่รูปเพื่อบันทึก',mobile:'แตะรูปค้างไว้เพื่อบันทึก',loading:'กำลังสร้างรูปผัง',alt:'รูปผังพันธมิตรสำหรับบันทึก',close:'ปิด'},
+    'zh-tw':{view:'下載配置圖',title:'配置圖圖片',pc:'在圖片上按滑鼠右鍵即可儲存。',mobile:'長按圖片即可儲存。',loading:'正在建立配置圖圖片。',alt:'可儲存的聯盟配置圖圖片',close:'關閉'}
   };
   const tx=()=>T[lang]||T.en;
   const frame=direction=>direction==='top'?{rs:3,re:4,cs:4,ce:7}:direction==='bottom'?{rs:5,re:6,cs:4,ce:7}:direction==='left'?{rs:4,re:5,cs:3,ce:6}:{rs:4,re:5,cs:4,ce:7};
