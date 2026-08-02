@@ -1,13 +1,15 @@
 :root{--layout-gold:#d8b76a;--layout-panel:#101722;--layout-panel-2:#151e2b;--layout-line:rgba(151,174,203,.22);--layout-text:#f4f7fb;--layout-muted:#9eacbd}
-.alliance-layout-main{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:56px 0 84px;color:var(--layout-text)}
-.alliance-layout-hero{margin-bottom:24px}
+.alliance-layout-main{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:40px 0 64px;color:var(--layout-text)}
+.alliance-layout-main section:not(.member-gate-wrap){padding:0}
+.alliance-layout-hero{margin-bottom:16px}
 .alliance-layout-hero h1{margin:0 0 9px;font-size:clamp(2rem,4vw,3.25rem);letter-spacing:-.04em}
 .alliance-layout-hero p{margin:0;color:var(--layout-muted);font-size:1rem}
-.layout-summary{display:flex;gap:12px;margin-bottom:16px}
+.layout-summary{display:flex;gap:12px;margin-bottom:12px}
 .layout-summary article{min-width:190px;padding:15px 17px;border:1px solid var(--layout-line);border-radius:14px;background:linear-gradient(145deg,rgba(21,30,43,.96),rgba(12,18,28,.96));box-shadow:0 18px 45px rgba(0,0,0,.18)}
 .layout-summary span,.layout-summary strong{display:block}.layout-summary span{margin-bottom:5px;color:var(--layout-muted);font-size:.78rem;letter-spacing:.04em}.layout-summary strong{font-size:1.05rem}
 .layout-state{min-height:0;color:var(--layout-muted)}
 .layout-state:not(:empty){display:flex;align-items:center;justify-content:center;min-height:220px;padding:32px;border:1px solid var(--layout-line);border-radius:18px;background:var(--layout-panel);text-align:center}
+.alliance-layout-main .layout-state:not(:empty){padding:32px}
 .layout-state button{margin-inline-start:10px;padding:9px 14px;border:1px solid var(--layout-gold);border-radius:9px;background:transparent;color:var(--layout-gold)}
 .layout-explorer{overflow:hidden;border:1px solid var(--layout-line);border-radius:18px;background:var(--layout-panel);box-shadow:0 22px 60px rgba(0,0,0,.24)}
 .explorer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 17px;border-bottom:1px solid var(--layout-line)}
@@ -36,7 +38,7 @@
 html[dir="rtl"] .alliance-layout-hero,html[dir="rtl"] .layout-summary,html[dir="rtl"] .layout-guide{text-align:right}
 
 @media(max-width:700px){
-  .alliance-layout-main{width:calc(100% - 24px);padding:36px 0 60px}.alliance-layout-hero{margin-bottom:17px}.alliance-layout-hero h1{font-size:2rem}
+  .alliance-layout-main{width:calc(100% - 24px);padding:24px 0 44px}.alliance-layout-main section:not(.member-gate-wrap){padding:0}.alliance-layout-hero{margin-bottom:14px}.alliance-layout-hero h1{font-size:2rem}
   .layout-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px}.layout-summary article{min-width:0;padding:12px}.layout-summary strong{font-size:.92rem}
   .mobile-layout-overview{display:block;padding:10px;border:1px solid var(--layout-line);border-radius:15px;background:var(--layout-panel)}
   .overview-heading{display:flex;justify-content:space-between;margin-bottom:9px;color:var(--layout-muted);font-size:.76rem}
@@ -50,4 +52,5 @@ html[dir="rtl"] .alliance-layout-hero,html[dir="rtl"] .layout-summary,html[dir="
   .desktop-layout-zoom{display:none!important}.mobile-layout-zoom{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;padding:8px 10px;border-bottom:1px solid var(--layout-line);background:#101722}.mobile-layout-zoom>div{display:flex;gap:6px}.mobile-layout-zoom button{width:40px;height:36px;padding:0;border:1px solid var(--layout-line);border-radius:8px;background:#151e2b;color:var(--layout-text);font-size:1.08rem}.mobile-layout-zoom button:disabled{opacity:.38}.mobile-layout-zoom>span{color:var(--layout-muted);font-size:.76rem}
   .is-fullscreen .layout-map-viewport{flex:1 1 auto;height:auto;min-height:0}.is-fullscreen .member-detail{flex:0 0 auto;display:block;padding:8px 14px 14px}.detail-grabber{display:block;width:34px;height:4px;margin:0 auto 8px;border-radius:4px;background:#364354}.member-detail>strong{display:block;min-width:0;margin-bottom:8px}.detail-specs{display:grid;grid-template-columns:1fr 1fr}.detail-specs span{justify-content:space-between}
   .layout-guide{margin-top:12px;padding:15px}.layout-guide ol{font-size:.9rem}
+  .alliance-layout-main .layout-state:not(:empty){min-height:160px;padding:22px}
 }
