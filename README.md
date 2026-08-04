@@ -1,4 +1,10 @@
-# EZPK War Portal v382
+# EZPK War Portal v384
+
+## v384 · Operational sub-admin account hidden from member list
+
+- The `ezpk_koala` account remains available for login and sub-administrator permissions.
+- It is excluded from the public alliance member list, member totals, power totals, and search results.
+- The admin member-management screen still retains the account so its login and permissions can be maintained.
 
 ## v382 · Two sub-administrator support
 
@@ -385,3 +391,8 @@ Member list now switches immediately between public and tier views after verifie
 - Anchored alliance rank and the localized own-card marker independently from content flow.
 - Kept the stats block at the bottom and guaranteed enough height for all four rows including CP.
 - Updated member page asset cache version to 2640.
+
+## v384 system account separation
+- `ezpk_koala` is treated as a system account for sub-administrator access only.
+- It is excluded from public member lists, search, member statistics, promotion/demotion candidates, alliance layout eligibility, and vote participation/results.
+- It remains visible and manageable in the administrator member-management screen.
