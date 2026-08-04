@@ -432,7 +432,7 @@ async function loadLocal(){
   ]);
   if(br&&!br.ok)throw new Error('BGB 운영 데이터를 불러오지 못했습니다.');
   if(eventResult&&!eventResult.ok)throw new Error('이벤트 운영 데이터를 불러오지 못했습니다.');
-  membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
+  membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>!m.systemAccount&&m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
   if(br)bgbData=normalizeBgb(await br.json());
   if(eventResult){
     const eventPayload=await eventResult.json();
@@ -546,7 +546,7 @@ async function loadBgbData({refreshMembers=false}={}){
   const b=await githubGetFile('data/bgb.json');
   bgbSha=b.sha;
   if(adminMembers){
-    membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
+    membersData={lastUpdated:new Date().toISOString().slice(0,10),members:adminMembers.filter(m=>!m.systemAccount&&m.status==='active'&&(m.approvalStatus||'approved')==='approved').map(normalizeMember)};
     window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
   }
   bgbData=normalizeBgb(b.data);

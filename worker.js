@@ -2037,8 +2037,9 @@ async function handleAdminMembers(request, url, env) {
       SUM(CASE WHEN status='active' THEN 1 ELSE 0 END) AS active,
       SUM(CASE WHEN status='suspended' THEN 1 ELSE 0 END) AS suspended,
       SUM(CASE WHEN status='left' THEN 1 ELSE 0 END) AS left_count
-    FROM members
-  `).first();
+    FROM members m
+    WHERE ${nonSystemAccountSql("m")}
+  `).bind(...systemAccountBinds()).first();
 
   const rows = await env.DB.prepare(`
     SELECT m.*, s.vehicle1_class, s.vehicle1_power_value, s.vehicle1_power_unit,
