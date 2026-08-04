@@ -1,4 +1,9 @@
-# EZPK War Portal v381
+# EZPK War Portal v382
+
+## v382 · Two sub-administrator support
+
+- Allows up to two sub-administrators.
+- Adds separate menu permission management for each sub-administrator.
 
 ## v381 · PC placement action controls
 

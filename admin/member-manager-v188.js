@@ -275,7 +275,7 @@
         if(!anyMemberDirty())await openDetail(member.id);
       }catch(error){
         console.error("[MEMBER_PROFILE_SAVE_FAILED]",error);
-        const messages={SUPER_ADMIN_REQUIRED:"최고관리자만 부관리자를 임명하거나 해제할 수 있습니다.",PRIMARY_ADMIN_PROTECTED:"최고관리자 권한은 변경할 수 없습니다.",ADMIN_ACCOUNT_PROTECTED:"해당 관리자 계정은 수정할 수 없습니다.",NICKNAME_TAKEN:"이미 사용 중인 닉네임입니다.",VALIDATION_ERROR:"입력값을 다시 확인해 주세요."};
+        const messages={SUB_ADMIN_LIMIT_REACHED:"부관리자는 최대 2명까지 임명할 수 있습니다. 기존 부관리자를 먼저 해임해 주세요.",SUPER_ADMIN_REQUIRED:"최고관리자만 부관리자를 임명하거나 해제할 수 있습니다.",PRIMARY_ADMIN_PROTECTED:"최고관리자 권한은 변경할 수 없습니다.",ADMIN_ACCOUNT_PROTECTED:"해당 관리자 계정은 수정할 수 없습니다.",NICKNAME_TAKEN:"이미 사용 중인 닉네임입니다.",VALIDATION_ERROR:"입력값을 다시 확인해 주세요."};
         alert(messages[error.code]||"기본 프로필 저장에 실패했습니다.");
       }finally{if(submit)submit.disabled=false;}
     };

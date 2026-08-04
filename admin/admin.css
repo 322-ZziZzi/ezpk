@@ -1109,3 +1109,9 @@ body.admin-unlocked{overflow:auto}
   .system-save-status{margin:0;text-align:center}
   .system-card-actions .primary{width:100%}
 }
+
+.system-subadmin-selector{display:grid;gap:8px;margin:0 0 16px;color:#aebed0;font-weight:700}
+.system-subadmin-selector select{width:100%;padding:11px 12px;border:1px solid #34465d;border-radius:10px;background:#111c2a;color:#eef5fc}
+.system-subadmin-entry{padding:14px;border:1px solid #2b3b50;border-radius:12px;background:rgba(14,25,39,.65)}
+.system-subadmin-entry+.system-subadmin-entry{margin-top:12px}
+.system-subadmin-entry.selected{border-color:#7d9bc2;box-shadow:0 0 0 1px rgba(125,155,194,.25)}

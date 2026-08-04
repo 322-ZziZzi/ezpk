@@ -2269,8 +2269,8 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   if(hasAdminLevel&&admin.admin_level!=="super") return jsonError("SUPER_ADMIN_REQUIRED",403);
   if(currentAdminLevel==="super"&&hasAdminLevel&&requestedAdminLevel!=="super") return jsonError("PRIMARY_ADMIN_PROTECTED",409);
   if (requestedAdminLevel === "sub" && currentAdminLevel !== "sub") {
-    const existingSub = await env.DB.prepare("SELECT id,nickname FROM members WHERE role='admin' AND admin_level='sub' AND id<>? LIMIT 1").bind(memberId).first();
-    if (existingSub) return jsonError("SUB_ADMIN_ALREADY_EXISTS", 409);
+    const subCountRow = await env.DB.prepare("SELECT COUNT(*) AS count FROM members WHERE role='admin' AND admin_level='sub' AND id<>?").bind(memberId).first();
+    if (Number(subCountRow?.count||0) >= 2) return jsonError("SUB_ADMIN_LIMIT_REACHED", 409);
   }
   if(isProtectedAdminTarget(admin,target)) return jsonError("ADMIN_ACCOUNT_PROTECTED",403);
   if(currentAdminLevel==="super" && (rank!==target.member_rank || status!=="active")) return jsonError("PRIMARY_ADMIN_PROTECTED",409);
@@ -2414,8 +2414,8 @@ async function handleAdminMemberPermissions(request, memberId, env) {
   const next=body.adminLevel===null||body.adminLevel==="member"?null:String(body.adminLevel||"");
   if(![null,"sub"].includes(next))return jsonError("VALIDATION_ERROR",400);
   if(next === "sub" && current !== "sub"){
-    const existingSub=await env.DB.prepare("SELECT id,nickname FROM members WHERE role='admin' AND admin_level='sub' AND id<>? LIMIT 1").bind(memberId).first();
-    if(existingSub)return jsonError("SUB_ADMIN_ALREADY_EXISTS",409);
+    const subCountRow=await env.DB.prepare("SELECT COUNT(*) AS count FROM members WHERE role='admin' AND admin_level='sub' AND id<>?").bind(memberId).first();
+    if(Number(subCountRow?.count||0)>=2)return jsonError("SUB_ADMIN_LIMIT_REACHED",409);
   }
   await env.DB.batch([
     env.DB.prepare("UPDATE members SET role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(next?"admin":"member",next,memberId),
@@ -2441,9 +2441,10 @@ function normalizeAdminMenuPermissions(source={}){
   };
 }
 
-async function findCurrentSubAdmin(db){
-  return db.prepare(`SELECT id,login_id,nickname,member_rank,admin_level,status,updated_at
-    FROM members WHERE role='admin' AND admin_level='sub' ORDER BY updated_at DESC,id ASC LIMIT 1`).first();
+async function findCurrentSubAdmins(db){
+  const rows=await db.prepare(`SELECT id,login_id,nickname,member_rank,admin_level,status,updated_at
+    FROM members WHERE role='admin' AND admin_level='sub' ORDER BY updated_at ASC,id ASC LIMIT 2`).all();
+  return rows.results||[];
 }
 
 async function handleAdminMyPermissionsGet(request,env){
@@ -2456,18 +2457,28 @@ async function handleAdminMyPermissionsGet(request,env){
 async function handleAdminMenuPermissionsGet(request,env){
   const admin=await requireSuperAdmin(request,env.DB);
   if(admin instanceof Response)return admin;
-  const subAdmin=await findCurrentSubAdmin(env.DB);
-  if(!subAdmin)return json({ok:true,data:{subAdmin:null,permissions:null}});
-  const row=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
-  return json({ok:true,data:{subAdmin:{id:subAdmin.id,loginId:subAdmin.login_id,nickname:subAdmin.nickname,memberRank:subAdmin.member_rank,adminLevel:subAdmin.admin_level,status:subAdmin.status,appointedAt:subAdmin.updated_at},permissions:normalizeAdminMenuPermissions(row||{})}});
+  const subAdmins=await findCurrentSubAdmins(env.DB);
+  const items=[];
+  for(const subAdmin of subAdmins){
+    const row=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
+    items.push({
+      id:subAdmin.id,loginId:subAdmin.login_id,nickname:subAdmin.nickname,memberRank:subAdmin.member_rank,
+      adminLevel:subAdmin.admin_level,status:subAdmin.status,appointedAt:subAdmin.updated_at,
+      permissions:normalizeAdminMenuPermissions(row||{})
+    });
+  }
+  return json({ok:true,data:{subAdmins:items}});
 }
 
 async function handleAdminMenuPermissionsPut(request,env){
   const admin=await requireSuperAdmin(request,env.DB);
   if(admin instanceof Response)return admin;
-  const subAdmin=await findCurrentSubAdmin(env.DB);
-  if(!subAdmin)return jsonError('SUB_ADMIN_NOT_FOUND',404);
   const body=await readJson(request);
+  const memberId=Number(body?.memberId);
+  if(!Number.isInteger(memberId)||memberId<=0)return jsonError('VALIDATION_ERROR',400);
+  const subAdmin=await env.DB.prepare(`SELECT id,login_id,nickname,member_rank,admin_level,status,updated_at
+    FROM members WHERE id=? AND role='admin' AND admin_level='sub' LIMIT 1`).bind(memberId).first();
+  if(!subAdmin)return jsonError('SUB_ADMIN_NOT_FOUND',404);
   const permissions=normalizeAdminMenuPermissions(body?.permissions||{});
   const values=ADMIN_MENU_PERMISSION_KEYS.map(key=>permissions[key]?1:0);
   const beforeRow=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
@@ -2477,7 +2488,7 @@ async function handleAdminMenuPermissionsPut(request,env){
     .bind(subAdmin.id,...values).run();
   await env.DB.prepare('DELETE FROM sessions WHERE member_id=?').bind(subAdmin.id).run();
   await writeAdminLog(env,request,{actor:admin,category:'admin_permission',action:'menu_permissions_saved',targetType:'member',targetId:subAdmin.id,targetName:subAdmin.nickname,before:beforeRow?normalizeAdminMenuPermissions(beforeRow):null,after:permissions});
-  return json({ok:true,data:{subAdmin:{id:subAdmin.id,nickname:subAdmin.nickname},permissions}});
+  return json({ok:true,data:{memberId:subAdmin.id,permissions}});
 }
 
 async function handleAdminLogs(request,url,env){

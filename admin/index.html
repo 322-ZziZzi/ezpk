@@ -89,12 +89,13 @@
       </div>
       <div class="system-permission-grid">
         <section class="system-info-card">
-          <h3>현재 부관리자</h3>
+          <h3>현재 부관리자 (최대 2명)</h3>
           <div id="subAdminInfo" class="system-empty-state"><strong>부관리자 정보를 불러오는 중입니다.</strong></div>
         </section>
         <section class="system-permission-card">
           <h3>메뉴 권한</h3>
-          <p class="system-card-description">부관리자에게 허용할 관리자 메뉴를 선택하세요.</p>
+          <p class="system-card-description">권한을 설정할 부관리자를 선택한 뒤 허용할 관리자 메뉴를 지정하세요.</p>
+          <label id="subAdminSelectorWrap" class="system-subadmin-selector" hidden>부관리자 선택<select id="subAdminSelector"></select></label>
           <div id="menuPermissionEmpty" class="system-empty-state" hidden><strong>현재 부관리자가 없습니다.</strong><p>운영 관리 → 연맹원에서 부관리자를 임명해 주세요.</p></div>
           <div id="menuPermissionGroups" class="system-permission-groups" hidden>
             <fieldset><legend>운영 관리</legend><label><input type="checkbox" value="members"> 연맹원</label><label><input type="checkbox" value="events"> 이벤트</label><label><input type="checkbox" value="vote"> 투표</label></fieldset>
