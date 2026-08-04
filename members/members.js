@@ -10,8 +10,6 @@ th:{title:"รายชื่อสมาชิกพันธมิตร",lead
 };
 const ROLES={R5:'Leader',R4:'Officer',R3:'Core',R2:'Support',R1:'Reserve'};
 const RANK_ORDER={R5:5,R4:4,R3:3,R2:2,R1:1};
-const SYSTEM_ACCOUNT_NICKNAMES=new Set(['ezpk_koala']);
-const isSystemAccountNickname=value=>SYSTEM_ACCOUNT_NICKNAMES.has(String(value||'').trim().toLocaleLowerCase());
 const TIER_ORDER=['SS','S','A','B','C','UNREGISTERED'];
 const VIEW_LABELS={ko:['티어 리스트','일반 리스트'],en:['TIER LIST','GENERAL LIST'],pt:['LISTA DE TIER','LISTA GERAL'],vi:['DANH SÁCH BẬC','DANH SÁCH CHUNG'],ar:['قائمة الفئات','القائمة العامة'],ja:['ティアリスト','一般リスト'],th:['รายชื่อเทียร์','รายชื่อทั่วไป'],'zh-tw':['階級列表','一般列表']};
 let MEMBERS=[];let IS_LOGGED_IN=false;let MY_MEMBER_ID=0;let MY_NICKNAME="";let MEMBER_RELOAD_TOKEN=0;
@@ -86,7 +84,7 @@ async function loadMembers(options={}){
       rest.forEach(page=>{if(Array.isArray(page.items))items.push(...page.items)})
     }
     if(token!==MEMBER_RELOAD_TOKEN)return;
-    MEMBERS=items.map(mapApiMember).filter(m=>!isSystemAccountNickname(m.nickname)&&RANK_ORDER[m.rank]);
+    MEMBERS=items.map(mapApiMember).filter(m=>RANK_ORDER[m.rank]);
     $('#memberGroups').removeAttribute('aria-busy');
     applyUi();
   }catch(err){

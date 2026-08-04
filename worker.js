@@ -1,20 +1,20 @@
 const SESSION_COOKIE = "__Host-ezpk_session";
 const FREE_PLAN_PBKDF2_ITERATIONS = 10000;
-const SYSTEM_ACCOUNT_NICKNAMES = new Set(["ezpk_koala"]);
+const SYSTEM_ACCOUNT_LOGIN_IDS = new Set(["ezpk_koala"]);
 
-function isSystemAccount(memberOrNickname) {
-  const nickname = typeof memberOrNickname === "string"
-    ? memberOrNickname
-    : memberOrNickname?.nickname;
-  return SYSTEM_ACCOUNT_NICKNAMES.has(String(nickname || "").trim().toLowerCase());
+function isSystemAccount(memberOrLoginId) {
+  const loginId = typeof memberOrLoginId === "string"
+    ? memberOrLoginId
+    : (memberOrLoginId?.login_id ?? memberOrLoginId?.loginId);
+  return SYSTEM_ACCOUNT_LOGIN_IDS.has(String(loginId || "").trim().toLowerCase());
 }
 
 function nonSystemAccountSql(alias = "m") {
-  return `LOWER(TRIM(${alias}.nickname)) NOT IN (${[...SYSTEM_ACCOUNT_NICKNAMES].map(() => "?").join(",")})`;
+  return `LOWER(TRIM(${alias}.login_id)) NOT IN (${[...SYSTEM_ACCOUNT_LOGIN_IDS].map(() => "?").join(",")})`;
 }
 
 function systemAccountBinds() {
-  return [...SYSTEM_ACCOUNT_NICKNAMES];
+  return [...SYSTEM_ACCOUNT_LOGIN_IDS];
 }
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",

@@ -1,10 +1,17 @@
+## v386 system-account identity fix
+
+- System accounts are now identified by `members.login_id`, not by nickname.
+- The login ID `ezpk_koala` is excluded even when its visible nickname is `koala`.
+- Public member and tier lists, totals, search, rankings, votes, and operational member queries now use the corrected account-ID filter.
+
+# EZPK War Portal v386
+
 
 ## v385 system-account count fix
 
 - System accounts remain visible in the administrator member-management list.
 - `ezpk_koala` is excluded from administrator member totals and status counts.
 - System accounts are excluded from shared operational member data used by BGB and Season 6 management.
-# EZPK War Portal v385
 
 ## v385 · Operational sub-admin account hidden from member list
 
