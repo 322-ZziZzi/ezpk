@@ -141,8 +141,8 @@
 
   body.addEventListener('input',event=>{const el=event.target.closest('[data-field]');if(!el)return;if(el.dataset.field==='gameUid'){el.value=el.value.replace(/\D/g,'').slice(0,16);}else if(el.dataset.field==='currentState'){el.value=el.value.replace(/\D/g,'').slice(0,9);}state[el.dataset.field]=el.value.trim();if(errors[el.dataset.field]){delete errors[el.dataset.field];body.querySelector(`[data-error-for="${el.dataset.field}"]`)?.remove();el.removeAttribute('aria-invalid');}});
   body.addEventListener('click',event=>{const choice=event.target.closest('[data-choice-field]');if(choice){collectStep();const key=choice.dataset.choiceField;let value=choice.dataset.choiceValue;if(['industryLevel','spendingLevel'].includes(key))value=Number(value);state[key]=value;delete errors[key];renderStep();return;}const edit=event.target.closest('[data-edit-step]');if(edit){step=Number(edit.dataset.editStep);errors={};renderStep();window.scrollTo({top:0,behavior:'smooth'});}});
-  prev.addEventListener('click',()=>{if(submitting)return;collectStep();errors={};step=Math.max(0,step-1);renderStep();window.scrollTo({top:0,behavior:'smooth'});});
-  next.addEventListener('click',async()=>{if(submitting)return;collectStep();if(step<6){if(!validate(step)){renderStep();return;}errors={};step++;renderStep();window.scrollTo({top:0,behavior:'smooth'});return;}await submit();});
+  prev.addEventListener('click',()=>{if(submitting)return;collectStep();errors={};step=Math.max(0,step-1);renderStep();});
+  next.addEventListener('click',async()=>{if(submitting)return;collectStep();if(step<6){if(!validate(step)){renderStep();return;}errors={};step++;renderStep();return;}await submit();});
   form.addEventListener('submit',event=>event.preventDefault());
 
   async function submit(){collectStep();const invalidStep=firstInvalidStep();if(invalidStep>=0){step=invalidStep;renderStep();window.scrollTo({top:0,behavior:'smooth'});return;}submitting=true;next.textContent=t().submitting;next.disabled=true;submitError.hidden=true;

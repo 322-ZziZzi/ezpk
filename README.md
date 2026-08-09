@@ -1,3 +1,10 @@
+## v388 mobile migration step navigation UX remediation
+
+- Removed the explicit top-of-page smooth scroll from normal Migration `Next` and `Previous` step transitions.
+- Step changes now replace the step content without intentionally changing the user's current scroll position.
+- Intentional top navigation remains for Final Review `Edit`, invalid-submit recovery, and the success screen.
+- No database or Worker API contract changes from v387.
+
 ## v387 migration application implementation
 - Replaced the guest Home migration Google Forms link with the internal `/migration/` flow.
 - Added a guest-only 7-step migration application with Korean, English, Portuguese, Vietnamese, Arabic, Japanese, Thai, and Traditional Chinese localization.
@@ -14,7 +21,7 @@
 - The login ID `ezpk_koala` is excluded even when its visible nickname is `koala`.
 - Public member and tier lists, totals, search, rankings, votes, and operational member queries now use the corrected account-ID filter.
 
-# EZPK War Portal v387
+# EZPK War Portal v388
 
 
 ## v385 system-account count fix
