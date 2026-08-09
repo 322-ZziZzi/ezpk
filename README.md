@@ -1,10 +1,20 @@
+## v387 migration application implementation
+- Replaced the guest Home migration Google Forms link with the internal `/migration/` flow.
+- Added a guest-only 7-step migration application with Korean, English, Portuguese, Vietnamese, Arabic, Japanese, Thai, and Traditional Chinese localization.
+- Added D1 migration `0026_v387_migration_applications.sql` for applications, migration-tier settings, rate-limit state, and the `migration` admin-menu permission.
+- Added Worker APIs for public submission, admin list/detail/status/contact/memo, and superadmin edit/soft-delete/restore.
+- Added the admin `지원 > 이민 신청` list/detail workflow, append-only activity history, English Excel export, and English full-screen image export.
+- Applicant-entered free text remains in the original language without automatic translation.
+- Migration visibility is anonymous-only; authenticated users are redirected to Home if they open `/migration/` directly.
+- Updated shared-header cache keys so the new migration route and visibility rules take effect across the site.
+
 ## v386 system-account identity fix
 
 - System accounts are now identified by `members.login_id`, not by nickname.
 - The login ID `ezpk_koala` is excluded even when its visible nickname is `koala`.
 - Public member and tier lists, totals, search, rankings, votes, and operational member queries now use the corrected account-ID filter.
 
-# EZPK War Portal v386
+# EZPK War Portal v387
 
 
 ## v385 system-account count fix

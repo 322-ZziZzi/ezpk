@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>EZPK Migration</title>
+  <link rel="stylesheet" href="../style.css?v=3560">
+  <link rel="stylesheet" href="../common-heading.css?v=3570">
+  <link rel="stylesheet" href="migration.css?v=3870">
+</head>
+<body class="migration-auth-pending">
+  <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu="immigration"></header>
+  <script src="../shared-header.js?v=3870"></script>
+
+  <main id="migrationApp" class="migration-main" hidden>
+    <section class="migration-hero">
+      <span class="eyebrow" data-migration-k="heroKicker"></span>
+      <h1 data-migration-k="heroTitle"></h1>
+      <p data-migration-k="heroBody"></p>
+    </section>
+
+    <section id="migrationFormShell" class="migration-shell" aria-live="polite">
+      <header class="migration-progress-header">
+        <div>
+          <span id="migrationStepCounter" class="migration-step-counter"></span>
+          <h2 id="migrationStepTitle"></h2>
+          <p id="migrationStepDescription"></p>
+        </div>
+        <div class="migration-progress-track" aria-hidden="true"><span id="migrationProgressBar"></span></div>
+      </header>
+
+      <form id="migrationForm" novalidate>
+        <input id="migrationHoneypot" name="website" class="migration-honeypot" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div id="migrationStepBody" class="migration-step-body"></div>
+        <div id="migrationSubmitError" class="migration-submit-error" role="alert" hidden></div>
+        <footer class="migration-actions">
+          <button id="migrationPrev" class="migration-button migration-button-secondary" type="button"></button>
+          <button id="migrationNext" class="migration-button migration-button-primary" type="button"></button>
+        </footer>
+      </form>
+    </section>
+
+    <section id="migrationSuccess" class="migration-success" hidden>
+      <div class="migration-success-icon" aria-hidden="true">✓</div>
+      <h2 data-migration-k="successTitle"></h2>
+      <p data-migration-k="successBody1"></p>
+      <p data-migration-k="successBody2"></p>
+      <p class="migration-success-note" data-migration-k="successBody3"></p>
+      <a class="migration-button migration-button-primary migration-success-home" href="../" data-migration-k="home"></a>
+    </section>
+  </main>
+
+  <script src="migration.js?v=3870"></script>
+</body>
+</html>

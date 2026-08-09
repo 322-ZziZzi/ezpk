@@ -112,6 +112,19 @@ export default {
         if (request.method === "DELETE" && !action) return handleAdminRequestDelete(request, requestId, env);
       }
 
+      const adminMigrationMatch = url.pathname.match(/^\/api\/admin\/migration\/(\d+)(?:\/(status|contact|memo|restore))?$/);
+      if (adminMigrationMatch) {
+        const applicationId = Number(adminMigrationMatch[1]);
+        const action = adminMigrationMatch[2] || "";
+        if (request.method === "GET" && !action) return handleAdminMigrationDetail(request, applicationId, env);
+        if (request.method === "PUT" && action === "status") return handleAdminMigrationStatus(request, applicationId, env);
+        if (request.method === "PUT" && action === "contact") return handleAdminMigrationContact(request, applicationId, env);
+        if (request.method === "PUT" && action === "memo") return handleAdminMigrationMemo(request, applicationId, env);
+        if (request.method === "PUT" && !action) return handleAdminMigrationEdit(request, applicationId, env);
+        if (request.method === "DELETE" && !action) return handleAdminMigrationDelete(request, applicationId, env);
+        if (request.method === "POST" && action === "restore") return handleAdminMigrationRestore(request, applicationId, env);
+      }
+
       const alliancePublicationMatch = url.pathname.match(/^\/api\/admin\/alliance-layout\/publications\/(\d+)\/restore$/);
       if (alliancePublicationMatch && request.method === "POST") {
         return handleAllianceLayoutRestore(request, Number(alliancePublicationMatch[1]), env);
@@ -135,6 +148,9 @@ export default {
 
         case "GET /api/auth/me":
           return handleAuthMe(request, env);
+
+        case "POST /api/migration/applications":
+          return handleMigrationApplicationCreate(request, env);
 
         case "GET /api/public/strategy-access":
           return handlePublicStrategyAccess(env, url);
@@ -197,6 +213,10 @@ export default {
           return handleAdminPromotionRulesPut(request, env);
         case "POST /api/admin/members/create-bulk":
           return handleAdminMembersCreateBulk(request, env);
+        case "GET /api/admin/migration":
+          return handleAdminMigrationList(request, url, env);
+        case "GET /api/admin/migration/deleted":
+          return handleAdminMigrationDeletedList(request, url, env);
         case "GET /api/admin/logs":
           return handleAdminLogs(request, url, env);
         case "GET /api/admin/my-permissions":
@@ -2443,7 +2463,7 @@ async function handleAdminMemberPermissions(request, memberId, env) {
   return json({ok:true,data:{adminLevel:next,role:next?"admin":"member"}});
 }
 
-const ADMIN_MENU_PERMISSION_KEYS=["members","events","vote","allianceLayout","bgb","capitalWar","season","requests","accounts"];
+const ADMIN_MENU_PERMISSION_KEYS=["members","events","vote","allianceLayout","bgb","capitalWar","season","migration","requests","accounts"];
 
 function normalizeAdminMenuPermissions(source={}){
   return {
@@ -2454,6 +2474,7 @@ function normalizeAdminMenuPermissions(source={}){
     bgb:Boolean(source.bgb ?? true),
     capitalWar:Boolean(source.capitalWar ?? source.capital_war ?? true),
     season:Boolean(source.season ?? true),
+    migration:Boolean(source.migration ?? true),
     requests:Boolean(source.requests ?? true),
     accounts:Boolean(source.accounts ?? true)
   };
@@ -2501,8 +2522,8 @@ async function handleAdminMenuPermissionsPut(request,env){
   const values=ADMIN_MENU_PERMISSION_KEYS.map(key=>permissions[key]?1:0);
   const beforeRow=await env.DB.prepare('SELECT * FROM admin_menu_permissions WHERE member_id=?').bind(subAdmin.id).first();
   await env.DB.prepare(`INSERT INTO admin_menu_permissions
-    (member_id,members,events,vote,alliance_layout,bgb,capital_war,season,requests,accounts,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
-    ON CONFLICT(member_id) DO UPDATE SET members=excluded.members,events=excluded.events,vote=excluded.vote,alliance_layout=excluded.alliance_layout,bgb=excluded.bgb,capital_war=excluded.capital_war,season=excluded.season,requests=excluded.requests,accounts=excluded.accounts,updated_at=CURRENT_TIMESTAMP`)
+    (member_id,members,events,vote,alliance_layout,bgb,capital_war,season,migration,requests,accounts,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP)
+    ON CONFLICT(member_id) DO UPDATE SET members=excluded.members,events=excluded.events,vote=excluded.vote,alliance_layout=excluded.alliance_layout,bgb=excluded.bgb,capital_war=excluded.capital_war,season=excluded.season,migration=excluded.migration,requests=excluded.requests,accounts=excluded.accounts,updated_at=CURRENT_TIMESTAMP`)
     .bind(subAdmin.id,...values).run();
   await env.DB.prepare('DELETE FROM sessions WHERE member_id=?').bind(subAdmin.id).run();
   await writeAdminLog(env,request,{actor:admin,category:'admin_permission',action:'menu_permissions_saved',targetType:'member',targetId:subAdmin.id,targetName:subAdmin.nickname,before:beforeRow?normalizeAdminMenuPermissions(beforeRow):null,after:permissions});
@@ -2531,6 +2552,364 @@ async function handleAdminLogs(request,url,env){
   const count=await env.DB.prepare(`SELECT COUNT(*) total FROM admin_activity_logs ${ws}`).bind(...binds).first();
   const rows=await env.DB.prepare(`SELECT * FROM admin_activity_logs ${ws} ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?`).bind(...binds,limit,(page-1)*limit).all();
   return json({ok:true,data:{items:rows.results||[],pagination:{page,limit,total:Number(count?.total||0),totalPages:Math.ceil(Number(count?.total||0)/limit)}}});
+}
+
+// -----------------------------------------------------------------------------
+// v386 Migration applications
+// -----------------------------------------------------------------------------
+
+const MIGRATION_APPLICATION_STATUSES = Object.freeze(["received","reviewing","approved","rejected"]);
+const MIGRATION_CONTACT_STATUSES = Object.freeze(["not_contacted","contacted"]);
+const MIGRATION_TIERS = Object.freeze(["gray","blue","purple","gold"]);
+const MIGRATION_RATE_LIMIT_WINDOW_MINUTES = 15;
+const MIGRATION_RATE_LIMIT_MAX_REQUESTS = 10;
+
+function migrationPick(body, key, fallback) {
+  return body && Object.prototype.hasOwnProperty.call(body, key) ? body[key] : fallback;
+}
+
+function validateMigrationPayload(body = {}) {
+  const playerName = cleanString(body.playerName, 64);
+  const gameUid = String(body.gameUid ?? "").trim();
+  const discord = nullableCleanString(body.discord, 100);
+  const currentState = String(body.currentState ?? "").trim();
+  const currentAlliance = nullableCleanString(body.currentAlliance, 64);
+  const vehicle1PowerValue = nullableVehiclePowerValue(body.vehicle1PowerValue);
+  const vehicle1PowerUnit = nullableEnum(body.vehicle1PowerUnit, ["M","G"]);
+  const vehicle2PowerValue = nullableVehiclePowerValue(body.vehicle2PowerValue);
+  const vehicle2PowerUnit = nullableEnum(body.vehicle2PowerUnit, ["M","G"]);
+  const industryLevel = Number(body.industryLevel);
+  const spendingLevel = Number(body.spendingLevel);
+  const migrationTier = String(body.migrationTier ?? "").trim().toLowerCase();
+  const migrationReason = cleanString(body.migrationReason, 2000);
+  const additionalNotes = nullableCleanString(body.additionalNotes, 2000);
+  const migrationGroup = nullableCleanString(body.migrationGroup, 200);
+  const referrer = nullableCleanString(body.referrer, 64);
+
+  const invalid = !playerName
+    || !/^\d{16}$/.test(gameUid)
+    || discord === INVALID
+    || !/^\d{1,9}$/.test(currentState)
+    || currentAlliance === INVALID
+    || vehicle1PowerValue === null || vehicle1PowerValue === INVALID
+    || vehicle1PowerUnit === null || vehicle1PowerUnit === INVALID
+    || vehicle2PowerValue === INVALID || vehicle2PowerUnit === INVALID
+    || !Number.isInteger(industryLevel) || industryLevel < 1 || industryLevel > 10
+    || !Number.isInteger(spendingLevel) || spendingLevel < 1 || spendingLevel > 10
+    || !MIGRATION_TIERS.includes(migrationTier)
+    || !migrationReason
+    || additionalNotes === INVALID || migrationGroup === INVALID || referrer === INVALID
+    || ((vehicle2PowerValue === null) !== (vehicle2PowerUnit === null));
+  if (invalid) return null;
+
+  const vehicle1PowerNormalized = vehicle1PowerValue * (vehicle1PowerUnit === "G" ? 1000 : 1);
+  const vehicle2PowerNormalized = vehicle2PowerValue === null
+    ? null
+    : vehicle2PowerValue * (vehicle2PowerUnit === "G" ? 1000 : 1);
+
+  return {
+    playerName, gameUid, discord, currentState, currentAlliance,
+    vehicle1PowerValue, vehicle1PowerUnit, vehicle1PowerNormalized,
+    vehicle2PowerValue, vehicle2PowerUnit, vehicle2PowerNormalized,
+    industryLevel, spendingLevel, migrationTier, migrationReason,
+    additionalNotes, migrationGroup, referrer,
+  };
+}
+
+function migrationPayloadFromRow(row, body = {}) {
+  return validateMigrationPayload({
+    playerName: migrationPick(body, "playerName", row.player_name),
+    gameUid: migrationPick(body, "gameUid", row.game_uid),
+    discord: migrationPick(body, "discord", row.discord),
+    currentState: migrationPick(body, "currentState", row.current_state),
+    currentAlliance: migrationPick(body, "currentAlliance", row.current_alliance),
+    vehicle1PowerValue: migrationPick(body, "vehicle1PowerValue", row.vehicle1_power_value),
+    vehicle1PowerUnit: migrationPick(body, "vehicle1PowerUnit", row.vehicle1_power_unit),
+    vehicle2PowerValue: migrationPick(body, "vehicle2PowerValue", row.vehicle2_power_value),
+    vehicle2PowerUnit: migrationPick(body, "vehicle2PowerUnit", row.vehicle2_power_unit),
+    industryLevel: migrationPick(body, "industryLevel", row.industry_level),
+    spendingLevel: migrationPick(body, "spendingLevel", row.spending_level),
+    migrationTier: migrationPick(body, "migrationTier", row.migration_tier),
+    migrationReason: migrationPick(body, "migrationReason", row.migration_reason),
+    additionalNotes: migrationPick(body, "additionalNotes", row.additional_notes),
+    migrationGroup: migrationPick(body, "migrationGroup", row.migration_group),
+    referrer: migrationPick(body, "referrer", row.referrer),
+  });
+}
+
+function migrationApplicationRow(row, full = true) {
+  const result = {
+    id: Number(row.id),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    playerName: row.player_name,
+    currentState: row.current_state,
+    migrationTier: row.migration_tier,
+    applicationStatus: row.application_status,
+    contactStatus: row.contact_status,
+  };
+  if (!full) return result;
+  return {
+    ...result,
+    gameUid: row.game_uid,
+    discord: row.discord,
+    currentAlliance: row.current_alliance,
+    vehicle1PowerValue: row.vehicle1_power_value,
+    vehicle1PowerUnit: row.vehicle1_power_unit,
+    vehicle1PowerNormalized: row.vehicle1_power_normalized,
+    vehicle2PowerValue: row.vehicle2_power_value,
+    vehicle2PowerUnit: row.vehicle2_power_unit,
+    vehicle2PowerNormalized: row.vehicle2_power_normalized,
+    industryLevel: Number(row.industry_level),
+    spendingLevel: Number(row.spending_level),
+    migrationReason: row.migration_reason,
+    additionalNotes: row.additional_notes,
+    migrationGroup: row.migration_group,
+    referrer: row.referrer,
+    adminMemo: row.admin_memo,
+    rejectionReason: row.rejection_reason,
+    deletedAt: row.deleted_at,
+    deletedByMemberId: row.deleted_by_member_id == null ? null : Number(row.deleted_by_member_id),
+    deletedByNickname: row.deleted_by_nickname || null,
+  };
+}
+
+function parseAdminLogJson(value) {
+  if (!value) return null;
+  try { return JSON.parse(value); } catch { return null; }
+}
+
+function migrationHistoryRow(row) {
+  return {
+    id: Number(row.id),
+    action: row.action,
+    actorNickname: row.actor_nickname,
+    actorAdminLevel: row.actor_admin_level,
+    before: parseAdminLogJson(row.before_data),
+    after: parseAdminLogJson(row.after_data),
+    result: row.result,
+    createdAt: row.created_at,
+  };
+}
+
+async function enforceMigrationRateLimit(request, env) {
+  const rawIp = String(request.headers.get("CF-Connecting-IP") || "unknown").trim();
+  const salt = String(env.MIGRATION_RATE_LIMIT_SALT || env.PASSWORD_PEPPER || env.ADMIN_SETUP_KEY || "ezpk-migration-rate-v1");
+  const keyHash = await sha256Hex(`${salt}|${rawIp}`);
+  await env.DB.prepare("DELETE FROM migration_rate_limits WHERE datetime(updated_at) < datetime('now','-1 day')").run().catch(()=>{});
+  await env.DB.prepare(`INSERT INTO migration_rate_limits(key_hash,window_started_at,request_count,updated_at)
+    VALUES(?,CURRENT_TIMESTAMP,1,CURRENT_TIMESTAMP)
+    ON CONFLICT(key_hash) DO UPDATE SET
+      window_started_at=CASE WHEN datetime(migration_rate_limits.window_started_at) <= datetime('now','-${MIGRATION_RATE_LIMIT_WINDOW_MINUTES} minutes') THEN CURRENT_TIMESTAMP ELSE migration_rate_limits.window_started_at END,
+      request_count=CASE WHEN datetime(migration_rate_limits.window_started_at) <= datetime('now','-${MIGRATION_RATE_LIMIT_WINDOW_MINUTES} minutes') THEN 1 ELSE migration_rate_limits.request_count+1 END,
+      updated_at=CURRENT_TIMESTAMP`).bind(keyHash).run();
+  const state = await env.DB.prepare("SELECT request_count FROM migration_rate_limits WHERE key_hash=?").bind(keyHash).first();
+  if (Number(state?.request_count || 0) > MIGRATION_RATE_LIMIT_MAX_REQUESTS) {
+    return jsonError("MIGRATION_RATE_LIMITED", 429, { retryAfterSeconds: MIGRATION_RATE_LIMIT_WINDOW_MINUTES * 60 });
+  }
+  return null;
+}
+
+async function readMigrationJson(request) {
+  const text = await request.text();
+  if (new TextEncoder().encode(text).byteLength > 32768) {
+    return { response: jsonError("PAYLOAD_TOO_LARGE", 413), value: null };
+  }
+  try {
+    return { response: null, value: JSON.parse(text) };
+  } catch {
+    return { response: jsonError("INVALID_JSON", 400), value: null };
+  }
+}
+
+async function handleMigrationApplicationCreate(request, env) {
+  const authenticatedMember = await requireOptionalMember(request, env.DB);
+  if (authenticatedMember) return jsonError("MIGRATION_AUTHENTICATED_NOT_ALLOWED", 403);
+  const parsedBody = await readMigrationJson(request);
+  if (parsedBody.response) return parsedBody.response;
+  const body = parsedBody.value;
+  // Honeypot: ordinary clients always leave this hidden field empty.
+  if (String(body.website ?? "").trim()) {
+    return json({ ok:true, data:{ applicationId:null } });
+  }
+  const rateLimited = await enforceMigrationRateLimit(request, env);
+  if (rateLimited) return rateLimited;
+  const payload = validateMigrationPayload(body);
+  if (!payload) return jsonError("VALIDATION_ERROR", 400);
+
+  const existing = await env.DB.prepare(`SELECT id FROM migration_applications
+    WHERE game_uid=? AND deleted_at IS NULL AND application_status IN ('received','reviewing','approved') LIMIT 1`)
+    .bind(payload.gameUid).first();
+  if (existing) return jsonError("MIGRATION_APPLICATION_EXISTS", 409);
+
+  try {
+    const result = await env.DB.prepare(`INSERT INTO migration_applications(
+      player_name,game_uid,discord,current_state,current_alliance,
+      vehicle1_power_value,vehicle1_power_unit,vehicle1_power_normalized,
+      vehicle2_power_value,vehicle2_power_unit,vehicle2_power_normalized,
+      industry_level,spending_level,migration_tier,migration_reason,additional_notes,migration_group,referrer
+    ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
+      payload.playerName,payload.gameUid,payload.discord,payload.currentState,payload.currentAlliance,
+      payload.vehicle1PowerValue,payload.vehicle1PowerUnit,payload.vehicle1PowerNormalized,
+      payload.vehicle2PowerValue,payload.vehicle2PowerUnit,payload.vehicle2PowerNormalized,
+      payload.industryLevel,payload.spendingLevel,payload.migrationTier,payload.migrationReason,
+      payload.additionalNotes,payload.migrationGroup,payload.referrer
+    ).run();
+    return json({ok:true,data:{applicationId:Number(result.meta?.last_row_id || 0) || null}},201);
+  } catch (error) {
+    if (/UNIQUE constraint failed/i.test(String(error?.message || error))) {
+      return jsonError("MIGRATION_APPLICATION_EXISTS", 409);
+    }
+    throw error;
+  }
+}
+
+async function handleAdminMigrationList(request, url, env) {
+  const admin = await requireAdminMenuPermission(request, env.DB, "migration");
+  if (admin instanceof Response) return admin;
+  const status = cleanString(url.searchParams.get("status"), 16);
+  const q = cleanString(url.searchParams.get("search"), 64);
+  const full = url.searchParams.get("detail") === "1";
+  const limit = Math.min(1000, Math.max(1, Number(url.searchParams.get("limit") || 500)));
+  const where = ["deleted_at IS NULL"], binds = [];
+  if (status) {
+    if (!MIGRATION_APPLICATION_STATUSES.includes(status)) return jsonError("VALIDATION_ERROR",400);
+    where.push("application_status=?"); binds.push(status);
+  }
+  if (q) {
+    where.push("(player_name LIKE ? COLLATE NOCASE OR game_uid LIKE ?)");
+    binds.push(`%${q}%`,`%${q}%`);
+  }
+  const rows = await env.DB.prepare(`SELECT * FROM migration_applications WHERE ${where.join(" AND ")}
+    ORDER BY created_at DESC,id DESC LIMIT ?`).bind(...binds,limit).all();
+  return json({ok:true,data:{items:(rows.results||[]).map(row=>migrationApplicationRow(row,full))}});
+}
+
+async function handleAdminMigrationDeletedList(request, url, env) {
+  const admin = await requireSuperAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  const q = cleanString(url.searchParams.get("search"), 64);
+  const where = ["deleted_at IS NOT NULL"], binds=[];
+  if (q) { where.push("(player_name LIKE ? COLLATE NOCASE OR game_uid LIKE ?)"); binds.push(`%${q}%`,`%${q}%`); }
+  const rows = await env.DB.prepare(`SELECT * FROM migration_applications WHERE ${where.join(" AND ")}
+    ORDER BY deleted_at DESC,id DESC LIMIT 500`).bind(...binds).all();
+  return json({ok:true,data:{items:(rows.results||[]).map(row=>({ ...migrationApplicationRow(row,false), deletedAt:row.deleted_at }))}});
+}
+
+async function loadMigrationApplication(db, id) {
+  if (!Number.isInteger(id) || id <= 0) return null;
+  return db.prepare(`SELECT a.*,m.nickname AS deleted_by_nickname FROM migration_applications a LEFT JOIN members m ON m.id=a.deleted_by_member_id WHERE a.id=? LIMIT 1`).bind(id).first();
+}
+
+async function handleAdminMigrationDetail(request, id, env) {
+  const admin = await requireAdminMenuPermission(request, env.DB, "migration");
+  if (admin instanceof Response) return admin;
+  const row = await loadMigrationApplication(env.DB,id);
+  if (!row || (row.deleted_at && admin.admin_level !== "super")) return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);
+  const logs = await env.DB.prepare(`SELECT id,action,actor_nickname,actor_admin_level,before_data,after_data,result,created_at
+    FROM admin_activity_logs WHERE category='migration' AND target_type='migration_application' AND target_id=?
+    ORDER BY created_at ASC,id ASC`).bind(String(id)).all();
+  return json({ok:true,data:{application:migrationApplicationRow(row,true),history:(logs.results||[]).map(migrationHistoryRow),canEdit:admin.admin_level==='super',canDelete:admin.admin_level==='super'}});
+}
+
+async function ensureMigrationUidAvailableForStatus(db, row, nextStatus) {
+  if (!['received','reviewing','approved'].includes(nextStatus)) return true;
+  const conflict = await db.prepare(`SELECT id FROM migration_applications
+    WHERE game_uid=? AND id<>? AND deleted_at IS NULL AND application_status IN ('received','reviewing','approved') LIMIT 1`)
+    .bind(row.game_uid,row.id).first();
+  return !conflict;
+}
+
+async function handleAdminMigrationStatus(request, id, env) {
+  const admin=await requireAdminMenuPermission(request,env.DB,"migration"); if(admin instanceof Response)return admin;
+  const row=await loadMigrationApplication(env.DB,id); if(!row||row.deleted_at)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);
+  const parsedBody=await readMigrationJson(request);if(parsedBody.response)return parsedBody.response;
+  const body=parsedBody.value, status=String(body.status||"").trim();
+  if(!MIGRATION_APPLICATION_STATUSES.includes(status))return jsonError("VALIDATION_ERROR",400);
+  const rejectionReason=status==='rejected'?cleanString(body.rejectionReason,2000):null;
+  if(status==='rejected'&&!rejectionReason)return jsonError("MIGRATION_REJECTION_REASON_REQUIRED",400);
+  if(!(await ensureMigrationUidAvailableForStatus(env.DB,row,status)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);
+  const before={applicationStatus:row.application_status,rejectionReason:row.rejection_reason};
+  const after={applicationStatus:status,rejectionReason};
+  if(before.applicationStatus===after.applicationStatus&&String(before.rejectionReason||'')===String(after.rejectionReason||''))return json({ok:true,data:{applicationStatus:status,rejectionReason}});
+  try{
+    await env.DB.prepare("UPDATE migration_applications SET application_status=?,rejection_reason=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(status,rejectionReason,id).run();
+  }catch(error){if(/UNIQUE constraint failed/i.test(String(error?.message||error)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_status_changed',targetType:'migration_application',targetId:id,targetName:row.player_name,before,after});
+  return json({ok:true,data:{applicationStatus:status,rejectionReason}});
+}
+
+async function handleAdminMigrationContact(request,id,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"migration");if(admin instanceof Response)return admin;
+  const row=await loadMigrationApplication(env.DB,id);if(!row||row.deleted_at)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);
+  const parsedBody=await readMigrationJson(request);if(parsedBody.response)return parsedBody.response;
+  const body=parsedBody.value,status=String(body.status||'').trim();if(!MIGRATION_CONTACT_STATUSES.includes(status))return jsonError("VALIDATION_ERROR",400);
+  if(row.contact_status===status)return json({ok:true,data:{contactStatus:status}});
+  await env.DB.prepare("UPDATE migration_applications SET contact_status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(status,id).run();
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'contact_status_changed',targetType:'migration_application',targetId:id,targetName:row.player_name,before:{contactStatus:row.contact_status},after:{contactStatus:status}});
+  return json({ok:true,data:{contactStatus:status}});
+}
+
+async function handleAdminMigrationMemo(request,id,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,"migration");if(admin instanceof Response)return admin;
+  const row=await loadMigrationApplication(env.DB,id);if(!row||row.deleted_at)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);
+  const parsedBody=await readMigrationJson(request);if(parsedBody.response)return parsedBody.response;
+  const body=parsedBody.value;const memo=String(body.memo??'').trim();if(memo.length>2000)return jsonError("VALIDATION_ERROR",400);
+  const next=memo||null;if(String(row.admin_memo||'')===String(next||''))return json({ok:true,data:{adminMemo:next}});
+  await env.DB.prepare("UPDATE migration_applications SET admin_memo=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(next,id).run();
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'admin_memo_changed',targetType:'migration_application',targetId:id,targetName:row.player_name,before:{adminMemo:row.admin_memo},after:{adminMemo:next}});
+  return json({ok:true,data:{adminMemo:next}});
+}
+
+function migrationEditableSnapshot(value){
+  return {
+    playerName:value.playerName,gameUid:value.gameUid,discord:value.discord,currentState:value.currentState,currentAlliance:value.currentAlliance,
+    vehicle1PowerValue:value.vehicle1PowerValue,vehicle1PowerUnit:value.vehicle1PowerUnit,vehicle2PowerValue:value.vehicle2PowerValue,vehicle2PowerUnit:value.vehicle2PowerUnit,
+    industryLevel:value.industryLevel,spendingLevel:value.spendingLevel,migrationTier:value.migrationTier,migrationReason:value.migrationReason,
+    additionalNotes:value.additionalNotes,migrationGroup:value.migrationGroup,referrer:value.referrer
+  };
+}
+
+async function handleAdminMigrationEdit(request,id,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const row=await loadMigrationApplication(env.DB,id);if(!row||row.deleted_at)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);
+  const parsedBody=await readMigrationJson(request);if(parsedBody.response)return parsedBody.response;
+  const body=parsedBody.value,next=migrationPayloadFromRow(row,body);if(!next)return jsonError("VALIDATION_ERROR",400);
+  if(next.gameUid!==row.game_uid){
+    const conflict=await env.DB.prepare(`SELECT id FROM migration_applications WHERE game_uid=? AND id<>? AND deleted_at IS NULL AND application_status IN ('received','reviewing','approved') LIMIT 1`).bind(next.gameUid,id).first();
+    if(conflict)return jsonError("MIGRATION_APPLICATION_EXISTS",409);
+  }
+  const before=migrationEditableSnapshot(migrationApplicationRow(row,true)),after=migrationEditableSnapshot(next);
+  const changedBefore={},changedAfter={};for(const key of Object.keys(after)){if(String(before[key]??'')!==String(after[key]??'')){changedBefore[key]=before[key]??null;changedAfter[key]=after[key]??null;}}
+  if(!Object.keys(changedAfter).length)return json({ok:true,data:{application:migrationApplicationRow(row,true)}});
+  try{
+    await env.DB.prepare(`UPDATE migration_applications SET player_name=?,game_uid=?,discord=?,current_state=?,current_alliance=?,
+      vehicle1_power_value=?,vehicle1_power_unit=?,vehicle1_power_normalized=?,vehicle2_power_value=?,vehicle2_power_unit=?,vehicle2_power_normalized=?,
+      industry_level=?,spending_level=?,migration_tier=?,migration_reason=?,additional_notes=?,migration_group=?,referrer=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(
+      next.playerName,next.gameUid,next.discord,next.currentState,next.currentAlliance,next.vehicle1PowerValue,next.vehicle1PowerUnit,next.vehicle1PowerNormalized,
+      next.vehicle2PowerValue,next.vehicle2PowerUnit,next.vehicle2PowerNormalized,next.industryLevel,next.spendingLevel,next.migrationTier,next.migrationReason,
+      next.additionalNotes,next.migrationGroup,next.referrer,id).run();
+  }catch(error){if(/UNIQUE constraint failed/i.test(String(error?.message||error)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_content_edited',targetType:'migration_application',targetId:id,targetName:next.playerName,before:changedBefore,after:changedAfter});
+  const saved=await loadMigrationApplication(env.DB,id);return json({ok:true,data:{application:migrationApplicationRow(saved,true)}});
+}
+
+async function handleAdminMigrationDelete(request,id,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const row=await loadMigrationApplication(env.DB,id);if(!row)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);if(row.deleted_at)return json({ok:true,data:{deleted:true}});
+  await env.DB.prepare("UPDATE migration_applications SET deleted_at=CURRENT_TIMESTAMP,deleted_by_member_id=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(admin.id,id).run();
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_deleted',targetType:'migration_application',targetId:id,targetName:row.player_name,before:{applicationStatus:row.application_status,contactStatus:row.contact_status},after:{deleted:true}});
+  return json({ok:true,data:{deleted:true}});
+}
+
+async function handleAdminMigrationRestore(request,id,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const row=await loadMigrationApplication(env.DB,id);if(!row)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);if(!row.deleted_at)return json({ok:true,data:{restored:true}});
+  if(!(await ensureMigrationUidAvailableForStatus(env.DB,row,row.application_status)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);
+  try{await env.DB.prepare("UPDATE migration_applications SET deleted_at=NULL,deleted_by_member_id=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(id).run();}
+  catch(error){if(/UNIQUE constraint failed/i.test(String(error?.message||error)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_restored',targetType:'migration_application',targetId:id,targetName:row.player_name,before:{deleted:true},after:{applicationStatus:row.application_status,contactStatus:row.contact_status}});
+  return json({ok:true,data:{restored:true}});
 }
 
 // -----------------------------------------------------------------------------

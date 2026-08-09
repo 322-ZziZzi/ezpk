@@ -8,7 +8,7 @@ let adminSessionReady=false;
 let adminSessionPendingState=null;
 let verifiedAdminMember=null;
 let currentAdminAccess={adminLevel:null,permissions:null,loaded:false};
-const ADMIN_PANEL_PERMISSION_MAP={membersPanel:'members',eventsPanel:'events',votePanel:'vote',allianceLayoutPanel:'allianceLayout',bgbPanel:'bgb',capitalWarPanel:'capitalWar',season6Panel:'season',requestsPanel:'requests',accountsPanel:'accounts'};
+const ADMIN_PANEL_PERMISSION_MAP={membersPanel:'members',eventsPanel:'events',votePanel:'vote',allianceLayoutPanel:'allianceLayout',bgbPanel:'bgb',capitalWarPanel:'capitalWar',season6Panel:'season',migrationPanel:'migration',requestsPanel:'requests',accountsPanel:'accounts'};
 
 function adminHasMenuPermission(key){
   const level=String(currentAdminAccess.adminLevel||verifiedAdminMember?.adminLevel||verifiedAdminMember?.admin_level||'').toLowerCase();
@@ -239,7 +239,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 else initAdminCardNavigation();
 
 
-const ADMIN_PERMISSION_KEYS=['members','events','vote','bgb','capitalWar','season','requests','accounts'];
+const ADMIN_PERMISSION_KEYS=['members','events','vote','allianceLayout','bgb','capitalWar','season','migration','requests','accounts'];
 let menuPermissionState={subAdmins:[],selectedId:null,loaded:false,baseline:''};
 
 function serializeMenuPermissions(permissions){

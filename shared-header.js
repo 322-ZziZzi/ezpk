@@ -287,7 +287,7 @@
     }
   };
 
-  const immigrationHref = `${String(homeHref).replace(/#.*$/, '')}#immigration`;
+  const immigrationHref = `${base}/migration/`;
   const menuItems = [
     { key:'immigration', href:immigrationHref },
     { key:'seasonUpcoming', href:`${base}/season6/` },
@@ -520,8 +520,9 @@
         menuGroupMarkup(ui.other,['accounts','game','logo'])
       ].join('');
     } else {
-      const guestPrimaryKeys = ['immigration','seasonUpcoming','members','tip'];
-      const guestMobileKeys = ['immigration','seasonUpcoming','members','tip','game','accounts'];
+      const authenticatedAccount = Boolean(authState.authenticated);
+      const guestPrimaryKeys = authenticatedAccount ? ['seasonUpcoming','members','tip'] : ['immigration','seasonUpcoming','members','tip'];
+      const guestMobileKeys = authenticatedAccount ? ['seasonUpcoming','members','tip','game','accounts'] : ['immigration','seasonUpcoming','members','tip','game','accounts'];
       desktopNavItems.innerHTML = guestPrimaryKeys.map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
       navMoreMenu.innerHTML = [
         menuGroupMarkup(ui.public,['game','accounts']),

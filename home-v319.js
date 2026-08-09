@@ -17,7 +17,6 @@
       immigrationBody:'322 서버에서 EZPK와 함께 새로운 시즌을 준비하세요. 신청서를 검토한 후 운영진이 개별적으로 안내드립니다.',
       immigrationButton:'이민 신청하기',
       immigrationProcess:'신청서 제출 → 운영진 검토 → 개별 연락 → 322 서버 합류',
-      immigrationExternal:'새 창에서 Google Forms가 열립니다.',
       footer:'역할을 다하고, 서로를 믿고, 끝까지 함께하자!'
     },
     en: {
@@ -35,7 +34,6 @@
       immigrationBody:'Prepare for a new season with EZPK in State #322. Our leadership team will review your application and contact you individually.',
       immigrationButton:'APPLY FOR MIGRATION',
       immigrationProcess:'Submit Application → Leadership Review → Individual Contact → Join State #322',
-      immigrationExternal:'Google Forms opens in a new tab.',
       footer:'Fulfill your role, trust one another, and stay together to the end!'
     },
     pt: {
@@ -53,7 +51,6 @@
       immigrationBody:'Prepare-se para uma nova temporada com a EZPK no Estado #322. A liderança analisará sua solicitação e entrará em contato individualmente.',
       immigrationButton:'SOLICITAR MIGRAÇÃO',
       immigrationProcess:'Enviar Solicitação → Análise da Liderança → Contato Individual → Entrar no Estado #322',
-      immigrationExternal:'O Google Forms será aberto em uma nova aba.',
       footer:'Cumpram seu papel, confiem uns nos outros e permaneçam juntos até o fim!'
     },
     vi: {
@@ -71,7 +68,6 @@
       immigrationBody:'Hãy chuẩn bị cho mùa giải mới cùng EZPK tại Bang #322. Ban quản lý sẽ xem xét đơn và liên hệ riêng với bạn.',
       immigrationButton:'ĐĂNG KÝ DI CƯ',
       immigrationProcess:'Gửi Đơn → Ban quản lý Xem xét → Liên hệ Riêng → Gia nhập Bang #322',
-      immigrationExternal:'Google Forms sẽ mở trong tab mới.',
       footer:'Hãy hoàn thành vai trò của mình, tin tưởng lẫn nhau và sát cánh đến cùng!'
     },
     ar: {
@@ -89,7 +85,6 @@
       immigrationBody:'استعد لموسم جديد مع EZPK في الولاية #322. ستراجع الإدارة طلبك وتتواصل معك بشكل فردي.',
       immigrationButton:'تقديم طلب الانتقال',
       immigrationProcess:'إرسال الطلب ← مراجعة الإدارة ← تواصل فردي ← الانضمام إلى الولاية #322',
-      immigrationExternal:'سيفتح Google Forms في علامة تبويب جديدة.',
       footer:'أدّوا أدواركم، وثقوا ببعضكم، وابقوا معًا حتى النهاية!'
     },
     ja: {
@@ -107,7 +102,6 @@
       immigrationBody:'ステート #322のEZPKで新しいシーズンに備えましょう。運営チームが申請を確認し、個別にご連絡します。',
       immigrationButton:'移住申請をする',
       immigrationProcess:'申請書提出 → 運営確認 → 個別連絡 → ステート #322へ合流',
-      immigrationExternal:'Googleフォームが新しいタブで開きます。',
       footer:'それぞれの役割を果たし、互いを信じ、最後まで共に進もう！'
     },
     th: {
@@ -125,7 +119,6 @@
       immigrationBody:'เตรียมพร้อมสำหรับซีซันใหม่กับ EZPK ในรัฐ #322 ทีมบริหารจะตรวจสอบใบสมัครและติดต่อคุณเป็นรายบุคคล',
       immigrationButton:'สมัครย้ายเซิร์ฟเวอร์',
       immigrationProcess:'ส่งใบสมัคร → ทีมบริหารตรวจสอบ → ติดต่อเป็นรายบุคคล → เข้าร่วมรัฐ #322',
-      immigrationExternal:'Google Forms จะเปิดในแท็บใหม่',
       footer:'ทำหน้าที่ของตน เชื่อใจกัน และอยู่เคียงข้างกันจนถึงที่สุด!'
     },
     'zh-tw': {
@@ -143,7 +136,6 @@
       immigrationBody:'在州 #322與EZPK一起準備新的賽季。管理團隊將審核申請並個別與您聯絡。',
       immigrationButton:'申請移民',
       immigrationProcess:'提交申請 → 管理團隊審核 → 個別聯絡 → 加入州 #322',
-      immigrationExternal:'Google 表單將在新分頁中開啟。',
       footer:'各司其職、彼此信任，並肩同行直到最後！'
     }
   };

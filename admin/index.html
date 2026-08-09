@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="admin-ui-v228.css?v=3480">
   <link rel="stylesheet" href="../common-heading.css?v=3570">
   <link rel="stylesheet" href="alliance-layout-manager.css?v=3810">
+  <link rel="stylesheet" href="migration-manager.css?v=3870">
 
 <style>
 @media (min-width:901px){
@@ -68,6 +69,7 @@
           <span class="admin-nav-card-title"><span class="admin-nav-card-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v7H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 1-2Zm16 0h-3v7h2a2 2 0 0 0 2-2v-3a2 2 0 0 0-1-2Z"/></svg></span><span>지원</span></span><span class="admin-nav-chevron" aria-hidden="true">⌄</span>
         </button>
         <div class="admin-nav-card-items">
+          <button type="button" data-panel="migrationPanel">이민 신청</button>
           <button type="button" data-panel="requestsPanel">요청</button>
           <button type="button" data-panel="accountsPanel">계정</button>
         </div>
@@ -100,7 +102,7 @@
           <div id="menuPermissionGroups" class="system-permission-groups" hidden>
             <fieldset><legend>운영 관리</legend><label><input type="checkbox" value="members"> 연맹원</label><label><input type="checkbox" value="events"> 이벤트</label><label><input type="checkbox" value="vote"> 투표</label></fieldset>
             <fieldset><legend>팀 편성 관리</legend><label><input type="checkbox" value="allianceLayout"> 연맹 배치</label><label><input type="checkbox" value="bgb"> BGB</label><label><input type="checkbox" value="capitalWar"> 수도전</label><label><input type="checkbox" value="season"> 시즌</label></fieldset>
-            <fieldset><legend>지원</legend><label><input type="checkbox" value="requests"> 요청</label><label><input type="checkbox" value="accounts"> 계정</label></fieldset>
+            <fieldset><legend>지원</legend><label><input type="checkbox" value="migration"> 이민 신청</label><label><input type="checkbox" value="requests"> 요청</label><label><input type="checkbox" value="accounts"> 계정</label></fieldset>
           </div>
           <div class="system-card-actions"><span id="menuPermissionStatus" class="system-save-status" role="status" aria-live="polite"></span><button id="saveMenuPermissions" class="primary" type="button" disabled>권한 저장</button></div>
         </section>
@@ -123,6 +125,7 @@
             <option value="bgb">BGB</option>
             <option value="capital_war">수도전</option>
             <option value="season">시즌</option>
+            <option value="migration">이민 신청</option>
             <option value="request">요청</option>
             <option value="account">계정</option>
             <option value="alliance_layout">연맹 배치</option>
@@ -357,6 +360,37 @@
         <button id="saveEvents" class="primary" type="button">이벤트 저장</button>
       </div>
     </div>
+    <div id="migrationPanel" class="admin-panel migration-admin-panel">
+      <div class="admin-page-header migration-admin-head">
+        <div class="admin-page-heading"><h2>이민 신청 관리</h2><p>접수된 이민 신청을 확인하고 처리합니다.</p></div>
+        <div class="admin-page-actions migration-export-actions">
+          <button id="migrationExcelExport" class="secondary" type="button">엑셀 내보내기</button>
+          <button id="migrationImageDownload" class="secondary" type="button">이미지 다운로드</button>
+          <button id="migrationDeletedOpen" class="secondary" type="button" hidden>삭제된 신청</button>
+        </div>
+      </div>
+      <div id="migrationListView">
+        <div id="migrationStatusTabs" class="migration-status-tabs" role="tablist" aria-label="이민 신청 상태">
+          <button class="active" type="button" data-migration-status="">전체</button>
+          <button type="button" data-migration-status="received">접수됨</button>
+          <button type="button" data-migration-status="reviewing">검토 중</button>
+          <button type="button" data-migration-status="approved">승인</button>
+          <button type="button" data-migration-status="rejected">거절</button>
+        </div>
+        <div class="migration-list-toolbar admin-toolbar"><input id="migrationSearch" type="search" placeholder="닉네임 또는 UID 검색..."><button id="migrationRefresh" class="secondary" type="button">↻ 새로고침</button></div>
+        <div id="migrationListStatus" class="migration-list-status" role="status" aria-live="polite"></div>
+        <div class="migration-table-wrap"><table class="migration-table"><thead><tr><th>신청일</th><th>닉네임</th><th>서버</th><th>등급</th><th>상태</th></tr></thead><tbody id="migrationRows"></tbody></table></div>
+        <div id="migrationCards" class="migration-cards"></div>
+      </div>
+      <div id="migrationDetailView" hidden></div>
+      <div id="migrationDeletedView" hidden></div>
+      <div id="migrationImageModal" class="migration-image-modal" hidden>
+        <div class="migration-image-backdrop" data-migration-image-close></div>
+        <article><header><h3>Migration Applications</h3><button type="button" data-migration-image-close aria-label="닫기">×</button></header><div class="migration-image-stage"><img id="migrationImagePreview" alt="EZPK Migration Applications"></div><p>모바일에서는 이미지를 길게 눌러 저장하고, PC에서는 마우스 오른쪽 버튼으로 저장할 수 있습니다.</p><button class="secondary" type="button" data-migration-image-close>닫기</button></article>
+      </div>
+      <div id="migrationConfirmModal" class="migration-confirm-modal" hidden></div>
+    </div>
+
     <div id="requestsPanel" class="admin-panel">
       <div class="admin-page-header request-admin-head"><div class="admin-page-heading"><h2>요청 관리</h2><p>게시판에 등록된 요청을 확인하고 답변하거나 삭제할 수 있습니다.</p></div><button id="refreshRequests" type="button" class="secondary">새로고침</button></div>
       <div id="requestAdminStatus" class="status" aria-live="polite"></div>
@@ -406,13 +440,14 @@
   </section>
 </main>
 </div>
-<script src="../shared-header.js?v=3560"></script>
+<script src="../shared-header.js?v=3870"></script>
 <script src="../vehicle-power.js?v=2740"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=3106"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
+<script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=3870"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
 <script src="capital-war-manager.js?v=3490"></script>
-<script src="member-manager-v188.js?v=3710"></script>
+<script src="member-manager-v188.js?v=3870"></script>
 <script src="vote-manager.js?v=2160"></script>
 <script src="alliance-layout-manager.js?v=3810"></script>
+<script src="migration-manager.js?v=3870"></script>
 </body>
 </html>
