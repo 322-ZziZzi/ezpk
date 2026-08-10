@@ -1,3 +1,11 @@
+## v390 migration tier power criteria
+
+- Updated Migration Step 4 to the published grades: Special, Advanced, Intermediate, and Normal.
+- Added the displayed ranges `>200M`, `90M-200M`, `46M-90M`, and `0-46M`, ordered highest to lowest.
+- Preserved the existing `gray` / `blue` / `purple` / `gold` stored enum keys for backward compatibility.
+- Updated the prepared D1 migration-tier settings metadata and enabled power-range visibility.
+- Step 4 remains a manual selection; vehicle power is not used to infer the grade automatically.
+
 ## v388 mobile migration step navigation UX remediation
 
 - Removed the explicit top-of-page smooth scroll from normal Migration `Next` and `Previous` step transitions.
@@ -21,7 +29,7 @@
 - The login ID `ezpk_koala` is excluded even when its visible nickname is `koala`.
 - Public member and tier lists, totals, search, rankings, votes, and operational member queries now use the corrected account-ID filter.
 
-# EZPK War Portal v388
+# EZPK War Portal v390
 
 
 ## v385 system-account count fix

@@ -6,8 +6,8 @@
   const STATUS_EN={received:'Received',reviewing:'Reviewing',approved:'Approved',rejected:'Rejected'};
   const CONTACT_KO={not_contacted:'미연락',contacted:'연락 완료'};
   const CONTACT_EN={not_contacted:'Not Contacted',contacted:'Contacted'};
-  const TIER_KO={gray:'회색',blue:'파랑',purple:'보라',gold:'골드'};
-  const TIER_EN={gray:'Gray',blue:'Blue',purple:'Purple',gold:'Gold'};
+  const TIER_KO={gray:'일반',blue:'중급',purple:'고급',gold:'특급'};
+  const TIER_EN={gray:'Normal',blue:'Intermediate',purple:'Advanced',gold:'Special'};
   const FIELD_KO={playerName:'게임 닉네임',gameUid:'게임 UID',discord:'Discord',currentState:'현재 서버',currentAlliance:'현재 연맹',vehicle1PowerValue:'1번 차량 파워',vehicle1PowerUnit:'1번 차량 단위',vehicle2PowerValue:'2번 차량 파워',vehicle2PowerUnit:'2번 차량 단위',industryLevel:'산업 레벨',spendingLevel:'과금 타입',migrationTier:'이민 등급',migrationReason:'이민 신청 사유',additionalNotes:'추가 전달사항',migrationGroup:'함께 이민하는 그룹',referrer:'추천인',applicationStatus:'신청 상태',contactStatus:'연락 상태',adminMemo:'관리자 메모',rejectionReason:'거절 사유',deleted:'삭제 상태'};
   const ACTION_KO={application_status_changed:'신청 상태 변경',contact_status_changed:'연락 상태 변경',admin_memo_changed:'관리자 메모 변경',application_content_edited:'신청 내용 수정',application_deleted:'신청서 삭제',application_restored:'신청서 복구'};
   const state={items:[],status:'',search:'',current:null,history:[],initialized:false,loading:false,deletedItems:[],view:'list'};

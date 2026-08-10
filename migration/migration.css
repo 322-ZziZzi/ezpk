@@ -30,7 +30,10 @@
 .migration-number-grid button{width:52px}
 .migration-choice-summary{color:var(--migration-gold-bright);font-size:.88rem;font-weight:750;min-height:1.3em}
 .migration-tier-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.migration-tier-card{min-height:92px;font-size:1.05rem;text-align:center}
+.migration-tier-card{min-height:92px;font-size:1.05rem;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}
+.migration-tier-name{font-weight:850}
+.migration-tier-power{font-size:.88rem;font-weight:800;color:var(--migration-muted)}
+.migration-tier-card.selected .migration-tier-power{color:#f1d994}
 .migration-actions{display:flex;justify-content:space-between;gap:12px;padding:20px 30px 28px;border-top:1px solid rgba(255,255,255,.07)}
 .migration-button{display:inline-flex;justify-content:center;align-items:center;min-height:46px;border-radius:12px;padding:0 20px;font:inherit;font-weight:800;cursor:pointer;text-decoration:none;border:1px solid transparent}
 .migration-button-primary{background:linear-gradient(135deg,#d5aa51,#f0cf7c);color:#171109;border-color:#f2d88f}
