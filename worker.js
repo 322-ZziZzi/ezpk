@@ -2997,7 +2997,7 @@ function allianceFrame(direction){
   return {rs:4,re:5,cs:4,ce:7};
 }
 
-function allianceFullTemplate(direction){
+function allianceAllSlots(direction){
   const frame=allianceFrame(direction),cells=[];
   const inside=(row,col)=>row>=frame.rs&&row<=frame.re&&col>=frame.cs&&col<=frame.ce;
   for(let row=0;row<10;row++)for(let col=0;col<11;col++)if(!inside(row,col)){
@@ -3008,6 +3008,11 @@ function allianceFullTemplate(direction){
     cells.push({row,col,distance:Math.max(dx,dy),angle});
   }
   cells.sort((a,b)=>a.distance-b.distance||a.angle-b.angle||a.row-b.row||a.col-b.col);
+  return cells;
+}
+
+function allianceFullTemplate(direction){
+  const cells=allianceAllSlots(direction);
   const fixedColumns=direction==="right"?new Map([[97,2],[98,3],[99,4],[100,5],[73,6],[74,7]])
     :direction==="left"?new Map([[97,1],[98,2],[99,3],[100,4],[73,5],[74,6],[75,7],[76,8]]):new Map();
   const fixed=new Map([...fixedColumns].map(([rank,col])=>[rank,cells.find(cell=>cell.row===0&&cell.col===col)]));
@@ -3104,7 +3109,7 @@ async function loadAllianceVersion(db,type){
 
 function validateAlliancePositions(direction,positions,eligibleIds){
   if(!ALLIANCE_DIRECTIONS.includes(direction)||!Array.isArray(positions)||positions.length>100)return false;
-  const allowed=new Set(allianceFullTemplate(direction).map(cell=>`${cell.row}-${cell.col}`)),members=new Set(),coords=new Set(),ranks=new Set();
+  const allowed=new Set(allianceAllSlots(direction).map(cell=>`${cell.row}-${cell.col}`)),members=new Set(),coords=new Set(),ranks=new Set();
   for(const item of positions){
     const memberId=Number(item.memberId),rank=Number(item.rank),row=Number(item.row),col=Number(item.col),coord=`${row}-${col}`;
     if(!eligibleIds.has(memberId)||!Number.isInteger(rank)||rank<1||rank>100||!allowed.has(coord)||members.has(memberId)||coords.has(coord)||ranks.has(rank))return false;
@@ -3128,7 +3133,7 @@ async function handleAllianceLayoutMembers(request,env){
 async function handleAllianceLayoutAutoPlace(request,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"allianceLayout");if(admin instanceof Response)return admin;
   const body=await readJson(request),direction=String(body.direction||"");if(!ALLIANCE_DIRECTIONS.includes(direction))return jsonError("INVALID_DIRECTION",400);
-  const members=allianceSortMembers(await allianceEligibleMembers(env.DB)),memberMap=new Map(members.map(m=>[m.id,m])),template=allianceTemplate(direction,Math.min(100,members.length)),allowed=new Set(allianceFullTemplate(direction).map(x=>`${x.row}-${x.col}`));
+  const members=allianceSortMembers(await allianceEligibleMembers(env.DB)),memberMap=new Map(members.map(m=>[m.id,m])),template=allianceTemplate(direction,Math.min(100,members.length)),allowed=new Set(allianceAllSlots(direction).map(x=>`${x.row}-${x.col}`));
   const locked=(Array.isArray(body.lockedPositions)?body.lockedPositions:[]).filter(x=>memberMap.has(Number(x.memberId))&&allowed.has(`${Number(x.row)}-${Number(x.col)}`)).slice(0,100);
   const usedMembers=new Set(locked.map(x=>Number(x.memberId))),usedCoords=new Set(locked.map(x=>`${Number(x.row)}-${Number(x.col)}`));
   const positions=locked.map(x=>({memberId:Number(x.memberId),rank:0,row:Number(x.row),col:Number(x.col),locked:true}));
@@ -3184,7 +3189,7 @@ async function handleAllianceLayoutRestore(request,id,env){
 async function handleAllianceLayoutPublic(request,env){
   const member=await requireMember(request,env.DB);if(member instanceof Response)return member;
   const layout=await loadAllianceVersion(env.DB,"published");if(!layout)return json({ok:true,data:{layout:null}});
-  return json({ok:true,data:{currentMemberId:Number(member.id),layout:{direction:layout.direction,publishedAt:layout.publishedAt,placedCount:layout.positions.length,slotCount:100,slots:allianceFullTemplate(layout.direction).map(s=>({row:s.row,col:s.col,slotId:s.rank})),positions:layout.positions.map(p=>({memberId:p.memberId,nickname:p.nickname,power:p.power,industryLevel:p.industryLevel,rank:p.rank,row:p.row,col:p.col}))}}});
+  return json({ok:true,data:{currentMemberId:Number(member.id),layout:{direction:layout.direction,publishedAt:layout.publishedAt,placedCount:layout.positions.length,slotCount:102,slots:allianceAllSlots(layout.direction).map(s=>({row:s.row,col:s.col})),positions:layout.positions.map(p=>({memberId:p.memberId,nickname:p.nickname,power:p.power,industryLevel:p.industryLevel,rank:p.rank,row:p.row,col:p.col}))}}});
 }
 
 // -----------------------------------------------------------------------------
