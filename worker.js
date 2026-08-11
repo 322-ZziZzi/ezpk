@@ -217,6 +217,8 @@ export default {
           return handleAdminMembersCreateBulk(request, env);
         case "GET /api/admin/migration":
           return handleAdminMigrationList(request, url, env);
+        case "POST /api/admin/migration/bulk-status":
+          return handleAdminMigrationBulkStatus(request, env);
         case "GET /api/admin/migration/deleted":
           return handleAdminMigrationDeletedList(request, url, env);
         case "POST /api/admin/migration/import/preview":
@@ -3116,6 +3118,36 @@ async function handleAdminMigrationStatus(request, id, env) {
   }catch(error){if(isMigrationUidConflictError(error))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
   await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_status_changed',targetType:'migration_application',targetId:id,targetName:row.player_name,before,after});
   return json({ok:true,data:{applicationStatus:status,rejectionReason}});
+}
+
+async function handleAdminMigrationBulkStatus(request, env) {
+  const admin=await requireAdminMenuPermission(request,env.DB,"migration"); if(admin instanceof Response)return admin;
+  const parsedBody=await readMigrationJson(request); if(parsedBody.response)return parsedBody.response;
+  const body=parsedBody.value||{},rawIds=Array.isArray(body.ids)?body.ids:[],ids=[...new Set(rawIds.map(Number).filter(x=>Number.isInteger(x)&&x>0))],versions=Array.isArray(body.versions)?body.versions:[],expectedUpdatedAt=new Map(versions.map(v=>[Number(v?.id),String(v?.updatedAt||'')])),expectedStatus=new Map(versions.map(v=>[Number(v?.id),String(v?.applicationStatus||'')]));
+  const status=String(body.status||'').trim();
+  if(!ids.length||ids.length>500||!MIGRATION_APPLICATION_STATUSES.includes(status))return jsonError("VALIDATION_ERROR",400);
+  const rejectionReason=status==='rejected'?cleanString(body.rejectionReason,2000):null;
+  if(status==='rejected'&&!rejectionReason)return jsonError("MIGRATION_REJECTION_REASON_REQUIRED",400);
+  const bulkActionId=crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const rows=[];
+  for(let i=0;i<ids.length;i+=80){const chunk=ids.slice(i,i+80),placeholders=chunk.map(()=>'?').join(',');const found=await env.DB.prepare(`SELECT id,player_name,application_status,rejection_reason,updated_at FROM migration_applications WHERE deleted_at IS NULL AND id IN (${placeholders})`).bind(...chunk).all();rows.push(...(found.results||[]));}
+  const byId=new Map(rows.map(r=>[Number(r.id),r])),failures=[],successes=[];
+  ids.forEach(id=>{const row=byId.get(id);if(!row){failures.push({id,playerName:null,code:'MIGRATION_APPLICATION_NOT_FOUND',message:'신청을 찾을 수 없거나 이미 삭제되었습니다.'});return}const expected=expectedUpdatedAt.get(id),expectedState=expectedStatus.get(id);if((expected&&String(row.updated_at||'')!==expected)||(expectedState&&String(row.application_status||'')!==expectedState))failures.push({id,playerName:row.player_name,code:'MIGRATION_APPLICATION_CHANGED',message:'다른 관리자에 의해 신청 정보가 변경되어 처리하지 못했습니다.'})});
+  const failedIds=new Set(failures.map(x=>Number(x.id))),candidates=ids.filter(id=>!failedIds.has(id)).map(id=>byId.get(id)).filter(Boolean);
+  for(let i=0;i<candidates.length;i+=50){
+    const chunk=candidates.slice(i,i+50),stmts=chunk.map(r=>env.DB.prepare("UPDATE migration_applications SET application_status=?,rejection_reason=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND deleted_at IS NULL").bind(status,rejectionReason,Number(r.id)));
+    try{const results=await env.DB.batch(stmts);results.forEach((result,index)=>{const row=chunk[index],changed=Number(result?.meta?.changes??1)>0;if(changed)successes.push(row);else failures.push({id:Number(row.id),playerName:row.player_name,code:'MIGRATION_BULK_UPDATE_FAILED',message:'상태를 변경하지 못했습니다.'})});}
+    catch(error){console.error('[MIGRATION_BULK_UPDATE_FAILED]',error);chunk.forEach(row=>failures.push({id:Number(row.id),playerName:row.player_name,code:'MIGRATION_BULK_UPDATE_FAILED',message:'서버 처리 중 상태 변경에 실패했습니다.'}));}
+  }
+  const ip=request.headers.get('CF-Connecting-IP')||null,userAgent=request.headers.get('User-Agent')||null,requestId=request.headers.get('cf-ray')||null;
+  for(let i=0;i<successes.length;i+=50){
+    const chunk=successes.slice(i,i+50),logs=chunk.map(row=>env.DB.prepare(`INSERT INTO admin_activity_logs
+      (actor_member_id,actor_login_id,actor_nickname,actor_admin_level,category,action,target_type,target_id,target_name,before_data,after_data,result,failure_reason,ip_address,user_agent,request_id)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(admin.id||null,admin.login_id||null,admin.nickname||'unknown',admin.admin_level||'sub','migration','application_status_changed','migration_application',String(row.id),row.player_name,JSON.stringify({applicationStatus:row.application_status,rejectionReason:row.rejection_reason}),JSON.stringify({applicationStatus:status,rejectionReason,bulkActionId}), 'success',null,ip,userAgent,requestId));
+    try{await env.DB.batch(logs)}catch(error){console.error('[MIGRATION_BULK_AUDIT_FAILED]',error)}
+  }
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_status_bulk_changed',targetType:'migration_application_bulk',targetId:bulkActionId,targetName:`${ids.length} applications`,before:{selected:ids.length},after:{applicationStatus:status,rejectionReason,bulkActionId,succeeded:successes.length,failed:failures.length}});
+  return json({ok:true,data:{bulkActionId,total:ids.length,succeeded:successes.length,failed:failures.length,failures}});
 }
 
 async function handleAdminMigrationContact(request,id,env){

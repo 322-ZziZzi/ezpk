@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="admin-ui-v228.css?v=3480">
   <link rel="stylesheet" href="../common-heading.css?v=3570">
   <link rel="stylesheet" href="alliance-layout-manager.css?v=3810">
-  <link rel="stylesheet" href="migration-manager.css?v=3970">
+  <link rel="stylesheet" href="migration-manager.css?v=3990">
 
 <style>
 @media (min-width:901px){
@@ -379,9 +379,32 @@
           <button type="button" data-migration-status="approved">승인</button>
           <button type="button" data-migration-status="rejected">거절</button>
         </div>
-        <div class="migration-list-toolbar admin-toolbar"><input id="migrationSearch" type="search" placeholder="닉네임 또는 UID 검색..."><button id="migrationRefresh" class="secondary" type="button">↻ 새로고침</button></div>
+        <div class="migration-list-toolbar admin-toolbar">
+          <input id="migrationSearch" type="search" placeholder="닉네임 또는 UID 검색...">
+          <details id="migrationSortControl" class="migration-sort-control">
+            <summary>정렬</summary>
+            <div id="migrationSortMenu" class="migration-sort-menu" role="menu">
+              <button type="button" data-migration-sort="tier" role="menuitemradio" aria-checked="true"><span>티어 순</span><span class="migration-sort-check">✓</span></button>
+              <button type="button" data-migration-sort="application" role="menuitemradio" aria-checked="false"><span>신청 순</span><span class="migration-sort-check"></span></button>
+              <button type="button" data-migration-sort="server" role="menuitemradio" aria-checked="false"><span>서버 순</span><span class="migration-sort-check"></span></button>
+              <button type="button" data-migration-sort="vehicle1" role="menuitemradio" aria-checked="false"><span>1번 차량 높은 순</span><span class="migration-sort-check"></span></button>
+              <button type="button" data-migration-sort="industry" role="menuitemradio" aria-checked="false"><span>산업 레벨 높은 순</span><span class="migration-sort-check"></span></button>
+              <button type="button" data-migration-sort="nickname" role="menuitemradio" aria-checked="false"><span>닉네임 순</span><span class="migration-sort-check"></span></button>
+            </div>
+          </details>
+          <button id="migrationRefresh" class="secondary" type="button">↻ 새로고침</button>
+        </div>
         <div id="migrationListStatus" class="migration-list-status" role="status" aria-live="polite"></div>
-        <div class="migration-table-wrap"><table class="migration-table"><thead><tr><th>신청일</th><th>닉네임</th><th>서버</th><th>등급</th><th>상태</th></tr></thead><tbody id="migrationRows"></tbody></table></div>
+        <div id="migrationSelectionBar" class="migration-selection-bar">
+          <label class="migration-select-all"><input id="migrationSelectAll" type="checkbox"><span>전체 선택</span></label>
+          <span id="migrationSelectedCount" class="migration-selected-count">0명 선택됨</span>
+          <div id="migrationBulkActions" class="migration-bulk-actions" hidden>
+            <select id="migrationBulkStatus" aria-label="대량 신청 상태 변경"><option value="">신청 상태 변경</option><option value="received">접수됨</option><option value="reviewing">검토 중</option><option value="approved">승인</option><option value="rejected">거절</option></select>
+            <button id="migrationBulkApply" class="primary" type="button" disabled>적용</button>
+            <button id="migrationSelectionClear" class="secondary" type="button">선택 해제</button>
+          </div>
+        </div>
+        <div class="migration-table-wrap"><table class="migration-table"><thead><tr><th class="migration-select-head" aria-label="선택"></th><th>신청일</th><th>닉네임</th><th>서버</th><th>등급</th><th>상태</th></tr></thead><tbody id="migrationRows"></tbody></table></div>
         <div id="migrationCards" class="migration-cards"></div>
       </div>
       <div id="migrationDetailView" hidden></div>
@@ -451,6 +474,6 @@
 <script src="member-manager-v188.js?v=3870"></script>
 <script src="vote-manager.js?v=2160"></script>
 <script src="alliance-layout-manager.js?v=3810"></script>
-<script src="migration-manager.js?v=3970"></script>
+<script src="migration-manager.js?v=3990"></script>
 </body>
 </html>

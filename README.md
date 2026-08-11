@@ -434,3 +434,15 @@ Member list now switches immediately between public and tier views after verifie
 - `ezpk_koala` is treated as a system account for sub-administrator access only.
 - It is excluded from public member lists, search, member statistics, promotion/demotion candidates, alliance layout eligibility, and vote participation/results.
 - It remains visible and manageable in the administrator member-management screen.
+
+## v398
+Migration image export header cleanup: removed the visible sorting-description text while preserving the existing export sort logic, page indicator, timestamp, tier colors, and Vehicle 1 display.
+
+
+## v399
+- 관리자 이민 신청 목록에 `정렬` 메뉴를 추가했습니다. 버튼 문구는 항상 `정렬`로 유지되며 내부 기본값은 티어 순입니다.
+- 티어 순은 특급 → 고급 → 중급 → 일반, 동일 티어는 1번 차량 → 2번 차량 → 산업 레벨 내림차순으로 정렬합니다.
+- 신청 행/모바일 카드 왼쪽 체크박스, 상단 전체 선택/해제, 선택 수 표시를 추가했습니다.
+- 선택 신청을 접수됨/검토 중/승인/거절로 대량 변경할 수 있으며 성공/실패 결과와 Audit 기록을 남깁니다.
+- 이미지 다운로드 표 시작 전에 특급/고급/중급/일반 인원 요약 바를 절제된 기존 UI 톤으로 추가했습니다.
+- 이미지/Excel의 기존 고정 내보내기 정렬, Excel Import v397 호환성, 기존 DB migrations는 유지합니다.
