@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="admin-ui-v228.css?v=3480">
   <link rel="stylesheet" href="../common-heading.css?v=3570">
   <link rel="stylesheet" href="alliance-layout-manager.css?v=3810">
-  <link rel="stylesheet" href="migration-manager.css?v=3870">
+  <link rel="stylesheet" href="migration-manager.css?v=3950">
 
 <style>
 @media (min-width:901px){
@@ -364,11 +364,11 @@
       <div class="admin-page-header migration-admin-head">
         <div class="admin-page-heading"><h2>이민 신청 관리</h2><p>접수된 이민 신청을 확인하고 처리합니다.</p></div>
         <div class="admin-page-actions migration-export-actions">
-          <button id="migrationExcelExport" class="secondary" type="button">엑셀 내보내기</button>
-          <button id="migrationImportTemplate" class="secondary" type="button" hidden>업로드 양식 다운로드</button>
-          <button id="migrationExcelImport" class="primary" type="button" hidden>엑셀 업로드</button>
-          <button id="migrationImageDownload" class="secondary" type="button">이미지 다운로드</button>
           <button id="migrationDeletedOpen" class="secondary" type="button" hidden>삭제된 신청</button>
+          <button id="migrationImageDownload" class="secondary" type="button">이미지 다운로드</button>
+          <button id="migrationExcelImport" class="primary" type="button" hidden>엑셀 업로드</button>
+          <button id="migrationExcelExport" class="secondary" type="button">엑셀 내보내기</button>
+          <button id="migrationImportTemplate" class="secondary" type="button" hidden>업로드 양식</button>
         </div>
       </div>
       <div id="migrationListView">
@@ -388,7 +388,7 @@
       <div id="migrationDeletedView" hidden></div>
       <div id="migrationImageModal" class="migration-image-modal" hidden>
         <div class="migration-image-backdrop" data-migration-image-close></div>
-        <article><header><h3>Migration Applications</h3><button type="button" data-migration-image-close aria-label="닫기">×</button></header><div class="migration-image-stage"><img id="migrationImagePreview" alt="EZPK Migration Applications"></div><p>모바일에서는 이미지를 길게 눌러 저장하고, PC에서는 마우스 오른쪽 버튼으로 저장할 수 있습니다.</p><button class="secondary" type="button" data-migration-image-close>닫기</button></article>
+        <article><header><h3>Migration Applications</h3><button type="button" data-migration-image-close aria-label="닫기">×</button></header><div id="migrationImagePreview" class="migration-image-stage migration-image-preview" aria-live="polite"></div><p>명단이 길면 여러 장으로 나뉩니다. 각 이미지 아래의 PNG 다운로드 버튼을 사용할 수 있습니다.</p><button class="secondary" type="button" data-migration-image-close>닫기</button></article>
       </div>
       <div id="migrationConfirmModal" class="migration-confirm-modal" hidden></div>
       <div id="migrationImportModal" class="migration-import-modal" hidden></div>
@@ -445,12 +445,12 @@
 </div>
 <script src="../shared-header.js?v=3870"></script>
 <script src="../vehicle-power.js?v=2740"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <script src="../supabase-config.js?v=1530"></script><script src="../request/request-admin.js?v=1902"></script><script src="admin.js?v=3870"></script><script src="season6-manager.js?v=2740"></script><script src="accounts-manager.js?v=2780"></script>
 <script src="capital-war-manager.js?v=3490"></script>
 <script src="member-manager-v188.js?v=3870"></script>
 <script src="vote-manager.js?v=2160"></script>
 <script src="alliance-layout-manager.js?v=3810"></script>
-<script src="migration-manager.js?v=3940"></script>
+<script src="migration-manager.js?v=3950"></script>
 </body>
 </html>
