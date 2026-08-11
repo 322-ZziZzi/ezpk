@@ -151,6 +151,8 @@ export default {
 
         case "POST /api/migration/applications":
           return handleMigrationApplicationCreate(request, env);
+        case "GET /api/migration/status":
+          return handleMigrationStatusLookup(request, url, env);
 
         case "GET /api/public/strategy-access":
           return handlePublicStrategyAccess(env, url);
@@ -2563,6 +2565,7 @@ const MIGRATION_CONTACT_STATUSES = Object.freeze(["not_contacted","contacted"]);
 const MIGRATION_TIERS = Object.freeze(["gray","blue","purple","gold"]);
 const MIGRATION_RATE_LIMIT_WINDOW_MINUTES = 15;
 const MIGRATION_RATE_LIMIT_MAX_REQUESTS = 10;
+const MIGRATION_STATUS_RATE_LIMIT_MAX_REQUESTS = 30;
 
 function migrationPick(body, key, fallback) {
   return body && Object.prototype.hasOwnProperty.call(body, key) ? body[key] : fallback;
@@ -2710,6 +2713,24 @@ async function enforceMigrationRateLimit(request, env) {
   return null;
 }
 
+async function enforceMigrationStatusRateLimit(request, env) {
+  const rawIp = String(request.headers.get("CF-Connecting-IP") || "unknown").trim();
+  const salt = String(env.MIGRATION_RATE_LIMIT_SALT || env.PASSWORD_PEPPER || env.ADMIN_SETUP_KEY || "ezpk-migration-rate-v1");
+  const keyHash = await sha256Hex(`${salt}|status|${rawIp}`);
+  await env.DB.prepare("DELETE FROM migration_rate_limits WHERE datetime(updated_at) < datetime('now','-1 day')").run().catch(()=>{});
+  await env.DB.prepare(`INSERT INTO migration_rate_limits(key_hash,window_started_at,request_count,updated_at)
+    VALUES(?,CURRENT_TIMESTAMP,1,CURRENT_TIMESTAMP)
+    ON CONFLICT(key_hash) DO UPDATE SET
+      window_started_at=CASE WHEN datetime(migration_rate_limits.window_started_at) <= datetime('now','-${MIGRATION_RATE_LIMIT_WINDOW_MINUTES} minutes') THEN CURRENT_TIMESTAMP ELSE migration_rate_limits.window_started_at END,
+      request_count=CASE WHEN datetime(migration_rate_limits.window_started_at) <= datetime('now','-${MIGRATION_RATE_LIMIT_WINDOW_MINUTES} minutes') THEN 1 ELSE migration_rate_limits.request_count+1 END,
+      updated_at=CURRENT_TIMESTAMP`).bind(keyHash).run();
+  const state = await env.DB.prepare("SELECT request_count FROM migration_rate_limits WHERE key_hash=?").bind(keyHash).first();
+  if (Number(state?.request_count || 0) > MIGRATION_STATUS_RATE_LIMIT_MAX_REQUESTS) {
+    return jsonError("MIGRATION_STATUS_RATE_LIMITED", 429, { retryAfterSeconds: MIGRATION_RATE_LIMIT_WINDOW_MINUTES * 60 });
+  }
+  return null;
+}
+
 async function readMigrationJson(request) {
   const text = await request.text();
   if (new TextEncoder().encode(text).byteLength > 32768) {
@@ -2720,6 +2741,19 @@ async function readMigrationJson(request) {
   } catch {
     return { response: jsonError("INVALID_JSON", 400), value: null };
   }
+}
+
+async function handleMigrationStatusLookup(request, url, env) {
+  const authenticatedMember = await requireOptionalMember(request, env.DB);
+  if (authenticatedMember) return jsonError("MIGRATION_AUTHENTICATED_NOT_ALLOWED", 403);
+  const rateLimited = await enforceMigrationStatusRateLimit(request, env);
+  if (rateLimited) return rateLimited;
+  const uid = String(url.searchParams.get("uid") || "").trim();
+  if (!/^\d{16}$/.test(uid)) return jsonError("VALIDATION_ERROR", 400);
+  const row = await env.DB.prepare(`SELECT application_status,updated_at FROM migration_applications
+    WHERE game_uid=? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1`).bind(uid).first();
+  if (!row) return json({ok:true,data:{found:false}});
+  return json({ok:true,data:{found:true,applicationStatus:row.application_status,updatedAt:row.updated_at}});
 }
 
 async function handleMigrationApplicationCreate(request, env) {
@@ -2738,7 +2772,7 @@ async function handleMigrationApplicationCreate(request, env) {
   if (!payload) return jsonError("VALIDATION_ERROR", 400);
 
   const existing = await env.DB.prepare(`SELECT id FROM migration_applications
-    WHERE game_uid=? AND deleted_at IS NULL AND application_status IN ('received','reviewing','approved') LIMIT 1`)
+    WHERE game_uid=? AND deleted_at IS NULL LIMIT 1`)
     .bind(payload.gameUid).first();
   if (existing) return jsonError("MIGRATION_APPLICATION_EXISTS", 409);
 
@@ -2757,7 +2791,7 @@ async function handleMigrationApplicationCreate(request, env) {
     ).run();
     return json({ok:true,data:{applicationId:Number(result.meta?.last_row_id || 0) || null}},201);
   } catch (error) {
-    if (/UNIQUE constraint failed/i.test(String(error?.message || error))) {
+    if (isMigrationUidConflictError(error)) {
       return jsonError("MIGRATION_APPLICATION_EXISTS", 409);
     }
     throw error;
@@ -2812,12 +2846,15 @@ async function handleAdminMigrationDetail(request, id, env) {
   return json({ok:true,data:{application:migrationApplicationRow(row,true),history:(logs.results||[]).map(migrationHistoryRow),canEdit:admin.admin_level==='super',canDelete:admin.admin_level==='super'}});
 }
 
-async function ensureMigrationUidAvailableForStatus(db, row, nextStatus) {
-  if (!['received','reviewing','approved'].includes(nextStatus)) return true;
+async function ensureMigrationUidAvailable(db, row) {
   const conflict = await db.prepare(`SELECT id FROM migration_applications
-    WHERE game_uid=? AND id<>? AND deleted_at IS NULL AND application_status IN ('received','reviewing','approved') LIMIT 1`)
+    WHERE game_uid=? AND id<>? AND deleted_at IS NULL LIMIT 1`)
     .bind(row.game_uid,row.id).first();
   return !conflict;
+}
+
+function isMigrationUidConflictError(error) {
+  return /MIGRATION_APPLICATION_EXISTS|UNIQUE constraint failed/i.test(String(error?.message || error));
 }
 
 async function handleAdminMigrationStatus(request, id, env) {
@@ -2828,13 +2865,12 @@ async function handleAdminMigrationStatus(request, id, env) {
   if(!MIGRATION_APPLICATION_STATUSES.includes(status))return jsonError("VALIDATION_ERROR",400);
   const rejectionReason=status==='rejected'?cleanString(body.rejectionReason,2000):null;
   if(status==='rejected'&&!rejectionReason)return jsonError("MIGRATION_REJECTION_REASON_REQUIRED",400);
-  if(!(await ensureMigrationUidAvailableForStatus(env.DB,row,status)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);
   const before={applicationStatus:row.application_status,rejectionReason:row.rejection_reason};
   const after={applicationStatus:status,rejectionReason};
   if(before.applicationStatus===after.applicationStatus&&String(before.rejectionReason||'')===String(after.rejectionReason||''))return json({ok:true,data:{applicationStatus:status,rejectionReason}});
   try{
     await env.DB.prepare("UPDATE migration_applications SET application_status=?,rejection_reason=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(status,rejectionReason,id).run();
-  }catch(error){if(/UNIQUE constraint failed/i.test(String(error?.message||error)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
+  }catch(error){if(isMigrationUidConflictError(error))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
   await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_status_changed',targetType:'migration_application',targetId:id,targetName:row.player_name,before,after});
   return json({ok:true,data:{applicationStatus:status,rejectionReason}});
 }
@@ -2876,7 +2912,7 @@ async function handleAdminMigrationEdit(request,id,env){
   const parsedBody=await readMigrationJson(request);if(parsedBody.response)return parsedBody.response;
   const body=parsedBody.value,next=migrationPayloadFromRow(row,body);if(!next)return jsonError("VALIDATION_ERROR",400);
   if(next.gameUid!==row.game_uid){
-    const conflict=await env.DB.prepare(`SELECT id FROM migration_applications WHERE game_uid=? AND id<>? AND deleted_at IS NULL AND application_status IN ('received','reviewing','approved') LIMIT 1`).bind(next.gameUid,id).first();
+    const conflict=await env.DB.prepare(`SELECT id FROM migration_applications WHERE game_uid=? AND id<>? AND deleted_at IS NULL LIMIT 1`).bind(next.gameUid,id).first();
     if(conflict)return jsonError("MIGRATION_APPLICATION_EXISTS",409);
   }
   const before=migrationEditableSnapshot(migrationApplicationRow(row,true)),after=migrationEditableSnapshot(next);
@@ -2889,7 +2925,7 @@ async function handleAdminMigrationEdit(request,id,env){
       next.playerName,next.gameUid,next.discord,next.currentState,next.currentAlliance,next.vehicle1PowerValue,next.vehicle1PowerUnit,next.vehicle1PowerNormalized,
       next.vehicle2PowerValue,next.vehicle2PowerUnit,next.vehicle2PowerNormalized,next.industryLevel,next.spendingLevel,next.migrationTier,next.migrationReason,
       next.additionalNotes,next.migrationGroup,next.referrer,id).run();
-  }catch(error){if(/UNIQUE constraint failed/i.test(String(error?.message||error)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
+  }catch(error){if(isMigrationUidConflictError(error))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
   await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_content_edited',targetType:'migration_application',targetId:id,targetName:next.playerName,before:changedBefore,after:changedAfter});
   const saved=await loadMigrationApplication(env.DB,id);return json({ok:true,data:{application:migrationApplicationRow(saved,true)}});
 }
@@ -2905,9 +2941,9 @@ async function handleAdminMigrationDelete(request,id,env){
 async function handleAdminMigrationRestore(request,id,env){
   const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
   const row=await loadMigrationApplication(env.DB,id);if(!row)return jsonError("MIGRATION_APPLICATION_NOT_FOUND",404);if(!row.deleted_at)return json({ok:true,data:{restored:true}});
-  if(!(await ensureMigrationUidAvailableForStatus(env.DB,row,row.application_status)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);
+  if(!(await ensureMigrationUidAvailable(env.DB,row)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);
   try{await env.DB.prepare("UPDATE migration_applications SET deleted_at=NULL,deleted_by_member_id=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(id).run();}
-  catch(error){if(/UNIQUE constraint failed/i.test(String(error?.message||error)))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
+  catch(error){if(isMigrationUidConflictError(error))return jsonError("MIGRATION_APPLICATION_EXISTS",409);throw error;}
   await writeAdminLog(env,request,{actor:admin,category:'migration',action:'application_restored',targetType:'migration_application',targetId:id,targetName:row.player_name,before:{deleted:true},after:{applicationStatus:row.application_status,contactStatus:row.contact_status}});
   return json({ok:true,data:{restored:true}});
 }

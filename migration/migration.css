@@ -57,6 +57,24 @@
 .migration-success p{max-width:650px;margin:9px auto;color:#d6dce5;line-height:1.65}
 .migration-success-note{color:var(--migration-muted)!important}
 .migration-success-home{margin-top:24px;min-width:180px}
+
+.migration-status-lookup{margin-top:6px;padding:20px;border:1px solid rgba(216,177,91,.22);border-radius:14px;background:linear-gradient(145deg,rgba(216,177,91,.07),rgba(6,9,14,.42));display:grid;gap:14px}
+.migration-status-copy h3{margin:0 0 6px;font-size:1rem;color:#fff}
+.migration-status-copy p{margin:0;color:var(--migration-muted);font-size:.86rem;line-height:1.55}
+.migration-status-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.migration-status-input-wrap{display:grid;gap:8px;min-width:0}
+.migration-status-controls input{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.13);border-radius:12px;background:#090d14;color:#fff;padding:13px 14px;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.migration-status-controls input:focus{border-color:var(--migration-gold);box-shadow:0 0 0 3px rgba(216,177,91,.12)}
+.migration-status-controls input[aria-invalid="true"]{border-color:var(--migration-danger)}
+.migration-status-button{min-width:116px;align-self:start}
+.migration-status-message,.migration-status-result{border:1px solid rgba(255,255,255,.09);border-radius:12px;background:rgba(6,9,14,.55);padding:13px 14px;color:#dce2eb;font-size:.86rem;line-height:1.5}
+.migration-status-message.error{border-color:rgba(255,100,100,.3);color:#ffb0b0;background:rgba(150,20,20,.1)}
+.migration-status-result{display:grid;gap:7px}
+.migration-status-result p{margin:0;color:#e5e9ef}
+.migration-status-result small{color:var(--migration-muted)}
+.migration-status-badge{justify-self:start;display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;border:1px solid rgba(216,177,91,.4);background:rgba(216,177,91,.12);color:var(--migration-gold-bright);font-size:.8rem;font-weight:850}
+.migration-status-result.status-approved .migration-status-badge{border-color:rgba(116,224,154,.42);background:rgba(45,150,84,.14);color:#9eebba}
+.migration-status-result.status-rejected .migration-status-badge{border-color:rgba(255,120,120,.4);background:rgba(165,47,47,.14);color:#ffb0b0}
 .migration-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
 html[dir="rtl"] .migration-actions{flex-direction:row-reverse}
-@media(max-width:640px){.migration-main{width:min(100% - 20px,920px);padding:30px 0 56px}.migration-progress-header,.migration-step-body{padding-left:18px;padding-right:18px}.migration-actions{padding:18px}.migration-power-row{grid-template-columns:1fr}.migration-tier-grid,.migration-review-grid{grid-template-columns:1fr}.migration-review-row.full{grid-column:auto}.migration-segments{width:100%}.migration-segments button{flex:1}.migration-button{flex:1}.migration-success{padding:44px 20px}}
+@media(max-width:640px){.migration-status-controls{grid-template-columns:1fr}.migration-status-button{width:100%}.migration-main{width:min(100% - 20px,920px);padding:30px 0 56px}.migration-progress-header,.migration-step-body{padding-left:18px;padding-right:18px}.migration-actions{padding:18px}.migration-power-row{grid-template-columns:1fr}.migration-tier-grid,.migration-review-grid{grid-template-columns:1fr}.migration-review-row.full{grid-column:auto}.migration-segments{width:100%}.migration-segments button{flex:1}.migration-button{flex:1}.migration-success{padding:44px 20px}}
