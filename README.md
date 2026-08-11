@@ -446,3 +446,9 @@ Migration image export header cleanup: removed the visible sorting-description t
 - 선택 신청을 접수됨/검토 중/승인/거절로 대량 변경할 수 있으며 성공/실패 결과와 Audit 기록을 남깁니다.
 - 이미지 다운로드 표 시작 전에 특급/고급/중급/일반 인원 요약 바를 절제된 기존 UI 톤으로 추가했습니다.
 - 이미지/Excel의 기존 고정 내보내기 정렬, Excel Import v397 호환성, 기존 DB migrations는 유지합니다.
+
+
+## v400
+- 이미지 다운로드 상단 티어 인원 요약 바의 한국어 표기를 영문으로 수정했습니다.
+- 요약 라벨은 `Special / Advanced / Intermediate / Normal`을 사용하며, 인원 숫자 뒤의 한국어 `명` 표기는 제거했습니다.
+- 요약 집계, 티어 색상, 이미지 고정 정렬, 관리자 목록 정렬/대량 상태 변경, Excel Import 동작은 변경하지 않았습니다.
