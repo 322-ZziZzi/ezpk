@@ -2811,6 +2811,19 @@ const MIGRATION_IMPORT_TEMPLATE_VERSION = "EZPK Migration Import v1";
 const MIGRATION_IMPORT_MAX_ROWS = 500;
 const MIGRATION_IMPORT_MAX_JSON_BYTES = 6000000;
 
+async function migrationImportSchemaReady(db) {
+  try {
+    const info=await db.prepare("PRAGMA table_info(migration_applications)").all();
+    const columns=new Set((info.results||[]).map(r=>String(r.name||"")));
+    if(!columns.has("source")||!columns.has("import_batch_id"))return false;
+    const batchTable=await db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='migration_import_batches' LIMIT 1").first();
+    return Boolean(batchTable?.name);
+  } catch (error) {
+    console.error("[MIGRATION_IMPORT_SCHEMA_CHECK_FAILED]", error);
+    return false;
+  }
+}
+
 async function readMigrationImportJson(request) {
   const length = Number(request.headers.get("content-length") || "0");
   if (length > MIGRATION_IMPORT_MAX_JSON_BYTES) return { response: jsonError("PAYLOAD_TOO_LARGE", 413), value: null };
@@ -2916,7 +2929,10 @@ async function validateMigrationImportRows(db, rows, ignoreBatchId = null) {
   const existing=new Set();
   if(validUids.length){
     const q=validUids.map(()=>"?").join(",");
-    const found=await db.prepare(`SELECT game_uid,import_batch_id FROM migration_applications WHERE deleted_at IS NULL AND game_uid IN (${q})`).bind(...validUids).all();
+    const sql=ignoreBatchId==null
+      ? `SELECT game_uid FROM migration_applications WHERE deleted_at IS NULL AND game_uid IN (${q})`
+      : `SELECT game_uid,import_batch_id FROM migration_applications WHERE deleted_at IS NULL AND game_uid IN (${q})`;
+    const found=await db.prepare(sql).bind(...validUids).all();
     for(const r of found.results||[]){if(ignoreBatchId==null||Number(r.import_batch_id)!==Number(ignoreBatchId))existing.add(String(r.game_uid));}
   }
   for(const row of checked){
@@ -2956,17 +2972,41 @@ async function handleAdminMigrationImportPreview(request,env){
   const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
   const parsed=await readMigrationImportJson(request);if(parsed.response)return parsed.response;
   const meta=migrationImportMeta(parsed.value);if(!meta)return jsonError("MIGRATION_IMPORT_INVALID_META",400);
+  const schemaReady=await migrationImportSchemaReady(env.DB);
   const validated=await validateMigrationImportRows(env.DB,parsed.value.rows);if(validated.response)return validated.response;
-  return json({ok:true,data:{templateVersion:MIGRATION_IMPORT_TEMPLATE_VERSION,maxRows:MIGRATION_IMPORT_MAX_ROWS,summary:validated.value.summary,rows:validated.value.resultRows}});
+  return json({ok:true,data:{templateVersion:MIGRATION_IMPORT_TEMPLATE_VERSION,maxRows:MIGRATION_IMPORT_MAX_ROWS,schemaReady,importMode:schemaReady?'audited':'compatibility',summary:validated.value.summary,rows:validated.value.resultRows}});
 }
 
 async function handleAdminMigrationImportCommit(request,env){
   const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
   const parsed=await readMigrationImportJson(request);if(parsed.response)return parsed.response;
   const meta=migrationImportMeta(parsed.value);if(!meta)return jsonError("MIGRATION_IMPORT_INVALID_META",400);
+  const schemaReady=await migrationImportSchemaReady(env.DB);
+
+  // Compatibility mode keeps Excel import operational when v394 migration 0029
+  // was not applied before Worker deployment. It deliberately avoids runtime DDL,
+  // so the canonical migration can still be applied later without conflicts.
+  if(!schemaReady){
+    const validated=await validateMigrationImportRows(env.DB,parsed.value.rows);if(validated.response)return validated.response;
+    let imported=0,skipped=0,failed=0;
+    const results=[];
+    for(const row of validated.value.checked){
+      if(row.errors.length){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:row.errors});continue;}
+      const conflict=await env.DB.prepare("SELECT id FROM migration_applications WHERE game_uid=? AND deleted_at IS NULL LIMIT 1").bind(row.gameUid).first();
+      if(conflict){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 등록된 UID입니다. 기존 신청서를 유지하고 이 행은 등록에서 제외합니다."]});continue;}
+      const a=row.payload;
+      try{
+        const ins=await env.DB.prepare(`INSERT INTO migration_applications(player_name,game_uid,discord,current_state,current_alliance,vehicle1_power_value,vehicle1_power_unit,vehicle1_power_normalized,vehicle2_power_value,vehicle2_power_unit,vehicle2_power_normalized,industry_level,spending_level,migration_tier,migration_reason,additional_notes,migration_group,referrer,application_status,contact_status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'received','not_contacted')`).bind(a.playerName,a.gameUid,a.discord,a.currentState,a.currentAlliance,a.vehicle1PowerValue,a.vehicle1PowerUnit,a.vehicle1PowerNormalized,a.vehicle2PowerValue,a.vehicle2PowerUnit,a.vehicle2PowerNormalized,a.industryLevel,a.spendingLevel,a.migrationTier,a.migrationReason,a.additionalNotes,a.migrationGroup,a.referrer).run();
+        imported++;results.push({rowNumber:row.rowNumber,status:"imported",applicationId:Number(ins.meta?.last_row_id||0)||null});
+      }catch(error){if(isMigrationUidConflictError(error)){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 등록된 UID입니다. 기존 신청서를 유지하고 이 행은 등록에서 제외합니다."]});}else{console.error("[MIGRATION_IMPORT_COMPAT_ROW_FAILED]",row.rowNumber,error);failed++;results.push({rowNumber:row.rowNumber,status:"failed",errors:["등록 중 서버 오류가 발생했습니다."]});}}
+    }
+    await writeAdminLog(env,request,{actor:admin,category:'migration',action:'applications_excel_imported_compatibility',targetType:'migration_import',targetName:meta.fileName,after:{templateVersion:meta.templateVersion,fileSha256:meta.fileSha256,totalRows:validated.value.summary.total,importedRows:imported,skippedRows:skipped,failedRows:failed,importMode:'compatibility'}});
+    return json({ok:true,data:{batchId:null,replayed:false,importMode:'compatibility',schemaReady:false,summary:{total:validated.value.summary.total,ready:validated.value.summary.ready,imported,skipped,failed},rows:results}},201);
+  }
+
   const existingBatch=await env.DB.prepare("SELECT * FROM migration_import_batches WHERE idempotency_key=? LIMIT 1").bind(meta.idempotencyKey).first();
   if(existingBatch&&(existingBatch.file_sha256!==meta.fileSha256||existingBatch.template_version!==meta.templateVersion))return jsonError("MIGRATION_IMPORT_IDEMPOTENCY_CONFLICT",409);
-  if(existingBatch&&["committed","partial"].includes(existingBatch.status))return json({ok:true,data:{batchId:Number(existingBatch.id),replayed:true,summary:{total:Number(existingBatch.total_rows),ready:Number(existingBatch.ready_rows),imported:Number(existingBatch.imported_rows),skipped:Number(existingBatch.skipped_rows),failed:Number(existingBatch.failed_rows)}}});
+  if(existingBatch&&["committed","partial"].includes(existingBatch.status))return json({ok:true,data:{batchId:Number(existingBatch.id),replayed:true,importMode:'audited',schemaReady:true,summary:{total:Number(existingBatch.total_rows),ready:Number(existingBatch.ready_rows),imported:Number(existingBatch.imported_rows),skipped:Number(existingBatch.skipped_rows),failed:Number(existingBatch.failed_rows)}}});
   const validated=await validateMigrationImportRows(env.DB,parsed.value.rows,existingBatch?.id||null);if(validated.response)return validated.response;
   let batch=existingBatch;
   if(!batch){
@@ -2990,14 +3030,15 @@ async function handleAdminMigrationImportCommit(request,env){
   }
   const status=failed?"partial":"committed";
   await env.DB.prepare(`UPDATE migration_import_batches SET total_rows=?,ready_rows=?,imported_rows=?,skipped_rows=?,failed_rows=?,status=?,committed_at=CURRENT_TIMESTAMP WHERE id=?`).bind(validated.value.summary.total,validated.value.summary.ready,imported,skipped,failed,status,batch.id).run();
-  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'applications_excel_imported',targetType:'migration_import_batch',targetId:batch.id,targetName:meta.fileName,after:{templateVersion:meta.templateVersion,fileSha256:meta.fileSha256,totalRows:validated.value.summary.total,importedRows:imported,skippedRows:skipped,failedRows:failed}});
-  return json({ok:true,data:{batchId:Number(batch.id),replayed:false,summary:{total:validated.value.summary.total,ready:validated.value.summary.ready,imported,skipped,failed},rows:results}},201);
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'applications_excel_imported',targetType:'migration_import_batch',targetId:batch.id,targetName:meta.fileName,after:{templateVersion:meta.templateVersion,fileSha256:meta.fileSha256,totalRows:validated.value.summary.total,importedRows:imported,skippedRows:skipped,failedRows:failed,importMode:'audited'}});
+  return json({ok:true,data:{batchId:Number(batch.id),replayed:false,importMode:'audited',schemaReady:true,summary:{total:validated.value.summary.total,ready:validated.value.summary.ready,imported,skipped,failed},rows:results}},201);
 }
 
 async function handleAdminMigrationImportBatches(request,env){
   const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  if(!(await migrationImportSchemaReady(env.DB)))return json({ok:true,data:{items:[],schemaReady:false,importMode:'compatibility'}});
   const rows=await env.DB.prepare(`SELECT id,original_file_name,file_sha256,actor_nickname,total_rows,ready_rows,imported_rows,skipped_rows,failed_rows,status,created_at,committed_at FROM migration_import_batches ORDER BY id DESC LIMIT 20`).all();
-  return json({ok:true,data:{items:(rows.results||[]).map(r=>({id:Number(r.id),fileName:r.original_file_name,fileSha256:r.file_sha256,actorNickname:r.actor_nickname,total:Number(r.total_rows),ready:Number(r.ready_rows),imported:Number(r.imported_rows),skipped:Number(r.skipped_rows),failed:Number(r.failed_rows),status:r.status,createdAt:r.created_at,committedAt:r.committed_at}))}});
+  return json({ok:true,data:{items:(rows.results||[]).map(r=>({id:Number(r.id),fileName:r.original_file_name,fileSha256:r.file_sha256,actorNickname:r.actor_nickname,total:Number(r.total_rows),ready:Number(r.ready_rows),imported:Number(r.imported_rows),skipped:Number(r.skipped_rows),failed:Number(r.failed_rows),status:r.status,createdAt:r.created_at,committedAt:r.committed_at})),schemaReady:true,importMode:'audited'}});
 }
 
 async function handleAdminMigrationList(request, url, env) {
