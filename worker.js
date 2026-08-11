@@ -219,6 +219,12 @@ export default {
           return handleAdminMigrationList(request, url, env);
         case "GET /api/admin/migration/deleted":
           return handleAdminMigrationDeletedList(request, url, env);
+        case "POST /api/admin/migration/import/preview":
+          return handleAdminMigrationImportPreview(request, env);
+        case "POST /api/admin/migration/import/commit":
+          return handleAdminMigrationImportCommit(request, env);
+        case "GET /api/admin/migration/import/batches":
+          return handleAdminMigrationImportBatches(request, env);
         case "GET /api/admin/logs":
           return handleAdminLogs(request, url, env);
         case "GET /api/admin/my-permissions":
@@ -2674,6 +2680,8 @@ function migrationApplicationRow(row, full = true) {
     deletedAt: row.deleted_at,
     deletedByMemberId: row.deleted_by_member_id == null ? null : Number(row.deleted_by_member_id),
     deletedByNickname: row.deleted_by_nickname || null,
+    source: row.source || "public_form",
+    importBatchId: row.import_batch_id == null ? null : Number(row.import_batch_id),
   };
 }
 
@@ -2796,6 +2804,146 @@ async function handleMigrationApplicationCreate(request, env) {
     }
     throw error;
   }
+}
+
+
+const MIGRATION_IMPORT_TEMPLATE_VERSION = "EZPK Migration Import v1";
+const MIGRATION_IMPORT_MAX_ROWS = 500;
+const MIGRATION_IMPORT_MAX_JSON_BYTES = 6000000;
+
+async function readMigrationImportJson(request) {
+  const length = Number(request.headers.get("content-length") || "0");
+  if (length > MIGRATION_IMPORT_MAX_JSON_BYTES) return { response: jsonError("PAYLOAD_TOO_LARGE", 413), value: null };
+  const text = await request.text();
+  if (new TextEncoder().encode(text).byteLength > MIGRATION_IMPORT_MAX_JSON_BYTES) return { response: jsonError("PAYLOAD_TOO_LARGE", 413), value: null };
+  try { return { response: null, value: JSON.parse(text) }; }
+  catch { return { response: jsonError("INVALID_JSON", 400), value: null }; }
+}
+
+function migrationImportTier(value) {
+  const v=String(value??"").trim().toLowerCase();
+  const map={"일반":"gray","중급":"blue","고급":"purple","특급":"gold","normal":"gray","intermediate":"blue","advanced":"purple","special":"gold","gray":"gray","blue":"blue","purple":"purple","gold":"gold"};
+  return map[v] || "";
+}
+
+function migrationImportRowValidation(raw={}) {
+  const errors=[];
+  const rowNumber=Number(raw.rowNumber);
+  const playerName=cleanString(raw.playerName,64);
+  const gameUid=String(raw.gameUid??"").trim();
+  const discord=nullableCleanString(raw.discord,100);
+  const currentState=String(raw.currentState??"").trim();
+  const currentAlliance=nullableCleanString(raw.currentAlliance,64);
+  const vehicle1PowerValue=nullableVehiclePowerValue(raw.vehicle1PowerValue);
+  const vehicle1PowerUnit=nullableEnum(String(raw.vehicle1PowerUnit??"").trim().toUpperCase(),["M","G"]);
+  const rawV2Value=String(raw.vehicle2PowerValue??"").trim();
+  const rawV2Unit=String(raw.vehicle2PowerUnit??"").trim().toUpperCase();
+  const vehicle2PowerValue=rawV2Value===""?null:nullableVehiclePowerValue(raw.vehicle2PowerValue);
+  const vehicle2PowerUnit=rawV2Unit===""?null:nullableEnum(rawV2Unit,["M","G"]);
+  const industryLevel=Number(raw.industryLevel);
+  const spendingLevel=Number(raw.spendingLevel);
+  const migrationTier=migrationImportTier(raw.migrationTier);
+  const migrationReason=cleanString(raw.migrationReason,2000);
+  const additionalNotes=nullableCleanString(raw.additionalNotes,2000);
+  const migrationGroup=nullableCleanString(raw.migrationGroup,200);
+  const referrer=nullableCleanString(raw.referrer,64);
+
+  if(!Number.isInteger(rowNumber)||rowNumber<2) errors.push("행 번호가 올바르지 않습니다.");
+  if(!playerName) errors.push("게임 닉네임을 입력해 주세요.");
+  if(String(raw.uidCellType||"").toLowerCase()==="n") errors.push("UID 셀을 텍스트 형식으로 변경해 주세요.");
+  if(!/^\d{16}$/.test(gameUid)) errors.push("UID는 16자리 숫자여야 합니다.");
+  if(discord===INVALID) errors.push("Discord는 100자 이하로 입력해 주세요.");
+  if(!/^\d{1,9}$/.test(currentState)) errors.push("현재 서버는 숫자로 입력해 주세요.");
+  if(currentAlliance===INVALID) errors.push("현재 연맹은 64자 이하로 입력해 주세요.");
+  if(vehicle1PowerValue===null||vehicle1PowerValue===INVALID) errors.push("1번 차량 파워를 올바르게 입력해 주세요.");
+  if(vehicle1PowerUnit===null||vehicle1PowerUnit===INVALID) errors.push("1번 차량 단위는 M 또는 G여야 합니다.");
+  if(vehicle2PowerValue===INVALID||vehicle2PowerUnit===INVALID||(vehicle2PowerValue===null)!==(vehicle2PowerUnit===null)) errors.push("2번 차량 파워와 단위를 함께 올바르게 입력해 주세요.");
+  if(!Number.isInteger(industryLevel)||industryLevel<1||industryLevel>10) errors.push("산업 레벨은 1~10이어야 합니다.");
+  if(!Number.isInteger(spendingLevel)||spendingLevel<1||spendingLevel>10) errors.push("과금 타입은 1~10이어야 합니다.");
+  if(!migrationTier) errors.push("이민 등급은 일반/중급/고급/특급 중 하나여야 합니다.");
+  if(!migrationReason) errors.push("이민 신청 사유를 입력해 주세요.");
+  if(additionalNotes===INVALID) errors.push("추가 전달사항은 2000자 이하로 입력해 주세요.");
+  if(migrationGroup===INVALID) errors.push("함께 이민하는 그룹은 200자 이하로 입력해 주세요.");
+  if(referrer===INVALID) errors.push("추천인은 64자 이하로 입력해 주세요.");
+
+  const payload=errors.length?null:validateMigrationPayload({playerName,gameUid,discord,currentState,currentAlliance,vehicle1PowerValue,vehicle1PowerUnit,vehicle2PowerValue,vehicle2PowerUnit,industryLevel,spendingLevel,migrationTier,migrationReason,additionalNotes,migrationGroup,referrer});
+  if(!payload&&!errors.length) errors.push("입력 내용을 다시 확인해 주세요.");
+  return {rowNumber,playerName:playerName||String(raw.playerName??"").trim(),gameUid,payload,errors};
+}
+
+async function validateMigrationImportRows(db, rows, ignoreBatchId = null) {
+  if(!Array.isArray(rows)||rows.length<1||rows.length>MIGRATION_IMPORT_MAX_ROWS) return {response:jsonError("MIGRATION_IMPORT_ROW_LIMIT",400,{maxRows:MIGRATION_IMPORT_MAX_ROWS}),value:null};
+  const checked=rows.map(migrationImportRowValidation);
+  const uidCounts=new Map();
+  for(const row of checked){if(/^\d{16}$/.test(row.gameUid))uidCounts.set(row.gameUid,(uidCounts.get(row.gameUid)||0)+1);}
+  for(const row of checked){if((uidCounts.get(row.gameUid)||0)>1)row.errors.push("같은 파일 안에 동일 UID가 중복되어 있습니다.");}
+  const validUids=[...new Set(checked.filter(r=>!r.errors.length).map(r=>r.gameUid))];
+  const existing=new Set();
+  if(validUids.length){
+    const q=validUids.map(()=>"?").join(",");
+    const found=await db.prepare(`SELECT game_uid,import_batch_id FROM migration_applications WHERE deleted_at IS NULL AND game_uid IN (${q})`).bind(...validUids).all();
+    for(const r of found.results||[]){if(ignoreBatchId==null||Number(r.import_batch_id)!==Number(ignoreBatchId))existing.add(String(r.game_uid));}
+  }
+  for(const row of checked){if(!row.errors.length&&existing.has(row.gameUid))row.errors.push("이미 신청이 접수된 UID입니다.");}
+  const resultRows=checked.map(r=>({rowNumber:r.rowNumber,playerName:r.playerName,gameUid:r.gameUid,status:r.errors.length?(r.errors.some(e=>e.includes("중복")||e.includes("이미 신청"))?"duplicate":"invalid"):"ready",errors:r.errors}));
+  return {response:null,value:{checked,resultRows,summary:{total:checked.length,ready:resultRows.filter(r=>r.status==='ready').length,duplicate:resultRows.filter(r=>r.status==='duplicate').length,invalid:resultRows.filter(r=>r.status==='invalid').length}}};
+}
+
+function migrationImportMeta(body={}) {
+  const templateVersion=cleanString(body.templateVersion,64);
+  const fileName=cleanString(body.fileName,180);
+  const fileSha256=String(body.fileSha256||"").trim().toLowerCase();
+  const idempotencyKey=String(body.idempotencyKey||"").trim();
+  if(templateVersion!==MIGRATION_IMPORT_TEMPLATE_VERSION||!fileName||!/\.xlsx$/i.test(fileName)||/[\/\\\x00-\x1f]/.test(fileName)||!/^[a-f0-9]{64}$/.test(fileSha256)||!/^[A-Za-z0-9_-]{16,100}$/.test(idempotencyKey))return null;
+  return {templateVersion,fileName,fileSha256,idempotencyKey};
+}
+
+async function handleAdminMigrationImportPreview(request,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const parsed=await readMigrationImportJson(request);if(parsed.response)return parsed.response;
+  const meta=migrationImportMeta(parsed.value);if(!meta)return jsonError("MIGRATION_IMPORT_INVALID_META",400);
+  const validated=await validateMigrationImportRows(env.DB,parsed.value.rows);if(validated.response)return validated.response;
+  return json({ok:true,data:{templateVersion:MIGRATION_IMPORT_TEMPLATE_VERSION,maxRows:MIGRATION_IMPORT_MAX_ROWS,summary:validated.value.summary,rows:validated.value.resultRows}});
+}
+
+async function handleAdminMigrationImportCommit(request,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const parsed=await readMigrationImportJson(request);if(parsed.response)return parsed.response;
+  const meta=migrationImportMeta(parsed.value);if(!meta)return jsonError("MIGRATION_IMPORT_INVALID_META",400);
+  const existingBatch=await env.DB.prepare("SELECT * FROM migration_import_batches WHERE idempotency_key=? LIMIT 1").bind(meta.idempotencyKey).first();
+  if(existingBatch&&(existingBatch.file_sha256!==meta.fileSha256||existingBatch.template_version!==meta.templateVersion))return jsonError("MIGRATION_IMPORT_IDEMPOTENCY_CONFLICT",409);
+  if(existingBatch&&["committed","partial"].includes(existingBatch.status))return json({ok:true,data:{batchId:Number(existingBatch.id),replayed:true,summary:{total:Number(existingBatch.total_rows),ready:Number(existingBatch.ready_rows),imported:Number(existingBatch.imported_rows),skipped:Number(existingBatch.skipped_rows),failed:Number(existingBatch.failed_rows)}}});
+  const validated=await validateMigrationImportRows(env.DB,parsed.value.rows,existingBatch?.id||null);if(validated.response)return validated.response;
+  let batch=existingBatch;
+  if(!batch){
+    const created=await env.DB.prepare(`INSERT INTO migration_import_batches(idempotency_key,template_version,original_file_name,file_sha256,actor_member_id,actor_nickname,total_rows,ready_rows,status) VALUES(?,?,?,?,?,?,?,?, 'processing')`).bind(meta.idempotencyKey,meta.templateVersion,meta.fileName,meta.fileSha256,admin.id,admin.nickname,validated.value.summary.total,validated.value.summary.ready).run();
+    batch=await env.DB.prepare("SELECT * FROM migration_import_batches WHERE id=?").bind(Number(created.meta?.last_row_id||0)).first();
+  }
+  if(!batch)return jsonError("INTERNAL_ERROR",500);
+  let imported=0,skipped=0,failed=0;
+  const results=[];
+  for(const row of validated.value.checked){
+    if(row.errors.length){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:row.errors});continue;}
+    const sameBatch=await env.DB.prepare("SELECT id FROM migration_applications WHERE game_uid=? AND import_batch_id=? LIMIT 1").bind(row.gameUid,batch.id).first();
+    if(sameBatch){imported++;results.push({rowNumber:row.rowNumber,status:"imported",applicationId:Number(sameBatch.id),replayed:true});continue;}
+    const conflict=await env.DB.prepare("SELECT id FROM migration_applications WHERE game_uid=? AND deleted_at IS NULL LIMIT 1").bind(row.gameUid).first();
+    if(conflict){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 신청이 접수된 UID입니다."]});continue;}
+    const a=row.payload;
+    try{
+      const ins=await env.DB.prepare(`INSERT INTO migration_applications(player_name,game_uid,discord,current_state,current_alliance,vehicle1_power_value,vehicle1_power_unit,vehicle1_power_normalized,vehicle2_power_value,vehicle2_power_unit,vehicle2_power_normalized,industry_level,spending_level,migration_tier,migration_reason,additional_notes,migration_group,referrer,application_status,contact_status,source,import_batch_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'received','not_contacted','admin_excel_import',?)`).bind(a.playerName,a.gameUid,a.discord,a.currentState,a.currentAlliance,a.vehicle1PowerValue,a.vehicle1PowerUnit,a.vehicle1PowerNormalized,a.vehicle2PowerValue,a.vehicle2PowerUnit,a.vehicle2PowerNormalized,a.industryLevel,a.spendingLevel,a.migrationTier,a.migrationReason,a.additionalNotes,a.migrationGroup,a.referrer,batch.id).run();
+      imported++;results.push({rowNumber:row.rowNumber,status:"imported",applicationId:Number(ins.meta?.last_row_id||0)||null});
+    }catch(error){if(isMigrationUidConflictError(error)){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 신청이 접수된 UID입니다."]});}else{failed++;results.push({rowNumber:row.rowNumber,status:"failed",errors:["등록 중 서버 오류가 발생했습니다."]});}}
+  }
+  const status=failed?"partial":"committed";
+  await env.DB.prepare(`UPDATE migration_import_batches SET total_rows=?,ready_rows=?,imported_rows=?,skipped_rows=?,failed_rows=?,status=?,committed_at=CURRENT_TIMESTAMP WHERE id=?`).bind(validated.value.summary.total,validated.value.summary.ready,imported,skipped,failed,status,batch.id).run();
+  await writeAdminLog(env,request,{actor:admin,category:'migration',action:'applications_excel_imported',targetType:'migration_import_batch',targetId:batch.id,targetName:meta.fileName,after:{templateVersion:meta.templateVersion,fileSha256:meta.fileSha256,totalRows:validated.value.summary.total,importedRows:imported,skippedRows:skipped,failedRows:failed}});
+  return json({ok:true,data:{batchId:Number(batch.id),replayed:false,summary:{total:validated.value.summary.total,ready:validated.value.summary.ready,imported,skipped,failed},rows:results}},201);
+}
+
+async function handleAdminMigrationImportBatches(request,env){
+  const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
+  const rows=await env.DB.prepare(`SELECT id,original_file_name,file_sha256,actor_nickname,total_rows,ready_rows,imported_rows,skipped_rows,failed_rows,status,created_at,committed_at FROM migration_import_batches ORDER BY id DESC LIMIT 20`).all();
+  return json({ok:true,data:{items:(rows.results||[]).map(r=>({id:Number(r.id),fileName:r.original_file_name,fileSha256:r.file_sha256,actorNickname:r.actor_nickname,total:Number(r.total_rows),ready:Number(r.ready_rows),imported:Number(r.imported_rows),skipped:Number(r.skipped_rows),failed:Number(r.failed_rows),status:r.status,createdAt:r.created_at,committedAt:r.committed_at}))}});
 }
 
 async function handleAdminMigrationList(request, url, env) {

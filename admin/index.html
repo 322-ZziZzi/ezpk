@@ -365,6 +365,8 @@
         <div class="admin-page-heading"><h2>이민 신청 관리</h2><p>접수된 이민 신청을 확인하고 처리합니다.</p></div>
         <div class="admin-page-actions migration-export-actions">
           <button id="migrationExcelExport" class="secondary" type="button">엑셀 내보내기</button>
+          <button id="migrationImportTemplate" class="secondary" type="button" hidden>업로드 양식 다운로드</button>
+          <button id="migrationExcelImport" class="primary" type="button" hidden>엑셀 업로드</button>
           <button id="migrationImageDownload" class="secondary" type="button">이미지 다운로드</button>
           <button id="migrationDeletedOpen" class="secondary" type="button" hidden>삭제된 신청</button>
         </div>
@@ -389,6 +391,7 @@
         <article><header><h3>Migration Applications</h3><button type="button" data-migration-image-close aria-label="닫기">×</button></header><div class="migration-image-stage"><img id="migrationImagePreview" alt="EZPK Migration Applications"></div><p>모바일에서는 이미지를 길게 눌러 저장하고, PC에서는 마우스 오른쪽 버튼으로 저장할 수 있습니다.</p><button class="secondary" type="button" data-migration-image-close>닫기</button></article>
       </div>
       <div id="migrationConfirmModal" class="migration-confirm-modal" hidden></div>
+      <div id="migrationImportModal" class="migration-import-modal" hidden></div>
     </div>
 
     <div id="requestsPanel" class="admin-panel">
@@ -448,6 +451,6 @@
 <script src="member-manager-v188.js?v=3870"></script>
 <script src="vote-manager.js?v=2160"></script>
 <script src="alliance-layout-manager.js?v=3810"></script>
-<script src="migration-manager.js?v=3870"></script>
+<script src="migration-manager.js?v=3940"></script>
 </body>
 </html>
