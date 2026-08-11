@@ -2826,20 +2826,36 @@ function migrationImportTier(value) {
   return map[v] || "";
 }
 
+function migrationImportVehiclePowerValue(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  // Excel numeric cells can surface harmless binary floating-point tails (e.g. 362.229999999).
+  // Normalize numeric cells to the same maximum two-decimal precision used by the form.
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value <= 0) return INVALID;
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  }
+  return nullableVehiclePowerValue(value);
+}
+
 function migrationImportRowValidation(raw={}) {
   const errors=[];
+  const notices=[];
   const rowNumber=Number(raw.rowNumber);
   const playerName=cleanString(raw.playerName,64);
   const gameUid=String(raw.gameUid??"").trim();
   const discord=nullableCleanString(raw.discord,100);
   const currentState=String(raw.currentState??"").trim();
   const currentAlliance=nullableCleanString(raw.currentAlliance,64);
-  const vehicle1PowerValue=nullableVehiclePowerValue(raw.vehicle1PowerValue);
-  const vehicle1PowerUnit=nullableEnum(String(raw.vehicle1PowerUnit??"").trim().toUpperCase(),["M","G"]);
+  const rawV1Value=String(raw.vehicle1PowerValue??"").trim();
+  const rawV1Unit=String(raw.vehicle1PowerUnit??"").trim().toUpperCase();
+  const vehicle1PowerValue=migrationImportVehiclePowerValue(raw.vehicle1PowerValue);
+  const vehicle1PowerUnit=rawV1Unit===""?null:nullableEnum(rawV1Unit,["M","G"]);
   const rawV2Value=String(raw.vehicle2PowerValue??"").trim();
   const rawV2Unit=String(raw.vehicle2PowerUnit??"").trim().toUpperCase();
-  const vehicle2PowerValue=rawV2Value===""?null:nullableVehiclePowerValue(raw.vehicle2PowerValue);
-  const vehicle2PowerUnit=rawV2Unit===""?null:nullableEnum(rawV2Unit,["M","G"]);
+  const vehicle2PowerValue=rawV2Value===""?null:migrationImportVehiclePowerValue(raw.vehicle2PowerValue);
+  // Optional vehicle 2: if power is blank, any pre-filled unit in Excel is ignored.
+  const vehicle2PowerUnit=rawV2Value===""?null:(rawV2Unit===""?null:nullableEnum(rawV2Unit,["M","G"]));
+  if(rawV2Value===""&&rawV2Unit!=="") notices.push("2번 차량 파워가 비어 있어 단위 값은 무시됩니다.");
   const industryLevel=Number(raw.industryLevel);
   const spendingLevel=Number(raw.spendingLevel);
   const migrationTier=migrationImportTier(raw.migrationTier);
@@ -2850,17 +2866,24 @@ function migrationImportRowValidation(raw={}) {
 
   if(!Number.isInteger(rowNumber)||rowNumber<2) errors.push("행 번호가 올바르지 않습니다.");
   if(!playerName) errors.push("게임 닉네임을 입력해 주세요.");
-  if(String(raw.uidCellType||"").toLowerCase()==="n") errors.push("UID 셀을 텍스트 형식으로 변경해 주세요.");
-  if(!/^\d{16}$/.test(gameUid)) errors.push("UID는 16자리 숫자여야 합니다.");
+  if(String(raw.uidCellType||"").toLowerCase()==="n") errors.push("UID 셀이 숫자 형식입니다. 16자리 UID 손상을 방지하려면 텍스트 형식으로 입력해 주세요.");
+  if(!gameUid) errors.push("UID를 입력해 주세요.");
+  else if(!/^\d+$/.test(gameUid)) errors.push("UID에는 숫자만 입력할 수 있습니다.");
+  else if(gameUid.length!==16) errors.push(`UID는 16자리 숫자여야 합니다. 현재 ${gameUid.length}자리입니다.`);
   if(discord===INVALID) errors.push("Discord는 100자 이하로 입력해 주세요.");
-  if(!/^\d{1,9}$/.test(currentState)) errors.push("현재 서버는 숫자로 입력해 주세요.");
+  if(!currentState) errors.push("현재 서버를 입력해 주세요.");
+  else if(!/^\d{1,9}$/.test(currentState)) errors.push("현재 서버는 숫자로 입력해 주세요.");
   if(currentAlliance===INVALID) errors.push("현재 연맹은 64자 이하로 입력해 주세요.");
-  if(vehicle1PowerValue===null||vehicle1PowerValue===INVALID) errors.push("1번 차량 파워를 올바르게 입력해 주세요.");
-  if(vehicle1PowerUnit===null||vehicle1PowerUnit===INVALID) errors.push("1번 차량 단위는 M 또는 G여야 합니다.");
-  if(vehicle2PowerValue===INVALID||vehicle2PowerUnit===INVALID||(vehicle2PowerValue===null)!==(vehicle2PowerUnit===null)) errors.push("2번 차량 파워와 단위를 함께 올바르게 입력해 주세요.");
-  if(!Number.isInteger(industryLevel)||industryLevel<1||industryLevel>10) errors.push("산업 레벨은 1~10이어야 합니다.");
-  if(!Number.isInteger(spendingLevel)||spendingLevel<1||spendingLevel>10) errors.push("과금 타입은 1~10이어야 합니다.");
-  if(!migrationTier) errors.push("이민 등급은 일반/중급/고급/특급 중 하나여야 합니다.");
+  if(rawV1Value==="") errors.push("1번 차량 파워를 입력해 주세요.");
+  else if(vehicle1PowerValue===INVALID) errors.push("1번 차량 파워는 0보다 큰 숫자로 소수점 둘째 자리까지 입력해 주세요.");
+  if(rawV1Unit==="") errors.push("1번 차량 파워의 단위를 M 또는 G로 선택해 주세요.");
+  else if(vehicle1PowerUnit===INVALID) errors.push("1번 차량 단위는 M 또는 G여야 합니다.");
+  if(rawV2Value!==""&&vehicle2PowerValue===INVALID) errors.push("2번 차량 파워는 0보다 큰 숫자로 소수점 둘째 자리까지 입력해 주세요.");
+  if(rawV2Value!==""&&rawV2Unit==="") errors.push("2번 차량 파워의 단위를 M 또는 G로 선택해 주세요.");
+  else if(rawV2Value!==""&&vehicle2PowerUnit===INVALID) errors.push("2번 차량 단위는 M 또는 G여야 합니다.");
+  if(!Number.isInteger(industryLevel)||industryLevel<1||industryLevel>10) errors.push("산업 레벨은 1~10 사이의 숫자여야 합니다.");
+  if(!Number.isInteger(spendingLevel)||spendingLevel<1||spendingLevel>10) errors.push("과금 타입은 1~10 사이의 숫자여야 합니다.");
+  if(!migrationTier) errors.push("이민 등급은 일반 / 중급 / 고급 / 특급 중 하나여야 합니다.");
   if(!migrationReason) errors.push("이민 신청 사유를 입력해 주세요.");
   if(additionalNotes===INVALID) errors.push("추가 전달사항은 2000자 이하로 입력해 주세요.");
   if(migrationGroup===INVALID) errors.push("함께 이민하는 그룹은 200자 이하로 입력해 주세요.");
@@ -2868,15 +2891,27 @@ function migrationImportRowValidation(raw={}) {
 
   const payload=errors.length?null:validateMigrationPayload({playerName,gameUid,discord,currentState,currentAlliance,vehicle1PowerValue,vehicle1PowerUnit,vehicle2PowerValue,vehicle2PowerUnit,industryLevel,spendingLevel,migrationTier,migrationReason,additionalNotes,migrationGroup,referrer});
   if(!payload&&!errors.length) errors.push("입력 내용을 다시 확인해 주세요.");
-  return {rowNumber,playerName:playerName||String(raw.playerName??"").trim(),gameUid,payload,errors};
+  return {rowNumber,playerName:playerName||String(raw.playerName??"").trim(),gameUid,payload,errors,notices,exclusionType:null};
 }
 
 async function validateMigrationImportRows(db, rows, ignoreBatchId = null) {
   if(!Array.isArray(rows)||rows.length<1||rows.length>MIGRATION_IMPORT_MAX_ROWS) return {response:jsonError("MIGRATION_IMPORT_ROW_LIMIT",400,{maxRows:MIGRATION_IMPORT_MAX_ROWS}),value:null};
   const checked=rows.map(migrationImportRowValidation);
-  const uidCounts=new Map();
-  for(const row of checked){if(/^\d{16}$/.test(row.gameUid))uidCounts.set(row.gameUid,(uidCounts.get(row.gameUid)||0)+1);}
-  for(const row of checked){if((uidCounts.get(row.gameUid)||0)>1)row.errors.push("같은 파일 안에 동일 UID가 중복되어 있습니다.");}
+  const uidRows=new Map();
+  for(const row of checked){
+    if(/^\d{16}$/.test(row.gameUid)){
+      const list=uidRows.get(row.gameUid)||[];
+      list.push(row.rowNumber);
+      uidRows.set(row.gameUid,list);
+    }
+  }
+  for(const row of checked){
+    const duplicateRows=uidRows.get(row.gameUid)||[];
+    if(duplicateRows.length>1){
+      row.exclusionType="file_duplicate";
+      row.errors.push(`파일 내 동일 UID가 ${duplicateRows.length}건 있습니다. 중복된 모든 행은 등록에서 제외됩니다. (${duplicateRows.map(n=>`${n}행`).join(", ")})`);
+    }
+  }
   const validUids=[...new Set(checked.filter(r=>!r.errors.length).map(r=>r.gameUid))];
   const existing=new Set();
   if(validUids.length){
@@ -2884,9 +2919,28 @@ async function validateMigrationImportRows(db, rows, ignoreBatchId = null) {
     const found=await db.prepare(`SELECT game_uid,import_batch_id FROM migration_applications WHERE deleted_at IS NULL AND game_uid IN (${q})`).bind(...validUids).all();
     for(const r of found.results||[]){if(ignoreBatchId==null||Number(r.import_batch_id)!==Number(ignoreBatchId))existing.add(String(r.game_uid));}
   }
-  for(const row of checked){if(!row.errors.length&&existing.has(row.gameUid))row.errors.push("이미 신청이 접수된 UID입니다.");}
-  const resultRows=checked.map(r=>({rowNumber:r.rowNumber,playerName:r.playerName,gameUid:r.gameUid,status:r.errors.length?(r.errors.some(e=>e.includes("중복")||e.includes("이미 신청"))?"duplicate":"invalid"):"ready",errors:r.errors}));
-  return {response:null,value:{checked,resultRows,summary:{total:checked.length,ready:resultRows.filter(r=>r.status==='ready').length,duplicate:resultRows.filter(r=>r.status==='duplicate').length,invalid:resultRows.filter(r=>r.status==='invalid').length}}};
+  for(const row of checked){
+    if(!row.errors.length&&existing.has(row.gameUid)){
+      row.exclusionType="existing";
+      row.errors.push("이미 등록된 UID입니다. 기존 신청서를 유지하고 이 행은 등록에서 제외합니다.");
+    }
+  }
+  const resultRows=checked.map(r=>{
+    let status="ready";
+    if(r.exclusionType==="file_duplicate")status="file_duplicate";
+    else if(r.exclusionType==="existing")status="existing";
+    else if(r.errors.length)status="invalid";
+    return {rowNumber:r.rowNumber,playerName:r.playerName,gameUid:r.gameUid,status,errors:r.errors,notices:r.notices};
+  });
+  const summary={
+    total:checked.length,
+    ready:resultRows.filter(r=>r.status==='ready').length,
+    existing:resultRows.filter(r=>r.status==='existing').length,
+    fileDuplicate:resultRows.filter(r=>r.status==='file_duplicate').length,
+    invalid:resultRows.filter(r=>r.status==='invalid').length,
+  };
+  summary.duplicate=summary.existing+summary.fileDuplicate;
+  return {response:null,value:{checked,resultRows,summary}};
 }
 
 function migrationImportMeta(body={}) {
@@ -2927,12 +2981,12 @@ async function handleAdminMigrationImportCommit(request,env){
     const sameBatch=await env.DB.prepare("SELECT id FROM migration_applications WHERE game_uid=? AND import_batch_id=? LIMIT 1").bind(row.gameUid,batch.id).first();
     if(sameBatch){imported++;results.push({rowNumber:row.rowNumber,status:"imported",applicationId:Number(sameBatch.id),replayed:true});continue;}
     const conflict=await env.DB.prepare("SELECT id FROM migration_applications WHERE game_uid=? AND deleted_at IS NULL LIMIT 1").bind(row.gameUid).first();
-    if(conflict){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 신청이 접수된 UID입니다."]});continue;}
+    if(conflict){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 등록된 UID입니다. 기존 신청서를 유지하고 이 행은 등록에서 제외합니다."]});continue;}
     const a=row.payload;
     try{
       const ins=await env.DB.prepare(`INSERT INTO migration_applications(player_name,game_uid,discord,current_state,current_alliance,vehicle1_power_value,vehicle1_power_unit,vehicle1_power_normalized,vehicle2_power_value,vehicle2_power_unit,vehicle2_power_normalized,industry_level,spending_level,migration_tier,migration_reason,additional_notes,migration_group,referrer,application_status,contact_status,source,import_batch_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'received','not_contacted','admin_excel_import',?)`).bind(a.playerName,a.gameUid,a.discord,a.currentState,a.currentAlliance,a.vehicle1PowerValue,a.vehicle1PowerUnit,a.vehicle1PowerNormalized,a.vehicle2PowerValue,a.vehicle2PowerUnit,a.vehicle2PowerNormalized,a.industryLevel,a.spendingLevel,a.migrationTier,a.migrationReason,a.additionalNotes,a.migrationGroup,a.referrer,batch.id).run();
       imported++;results.push({rowNumber:row.rowNumber,status:"imported",applicationId:Number(ins.meta?.last_row_id||0)||null});
-    }catch(error){if(isMigrationUidConflictError(error)){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 신청이 접수된 UID입니다."]});}else{failed++;results.push({rowNumber:row.rowNumber,status:"failed",errors:["등록 중 서버 오류가 발생했습니다."]});}}
+    }catch(error){if(isMigrationUidConflictError(error)){skipped++;results.push({rowNumber:row.rowNumber,status:"skipped",errors:["이미 등록된 UID입니다. 기존 신청서를 유지하고 이 행은 등록에서 제외합니다."]});}else{failed++;results.push({rowNumber:row.rowNumber,status:"failed",errors:["등록 중 서버 오류가 발생했습니다."]});}}
   }
   const status=failed?"partial":"committed";
   await env.DB.prepare(`UPDATE migration_import_batches SET total_rows=?,ready_rows=?,imported_rows=?,skipped_rows=?,failed_rows=?,status=?,committed_at=CURRENT_TIMESTAMP WHERE id=?`).bind(validated.value.summary.total,validated.value.summary.ready,imported,skipped,failed,status,batch.id).run();
