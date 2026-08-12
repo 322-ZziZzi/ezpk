@@ -1,0 +1,98 @@
+{
+  "html_pages": 27,
+  "theme_bootstrap": 27,
+  "theme_stylesheet_v407": 27,
+  "shared_header_pages": 24,
+  "shared_header_v408": 24,
+  "css_files": 37,
+  "css_parse_errors": [],
+  "local_asset_refs": {
+    "checked": 312,
+    "missing": 0,
+    "missing_items": []
+  },
+  "migration_count": 30,
+  "latest_migration": "0031_v405_migration_inquiry_soft_delete.sql",
+  "migration_deltas_vs_v407": [],
+  "fresh_sqlite_cycles": [
+    {
+      "cycle": 1,
+      "pass": true,
+      "error": ""
+    },
+    {
+      "cycle": 2,
+      "pass": true,
+      "error": ""
+    }
+  ],
+  "ezpk_theme_v407_exact": true,
+  "style_css_v407_exact": true,
+  "signup_css_v407_exact": true,
+  "source_delta_vs_v407": {
+    "changed_count": 34,
+    "added_count": 5,
+    "removed_count": 0,
+    "changed": [
+      "accounts/index.html",
+      "admin/index.html",
+      "alliance-layout/index.html",
+      "bgb/index.html",
+      "capital-war/index.html",
+      "drone-hunter/index.html",
+      "game/index.html",
+      "gateway/gateway.css",
+      "gateway/gateway.js",
+      "gateway/index.html",
+      "hero-merge/index.html",
+      "index.html",
+      "logo/index.html",
+      "members/index.html",
+      "migration/index.html",
+      "migration/migration.css",
+      "migration/migration.js",
+      "missile-defense/index.html",
+      "my/index.html",
+      "package-lock.json",
+      "package.json",
+      "portal-escape/index.html",
+      "request/index.html",
+      "season5/index.html",
+      "season6/index.html",
+      "shared-header.js",
+      "signup/index.html",
+      "tank-battle/index.html",
+      "tip/index.html",
+      "treasure-hunter/index.html",
+      "vote/index.html",
+      "worker.js",
+      "wrangler.jsonc",
+      "zombie-defense/index.html"
+    ],
+    "added": [
+      "V408_DEPLOY_READY_RUNBOOK.md",
+      "V408_GATEWAY_MIGRATION_INTAKE_UX_VERIFICATION.md",
+      "V408_VALIDATION.json",
+      "scripts/v408-deploy-guard.mjs",
+      "shared-migration-entry.js"
+    ],
+    "removed": []
+  },
+  "status": "PASS",
+  "failures": [],
+  "js_mjs_syntax": "53/53 PASS",
+  "deploy_guard": "PASS",
+  "worker_feature_gate_probe": {
+    "site_context": {
+      "ezpk1": true,
+      "ezpk2": false,
+      "root": true
+    },
+    "ezpk2_public_application_create": "403 MIGRATION_INTAKE_DISABLED PASS",
+    "ezpk2_admin_import_commit": "403 MIGRATION_INTAKE_DISABLED PASS"
+  },
+  "package_version": "4.0.8",
+  "db_schema_change": "NONE; latest remains 0031_v405_migration_inquiry_soft_delete.sql",
+  "wrangler_dry_run": "REQUIRED ON OPERATOR MACHINE; on-demand build-container invocation timed out before completion",
+  "production_visual_smoke": "REQUIRED AFTER DEPLOYMENT"
+}

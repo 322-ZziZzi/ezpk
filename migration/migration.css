@@ -1,7 +1,8 @@
 :root{--migration-gold:#d8b15b;--migration-gold-bright:#f4d483;--migration-panel:#0d1119;--migration-panel-2:#131925;--migration-border:rgba(216,177,91,.28);--migration-text:#f4f6fb;--migration-muted:#9ca7b8;--migration-danger:#ff8d8d}
 .migration-auth-pending .migration-main{visibility:hidden}
-.migration-main{width:min(920px,calc(100% - 32px));margin:0 auto;padding:54px 0 80px;color:var(--migration-text)}
-.migration-hero{margin:0 auto 32px;max-width:760px}
+.migration-main{width:min(920px,calc(100% - 32px));margin:0 auto;padding:42px 0 72px;color:var(--migration-text)}
+.migration-hero{margin:0 auto 28px;max-width:760px;padding:0}
+.migration-shell{padding:0}
 .migration-shell,.migration-success{background:linear-gradient(145deg,rgba(19,25,37,.97),rgba(9,12,18,.98));border:1px solid var(--migration-border);border-radius:20px;box-shadow:0 20px 70px rgba(0,0,0,.35);overflow:hidden}
 .migration-progress-header{padding:26px 30px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
 .migration-step-counter{display:block;color:var(--migration-gold);font-size:.82rem;font-weight:800;margin-bottom:7px}
@@ -74,13 +75,20 @@
 .migration-status-result.status-rejected .migration-status-badge{border-color:rgba(255,120,120,.4);background:rgba(165,47,47,.14);color:#ffb0b0}
 .migration-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
 html[dir="rtl"] .migration-actions{flex-direction:row-reverse}
-@media(max-width:640px){.migration-status-controls{grid-template-columns:1fr}.migration-status-button{width:100%}.migration-main{width:min(100% - 20px,920px);padding:30px 0 56px}.migration-progress-header,.migration-step-body{padding-left:18px;padding-right:18px}.migration-actions{padding:18px}.migration-power-row{grid-template-columns:1fr}.migration-tier-grid,.migration-review-grid{grid-template-columns:1fr}.migration-review-row.full{grid-column:auto}.migration-segments{width:100%}.migration-segments button{flex:1}.migration-button{flex:1}.migration-success{padding:44px 20px}}
+@media(max-width:640px){.migration-status-controls{grid-template-columns:1fr}.migration-status-button{width:100%}.migration-main{width:min(100% - 20px,920px);padding:28px 0 52px}.migration-hero{padding:0;margin-bottom:22px}.migration-shell{padding:0}.migration-progress-header,.migration-step-body{padding-left:18px;padding-right:18px}.migration-actions{padding:18px}.migration-power-row{grid-template-columns:1fr}.migration-tier-grid,.migration-review-grid{grid-template-columns:1fr}.migration-review-row.full{grid-column:auto}.migration-segments{width:100%}.migration-segments button{flex:1}.migration-button{flex:1}.migration-success{padding:44px 20px}}
 
 /* v401: shared eligibility + status/inquiry components */
-.migration-eligibility{margin:0 0 22px;padding:22px;border:1px solid rgba(216,177,91,.24);border-radius:18px;background:linear-gradient(145deg,rgba(19,25,37,.9),rgba(9,12,18,.94));box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.migration-eligibility{margin:0 0 22px;padding:26px 30px;border:1px solid rgba(216,177,91,.24);border-radius:18px;background:linear-gradient(145deg,rgba(19,25,37,.9),rgba(9,12,18,.94));box-shadow:0 12px 40px rgba(0,0,0,.18)}
 .migration-eligibility-head>span{display:block;color:var(--migration-gold);font-size:.72rem;font-weight:850;letter-spacing:.13em;margin-bottom:7px}.migration-eligibility-head h2{margin:0;font-size:1.28rem}.migration-eligibility-head p{margin:8px 0 0;color:var(--migration-muted);line-height:1.6}
-.migration-eligibility-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:17px}.migration-eligibility-rule{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:13px 14px;background:rgba(6,9,14,.45)}.migration-eligibility-rule span{color:var(--migration-muted);font-size:.86rem}.migration-eligibility-rule strong{font-size:1.05rem;color:var(--migration-gold-bright)}
-.migration-ezpk2-cta{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}.migration-ezpk2-cta p{margin:0 0 12px;color:#d7dde7;line-height:1.6}.migration-ezpk2-cta .migration-button{width:100%;box-sizing:border-box}
+.migration-eligibility-rules{display:grid;grid-template-columns:1fr;gap:9px;margin-top:17px}.migration-eligibility-rule{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;min-height:50px;padding:12px 14px;background:rgba(6,9,14,.45)}.migration-eligibility-rule span{color:var(--migration-muted);font-size:.86rem}.migration-eligibility-rule strong{font-size:1.05rem;color:var(--migration-gold-bright)}
+.migration-ezpk2-cta{margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}.migration-ezpk2-cta p{margin:0;color:#d7dde7;line-height:1.6}.migration-ezpk2-cta .migration-button{width:100%;box-sizing:border-box}
+.migration-disabled{margin:0;padding:30px;border:1px solid rgba(216,177,91,.24);border-radius:18px;background:linear-gradient(145deg,rgba(19,25,37,.9),rgba(9,12,18,.94));box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.migration-disabled-kicker{display:block;color:var(--migration-gold);font-size:.72rem;font-weight:850;letter-spacing:.13em;margin-bottom:7px}.migration-disabled h2{margin:0;font-size:1.35rem}.migration-disabled>p{margin:9px 0 0;color:var(--migration-muted);line-height:1.65}.migration-disabled-home{margin-top:20px}.migration-status-area.migration-disabled-status-area{margin-top:26px;padding:24px 0 0;border-top:1px solid rgba(255,255,255,.08)}.migration-disabled-status-area .migration-status-lookup{margin-top:0}
+html[data-site="ezpk2"] .migration-disabled{background:var(--ezpk-surface);border-color:var(--ezpk-border);box-shadow:var(--ezpk-shadow-sm);color:var(--ezpk-text-primary)}
+html[data-site="ezpk2"] .migration-disabled-kicker{color:var(--ezpk-accent-text)}
+html[data-site="ezpk2"] .migration-disabled h2{color:var(--ezpk-text-primary)}
+html[data-site="ezpk2"] .migration-disabled>p{color:var(--ezpk-text-secondary)}
+html[data-site="ezpk2"] .migration-status-area.migration-disabled-status-area{border-color:var(--ezpk-border)}
 .migration-status-area{padding:0 30px 28px;border-top:1px solid rgba(255,255,255,.07)}.migration-status-area .migration-status-lookup{margin-top:24px}
 .migration-status-player{display:block;color:#f5f7fa;font-size:.9rem}.migration-inquiry-state{justify-self:start;font-size:.78rem;font-weight:800;color:#a9c7ff}.migration-inquiry-callout{margin-top:5px;padding-top:13px;border-top:1px solid rgba(255,255,255,.08)}.migration-inquiry-callout h4{margin:0 0 6px;font-size:.92rem}.migration-inquiry-callout p{margin:0 0 12px;color:var(--migration-muted);font-size:.84rem;line-height:1.6}.migration-inquiry-callout .migration-button{width:100%;box-sizing:border-box}
-@media(max-width:640px){.migration-eligibility{padding:18px}.migration-eligibility-rules{grid-template-columns:1fr}.migration-status-area{padding:0 18px 22px}}
+@media(max-width:640px){.migration-eligibility{padding:18px}.migration-eligibility-rules{grid-template-columns:1fr}.migration-status-area{padding:0 18px 22px}.migration-disabled{padding:22px 18px}.migration-disabled-status-area{margin-top:22px;padding:20px 0 0}}

@@ -393,6 +393,11 @@
     return Boolean(authLoaded && authState.authenticated && authState.member && authState.member.status === 'active');
   }
 
+  function migrationIntakeAvailable() {
+    if (siteContext && typeof siteContext.migrationIntakeEnabled === 'boolean') return siteContext.migrationIntakeEnabled;
+    return allianceSiteId !== 'ezpk2';
+  }
+
   function syncMobileMenuDiscoveryCue() {
     const button = header.querySelector('#menuBtn');
     if (!button) return;
@@ -538,8 +543,9 @@
       ].join('');
     } else {
       const authenticatedAccount = Boolean(authState.authenticated);
-      const guestPrimaryKeys = authenticatedAccount ? ['seasonUpcoming','members','tip'] : ['immigration','seasonUpcoming','members','tip'];
-      const guestMobileKeys = authenticatedAccount ? ['seasonUpcoming','members','tip','game','accounts'] : ['immigration','seasonUpcoming','members','tip','game','accounts'];
+      const migrationKeys = !authenticatedAccount && migrationIntakeAvailable() ? ['immigration'] : [];
+      const guestPrimaryKeys = authenticatedAccount ? ['seasonUpcoming','members','tip'] : [...migrationKeys,'seasonUpcoming','members','tip'];
+      const guestMobileKeys = authenticatedAccount ? ['seasonUpcoming','members','tip','game','accounts'] : [...migrationKeys,'seasonUpcoming','members','tip','game','accounts'];
       desktopNavItems.innerHTML = guestPrimaryKeys.map(key=>navLinkMarkup(key,{locked:key==='seasonUpcoming'&&seasonLockedForGuest,comingSoon:key==='seasonUpcoming'})).join('');
       navMoreMenu.innerHTML = [
         menuGroupMarkup(ui.public,['game','accounts']),
@@ -589,10 +595,12 @@
   });
   window.addEventListener('resize', updateResponsiveNavigation);
 
-  let siteContext=null;
+  let siteContext={ migrationIntakeEnabled: allianceSiteId !== 'ezpk2' };
   async function loadSiteContext(){
-    try{const response=await fetch('/api/site-context',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});const payload=await response.json();if(response.ok&&payload?.ok)siteContext=payload.data||null;}catch(_){}
+    try{const response=await fetch('/api/site-context',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});const payload=await response.json();if(response.ok&&payload?.ok)siteContext=payload.data||siteContext;}catch(_){}
     syncAllianceSelectorControls();
+    renderNavigation(currentLanguage());
+    requestAnimationFrame(updateResponsiveNavigation);
   }
 
   function applyLanguage(lang, emit=true) {

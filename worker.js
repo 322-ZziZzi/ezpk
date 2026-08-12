@@ -9,6 +9,8 @@ const EZPK1_HOST = "ezpk1.ezpk322.com";
 const EZPK2_HOST = "ezpk2.ezpk322.com";
 const DEFAULT_SITE_MODE = "DUAL";
 const DEFAULT_EZPK2_STATUS = "ACTIVE";
+const DEFAULT_EZPK1_MIGRATION_INTAKE = true;
+const DEFAULT_EZPK2_MIGRATION_INTAKE = false;
 const MIGRATION_INQUIRY_TTL_SECONDS = 30 * 60;
 
 function normalizedSiteMode(env) {
@@ -22,6 +24,20 @@ function normalizedEzpk2Status(env) {
 
 function isEzpk2Active(env) {
   return normalizedSiteMode(env) === "DUAL" && normalizedEzpk2Status(env) === "ACTIVE";
+}
+
+function normalizedBooleanFeature(value, fallback) {
+  const token = String(value ?? "").trim().toUpperCase();
+  if (["ENABLED", "ON", "TRUE", "1", "OPEN"].includes(token)) return true;
+  if (["DISABLED", "OFF", "FALSE", "0", "CLOSED"].includes(token)) return false;
+  return Boolean(fallback);
+}
+
+function migrationIntakeEnabled(env, siteId = "ezpk1") {
+  if (String(siteId).toLowerCase() === "ezpk2") {
+    return normalizedBooleanFeature(env.EZPK2_MIGRATION_INTAKE, DEFAULT_EZPK2_MIGRATION_INTAKE);
+  }
+  return normalizedBooleanFeature(env.EZPK1_MIGRATION_INTAKE, DEFAULT_EZPK1_MIGRATION_INTAKE);
 }
 
 function siteIdFromHost(hostname) {
@@ -457,6 +473,7 @@ async function handleSiteContext(request, env, url) {
       mode: env.SITE_MODE_RESOLVED || normalizedSiteMode(env),
       ezpk2Status: env.EZPK2_STATUS_RESOLVED || normalizedEzpk2Status(env),
       ezpk2Active: isEzpk2Active(env),
+      migrationIntakeEnabled: migrationIntakeEnabled(env, siteId),
       gatewayUrl: `https://${EZPK_ROOT_HOST}/?select=1`,
       ezpk1Url: publicAllianceUrl("ezpk1", "/"),
       ezpk2Url: publicAllianceUrl("ezpk2", "/"),
@@ -3288,6 +3305,9 @@ async function handleAdminMigrationInquiryDelete(request, publicId, env) {
 }
 
 async function handleMigrationApplicationCreate(request, env) {
+  if (!migrationIntakeEnabled(env, env.SITE_ID || "ezpk1")) {
+    return jsonError("MIGRATION_INTAKE_DISABLED", 403, { alliance: env.SITE_DISPLAY_NAME || "EZPK2" });
+  }
   const authenticatedMember = await requireOptionalMember(request, env.DB);
   if (authenticatedMember) return jsonError("MIGRATION_AUTHENTICATED_NOT_ALLOWED", 403);
   const parsedBody = await readMigrationJson(request);
@@ -3501,6 +3521,9 @@ async function handleAdminMigrationImportPreview(request,env){
 }
 
 async function handleAdminMigrationImportCommit(request,env){
+  if (!migrationIntakeEnabled(env, env.SITE_ID || "ezpk1")) {
+    return jsonError("MIGRATION_INTAKE_DISABLED", 403, { alliance: env.SITE_DISPLAY_NAME || "EZPK2" });
+  }
   const admin=await requireSuperAdmin(request,env.DB);if(admin instanceof Response)return admin;
   const parsed=await readMigrationImportJson(request);if(parsed.response)return parsed.response;
   const meta=migrationImportMeta(parsed.value);if(!meta)return jsonError("MIGRATION_IMPORT_INVALID_META",400);

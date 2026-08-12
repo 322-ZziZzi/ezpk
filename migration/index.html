@@ -26,17 +26,25 @@
 </script>
   <link rel="stylesheet" href="../style.css?v=4030">
   <link rel="stylesheet" href="../common-heading.css?v=4010">
-  <link rel="stylesheet" href="migration.css?v=4010">
+  <link rel="stylesheet" href="migration.css?v=4080">
 <link rel="stylesheet" href="/ezpk-theme.css?v=4070">
 </head>
 <body class="migration-auth-pending">
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu="immigration"></header>
-  <script src="../shared-header.js?v=4070"></script>
+  <script src="../shared-header.js?v=4080"></script>
 
   <main id="migrationApp" class="migration-main" hidden>
     <section class="migration-hero">
       <h1 data-migration-k="heroTitle"></h1>
       <p data-migration-k="heroBody"></p>
+    </section>
+
+    <section id="migrationDisabled" class="migration-disabled" hidden aria-live="polite">
+      <span class="migration-disabled-kicker" data-migration-k="intakeClosedKicker"></span>
+      <h2 data-migration-k="intakeClosedTitle"></h2>
+      <p data-migration-k="intakeClosedBody"></p>
+      <a class="migration-button migration-button-secondary migration-disabled-home" href="../" data-migration-k="home"></a>
+      <div id="migrationDisabledStatusArea" class="migration-status-area migration-disabled-status-area"></div>
     </section>
 
     <section id="migrationEligibility" class="migration-eligibility" hidden aria-live="polite">
@@ -51,7 +59,7 @@
       </div>
       <div id="migrationEzpk2Cta" class="migration-ezpk2-cta" hidden>
         <p data-migration-k="ezpk2CtaBody"></p>
-        <a id="migrationEzpk2Link" class="migration-button migration-button-secondary" href="#" data-migration-k="ezpk2CtaButton"></a>
+        <a id="migrationEzpk2Link" class="migration-button migration-button-secondary" href="#" data-migration-k="ezpk2CtaButton" hidden aria-hidden="true"></a>
       </div>
     </section>
 
@@ -87,6 +95,6 @@
     </section>
   </main>
 
-  <script src="migration.js?v=4010"></script>
+  <script src="migration.js?v=4080"></script>
 </body>
 </html>
