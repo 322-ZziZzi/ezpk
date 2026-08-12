@@ -1,0 +1,72 @@
+{
+  "html_pages": 27,
+  "theme_bootstrap": 27,
+  "theme_stylesheet_v407": 27,
+  "shared_header_pages": 24,
+  "shared_header_v408": 24,
+  "css_files": 37,
+  "css_parse_errors": [],
+  "local_asset_refs": {
+    "checked": 32,
+    "missing": 0,
+    "missing_items": []
+  },
+  "migration_count": 30,
+  "latest_migration": "0031_v405_migration_inquiry_soft_delete.sql",
+  "migration_deltas_vs_v408": [],
+  "fresh_sqlite_cycles": [
+    {
+      "cycle": 1,
+      "pass": true,
+      "error": ""
+    },
+    {
+      "cycle": 2,
+      "pass": true,
+      "error": ""
+    }
+  ],
+  "source_delta_vs_v408": {
+    "changed_count": 6,
+    "added_count": 4,
+    "removed_count": 0,
+    "changed": [
+      "gateway/gateway.css",
+      "gateway/index.html",
+      "package-lock.json",
+      "package.json",
+      "shared-migration-entry.js",
+      "wrangler.jsonc"
+    ],
+    "added": [
+      "V409_DEPLOY_READY_RUNBOOK.md",
+      "V409_GATEWAY_BALANCE_COPY_VERIFICATION.md",
+      "V409_VALIDATION.json",
+      "scripts/v409-deploy-guard.mjs"
+    ],
+    "removed": []
+  },
+  "status": "PASS",
+  "failures": {
+    "js": [],
+    "css": [],
+    "missing_refs": []
+  },
+  "js_mjs_syntax": "54/54 PASS",
+  "deploy_guard": "PASS",
+  "package_version": "4.0.9",
+  "db_schema_change": "NONE; latest remains 0031_v405_migration_inquiry_soft_delete.sql",
+  "gateway_pc_contract": {
+    "migration_card_outer_width": "100% of same 1080px Gateway container as alliance grid",
+    "migration_section_bottom_gap_px": 34,
+    "alliance_heading_title_to_description_px": 10,
+    "alliance_heading_description_to_grid_px": 16,
+    "alliance_card_min_height_px": 278
+  },
+  "gateway_migration_copy_ko": [
+    "322서버에서 새로운 시작을 준비해보세요.",
+    "신청서를 검토한 후 운영진이 개별적으로 안내드립니다."
+  ],
+  "wrangler_dry_run": "REQUIRED ON OPERATOR MACHINE BEFORE DEPLOYMENT",
+  "production_visual_smoke": "REQUIRED AFTER DEPLOYMENT"
+}
