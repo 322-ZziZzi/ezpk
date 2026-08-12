@@ -10,16 +10,16 @@
   else if(local&&forced==='gateway')site='gateway';
   document.documentElement.dataset.site=site;
   document.documentElement.style.colorScheme=site==='ezpk2'?'light':'dark';
-  var themeColor=site==='ezpk2'?'#f6f8fb':'#05070b';
+  var themeColor=site==='ezpk2'?'#f1f4f8':'#05070b';
   var meta=document.querySelector('meta[name="theme-color"]');
   if(!meta){meta=document.createElement('meta');meta.name='theme-color';document.head.appendChild(meta);}
   meta.content=themeColor;
   if(site==='ezpk2'&&document.title&&!/^EZPK2\b/.test(document.title)){document.title='EZPK2 · '+document.title.replace(/\s*[·|]\s*EZPK\b/g,'').replace(/^322\s+EZPK\s*/,'').trim();}
   window.__EZPK_SITE__=site;
 })();
-</script><link rel="stylesheet" href="../style.css?v=4030"><link rel="stylesheet" href="../common-heading.css?v=4010"><link rel="stylesheet" href="vote.css?v=2300"><link rel="stylesheet" href="/ezpk-theme.css?v=4060">
+</script><link rel="stylesheet" href="../style.css?v=4030"><link rel="stylesheet" href="../common-heading.css?v=4010"><link rel="stylesheet" href="vote.css?v=2300"><link rel="stylesheet" href="/ezpk-theme.css?v=4070">
 </head><body>
-<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="vote"></header><script src="../shared-header.js?v=4060"></script>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="vote"></header><script src="../shared-header.js?v=4070"></script>
 <main class="vote-main">
 <section id="voteLock" class="member-gate-wrap" hidden><div class="member-gate-card"><div class="member-gate-icon">🔐</div><span class="member-gate-section" data-member-gate-section></span><h1 class="member-gate-title" data-member-gate-title></h1><p class="member-gate-description" data-member-gate-lead></p><div class="member-login-actions"><button type="button" class="member-login-primary" data-member-login></button><a class="member-login-secondary" href="../signup/" data-member-signup></a></div><p class="member-gate-error" data-member-gate-error></p></div></section>
 <div id="voteProtected" hidden>

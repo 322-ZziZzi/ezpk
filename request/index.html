@@ -10,7 +10,7 @@
   else if(local&&forced==='gateway')site='gateway';
   document.documentElement.dataset.site=site;
   document.documentElement.style.colorScheme=site==='ezpk2'?'light':'dark';
-  var themeColor=site==='ezpk2'?'#f6f8fb':'#05070b';
+  var themeColor=site==='ezpk2'?'#f1f4f8':'#05070b';
   var meta=document.querySelector('meta[name="theme-color"]');
   if(!meta){meta=document.createElement('meta');meta.name='theme-color';document.head.appendChild(meta);}
   meta.content=themeColor;
@@ -18,9 +18,9 @@
   window.__EZPK_SITE__=site;
 })();
 </script><link rel="stylesheet" href="../style.css?v=4030"><link rel="stylesheet" href="request.css?v=4050"><link rel="stylesheet" href="../common-heading.css?v=4010">
-<link rel="stylesheet" href="/ezpk-theme.css?v=4060">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4070">
 </head><body>
-<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="request"></header><script src="../shared-header.js?v=4060"></script>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="request"></header><script src="../shared-header.js?v=4070"></script>
 <main class="request-main"><section id="requestLock" class="member-gate-wrap" hidden><div class="member-gate-card"><div class="member-gate-icon">🔐</div><span class="member-gate-section" data-member-gate-section></span><h1 class="member-gate-title" data-member-gate-title></h1><p class="member-gate-description" data-member-gate-lead></p><div class="member-login-actions"><button type="button" class="member-login-primary" data-member-login></button><a class="member-login-secondary" href="../signup/" data-member-signup></a></div><p class="member-gate-error" data-member-gate-error></p><p class="member-gate-migration-note" data-migration-return></p><a class="member-login-secondary" href="../migration/" data-migration-return-link>Migration</a></div></section>
 <div id="requestProtected" hidden>
 <section class="request-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 id="requestTitle">요청 게시판</h1><p id="requestLead">연맹 운영진에게 요청사항이나 질문을 남겨주세요.</p></section>

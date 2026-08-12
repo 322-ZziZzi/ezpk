@@ -1,4 +1,4 @@
-/* EZPK v406 — shared site theme layer.
+/* EZPK v407 — shared site theme layer.
    EZPK1/root legacy retains the existing dark design. EZPK2 receives the official light theme.
    Theme rules intentionally avoid layout geometry; game/canvas/export artwork is not recolored. */
 :root{
@@ -30,31 +30,45 @@
 }
 html[data-site="ezpk2"]{
   color-scheme:light;
-  --ezpk-page-bg:#f6f8fb;
+  --ezpk-page-bg:#f1f4f8;
   --ezpk-surface:#ffffff;
-  --ezpk-surface-muted:#f2f4f7;
-  --ezpk-surface-strong:#e9edf3;
+  --ezpk-surface-muted:#e9eef5;
+  --ezpk-surface-strong:#dfe5ed;
   --ezpk-input-bg:#ffffff;
-  --ezpk-text-primary:#101828;
-  --ezpk-text-secondary:#475467;
-  --ezpk-text-muted:#667085;
-  --ezpk-text-disabled:#98a2b3;
-  --ezpk-border:#e4e7ec;
-  --ezpk-border-strong:#d0d5dd;
-  --ezpk-accent:#c18b12;
-  --ezpk-accent-text:#805b00;
-  --ezpk-accent-soft:#fff6db;
-  --ezpk-accent-border:rgba(128,91,0,.34);
-  --ezpk-secondary-bg:#f2f4f7;
-  --ezpk-secondary-text:#344054;
+  --ezpk-text-primary:#0b1220;
+  --ezpk-text-secondary:#344054;
+  --ezpk-text-muted:#5d6978;
+  --ezpk-text-disabled:#5d6978;
+  --ezpk-border:#b7c0cc;
+  --ezpk-border-strong:#7e8b9b;
+  --ezpk-accent:#b77900;
+  --ezpk-accent-text:#704d00;
+  --ezpk-accent-soft:#fff1c2;
+  --ezpk-accent-border:#b77900;
+  --ezpk-secondary-bg:#dfe5ed;
+  --ezpk-secondary-text:#172033;
   --ezpk-success-text:#067647;
   --ezpk-info-text:#175cd3;
   --ezpk-danger-text:#b42318;
   --ezpk-purple-text:#6941c6;
-  --ezpk-overlay-bg:rgba(15,23,42,.42);
-  --ezpk-shadow-sm:0 4px 12px rgba(16,24,40,.06);
-  --ezpk-shadow-md:0 10px 30px rgba(16,24,40,.08);
-  --ezpk-shadow-lg:0 20px 56px rgba(16,24,40,.13);
+  --ezpk-overlay-bg:rgba(15,23,42,.48);
+  --ezpk-shadow-sm:0 4px 14px rgba(16,24,40,.10);
+  --ezpk-shadow-md:0 12px 34px rgba(16,24,40,.13);
+  --ezpk-shadow-lg:0 24px 64px rgba(16,24,40,.20);
+  --ezpk-cta-primary-bg:#e2a51b;
+  --ezpk-cta-primary-hover:#c98e0b;
+  --ezpk-cta-primary-active:#ad7600;
+  --ezpk-cta-primary-text:#1c1400;
+  --ezpk-cta-primary-border:#9f6c00;
+  --ezpk-cta-secondary-bg:#dfe5ed;
+  --ezpk-cta-secondary-hover:#cfd7e2;
+  --ezpk-cta-secondary-active:#c1cbd8;
+  --ezpk-cta-secondary-text:#172033;
+  --ezpk-cta-secondary-border:#788697;
+  --ezpk-focus-ring:#b77900;
+  --ezpk-danger-bg:#fee4e2;
+  --ezpk-danger-hover:#fecdca;
+  --ezpk-danger-border:#d92d20;
 
   /* aliases used by existing page-local design systems */
   --ezpk-heading-gold:var(--ezpk-accent-text);
@@ -74,10 +88,10 @@ html[data-site="ezpk2"]{
   --muted:var(--ezpk-text-secondary);
   --shadow:var(--ezpk-shadow-md);
   --cw-gold:var(--ezpk-accent-text);
-  --admin-primary:#175cd3;
-  --admin-primary-hover:#1849a9;
-  --admin-secondary:var(--ezpk-secondary-bg);
-  --admin-secondary-hover:#e4e7ec;
+  --admin-primary:var(--ezpk-cta-primary-bg);
+  --admin-primary-hover:var(--ezpk-cta-primary-hover);
+  --admin-secondary:var(--ezpk-cta-secondary-bg);
+  --admin-secondary-hover:var(--ezpk-cta-secondary-hover);
   --admin-danger:#b42318;
   --admin-danger-hover:#912018;
   --admin-border:var(--ezpk-border-strong);
@@ -86,7 +100,7 @@ html[data-site="ezpk2"]{
   --admin-card-border:var(--ezpk-border);
   --admin-card-bg:var(--ezpk-surface);
   --admin-card-shadow:var(--ezpk-shadow-sm);
-  --admin-focus:rgba(23,92,211,.24);
+  --admin-focus:rgba(183,121,0,.20);
   --admin-page-bg:var(--ezpk-page-bg);
   --admin-surface:var(--ezpk-surface);
   --admin-surface-deep:var(--ezpk-surface-muted);
@@ -99,12 +113,12 @@ html[data-site="ezpk2"]{
   --bg:var(--ezpk-page-bg);
   --danger:var(--ezpk-danger-text);
   --ok:var(--ezpk-success-text);
-  --auth-gold:var(--ezpk-accent-text);
-  --auth-gold-hover:#674900;
-  --auth-blue:#175cd3;
-  --auth-blue-hover:#1849a9;
-  --auth-blue-border:#84adff;
-  --auth-blue-focus:#528bff;
+  --auth-gold:var(--ezpk-cta-primary-bg);
+  --auth-gold-hover:var(--ezpk-cta-primary-hover);
+  --auth-blue:var(--ezpk-cta-primary-bg);
+  --auth-blue-hover:var(--ezpk-cta-primary-hover);
+  --auth-blue-border:var(--ezpk-cta-primary-border);
+  --auth-blue-focus:var(--ezpk-focus-ring);
   --auth-panel:var(--ezpk-surface);
   --auth-input:var(--ezpk-input-bg);
   --auth-border:var(--ezpk-border-strong);
@@ -1684,3 +1698,103 @@ html[data-site="ezpk2"] .account-toast,
 html[data-site="ezpk2"] .signup-toast,
 html[data-site="ezpk2"] .ezpk-global-toast{background:#344054!important;color:#fff!important}
 html[data-site="ezpk2"] :is(.request-private-badge,.migration-private-badge,[data-private-badge]){color:#6941c6!important;background:#f4f3ff!important;border-color:#d9d6fe!important}
+
+
+/* v407 — EZPK2 High-Contrast Light Theme + Strong CTA Hierarchy.
+   Visual-only remediation: stronger surfaces, borders, controls, states and CTA text/icon contrast.
+   EZPK1 and Gateway remain unchanged. */
+html[data-site="ezpk2"] .site-header{border-color:var(--ezpk-border)!important;box-shadow:0 1px 0 rgba(11,18,32,.08),var(--ezpk-shadow-sm)!important}
+html[data-site="ezpk2"] :is(.signup-card,.member-gate-card,.request-form,.request-list-card,.account-card,.admin-card,.admin-panel,.panel,.card,.event-card,.immigration-card,.rank-group,.member-tools,.game-panel,.newgame-panel,.record-grid figure){border-color:var(--ezpk-border)!important;box-shadow:var(--ezpk-shadow-sm)!important}
+
+/* Interactive controls are always stronger than passive card boundaries. */
+html[data-site="ezpk2"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-site="ezpk2"] select,
+html[data-site="ezpk2"] textarea{border-color:var(--ezpk-border-strong)!important;background:var(--ezpk-input-bg)!important;color:var(--ezpk-text-primary)!important}
+html[data-site="ezpk2"] input:not([type="checkbox"]):not([type="radio"]):hover,
+html[data-site="ezpk2"] select:hover,
+html[data-site="ezpk2"] textarea:hover{border-color:#657386!important}
+html[data-site="ezpk2"] input:not([type="checkbox"]):not([type="radio"]):focus,
+html[data-site="ezpk2"] select:focus,
+html[data-site="ezpk2"] textarea:focus{border-color:var(--ezpk-focus-ring)!important;box-shadow:0 0 0 3px rgba(183,121,0,.20)!important;outline:none!important}
+html[data-site="ezpk2"] input::placeholder,html[data-site="ezpk2"] textarea::placeholder{color:#667085!important;opacity:1!important}
+html[data-site="ezpk2"] input[type="checkbox"],html[data-site="ezpk2"] input[type="radio"]{accent-color:#b77900}
+
+/* Primary CTA: background + label + icon are an inseparable contrast pair. */
+html[data-site="ezpk2"] :is(.primary,.primary-link,.member-login-primary,.migration-button-primary,.home-button-primary,.portal-button-primary,.immigration-button,.vote-result-button,.request-submit,.form-submit,.signup-submit,.ezpk-auth-submit,.primary-account-btn,.preview-primary,.preview-primary-full,.spec-save-button){background:var(--ezpk-cta-primary-bg)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important;text-shadow:none!important}
+html[data-site="ezpk2"] :is(.primary,.primary-link,.member-login-primary,.migration-button-primary,.home-button-primary,.portal-button-primary,.immigration-button,.vote-result-button,.request-submit,.form-submit,.signup-submit,.ezpk-auth-submit,.primary-account-btn,.preview-primary,.preview-primary-full,.spec-save-button):is(:hover,:focus-visible){background:var(--ezpk-cta-primary-hover)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important;box-shadow:0 0 0 3px rgba(183,121,0,.20)!important}
+html[data-site="ezpk2"] :is(.primary,.primary-link,.member-login-primary,.migration-button-primary,.home-button-primary,.portal-button-primary,.immigration-button,.vote-result-button,.request-submit,.form-submit,.signup-submit,.ezpk-auth-submit,.primary-account-btn,.preview-primary,.preview-primary-full,.spec-save-button):active{background:var(--ezpk-cta-primary-active)!important;border-color:#805500!important;color:var(--ezpk-cta-primary-text)!important}
+html[data-site="ezpk2"] :is(.primary,.primary-link,.member-login-primary,.migration-button-primary,.home-button-primary,.portal-button-primary,.immigration-button,.vote-result-button,.request-submit,.form-submit,.signup-submit,.ezpk-auth-submit,.primary-account-btn,.preview-primary,.preview-primary-full,.spec-save-button) :is(svg,i){color:inherit!important}
+
+/* Secondary controls remain visibly clickable without competing with Primary CTA. */
+html[data-site="ezpk2"] :is(.secondary,.member-login-secondary,.migration-button-secondary,.home-button-secondary,.portal-button-secondary,.secondary-account-btn,.secondary-action,.ezpk-auth-switch a,.login-link button){background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-cta-secondary-text)!important;text-shadow:none!important}
+html[data-site="ezpk2"] :is(.secondary,.member-login-secondary,.migration-button-secondary,.home-button-secondary,.portal-button-secondary,.secondary-account-btn,.secondary-action,.ezpk-auth-switch a,.login-link button):is(:hover,:focus-visible){background:var(--ezpk-cta-secondary-hover)!important;border-color:#687789!important;color:var(--ezpk-cta-secondary-text)!important}
+html[data-site="ezpk2"] :is(.secondary,.member-login-secondary,.migration-button-secondary,.home-button-secondary,.portal-button-secondary,.secondary-account-btn,.secondary-action,.ezpk-auth-switch a,.login-link button):active{background:var(--ezpk-cta-secondary-active)!important;border-color:#5d6b7c!important;color:var(--ezpk-cta-secondary-text)!important}
+
+/* Ghost controls are reserved for low-priority actions but retain a visible boundary. */
+html[data-site="ezpk2"] :is(.ghost,.vote-more-button,.vote-roster-toggle){background:#ffffff!important;border-color:var(--ezpk-border-strong)!important;color:var(--ezpk-text-secondary)!important}
+html[data-site="ezpk2"] :is(.ghost,.vote-more-button,.vote-roster-toggle):is(:hover,:focus-visible){background:var(--ezpk-surface-muted)!important;border-color:#657386!important;color:var(--ezpk-text-primary)!important}
+
+/* Destructive actions use semantic red surfaces, never low-contrast red text alone. */
+html[data-site="ezpk2"] :is(.danger,.danger-outline,.dialog-danger,.portal-button-danger){background:var(--ezpk-danger-bg)!important;border-color:var(--ezpk-danger-border)!important;color:#912018!important}
+html[data-site="ezpk2"] :is(.danger,.danger-outline,.dialog-danger,.portal-button-danger):is(:hover,:focus-visible){background:var(--ezpk-danger-hover)!important;border-color:#b42318!important;color:#7a271a!important}
+
+/* Auth is a dedicated CTA gate: Sign Up/Create Account is primary; Login is secondary in the guest header. */
+@media (min-width:1200px){
+  html[data-site="ezpk2"] [data-shared-header] .header-account .account-signup{background:var(--ezpk-cta-primary-bg)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important}
+  html[data-site="ezpk2"] [data-shared-header] .header-account .account-signup:is(:hover,:focus-visible){background:var(--ezpk-cta-primary-hover)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important;box-shadow:0 0 0 3px rgba(183,121,0,.18)!important}
+  html[data-site="ezpk2"] [data-shared-header] .header-account .account-signup:active{background:var(--ezpk-cta-primary-active)!important;color:var(--ezpk-cta-primary-text)!important}
+  html[data-site="ezpk2"] [data-shared-header] .header-account .account-login{background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-cta-secondary-text)!important}
+  html[data-site="ezpk2"] [data-shared-header] .header-account .account-login:is(:hover,:focus-visible){background:var(--ezpk-cta-secondary-hover)!important;border-color:#687789!important;color:var(--ezpk-cta-secondary-text)!important}
+  html[data-site="ezpk2"] [data-shared-header] .lang>#langBtn{background:#fff!important;border-color:var(--ezpk-border-strong)!important;color:var(--ezpk-text-secondary)!important}
+}
+@media (max-width:1199px){
+  html[data-site="ezpk2"] .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action="signup"]{background:var(--ezpk-cta-primary-bg)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important}
+  html[data-site="ezpk2"] .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action="signup"]:is(:hover,:focus-visible){background:var(--ezpk-cta-primary-hover)!important;color:var(--ezpk-cta-primary-text)!important}
+  html[data-site="ezpk2"] .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action="login"]{background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-cta-secondary-text)!important}
+}
+
+/* Login modal and Sign Up page receive stronger borders, focus rings and readable auxiliary controls. */
+html[data-site="ezpk2"] .ezpk-auth-dialog,html[data-site="ezpk2"] .signup-card{border-color:var(--ezpk-border)!important;box-shadow:var(--ezpk-shadow-lg)!important}
+html[data-site="ezpk2"] #ezpkLoginForm label,html[data-site="ezpk2"] .signup-form label{color:var(--ezpk-text-secondary)!important}
+html[data-site="ezpk2"] .ezpk-password-toggle,html[data-site="ezpk2"] .password-toggle{background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-text-secondary)!important}
+html[data-site="ezpk2"] .ezpk-password-toggle:is(:hover,:focus-visible),html[data-site="ezpk2"] .password-toggle:is(:hover,:focus-visible){background:var(--ezpk-cta-secondary-hover)!important;border-color:#687789!important;color:var(--ezpk-text-primary)!important}
+html[data-site="ezpk2"] .signup-form :is(small,.field-help),html[data-site="ezpk2"] .login-link{color:var(--ezpk-text-muted)!important}
+html[data-site="ezpk2"] .signup-error,html[data-site="ezpk2"] .ezpk-auth-error{background:#fff1f0!important;border-color:#f97066!important;color:#912018!important}
+html[data-site="ezpk2"] .signup-toast{background:#ecfdf3!important;border-color:#12b76a!important;color:#05603a!important}
+
+/* Tables and selection states need structural contrast in the Light Theme. */
+html[data-site="ezpk2"] table thead th{background:#e4e9f0!important;color:var(--ezpk-text-primary)!important;border-color:var(--ezpk-border)!important}
+html[data-site="ezpk2"] table tbody td{border-color:var(--ezpk-border)!important}
+html[data-site="ezpk2"] table tbody tr:hover{background:#f7f9fc}
+html[data-site="ezpk2"] :is(button.active,button[aria-selected="true"],button[aria-pressed="true"],.tabs button.active,.member-view-switch button.active){background:var(--ezpk-accent-soft)!important;border-color:var(--ezpk-accent-border)!important;color:var(--ezpk-accent-text)!important}
+
+/* Menus/popovers and modal layers must remain distinct from white cards. */
+html[data-site="ezpk2"] :is(.lang #langMenu,#navMoreMenu,.account-menu,.dropdown-menu,.popover,.menu-panel){background:#fff!important;border-color:var(--ezpk-border-strong)!important;box-shadow:var(--ezpk-shadow-md)!important}
+html[data-site="ezpk2"] :is(.ezpk-auth-dialog,.account-detail,.image-preview-modal,.image-preview-panel,.vote-result-panel,.ranking-panel,.overlay-card,.newgame-card,.request-dialog){border-color:var(--ezpk-border)!important;box-shadow:var(--ezpk-shadow-lg)!important}
+
+
+
+/* High-specificity legacy exceptions that would otherwise outrank the common v407 CTA layer. */
+html[data-site="ezpk2"] #resultOverlay .result-actions .secondary{background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-cta-secondary-text)!important}
+html[data-site="ezpk2"] #resultOverlay .result-actions .secondary:is(:hover,:focus-visible){background:var(--ezpk-cta-secondary-hover)!important;border-color:#687789!important;color:var(--ezpk-cta-secondary-text)!important}
+html[data-site="ezpk2"] #accountsPanel .account-admin-actions button.danger,html[data-site="ezpk2"] #accountsPanel .account-admin-actions .danger{background:var(--ezpk-danger-bg)!important;border-color:var(--ezpk-danger-border)!important;color:#912018!important}
+html[data-site="ezpk2"] #accountsPanel .account-admin-actions button.danger:is(:hover,:focus-visible),html[data-site="ezpk2"] #accountsPanel .account-admin-actions .danger:is(:hover,:focus-visible){background:var(--ezpk-danger-hover)!important;border-color:#b42318!important;color:#7a271a!important}
+html[data-site="ezpk2"] #accountsPanel .account-backup-actions #downloadAccountsJson{background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-cta-secondary-text)!important}
+
+/* Admin controls use higher-specificity rules because the legacy admin UI carries ID-scoped !important declarations. */
+html[data-site="ezpk2"] #adminApp .primary{background:var(--ezpk-cta-primary-bg)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important}
+html[data-site="ezpk2"] #adminApp .primary:is(:hover,:focus-visible){background:var(--ezpk-cta-primary-hover)!important;border-color:var(--ezpk-cta-primary-border)!important;color:var(--ezpk-cta-primary-text)!important}
+html[data-site="ezpk2"] #adminApp .primary:active{background:var(--ezpk-cta-primary-active)!important;color:var(--ezpk-cta-primary-text)!important}
+html[data-site="ezpk2"] #adminApp .secondary{background:var(--ezpk-cta-secondary-bg)!important;border-color:var(--ezpk-cta-secondary-border)!important;color:var(--ezpk-cta-secondary-text)!important}
+html[data-site="ezpk2"] #adminApp .secondary:is(:hover,:focus-visible){background:var(--ezpk-cta-secondary-hover)!important;border-color:#687789!important;color:var(--ezpk-cta-secondary-text)!important}
+html[data-site="ezpk2"] #adminApp .danger{background:var(--ezpk-danger-bg)!important;border-color:var(--ezpk-danger-border)!important;color:#912018!important}
+html[data-site="ezpk2"] #adminApp .danger:is(:hover,:focus-visible){background:var(--ezpk-danger-hover)!important;border-color:#b42318!important;color:#7a271a!important}
+html[data-site="ezpk2"] #adminApp .outline{background:#fff!important;border-color:var(--ezpk-border-strong)!important;color:var(--ezpk-text-secondary)!important}
+html[data-site="ezpk2"] #adminApp .outline:is(:hover,:focus-visible){background:var(--ezpk-surface-muted)!important;border-color:#657386!important;color:var(--ezpk-text-primary)!important}
+html[data-site="ezpk2"] #adminApp input:not([type="checkbox"]):not([type="radio"]),html[data-site="ezpk2"] #adminApp select,html[data-site="ezpk2"] #adminApp textarea{background:#fff!important;border-color:var(--ezpk-border-strong)!important;color:var(--ezpk-text-primary)!important}
+html[data-site="ezpk2"] #adminApp input:focus,html[data-site="ezpk2"] #adminApp select:focus,html[data-site="ezpk2"] #adminApp textarea:focus{border-color:var(--ezpk-focus-ring)!important;box-shadow:0 0 0 3px rgba(183,121,0,.20)!important;outline:none!important}
+html[data-site="ezpk2"] #adminApp :is(button,input,select,textarea):disabled,html[data-site="ezpk2"] .admin-login-screen :is(button,input,select,textarea):disabled{opacity:1!important;background:var(--ezpk-surface-muted)!important;border-color:var(--ezpk-border)!important;color:var(--ezpk-text-disabled)!important;box-shadow:none!important}
+
+/* Disabled controls stay readable instead of disappearing through opacity. */
+html[data-site="ezpk2"] :is(button,input,select,textarea):disabled{opacity:1!important;background:var(--ezpk-surface-muted)!important;border-color:var(--ezpk-border)!important;color:var(--ezpk-text-disabled)!important;cursor:not-allowed!important;box-shadow:none!important}
+html[data-site="ezpk2"] :is(button,input,select,textarea):disabled :is(svg,i){color:inherit!important}

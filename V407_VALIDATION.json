@@ -1,0 +1,53 @@
+{
+  "html_pages": 27,
+  "theme_bootstrap": 27,
+  "theme_stylesheet_v407": 27,
+  "theme_color_bootstrap_v407": 27,
+  "css_files": 37,
+  "css_parse_errors": 0,
+  "layout_geometry_declarations": [],
+  "unscoped_v407_rules": [],
+  "local_asset_refs": {
+    "checked": 311,
+    "missing": 0
+  },
+  "worker.js_v406_exact": true,
+  "wrangler.jsonc_v406_exact": true,
+  "shared-header.js_v406_exact": true,
+  "style.css_v406_exact": true,
+  "signup/signup.css_v406_exact": true,
+  "migration_count": 30,
+  "latest_migration": "0031_v405_migration_inquiry_soft_delete.sql",
+  "migration_deltas": [],
+  "fresh_sqlite_cycles": [
+    {
+      "cycle": 1,
+      "pass": true,
+      "error": ""
+    },
+    {
+      "cycle": 2,
+      "pass": true,
+      "error": ""
+    }
+  ],
+  "contrast_ratios": {
+    "primary_normal": 8.38,
+    "primary_hover": 6.4,
+    "primary_active": 4.67,
+    "secondary_normal": 12.84,
+    "secondary_hover": 11.21,
+    "secondary_active": 9.92,
+    "danger_normal": 7.18,
+    "danger_hover": 6.94,
+    "disabled": 4.79,
+    "placeholder": 4.97
+  },
+  "cta_contract_missing": [],
+  "status": "PASS",
+  "failures": [],
+  "js_mjs_syntax": "51/51 PASS",
+  "deploy_guard": "PASS",
+  "package_lock": "semantic predecessor exact except version 4.0.7",
+  "production_visual_smoke": "REQUIRED AFTER DEPLOYMENT"
+}
