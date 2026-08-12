@@ -11,3 +11,7 @@ body{min-height:100vh}.request-main{min-height:calc(100vh - 72px)}.request-hero{
 .migration-thread-reply b{font-size:12px;letter-spacing:.02em}.migration-thread-reply p{white-space:pre-wrap;margin:6px 0;line-height:1.6}.migration-thread-reply small{color:#8f99a8}
 .migration-reply-form{margin-top:16px}.migration-reply-form textarea{width:100%;box-sizing:border-box;resize:vertical}.migration-reply-actions{display:flex;gap:8px;margin-top:8px}.migration-reply-actions button{min-height:40px}.migration-thread-note{margin-top:14px;color:#9aa4b3;font-size:13px}
 @media(max-width:700px){.migration-inquiry-card{padding:16px}.migration-reply-actions{flex-direction:column}}
+
+/* v405 migration inquiry privacy marker */
+.migration-private-badge{display:inline-flex;align-items:center;margin:0 8px 0 0;padding:5px 8px;border-radius:999px;background:rgba(245,197,71,.1);color:#f5c547;font-size:10px;font-weight:900;letter-spacing:.06em}
+.migration-private-note{margin:0 0 12px;padding:9px 11px;border:1px solid rgba(245,197,71,.15);border-radius:9px;background:rgba(245,197,71,.045);color:#aab5c4;font-size:12px;line-height:1.5}

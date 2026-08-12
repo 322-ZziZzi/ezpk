@@ -1,17 +1,26 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>EZPK Request Board</title><link rel="stylesheet" href="../style.css?v=4030"><link rel="stylesheet" href="request.css?v=1902"><link rel="stylesheet" href="../common-heading.css?v=4010">
-<style>
-@media (min-width:901px){
-.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
-}
-@media (max-width:900px){
-.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
-}
-
-.spec-item{display:flex;align-items:center;gap:6px;}
-.spec-icon{flex-shrink:0;}
-</style>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>EZPK Request Board</title><script data-ezpk-theme-bootstrap>
+(function(){
+  var h=String(location.hostname||'').toLowerCase();
+  var local=(location.protocol==='file:'||h==='localhost'||h==='127.0.0.1'||h==='0.0.0.0'||/^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(h));
+  var forced=local?new URLSearchParams(location.search).get('__site'):'';
+  var context=document.documentElement.getAttribute('data-theme-context')||'';
+  var site=context==='gateway'?'gateway':(h==='ezpk2.ezpk322.com'?'ezpk2':'ezpk1');
+  if(local&&forced==='ezpk2')site='ezpk2';
+  else if(local&&forced==='ezpk1')site='ezpk1';
+  else if(local&&forced==='gateway')site='gateway';
+  document.documentElement.dataset.site=site;
+  document.documentElement.style.colorScheme=site==='ezpk2'?'light':'dark';
+  var themeColor=site==='ezpk2'?'#f6f8fb':'#05070b';
+  var meta=document.querySelector('meta[name="theme-color"]');
+  if(!meta){meta=document.createElement('meta');meta.name='theme-color';document.head.appendChild(meta);}
+  meta.content=themeColor;
+  if(site==='ezpk2'&&document.title&&!/^EZPK2\b/.test(document.title)){document.title='EZPK2 · '+document.title.replace(/\s*[·|]\s*EZPK\b/g,'').replace(/^322\s+EZPK\s*/,'').trim();}
+  window.__EZPK_SITE__=site;
+})();
+</script><link rel="stylesheet" href="../style.css?v=4030"><link rel="stylesheet" href="request.css?v=4050"><link rel="stylesheet" href="../common-heading.css?v=4010">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4060">
 </head><body>
-<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="request"></header><script src="../shared-header.js?v=4020"></script>
+<header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="request"></header><script src="../shared-header.js?v=4060"></script>
 <main class="request-main"><section id="requestLock" class="member-gate-wrap" hidden><div class="member-gate-card"><div class="member-gate-icon">🔐</div><span class="member-gate-section" data-member-gate-section></span><h1 class="member-gate-title" data-member-gate-title></h1><p class="member-gate-description" data-member-gate-lead></p><div class="member-login-actions"><button type="button" class="member-login-primary" data-member-login></button><a class="member-login-secondary" href="../signup/" data-member-signup></a></div><p class="member-gate-error" data-member-gate-error></p><p class="member-gate-migration-note" data-migration-return></p><a class="member-login-secondary" href="../migration/" data-migration-return-link>Migration</a></div></section>
 <div id="requestProtected" hidden>
 <section class="request-hero"><span class="eyebrow">SERVER 322 · EZPK ALLIANCE</span><h1 id="requestTitle">요청 게시판</h1><p id="requestLead">연맹 운영진에게 요청사항이나 질문을 남겨주세요.</p></section>
@@ -19,4 +28,4 @@
 <section class="request-list-card"><div class="request-list-head"><div><span>REQUEST LIST</span><h2 id="recentTitle">요청 목록</h2><small id="requestTotal">총 요청글 0개</small></div><button id="requestRefresh" type="button">↻</button></div><div id="requestList" class="board-list"></div><nav id="requestPagination" class="request-pagination" hidden><button id="requestPrev" type="button">◀ 이전</button><strong id="requestPageState">1 / 1</strong><button id="requestNext" type="button">다음 ▶</button></nav></section></section>
 </div></main><footer><b>322 EZPK ALLIANCE</b><span>Request Board</span></footer>
 <dialog id="requestEditDialog" class="request-dialog"><form method="dialog" id="requestEditForm"><h3 id="editDialogTitle">요청글 수정</h3><input id="editRequestId" type="hidden"><label><span>제목</span><input id="editRequestTitle" maxlength="120" required></label><label><span>내용</span><textarea id="editRequestMessage" maxlength="3000" rows="8" required></textarea></label><div class="dialog-actions"><button value="cancel" type="button" id="editCancel">취소</button><button value="save" class="primary" type="submit">저장</button></div><p id="editRequestStatus" class="request-status"></p></form></dialog>
-<script src="../data.js?v=1530"></script><script src="request.js?v=4010"></script></body></html>
+<script src="../data.js?v=1530"></script><script src="request.js?v=4050"></script></body></html>

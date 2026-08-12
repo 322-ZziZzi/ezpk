@@ -1,0 +1,27 @@
+{
+  "version": "4.0.6",
+  "html_pages": 27,
+  "theme_bootstrap": "27/27 PASS",
+  "theme_stylesheet": "27/27 PASS",
+  "bgb_inline_leak": "0 PASS",
+  "local_asset_refs": {
+    "checked": 311,
+    "missing": 0
+  },
+  "css_parse": "37/37 PASS",
+  "theme_layout_isolation": "PASS",
+  "js_syntax": "45/45 PASS",
+  "worker_wrangler_v405_exact": "PASS",
+  "migrations": "30/30 byte-identical to v405; latest 0031",
+  "fresh_sqlite_migration_cycles": "2/2 PASS",
+  "contrast_ratios": {
+    "primary/page": 16.68,
+    "secondary/page": 7.23,
+    "accent/surface": 6.15,
+    "primary_button": 9.34,
+    "success/surface": 5.69,
+    "danger/surface": 6.57,
+    "info/surface": 5.99
+  },
+  "deploy_guard": "EZPK v406 deployment preflight PASS: Worker-first DUAL routing, both D1 bindings, 0031-only DB evolution, 27-page host-first theme bootstrap, neutral gateway, and EZPK2 light-theme layer are present."
+}

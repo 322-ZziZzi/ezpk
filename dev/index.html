@@ -4,20 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>EZPK Developer Center</title>
+  <title>EZPK Developer Center</title><script data-ezpk-theme-bootstrap>
+(function(){
+  var h=String(location.hostname||'').toLowerCase();
+  var local=(location.protocol==='file:'||h==='localhost'||h==='127.0.0.1'||h==='0.0.0.0'||/^10\.|^192\.168\.|^172\.(1[6-9]|2\d|3[01])\./.test(h));
+  var forced=local?new URLSearchParams(location.search).get('__site'):'';
+  var context=document.documentElement.getAttribute('data-theme-context')||'';
+  var site=context==='gateway'?'gateway':(h==='ezpk2.ezpk322.com'?'ezpk2':'ezpk1');
+  if(local&&forced==='ezpk2')site='ezpk2';
+  else if(local&&forced==='ezpk1')site='ezpk1';
+  else if(local&&forced==='gateway')site='gateway';
+  document.documentElement.dataset.site=site;
+  document.documentElement.style.colorScheme=site==='ezpk2'?'light':'dark';
+  var themeColor=site==='ezpk2'?'#f6f8fb':'#05070b';
+  var meta=document.querySelector('meta[name="theme-color"]');
+  if(!meta){meta=document.createElement('meta');meta.name='theme-color';document.head.appendChild(meta);}
+  meta.content=themeColor;
+  if(site==='ezpk2'&&document.title&&!/^EZPK2\b/.test(document.title)){document.title='EZPK2 · '+document.title.replace(/\s*[·|]\s*EZPK\b/g,'').replace(/^322\s+EZPK\s*/,'').trim();}
+  window.__EZPK_SITE__=site;
+})();
+</script>
   <link rel="stylesheet" href="./dev.css?v=3500">
-
-<style>
-@media (min-width:901px){
-.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
-}
-@media (max-width:900px){
-.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
-}
-
-.spec-item{display:flex;align-items:center;gap:6px;}
-.spec-icon{flex-shrink:0;}
-</style>
+<link rel="stylesheet" href="/ezpk-theme.css?v=4060">
 </head>
 <body>
   <main class="shell">

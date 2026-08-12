@@ -68,3 +68,15 @@ nav a.active{color:#f5c547!important}
 .rtl .final-member.is-current-member,.rtl .assigned-member.is-current-member{padding-left:35px;padding-right:12px}
 .rtl .final-member .bgb-you-badge,.rtl .assigned-member .bgb-you-badge{right:auto;left:5px}
 @media(max-width:700px){.final-lineup,.assigned-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.final-member,.assigned-member{height:36px;min-height:36px;padding:0 6px;font-size:12px}.final-member.is-current-member,.assigned-member.is-current-member{height:36px;min-height:36px;padding-left:10px;padding-right:31px}.rtl .final-member.is-current-member,.rtl .assigned-member.is-current-member{padding-left:31px;padding-right:10px}.final-member .bgb-you-badge,.assigned-member .bgb-you-badge{right:4px;font-size:6.5px}.rtl .final-member .bgb-you-badge,.rtl .assigned-member .bgb-you-badge{right:auto;left:4px}}
+
+
+/* v406: consolidated BGB filter/spec layout; removed duplicated inline copies from unrelated pages. */
+@media (min-width:901px){
+.bgb-filter select.sort-select,.bgb-filter select.grade-select{width:180px!important;}
+}
+@media (max-width:900px){
+.bgb-filter input,.bgb-filter select{width:100%!important;box-sizing:border-box!important;display:block;}
+}
+
+.spec-item{display:flex;align-items:center;gap:6px;}
+.spec-icon{flex-shrink:0;}

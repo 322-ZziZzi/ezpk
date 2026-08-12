@@ -1115,3 +1115,7 @@ body.admin-unlocked{overflow:auto}
 .system-subadmin-entry{padding:14px;border:1px solid #2b3b50;border-radius:12px;background:rgba(14,25,39,.65)}
 .system-subadmin-entry+.system-subadmin-entry{margin-top:12px}
 .system-subadmin-entry.selected{border-color:#7d9bc2;box-shadow:0 0 0 1px rgba(125,155,194,.25)}
+
+/* v405 migration inquiry private/delete UX */
+.request-admin-private-note{margin:10px 0 4px;padding:9px 11px;border:1px solid rgba(245,197,71,.18);border-radius:9px;background:rgba(245,197,71,.055);color:#b9c3d0;font-size:12px;line-height:1.5}
+.request-source-badge.migration{white-space:nowrap}
