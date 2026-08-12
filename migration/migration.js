@@ -3,6 +3,7 @@
 
   const LANG_KEY='ezpk-lang-v5';
   const LANGS=['ko','en','pt','vi','ar','ja','th','zh-tw'];
+  const currentSiteId=String(location.hostname||'').toLowerCase()==='ezpk2.ezpk322.com'?'ezpk2':'ezpk1';
   const TIER_POWER=Object.freeze({gray:'0-46M',blue:'46M-90M',purple:'90M-200M',gold:'>200M'});
   const TEXT={
     ko:{
@@ -90,6 +91,18 @@
     'zh-tw':{title:'查詢移民申請狀態',help:'輸入申請時使用的 16 位遊戲 UID，即可查看目前進度。',placeholder:'16 位遊戲 UID',button:'查詢',checking:'查詢中...',invalid:'遊戲 UID 必須為 16 位數字。',tooLong:'遊戲 UID 最多只能輸入 16 位數字。',notFound:'找不到此 UID 的移民申請。',rate:'查詢次數過多，請稍後再試。',retry:'目前無法查詢申請狀態，請稍後再試。',updated:'最近狀態變更 · {date}',statuses:{received:['已接收','申請已成功接收，正在等待審核。'],reviewing:['審核中','管理團隊正在審核您的申請。'],approved:['已批准','您的移民申請已批准，請留意管理團隊的聯絡。'],rejected:['已拒絕','您的移民申請未獲批准。']}}
   });
 
+  const EXTRA_TEXT={
+    ko:{eligibilityKicker:'EZPK1 MEMBERSHIP',eligibilityTitle:'EZPK1 가입 조건',eligibilityBody:'EZPK1은 연맹원 관리 페이지의 R2 승급 조건을 기준으로 운영됩니다.',eligibilityVehicle:'1번 차량 파워',eligibilityIndustry:'산업 레벨',ezpk2CtaBody:'보다 자유로운 플레이를 원하시거나 EZPK1 가입 기준에 해당하지 않는 경우 EZPK2로 이민 신청하실 수 있습니다.',ezpk2CtaButton:'EZPK2 연맹으로 이민신청 하기',leaveWarn:'작성 중인 EZPK1 이민 신청 내용은 저장되지 않습니다. EZPK2 이민 신청 페이지로 이동할까요?',inquiryTitle:'이민 신청 문의',inquiryBody:'이민 신청과 관련해 문의하실 내용이 있다면 요청 게시판을 이용해 주세요. 신청 시 사용한 UID로 확인된 닉네임으로 문의가 등록됩니다.',inquiryButton:'요청 게시판으로 이동',playerLabel:'신청 닉네임',inquiryAnswered:'운영진 답변 있음',inquiryOpen:'문의 진행 중',inquiryClosed:'문의 종료'},
+    en:{eligibilityKicker:'EZPK1 MEMBERSHIP',eligibilityTitle:'EZPK1 Entry Requirements',eligibilityBody:'EZPK1 uses the R2 promotion requirements configured in Member Management.',eligibilityVehicle:'Vehicle #1 Power',eligibilityIndustry:'Industry Level',ezpk2CtaBody:'If you prefer a more flexible play style or do not meet the EZPK1 entry requirements, you can apply to migrate to EZPK2.',ezpk2CtaButton:'Apply for Migration to EZPK2',leaveWarn:'Your in-progress EZPK1 migration form will not be saved. Continue to the EZPK2 migration page?',inquiryTitle:'Migration Application Inquiry',inquiryBody:'Have a question about your application? Contact the EZPK leadership through the Request Board. Your application nickname will be used automatically.',inquiryButton:'Go to Request Board',playerLabel:'Applicant',inquiryAnswered:'Leadership reply available',inquiryOpen:'Inquiry in progress',inquiryClosed:'Inquiry closed'},
+    pt:{eligibilityKicker:'MEMBROS EZPK1',eligibilityTitle:'Requisitos de Entrada EZPK1',eligibilityBody:'A EZPK1 usa os requisitos de promoção para R2 definidos no gerenciamento de membros.',eligibilityVehicle:'Poder do Veículo 1',eligibilityIndustry:'Nível Industrial',ezpk2CtaBody:'Se preferir um estilo de jogo mais livre ou não atender aos requisitos da EZPK1, você pode solicitar migração para a EZPK2.',ezpk2CtaButton:'Solicitar Migração para EZPK2',leaveWarn:'Os dados preenchidos na EZPK1 não serão salvos. Ir para a página de migração da EZPK2?',inquiryTitle:'Dúvida sobre a Migração',inquiryBody:'Se tiver dúvidas sobre sua solicitação, use o Quadro de Pedidos. O nome da solicitação será usado automaticamente.',inquiryButton:'Ir ao Quadro de Pedidos',playerLabel:'Candidato',inquiryAnswered:'Há resposta da liderança',inquiryOpen:'Consulta em andamento',inquiryClosed:'Consulta encerrada'},
+    vi:{eligibilityKicker:'THÀNH VIÊN EZPK1',eligibilityTitle:'Điều kiện Gia nhập EZPK1',eligibilityBody:'EZPK1 sử dụng điều kiện thăng R2 được đặt trong trang quản lý thành viên.',eligibilityVehicle:'Sức mạnh Xe 1',eligibilityIndustry:'Cấp Công nghiệp',ezpk2CtaBody:'Nếu bạn muốn chơi tự do hơn hoặc chưa đạt điều kiện EZPK1, bạn có thể đăng ký di cư sang EZPK2.',ezpk2CtaButton:'Đăng ký Di cư sang EZPK2',leaveWarn:'Thông tin đang nhập cho EZPK1 sẽ không được lưu. Chuyển sang trang EZPK2?',inquiryTitle:'Hỏi về Đơn Di cư',inquiryBody:'Nếu có câu hỏi về đơn di cư, hãy dùng Bảng Yêu cầu. Tên trong đơn sẽ được sử dụng tự động.',inquiryButton:'Đi đến Bảng Yêu cầu',playerLabel:'Người đăng ký',inquiryAnswered:'Có phản hồi từ quản lý',inquiryOpen:'Đang xử lý',inquiryClosed:'Đã đóng'},
+    ar:{eligibilityKicker:'عضوية EZPK1',eligibilityTitle:'شروط الانضمام إلى EZPK1',eligibilityBody:'تستخدم EZPK1 شروط الترقية إلى R2 المحددة في إدارة الأعضاء.',eligibilityVehicle:'قوة المركبة 1',eligibilityIndustry:'مستوى الصناعة',ezpk2CtaBody:'إذا كنت تفضل أسلوب لعب أكثر مرونة أو لا تستوفي شروط EZPK1، يمكنك التقدم للهجرة إلى EZPK2.',ezpk2CtaButton:'التقدم للهجرة إلى EZPK2',leaveWarn:'لن يتم حفظ بيانات طلب EZPK1 الحالية. الانتقال إلى صفحة EZPK2؟',inquiryTitle:'استفسار طلب الهجرة',inquiryBody:'إذا كان لديك سؤال حول طلب الهجرة، استخدم لوحة الطلبات. سيُستخدم اسم الطلب تلقائيًا.',inquiryButton:'الذهاب إلى لوحة الطلبات',playerLabel:'مقدم الطلب',inquiryAnswered:'يوجد رد من الإدارة',inquiryOpen:'الاستفسار جارٍ',inquiryClosed:'الاستفسار مغلق'},
+    ja:{eligibilityKicker:'EZPK1 MEMBERSHIP',eligibilityTitle:'EZPK1 加入条件',eligibilityBody:'EZPK1はメンバー管理ページで設定されたR2昇級条件を基準に運営されます。',eligibilityVehicle:'車両1パワー',eligibilityIndustry:'産業レベル',ezpk2CtaBody:'より自由なプレイを希望する場合、またはEZPK1の条件に該当しない場合はEZPK2へ移住申請できます。',ezpk2CtaButton:'EZPK2へ移住申請する',leaveWarn:'入力中のEZPK1申請内容は保存されません。EZPK2の申請ページへ移動しますか？',inquiryTitle:'移住申請に関する問い合わせ',inquiryBody:'移住申請について質問がある場合はリクエスト掲示板をご利用ください。申請で確認されたニックネームが自動で使用されます。',inquiryButton:'リクエスト掲示板へ',playerLabel:'申請者',inquiryAnswered:'運営から回答あり',inquiryOpen:'問い合わせ中',inquiryClosed:'終了'},
+    th:{eligibilityKicker:'สมาชิก EZPK1',eligibilityTitle:'เงื่อนไขเข้าร่วม EZPK1',eligibilityBody:'EZPK1 ใช้เงื่อนไขเลื่อนระดับ R2 ที่ตั้งไว้ในหน้าจัดการสมาชิก',eligibilityVehicle:'พลังยานพาหนะ 1',eligibilityIndustry:'ระดับอุตสาหกรรม',ezpk2CtaBody:'หากต้องการเล่นแบบอิสระมากขึ้นหรือยังไม่ถึงเกณฑ์ EZPK1 สามารถสมัครย้ายไป EZPK2 ได้',ezpk2CtaButton:'สมัครย้ายไป EZPK2',leaveWarn:'ข้อมูลที่กรอกสำหรับ EZPK1 จะไม่ถูกบันทึก ต้องการไปหน้าสมัคร EZPK2 หรือไม่?',inquiryTitle:'สอบถามใบสมัครย้าย',inquiryBody:'หากมีคำถามเกี่ยวกับใบสมัคร โปรดใช้กระดานคำขอ ระบบจะใช้ชื่อจากใบสมัครโดยอัตโนมัติ',inquiryButton:'ไปที่กระดานคำขอ',playerLabel:'ผู้สมัคร',inquiryAnswered:'มีคำตอบจากทีมบริหาร',inquiryOpen:'กำลังดำเนินการ',inquiryClosed:'ปิดแล้ว'},
+    'zh-tw':{eligibilityKicker:'EZPK1 MEMBERSHIP',eligibilityTitle:'EZPK1 加入條件',eligibilityBody:'EZPK1 使用成員管理頁面中設定的 R2 晉級條件。',eligibilityVehicle:'載具 1 戰力',eligibilityIndustry:'產業等級',ezpk2CtaBody:'如果希望更自由的玩法，或未符合 EZPK1 條件，可以申請移民至 EZPK2。',ezpk2CtaButton:'申請移民至 EZPK2',leaveWarn:'目前填寫的 EZPK1 申請資料不會儲存。要前往 EZPK2 移民頁面嗎？',inquiryTitle:'移民申請詢問',inquiryBody:'如對移民申請有疑問，請使用請求留言板。系統會自動使用申請中確認的暱稱。',inquiryButton:'前往請求留言板',playerLabel:'申請者',inquiryAnswered:'已有管理員回覆',inquiryOpen:'詢問進行中',inquiryClosed:'詢問已結束'}
+  };
+  for(const code of LANGS)Object.assign(TEXT[code],EXTRA_TEXT[code]||EXTRA_TEXT.en);
+
   const app=document.getElementById('migrationApp');
   const shell=document.getElementById('migrationFormShell');
   const success=document.getElementById('migrationSuccess');
@@ -102,8 +115,15 @@
   const prev=document.getElementById('migrationPrev');
   const next=document.getElementById('migrationNext');
   const submitError=document.getElementById('migrationSubmitError');
+  const statusArea=document.getElementById('migrationStatusArea');
+  const eligibility=document.getElementById('migrationEligibility');
+  const eligibilityVehicleValue=document.getElementById('eligibilityVehicleValue');
+  const eligibilityIndustryValue=document.getElementById('eligibilityIndustryValue');
+  const ezpk2Cta=document.getElementById('migrationEzpk2Cta');
+  const ezpk2Link=document.getElementById('migrationEzpk2Link');
+  let eligibilityData=null;
   let step=0, errors={}, submitting=false;
-  const statusLookup={uid:'',phase:'idle',applicationStatus:'',updatedAt:''};
+  const statusLookup={uid:'',phase:'idle',applicationStatus:'',updatedAt:'',playerName:'',inquiry:null};
   const state={playerName:'',gameUid:'',discord:'',currentState:'',currentAlliance:'',vehicle1PowerValue:'',vehicle1PowerUnit:'',vehicle2PowerValue:'',vehicle2PowerUnit:'',industryLevel:null,spendingLevel:null,migrationTier:'',migrationReason:'',additionalNotes:'',migrationGroup:'',referrer:''};
 
   const esc=(value)=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -111,6 +131,7 @@
   const t=()=>TEXT[lang()]||TEXT.en;
   const statusT=()=>STATUS_TEXT[lang()]||STATUS_TEXT.en;
   const fill=(text,values={})=>Object.entries(values).reduce((out,[k,v])=>out.replaceAll(`{${k}}`,String(v)),text);
+  const siteString=(value)=>currentSiteId==='ezpk2'&&typeof value==='string'?value.replaceAll('EZPK','EZPK2'):value;
   const requiredMark=()=>`<span class="migration-required" aria-hidden="true">*</span>`;
   const errorHtml=(key)=>errors[key]?`<div class="migration-error" data-error-for="${key}" role="alert">${esc(errors[key])}</div>`:'';
   const invalid=(key)=>errors[key]?' aria-invalid="true"':'';
@@ -174,7 +195,10 @@
     if(statusLookup.phase==='found'){
       const info=tx.statuses[statusLookup.applicationStatus]||tx.statuses.received;
       const date=formatStatusDate(statusLookup.updatedAt);
-      result=`<div class="migration-status-result status-${esc(statusLookup.applicationStatus)}" role="status"><span class="migration-status-badge">${esc(info[0])}</span><p>${esc(info[1])}</p>${date?`<small>${esc(fill(tx.updated,{date}))}</small>`:''}</div>`;
+      const extra=t();
+      const inquiry=statusLookup.inquiry;
+      const inquiryLabel=inquiry?(inquiry.status==='answered'?extra.inquiryAnswered:inquiry.status==='closed'?extra.inquiryClosed:extra.inquiryOpen):'';
+      result=`<div class="migration-status-result status-${esc(statusLookup.applicationStatus)}" role="status"><span class="migration-status-badge">${esc(info[0])}</span>${statusLookup.playerName?`<strong class="migration-status-player">${esc(extra.playerLabel)} · ${esc(statusLookup.playerName)}</strong>`:''}<p>${esc(info[1])}</p>${date?`<small>${esc(fill(tx.updated,{date}))}</small>`:''}${inquiryLabel?`<span class="migration-inquiry-state">${esc(inquiryLabel)}</span>`:''}<div class="migration-inquiry-callout"><h4>${esc(extra.inquiryTitle)}</h4><p>${esc(extra.inquiryBody)}</p><a class="migration-button migration-button-secondary" href="../request/">${esc(extra.inquiryButton)}</a></div></div>`;
     }
     return `<section class="migration-status-lookup" aria-labelledby="migration-status-title"><div class="migration-status-copy"><h3 id="migration-status-title">${esc(tx.title)}</h3><p>${esc(tx.help)}</p></div><div class="migration-status-controls"><div class="migration-status-input-wrap"><input id="migrationStatusUid" data-status-uid type="text" inputmode="numeric" autocomplete="off" maxlength="32" value="${esc(statusLookup.uid)}" placeholder="${esc(tx.placeholder)}" aria-label="${esc(tx.placeholder)}"${inlineError?' aria-invalid="true"':''}>${inlineError?`<div class="migration-error" data-status-error role="alert">${esc(inlineError)}</div>`:''}</div><button type="button" class="migration-button migration-button-secondary migration-status-button" data-status-check ${statusLookup.phase==='loading'?'disabled':''}>${esc(statusLookup.phase==='loading'?tx.checking:tx.button)}</button></div>${result}</section>`;
   }
@@ -182,16 +206,17 @@
   function renderStep(){
     const tx=t();document.title=tx.pageTitle;
     document.querySelectorAll('[data-migration-k]').forEach(el=>{const val=tx[el.dataset.migrationK];if(val!=null)el.textContent=val});
-    counter.textContent=fill(tx.stepCounter,{step:step+1});title.textContent=tx.steps[step][0];desc.textContent=tx.steps[step][1];progress.style.width=`${((step+1)/7)*100}%`;
+    counter.textContent=fill(tx.stepCounter,{step:step+1});title.textContent=siteString(tx.steps[step][0]);desc.textContent=siteString(tx.steps[step][1]);progress.style.width=`${((step+1)/7)*100}%`;
     prev.textContent=tx.prev;prev.hidden=step===0;next.textContent=step===6?tx.submit:tx.next;next.disabled=submitting;
     submitError.hidden=true;submitError.textContent='';
-    if(step===0)body.innerHTML=field('playerName',tx.f.playerName,state.playerName,{required:true,placeholder:tx.p.playerName,maxlength:64})+field('gameUid',tx.f.gameUid,state.gameUid,{required:true,placeholder:tx.p.uid,inputmode:'numeric',maxlength:32})+field('discord',tx.f.discord,state.discord,{placeholder:tx.p.discord,maxlength:100,help:tx.discordHelp})+renderStatusLookup();
+    if(step===0)body.innerHTML=field('playerName',tx.f.playerName,state.playerName,{required:true,placeholder:tx.p.playerName,maxlength:64})+field('gameUid',tx.f.gameUid,state.gameUid,{required:true,placeholder:tx.p.uid,inputmode:'numeric',maxlength:32})+field('discord',tx.f.discord,state.discord,{placeholder:tx.p.discord,maxlength:100,help:tx.discordHelp});
     if(step===1)body.innerHTML=field('currentState',tx.f.currentState,state.currentState,{required:true,placeholder:tx.p.state,inputmode:'numeric',maxlength:9})+field('currentAlliance',tx.f.currentAlliance,state.currentAlliance,{placeholder:tx.p.alliance,maxlength:64});
     if(step===2)body.innerHTML=powerField(1)+powerField(2)+`<div class="migration-field"><div class="migration-field-label">${esc(tx.f.industry)}${requiredMark()}</div>${numberChoices('industryLevel',state.industryLevel)}<div class="migration-choice-summary">${state.industryLevel?esc(fill(tx.industrySummary,{value:state.industryLevel})):''}</div>${errorHtml('industryLevel')}</div><div class="migration-field"><div class="migration-field-label">${esc(tx.f.spending)}${requiredMark()}</div>${numberChoices('spendingLevel',state.spendingLevel)}<div class="migration-choice-summary">${state.spendingLevel?esc(fill(tx.spendingSummary,{value:state.spendingLevel,label:spendingLabel(state.spendingLevel)})):''}</div>${errorHtml('spendingLevel')}</div>`;
     if(step===3)body.innerHTML=`<div class="migration-field"><div class="migration-field-label">${esc(tx.f.tier)}${requiredMark()}</div><div class="migration-tier-grid">${['gold','purple','blue','gray'].map(v=>`<button type="button" class="migration-tier-card ${state.migrationTier===v?'selected':''}" data-choice-field="migrationTier" data-choice-value="${v}" aria-pressed="${state.migrationTier===v}" aria-label="${esc(`${tx.tiers[v]} ${TIER_POWER[v]}`)}"><span class="migration-tier-name">${esc(tx.tiers[v])}</span><span class="migration-tier-power">${esc(TIER_POWER[v])}</span></button>`).join('')}</div>${errorHtml('migrationTier')}</div>`;
     if(step===4)body.innerHTML=textarea('migrationReason',tx.f.reason,state.migrationReason,{required:true,placeholder:tx.p.reason,maxlength:2000})+textarea('additionalNotes',tx.f.notes,state.additionalNotes,{placeholder:tx.p.notes,maxlength:2000});
     if(step===5)body.innerHTML=field('migrationGroup',tx.f.group,state.migrationGroup,{placeholder:tx.p.group,maxlength:200})+field('referrer',tx.f.referrer,state.referrer,{placeholder:tx.p.referrer,maxlength:64});
     if(step===6)body.innerHTML=renderReview();
+    if(statusArea){statusArea.hidden=step!==0;if(step===0)statusArea.innerHTML=renderStatusLookup();else statusArea.innerHTML='';}
   }
 
   function reviewRow(label,value,full=false){return `<div class="migration-review-row${full?' full':''}"><dt>${esc(label)}</dt><dd>${esc(value||t().notEntered)}</dd></div>`}
@@ -204,12 +229,14 @@
   function validate(index){const tx=t();errors={};if(index===0){if(!state.playerName)errors.playerName=tx.errors.required;if(state.gameUid.length>16)errors.gameUid=tx.errors.uidTooLong;else if(!/^\d{16}$/.test(state.gameUid))errors.gameUid=tx.errors.uid;}if(index===1){if(!/^\d+$/.test(state.currentState))errors.currentState=tx.errors.state;}if(index===2){if(!validPower(state.vehicle1PowerValue))errors.vehicle1PowerValue=tx.errors.power;if(!['M','G'].includes(state.vehicle1PowerUnit))errors.vehicle1PowerUnit=tx.errors.unit;if(state.vehicle2PowerValue||state.vehicle2PowerUnit){if(!validPower(state.vehicle2PowerValue))errors.vehicle2PowerValue=tx.errors.power;if(!['M','G'].includes(state.vehicle2PowerUnit))errors.vehicle2PowerUnit=tx.errors.unit;}if(!Number.isInteger(Number(state.industryLevel))||Number(state.industryLevel)<1||Number(state.industryLevel)>10)errors.industryLevel=tx.errors.industry;if(!Number.isInteger(Number(state.spendingLevel))||Number(state.spendingLevel)<1||Number(state.spendingLevel)>10)errors.spendingLevel=tx.errors.spending;}if(index===3&&!['gray','blue','purple','gold'].includes(state.migrationTier))errors.migrationTier=tx.errors.tier;if(index===4&&!state.migrationReason)errors.migrationReason=tx.errors.reason;return Object.keys(errors).length===0}
   function firstInvalidStep(){for(let i=0;i<6;i++){if(!validate(i))return i;}errors={};return -1}
 
-  body.addEventListener('input',event=>{const statusInput=event.target.closest('[data-status-uid]');if(statusInput){const digits=statusInput.value.replace(/\D/g,'');if(statusInput.value!==digits)statusInput.value=digits;statusLookup.uid=statusInput.value;statusLookup.applicationStatus='';statusLookup.updatedAt='';if(statusLookup.phase!=='loading')statusLookup.phase=statusInput.value.length>16?'invalid-too-long':'idle';updateStatusInlineError(statusInput,statusInput.value.length>16?statusT().tooLong:'');statusInput.closest('.migration-status-lookup')?.querySelectorAll('.migration-status-message,.migration-status-result').forEach(node=>node.remove());return;}const el=event.target.closest('[data-field]');if(!el)return;if(el.dataset.field==='gameUid'){const digits=el.value.replace(/\D/g,'');if(el.value!==digits)el.value=digits;state.gameUid=el.value.trim();if(el.value.length>16)setInlineFieldError('gameUid',t().errors.uidTooLong);else if(errors.gameUid)clearInlineFieldError('gameUid');return;}if(el.dataset.field==='currentState')el.value=el.value.replace(/\D/g,'').slice(0,9);state[el.dataset.field]=el.value.trim();if(errors[el.dataset.field])clearInlineFieldError(el.dataset.field);});
-  body.addEventListener('click',async event=>{const statusCheck=event.target.closest('[data-status-check]');if(statusCheck){await checkMigrationStatus();return;}const choice=event.target.closest('[data-choice-field]');if(choice){collectStep();const key=choice.dataset.choiceField;let value=choice.dataset.choiceValue;if(['industryLevel','spendingLevel'].includes(key))value=Number(value);state[key]=value;delete errors[key];renderStep();return;}const edit=event.target.closest('[data-edit-step]');if(edit){step=Number(edit.dataset.editStep);errors={};renderStep();window.scrollTo({top:0,behavior:'smooth'});}});
+  body.addEventListener('input',event=>{const el=event.target.closest('[data-field]');if(!el)return;if(el.dataset.field==='gameUid'){const digits=el.value.replace(/\D/g,'');if(el.value!==digits)el.value=digits;state.gameUid=el.value.trim();if(el.value.length>16)setInlineFieldError('gameUid',t().errors.uidTooLong);else if(errors.gameUid)clearInlineFieldError('gameUid');return;}if(el.dataset.field==='currentState')el.value=el.value.replace(/\D/g,'').slice(0,9);state[el.dataset.field]=el.value.trim();if(errors[el.dataset.field])clearInlineFieldError(el.dataset.field);});
+  body.addEventListener('click',async event=>{const choice=event.target.closest('[data-choice-field]');if(choice){collectStep();const key=choice.dataset.choiceField;let value=choice.dataset.choiceValue;if(['industryLevel','spendingLevel'].includes(key))value=Number(value);state[key]=value;delete errors[key];renderStep();return;}const edit=event.target.closest('[data-edit-step]');if(edit){step=Number(edit.dataset.editStep);errors={};renderStep();window.scrollTo({top:0,behavior:'smooth'});}});
   prev.addEventListener('click',()=>{if(submitting)return;collectStep();errors={};step=Math.max(0,step-1);renderStep();});
   next.addEventListener('click',async()=>{if(submitting)return;collectStep();if(step<6){if(!validate(step)){renderStep();return;}if(step===0&&await blockDuplicateUidAtStepOne())return;errors={};step++;renderStep();return;}await submit();});
   form.addEventListener('submit',event=>event.preventDefault());
-  body.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.closest('[data-status-uid]')){event.preventDefault();checkMigrationStatus();}});
+  statusArea?.addEventListener('input',event=>{const input=event.target.closest('[data-status-uid]');if(!input)return;const digits=input.value.replace(/\D/g,'');if(input.value!==digits)input.value=digits;statusLookup.uid=input.value;statusLookup.applicationStatus='';statusLookup.updatedAt='';statusLookup.playerName='';statusLookup.inquiry=null;if(statusLookup.phase!=='loading')statusLookup.phase=input.value.length>16?'invalid-too-long':'idle';updateStatusInlineError(input,input.value.length>16?statusT().tooLong:'');input.closest('.migration-status-lookup')?.querySelectorAll('.migration-status-message,.migration-status-result').forEach(node=>node.remove());});
+  statusArea?.addEventListener('click',async event=>{if(event.target.closest('[data-status-check]'))await checkMigrationStatus();});
+  statusArea?.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.closest('[data-status-uid]')){event.preventDefault();checkMigrationStatus();}});
 
   async function blockDuplicateUidAtStepOne(){
     try{
@@ -220,6 +247,8 @@
       statusLookup.uid=state.gameUid;
       statusLookup.applicationStatus=String(payload.data.applicationStatus||'');
       statusLookup.updatedAt=String(payload.data.updatedAt||'');
+      statusLookup.playerName=String(payload.data.playerName||'');
+      statusLookup.inquiry=payload.data.inquiry||null;
       statusLookup.phase=STATUS_TEXT.en.statuses[statusLookup.applicationStatus]?'found':'idle';
       renderStep();
       return true;
@@ -228,7 +257,7 @@
 
   async function checkMigrationStatus(){
     if(statusLookup.phase==='loading')return;
-    const input=body.querySelector('[data-status-uid]');
+    const input=statusArea?.querySelector('[data-status-uid]');
     const uid=String(input?.value||statusLookup.uid).replace(/\D/g,'');
     statusLookup.uid=uid;
     if(uid.length>16){statusLookup.phase='invalid-too-long';statusLookup.applicationStatus='';statusLookup.updatedAt='';renderStep();return;}
@@ -242,6 +271,8 @@
       if(!payload.data?.found){statusLookup.phase='not-found';renderStep();return;}
       statusLookup.applicationStatus=String(payload.data.applicationStatus||'');
       statusLookup.updatedAt=String(payload.data.updatedAt||'');
+      statusLookup.playerName=String(payload.data.playerName||'');
+      statusLookup.inquiry=payload.data.inquiry||null;
       statusLookup.phase=STATUS_TEXT.en.statuses[statusLookup.applicationStatus]?'found':'error';
       renderStep();
     }catch(_){statusLookup.phase='error';renderStep();}
@@ -251,11 +282,17 @@
     try{const response=await fetch('/api/migration/applications',{method:'POST',credentials:'include',headers:{'content-type':'application/json','accept':'application/json'},body:JSON.stringify({...state,website:document.getElementById('migrationHoneypot').value})});const payload=await response.json().catch(()=>null);if(!response.ok||!payload?.ok){const code=payload?.code||'';throw Object.assign(new Error(code||'SUBMIT_FAILED'),{code,status:response.status});}shell.hidden=true;success.hidden=false;renderStatic();window.scrollTo({top:0,behavior:'smooth'});}catch(error){const tx=t();submitError.textContent=error.code==='MIGRATION_APPLICATION_EXISTS'?tx.errors.duplicate:error.code==='MIGRATION_RATE_LIMITED'?tx.errors.rate:tx.errors.retry;submitError.hidden=false;}finally{submitting=false;if(!shell.hidden){next.disabled=false;next.textContent=t().submit;}}
   }
 
-  function renderStatic(){const tx=t();document.title=tx.pageTitle;document.querySelectorAll('[data-migration-k]').forEach(el=>{const value=tx[el.dataset.migrationK];if(value!=null)el.textContent=value});}
+  function formHasData(){return Object.values(state).some(v=>v!==null&&String(v||'').trim()!=='');}
+  function formatRulePower(value){const g=Number(value||0)/1000;if(!Number.isFinite(g))return '-';return `${Number.isInteger(g)?g:g.toFixed(2).replace(/0+$/,'').replace(/\.$/,'')}G+`;}
+  function renderEligibility(){if(!eligibility||!eligibilityData||!eligibilityData.visible){if(eligibility)eligibility.hidden=true;return;}eligibility.hidden=false;eligibilityVehicleValue.textContent=formatRulePower(eligibilityData.vehicle1PowerNormalized);eligibilityIndustryValue.textContent=`${Number(eligibilityData.industryLevel||0)}+`;ezpk2Cta.hidden=!eligibilityData.ezpk2Active;if(eligibilityData.ezpk2Active)ezpk2Link.href=eligibilityData.ezpk2MigrationUrl||'https://ezpk2.ezpk322.com/migration/';}
+  async function loadEligibility(){try{const response=await fetch('/api/migration/eligibility',{credentials:'include',headers:{accept:'application/json'},cache:'no-store'});const payload=await response.json().catch(()=>null);eligibilityData=response.ok&&payload?.ok?payload.data:null;}catch(_){eligibilityData=null;}renderEligibility();}
+  ezpk2Link?.addEventListener('click',event=>{if(!formHasData())return;if(!confirm(t().leaveWarn)){event.preventDefault();}});
+
+  function renderStatic(){const tx=t();document.title=siteString(tx.pageTitle);document.querySelectorAll('[data-migration-k]').forEach(el=>{const key=el.dataset.migrationK;const value=tx[key];if(value!=null)el.textContent=['heroTitle','heroBody','successTitle','successBody1','successBody2','successBody3'].includes(key)?siteString(value):value});renderEligibility();}
   function onLanguageChange(){collectStep();renderStep();renderStatic();}
   window.addEventListener('ezpk-language-change',onLanguageChange);
 
-  function handleAuth(raw){const stateAuth=raw||{};if(!stateAuth.loaded)return;if(stateAuth.authenticated){window.location.replace('../');return;}document.body.classList.remove('migration-auth-pending');app.hidden=false;renderStep();renderStatic();}
+  function handleAuth(raw){const stateAuth=raw||{};if(!stateAuth.loaded)return;if(stateAuth.authenticated){window.location.replace('../');return;}document.body.classList.remove('migration-auth-pending');app.hidden=false;renderStep();renderStatic();loadEligibility();}
   window.addEventListener('ezpk-auth-ready',event=>handleAuth({loaded:true,...event.detail}));
   window.addEventListener('ezpk-auth-change',event=>handleAuth({loaded:true,...event.detail}));
   const auth=window.EZPKMemberAuth?.getState?.();if(auth?.loaded)handleAuth(auth);

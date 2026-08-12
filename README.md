@@ -1,3 +1,15 @@
+## v401 Multi-Alliance / Migration Inquiry
+
+- Added shared-code EZPK1/EZPK2 operation with server-side hostname-to-D1 routing: existing EZPK1 `DB` and independent EZPK2 `EZPK2_DB`.
+- Preserved EZPK1 root-path compatibility while adding DUAL gateway/SINGLE mode and EZPK2 inactive handling.
+- Kept member accounts, login sessions, and operational data independent per alliance; deleted members that later sign up are treated as new members with no cross-alliance history transfer.
+- Added cross-alliance live nickname duplicate checks for signup and nickname-changing administrator/member flows.
+- Added Migration Inquiry Session + applicant-only Request Board threads without turning Migration into member authentication.
+- Moved Migration UID lookup below the Step 1 Next button and integrated the Migration hero into the common Heading System.
+- Added the EZPK1-only eligibility card backed directly by the existing R2 promotion settings and an EZPK2 Migration CTA that is hidden when EZPK2 is inactive.
+- Added additive D1 migration `0030_v401_multi_alliance_migration_inquiries.sql`.
+- See `V401_MULTI_ALLIANCE_VERIFICATION.md` before deployment.
+
 ## v390 migration tier power criteria
 
 - Updated Migration Step 4 to the published grades: Special, Advanced, Intermediate, and Normal.

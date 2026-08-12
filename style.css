@@ -801,7 +801,7 @@ html[dir="rtl"] .ezpk-password-toggle{right:auto;left:5px}
 @media (min-width:901px){
   [data-shared-header].site-header{
     display:grid!important;
-    grid-template-columns:auto minmax(0,1fr) auto auto!important;
+    grid-template-columns:auto minmax(0,1fr) auto auto auto!important;
     gap:12px!important;
   }
   [data-shared-header] #nav{
@@ -2330,4 +2330,19 @@ html[dir='rtl'] .ezpk-auth-dialog h2{margin-right:0;margin-left:34px}
   .ezpk-mobile-drawer .mobile-account-actions--guest button[data-account-action='signup']:focus-visible{
     border-color:#69a6d7!important;background:#245f91!important;color:#fff!important;outline:none!important
   }
+}
+
+/* v401 Multi-Alliance request admin source badges */
+.request-source-badge{display:inline-flex;align-items:center;padding:3px 7px;border:1px solid rgba(255,255,255,.15);border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.08em;margin-right:7px;vertical-align:2px}
+.request-source-badge.migration{border-color:rgba(120,176,255,.45);background:rgba(75,126,235,.12)}
+.request-admin-thread{display:grid;gap:8px;margin:12px 0}.request-admin-thread-row{border-left:2px solid rgba(255,255,255,.15);padding:8px 10px}.request-admin-thread-row.admin{border-left-color:#7aaaff;background:rgba(80,125,235,.06)}.request-admin-thread-row p{white-space:pre-wrap;margin:4px 0}.request-admin-thread-row small{opacity:.65}
+
+/* v401 alliance selector control */
+.alliance-selector-link{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 10px;border:1px solid rgba(255,255,255,.13);border-radius:999px;color:#cbd3df;text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.04em;white-space:nowrap}.alliance-selector-link:hover{border-color:rgba(216,177,91,.45);color:#f2d37b}.alliance-selector-link[hidden]{display:none!important}
+@media(max-width:900px){.alliance-selector-link{display:none!important}}
+
+/* v402: desktop multi-alliance header grid repair */
+@media(min-width:901px){
+  [data-shared-header].site-header{grid-template-columns:auto minmax(0,1fr) auto auto auto!important}
+  [data-shared-header] .alliance-selector-link{max-width:138px;overflow:hidden;text-overflow:ellipsis}
 }

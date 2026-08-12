@@ -37,3 +37,12 @@ README.txt
 *.log
 .DS_Store
 Thumbs.db
+# v401 deployment/verification metadata is never a public site asset.
+wrangler*.jsonc
+V*_VERIFICATION.md
+scripts
+scripts/**
+
+V*_DEPLOY_READY_RUNBOOK.md
+
+V*_FILE_CHECKSUMS.sha256

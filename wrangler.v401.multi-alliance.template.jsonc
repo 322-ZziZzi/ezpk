@@ -4,7 +4,7 @@
   "main": "./worker.js",
   "compatibility_date": "2026-07-17",
 
-  // v402 multi-alliance production configuration with Worker-first host routing.
+  // v401 multi-alliance production configuration reference.
   // EZPK2 database_id resolved from the operator-provided Cloudflare D1 UUID.
   "routes": [
     { "pattern": "ezpk322.com", "custom_domain": true },
@@ -20,7 +20,13 @@
   "assets": {
     "directory": "./",
     "binding": "ASSETS",
-    "run_worker_first": true
+    "run_worker_first": [
+      "/api/*",
+      "/data/capital-war.json",
+      "/data/season6-teams.json",
+      "/data/bgb.json",
+      "/data/accounts.json"
+    ]
   },
 
   "d1_databases": [

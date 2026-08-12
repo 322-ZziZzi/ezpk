@@ -5,19 +5,34 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
   <meta name="theme-color" content="#05070b">
   <title>EZPK Migration</title>
-  <link rel="stylesheet" href="../style.css?v=3560">
-  <link rel="stylesheet" href="../common-heading.css?v=3570">
-  <link rel="stylesheet" href="migration.css?v=3920">
+  <link rel="stylesheet" href="../style.css?v=4020">
+  <link rel="stylesheet" href="../common-heading.css?v=4010">
+  <link rel="stylesheet" href="migration.css?v=4010">
 </head>
 <body class="migration-auth-pending">
   <header class="site-header" data-shared-header data-base=".." data-home-href="../" data-active-menu="immigration"></header>
-  <script src="../shared-header.js?v=3870"></script>
+  <script src="../shared-header.js?v=4020"></script>
 
   <main id="migrationApp" class="migration-main" hidden>
     <section class="migration-hero">
-      <span class="eyebrow" data-migration-k="heroKicker"></span>
       <h1 data-migration-k="heroTitle"></h1>
       <p data-migration-k="heroBody"></p>
+    </section>
+
+    <section id="migrationEligibility" class="migration-eligibility" hidden aria-live="polite">
+      <div class="migration-eligibility-head">
+        <span data-migration-k="eligibilityKicker"></span>
+        <h2 data-migration-k="eligibilityTitle"></h2>
+        <p data-migration-k="eligibilityBody"></p>
+      </div>
+      <div class="migration-eligibility-rules">
+        <div class="migration-eligibility-rule"><span data-migration-k="eligibilityVehicle"></span><strong id="eligibilityVehicleValue">-</strong></div>
+        <div class="migration-eligibility-rule"><span data-migration-k="eligibilityIndustry"></span><strong id="eligibilityIndustryValue">-</strong></div>
+      </div>
+      <div id="migrationEzpk2Cta" class="migration-ezpk2-cta" hidden>
+        <p data-migration-k="ezpk2CtaBody"></p>
+        <a id="migrationEzpk2Link" class="migration-button migration-button-secondary" href="#" data-migration-k="ezpk2CtaButton"></a>
+      </div>
     </section>
 
     <section id="migrationFormShell" class="migration-shell" aria-live="polite">
@@ -38,6 +53,7 @@
           <button id="migrationPrev" class="migration-button migration-button-secondary" type="button"></button>
           <button id="migrationNext" class="migration-button migration-button-primary" type="button"></button>
         </footer>
+        <div id="migrationStatusArea" class="migration-status-area" hidden></div>
       </form>
     </section>
 
@@ -51,6 +67,6 @@
     </section>
   </main>
 
-  <script src="migration.js?v=3920"></script>
+  <script src="migration.js?v=4010"></script>
 </body>
 </html>

@@ -1,6 +1,123 @@
 const SESSION_COOKIE = "__Host-ezpk_session";
+const MIGRATION_INQUIRY_COOKIE = "__Host-ezpk_migration_inquiry";
+const ROUTE_HINT_COOKIE = "ezpk_route_hint";
 const FREE_PLAN_PBKDF2_ITERATIONS = 10000;
 const SYSTEM_ACCOUNT_LOGIN_IDS = new Set(["ezpk_koala"]);
+
+const EZPK_ROOT_HOST = "ezpk322.com";
+const EZPK1_HOST = "ezpk1.ezpk322.com";
+const EZPK2_HOST = "ezpk2.ezpk322.com";
+const DEFAULT_SITE_MODE = "DUAL";
+const DEFAULT_EZPK2_STATUS = "ACTIVE";
+const MIGRATION_INQUIRY_TTL_SECONDS = 30 * 60;
+
+function normalizedSiteMode(env) {
+  return String(env.SITE_MODE || DEFAULT_SITE_MODE).trim().toUpperCase() === "SINGLE" ? "SINGLE" : "DUAL";
+}
+
+function normalizedEzpk2Status(env) {
+  const value = String(env.EZPK2_STATUS || DEFAULT_EZPK2_STATUS).trim().toUpperCase();
+  return ["ACTIVE", "INACTIVE", "ARCHIVED", "DELETED"].includes(value) ? value : DEFAULT_EZPK2_STATUS;
+}
+
+function isEzpk2Active(env) {
+  return normalizedSiteMode(env) === "DUAL" && normalizedEzpk2Status(env) === "ACTIVE";
+}
+
+function siteIdFromHost(hostname) {
+  const host = String(hostname || "").trim().toLowerCase();
+  if (host === EZPK2_HOST) return "ezpk2";
+  return "ezpk1";
+}
+
+function resolveAllianceContext(url, env) {
+  const siteId = siteIdFromHost(url.hostname);
+  const isEzpk2 = siteId === "ezpk2";
+  return {
+    siteId,
+    displayName: isEzpk2 ? "EZPK2" : "EZPK1",
+    db: isEzpk2 ? env.EZPK2_DB : env.DB,
+    peerDb: isEzpk2 ? env.DB : env.EZPK2_DB,
+    active: isEzpk2 ? isEzpk2Active(env) : true,
+    mode: normalizedSiteMode(env),
+    ezpk2Status: normalizedEzpk2Status(env),
+  };
+}
+
+function scopeAllianceEnv(env, context) {
+  const scoped = Object.create(env);
+  scoped.DB = context.db;
+  scoped.PEER_DB = context.peerDb || null;
+  scoped.EZPK1_DB = env.DB;
+  scoped.SITE_ID = context.siteId;
+  scoped.SITE_DISPLAY_NAME = context.displayName;
+  scoped.SITE_MODE_RESOLVED = context.mode;
+  scoped.EZPK2_STATUS_RESOLVED = context.ezpk2Status;
+  return scoped;
+}
+
+function isRootHost(url) {
+  return String(url.hostname || "").toLowerCase() === EZPK_ROOT_HOST;
+}
+
+function publicAllianceUrl(siteId, path = "/") {
+  const host = siteId === "ezpk2" ? EZPK2_HOST : EZPK1_HOST;
+  const safePath = String(path || "/").startsWith("/") ? String(path || "/") : `/${path}`;
+  return `https://${host}${safePath}`;
+}
+
+function gatewayUrl(select = false) {
+  return `https://${EZPK_ROOT_HOST}/${select ? "?select=1" : ""}`;
+}
+
+async function fetchAssetAt(request, env, pathname) {
+  const target = new URL(request.url);
+  target.pathname = pathname;
+  target.search = "";
+  return env.ASSETS.fetch(new Request(target.toString(), { method: "GET", headers: request.headers }));
+}
+
+async function handleAlliancePageRouting(request, env, url) {
+  if (!env.ASSETS || request.method !== "GET") return null;
+  const mode = normalizedSiteMode(env);
+  const ezpk2Active = isEzpk2Active(env);
+  const host = String(url.hostname || "").toLowerCase();
+
+  if (host === EZPK2_HOST && !ezpk2Active) {
+    if (url.pathname.startsWith("/inactive/")) return null;
+    return fetchAssetAt(request, env, "/inactive/index.html");
+  }
+
+  if (host === EZPK_ROOT_HOST && (url.pathname === "/gateway" || url.pathname === "/gateway/")) {
+    if (mode !== "DUAL") return Response.redirect(`https://${EZPK_ROOT_HOST}/`, 302);
+    return fetchAssetAt(request, env, "/gateway/index.html");
+  }
+
+  if (host !== EZPK_ROOT_HOST || url.pathname !== "/") return null;
+  if (mode !== "DUAL") return null;
+  if (url.searchParams.get("select") === "1") return fetchAssetAt(request, env, "/gateway/index.html");
+
+  const hint = String(getCookie(request, ROUTE_HINT_COOKIE) || "").toLowerCase();
+  if (hint === "ezpk2" && ezpk2Active) {
+    return Response.redirect(`${publicAllianceUrl("ezpk2", "/")}?route=1`, 302);
+  }
+
+  // Preserve the existing root-host EZPK1 session. It cannot be transferred to
+  // a subdomain because the member cookie intentionally remains __Host-scoped.
+  try {
+    const rootMember = await requireOptionalMember(request, env.DB);
+    if (rootMember && rootMember.status === "active") return null;
+  } catch (_) {}
+
+  if (hint === "ezpk1") {
+    return Response.redirect(`${publicAllianceUrl("ezpk1", "/")}?route=1`, 302);
+  }
+  return fetchAssetAt(request, env, "/gateway/index.html");
+}
+
+function inactiveWriteAllowed(pathname) {
+  return pathname === "/api/routing/clear" || pathname === "/api/auth/logout";
+}
 
 function isSystemAccount(memberOrLoginId) {
   const loginId = typeof memberOrLoginId === "string"
@@ -26,6 +143,21 @@ export default {
     const url = new URL(request.url);
 
     try {
+      const pageRoutingResponse = await handleAlliancePageRouting(request, env, url);
+      if (pageRoutingResponse) return pageRoutingResponse;
+
+      const allianceContext = resolveAllianceContext(url, env);
+      if (!allianceContext.db) {
+        return jsonError(allianceContext.siteId === "ezpk2" ? "EZPK2_DATABASE_NOT_BOUND" : "DATABASE_NOT_BOUND", 503);
+      }
+      const rawEnv = env;
+      env = scopeAllianceEnv(rawEnv, allianceContext);
+
+      if (allianceContext.siteId === "ezpk2" && !allianceContext.active
+          && !["GET", "HEAD", "OPTIONS"].includes(request.method)
+          && !inactiveWriteAllowed(url.pathname)) {
+        return jsonError("ALLIANCE_INACTIVE", 503, { alliance: "EZPK2" });
+      }
       if (!url.pathname.startsWith("/api/")) {
         if (request.method === "GET" && url.pathname === "/data/accounts.json") {
           return handlePublicPersistentAsset(url, env);
@@ -112,6 +244,23 @@ export default {
         if (request.method === "DELETE" && !action) return handleAdminRequestDelete(request, requestId, env);
       }
 
+      const migrationInquiryMatch = url.pathname.match(/^\/api\/migration\/inquiries\/([A-Za-z0-9_-]{24,80})(?:\/(replies|close))?$/);
+      if (migrationInquiryMatch) {
+        const publicId = migrationInquiryMatch[1];
+        const action = migrationInquiryMatch[2] || "";
+        if (request.method === "POST" && action === "replies") return handleMigrationInquiryReply(request, publicId, env);
+        if (request.method === "POST" && action === "close") return handleMigrationInquiryClose(request, publicId, env);
+      }
+
+      const adminMigrationInquiryMatch = url.pathname.match(/^\/api\/admin\/migration-inquiries\/([A-Za-z0-9_-]{24,80})(?:\/(replies|close|reopen))?$/);
+      if (adminMigrationInquiryMatch) {
+        const publicId = adminMigrationInquiryMatch[1];
+        const action = adminMigrationInquiryMatch[2] || "";
+        if (request.method === "POST" && action === "replies") return handleAdminMigrationInquiryReply(request, publicId, env);
+        if (request.method === "POST" && action === "close") return handleAdminMigrationInquiryStatus(request, publicId, "closed", env);
+        if (request.method === "POST" && action === "reopen") return handleAdminMigrationInquiryStatus(request, publicId, "open", env);
+      }
+
       const adminMigrationMatch = url.pathname.match(/^\/api\/admin\/migration\/(\d+)(?:\/(status|contact|memo|restore))?$/);
       if (adminMigrationMatch) {
         const applicationId = Number(adminMigrationMatch[1]);
@@ -131,6 +280,11 @@ export default {
       }
 
       switch (route) {
+        case "GET /api/site-context":
+          return handleSiteContext(request, env, url);
+        case "POST /api/routing/clear":
+          return handleRoutingClear(request);
+
         case "GET /api/db-test":
           return handleDbTest(env);
 
@@ -153,6 +307,12 @@ export default {
           return handleMigrationApplicationCreate(request, env);
         case "GET /api/migration/status":
           return handleMigrationStatusLookup(request, url, env);
+        case "GET /api/migration/eligibility":
+          return handleMigrationEligibility(request, env);
+        case "GET /api/migration/inquiries":
+          return handleMigrationInquiriesList(request, env);
+        case "POST /api/migration/inquiries":
+          return handleMigrationInquiryCreate(request, env);
 
         case "GET /api/public/strategy-access":
           return handlePublicStrategyAccess(env, url);
@@ -285,6 +445,52 @@ export default {
 // API handlers
 // -----------------------------------------------------------------------------
 
+
+async function handleSiteContext(request, env, url) {
+  const siteId = env.SITE_ID || siteIdFromHost(url?.hostname || new URL(request.url).hostname);
+  return json({
+    ok: true,
+    data: {
+      siteId,
+      displayName: siteId === "ezpk2" ? "EZPK2" : "EZPK1",
+      mode: env.SITE_MODE_RESOLVED || normalizedSiteMode(env),
+      ezpk2Status: env.EZPK2_STATUS_RESOLVED || normalizedEzpk2Status(env),
+      ezpk2Active: isEzpk2Active(env),
+      gatewayUrl: `https://${EZPK_ROOT_HOST}/?select=1`,
+      ezpk1Url: publicAllianceUrl("ezpk1", "/"),
+      ezpk2Url: publicAllianceUrl("ezpk2", "/"),
+    },
+  });
+}
+
+async function handleRoutingClear(request) {
+  return json(
+    { ok: true, data: { cleared: true } },
+    200,
+    { "set-cookie": clearRouteHintCookie(request) },
+  );
+}
+
+async function handleMigrationEligibility(request, env) {
+  if ((env.SITE_ID || "ezpk1") !== "ezpk1") {
+    return json({ ok: true, data: { visible: false, siteId: "ezpk2" } });
+  }
+  const rules = await getPromotionRules(env.DB);
+  const r2 = rules?.R2 || DEFAULT_PROMOTION_RULES.R2;
+  return json({
+    ok: true,
+    data: {
+      visible: true,
+      siteId: "ezpk1",
+      industryLevel: Number(r2.industryLevel || 0),
+      vehicle1PowerNormalized: Number(r2.vehicle1PowerNormalized || 0),
+      vehicle1PowerG: Number(r2.vehicle1PowerNormalized || 0) / 1000,
+      ezpk2Active: isEzpk2Active(env),
+      ezpk2MigrationUrl: publicAllianceUrl("ezpk2", "/migration/"),
+    },
+  });
+}
+
 async function handleDbTest(env) {
   const result = await env.DB
     .prepare("SELECT key, value FROM settings ORDER BY key")
@@ -386,8 +592,24 @@ async function handleSetupAdmin(request, env, url) {
       },
     },
     201,
-    { "set-cookie": buildSessionCookie(session.token, session.maxAge) },
+    { "set-cookie": [buildSessionCookie(session.token, session.maxAge), buildRouteHintCookie(env.SITE_ID || "ezpk1", request)] },
   );
+}
+
+async function peerNicknameDuplicate(env, nickname) {
+  if (!env.PEER_DB) return false;
+  try {
+    const row = await env.PEER_DB.prepare(
+      `SELECT id FROM members m WHERE TRIM(nickname)=TRIM(?) COLLATE NOCASE AND ${nonSystemAccountSql("m")} LIMIT 1`,
+    ).bind(nickname, ...systemAccountBinds()).first();
+    return Boolean(row);
+  } catch (error) {
+    const message = String(error || "").toLowerCase();
+    if (message.includes("no such table") || message.includes("not found")) {
+      throw new HttpError("PEER_DATABASE_NOT_READY", 503);
+    }
+    throw error;
+  }
 }
 
 async function handleSignup(request, env, url) {
@@ -454,6 +676,24 @@ async function handleSignup(request, env, url) {
     return jsonError("NICKNAME_TAKEN", 409);
   }
 
+  // v401 Multi-Alliance: the same live game nickname cannot exist in both
+  // alliance member databases.  This is intentionally only a duplicate guard;
+  // member identities and history remain completely independent per alliance.
+  if (env.PEER_DB) {
+    try {
+      const peerNickname = await env.PEER_DB.prepare(
+        `SELECT id FROM members m WHERE TRIM(nickname)=TRIM(?) COLLATE NOCASE AND ${nonSystemAccountSql("m")} LIMIT 1`,
+      ).bind(nickname, ...systemAccountBinds()).first();
+      if (peerNickname) return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE", 409);
+    } catch (error) {
+      const message = String(error || "").toLowerCase();
+      if (message.includes("no such table") || message.includes("not found")) {
+        return jsonError("PEER_DATABASE_NOT_READY", 503);
+      }
+      throw error;
+    }
+  }
+
   const passwordData = await hashPassword(password, env.PASSWORD_PEPPER);
   const session = await createSessionData(env.DB);
 
@@ -514,7 +754,7 @@ async function handleSignup(request, env, url) {
       data: { member: publicAuthenticatedMember(member) },
     },
     201,
-    { "set-cookie": buildSessionCookie(session.token, session.maxAge) },
+    { "set-cookie": [buildSessionCookie(session.token, session.maxAge), buildRouteHintCookie(env.SITE_ID || "ezpk1", request)] },
   );
 }
 
@@ -584,7 +824,7 @@ async function handleLogin(request, env, url) {
       data: { member: publicAuthenticatedMember(member) },
     },
     200,
-    { "set-cookie": buildSessionCookie(session.token, session.maxAge) },
+    { "set-cookie": [buildSessionCookie(session.token, session.maxAge), buildRouteHintCookie(env.SITE_ID || "ezpk1", request)] },
   );
 }
 
@@ -602,7 +842,7 @@ async function handleLogout(request, env) {
   return json(
     { ok: true, data: { loggedOut: true } },
     200,
-    { "set-cookie": clearSessionCookie() },
+    { "set-cookie": [clearSessionCookie(), clearRouteHintCookie(request)] },
   );
 }
 
@@ -948,6 +1188,9 @@ async function handleNicknameUpdate(request, env) {
 
   if (duplicateNickname) {
     return jsonError("NICKNAME_TAKEN", 409);
+  }
+  if (await peerNicknameDuplicate(env, nickname)) {
+    return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE", 409);
   }
 
   const cooldownDays = Number(
@@ -1454,15 +1697,61 @@ async function handleAdminRequestsList(request, url, env) {
   if(admin instanceof Response)return admin;
   const page=Math.max(1,Math.floor(Number(url.searchParams.get("page")||1)));
   const limit=Math.max(1,Math.min(50,Math.floor(Number(url.searchParams.get("limit")||15))));
-  const totalRow=await env.DB.prepare(`SELECT COUNT(*) AS total FROM member_requests`).first();
-  const rows=await env.DB.prepare(`
+
+  const memberRows=await env.DB.prepare(`
     SELECT r.*,m.nickname AS current_nickname,a.nickname AS answered_by_nickname
     FROM member_requests r LEFT JOIN members m ON m.id=r.member_id
     LEFT JOIN members a ON a.id=r.answered_by_member_id
-    ORDER BY datetime(r.created_at) DESC,r.id DESC LIMIT ? OFFSET ?
-  `).bind(limit,(page-1)*limit).all();
-  const total=Number(totalRow?.total||0);
-  return json({ok:true,data:{items:(rows.results||[]).map(r=>requestRow(r,admin.id,true)),pagination:{page,limit,total,totalPages:total?Math.ceil(total/limit):0}}});
+    ORDER BY datetime(r.created_at) DESC,r.id DESC
+  `).all();
+  const memberItems=(memberRows.results||[]).map((r)=>({
+    ...requestRow(r,admin.id,true), requesterType:"MEMBER", status:r.admin_answer?"answered":"open",
+  }));
+
+  let migrationItems=[];
+  try {
+    const migrationRows=await env.DB.prepare(`SELECT i.*,a.game_uid,a.application_status
+      FROM migration_inquiries i JOIN migration_applications a ON a.id=i.application_id
+      ORDER BY datetime(i.created_at) DESC,i.id DESC`).all();
+    for (const row of migrationRows.results||[]) {
+      const replies=await migrationInquiryThread(env.DB,row.id);
+      const latestAdmin=[...replies].reverse().find((reply)=>reply.authorType==="admin");
+      migrationItems.push({
+        id:row.public_id,
+        publicId:row.public_id,
+        requesterType:"MIGRATION_APPLICANT",
+        title:row.title,
+        message:row.message,
+        authorNickname:row.requester_name_snapshot,
+        createdAt:row.created_at,
+        updatedAt:row.updated_at,
+        answer:latestAdmin?.message||"",
+        answeredAt:latestAdmin?.createdAt||null,
+        answeredBy:latestAdmin?.authorNickname||"",
+        answered:row.status==="answered",
+        canEdit:false,
+        canDelete:false,
+        status:row.status,
+        applicationStatus:row.application_status,
+        uidMasked:row.game_uid ? `••••${String(row.game_uid).slice(-4)}` : "",
+        replies,
+      });
+    }
+  } catch (error) {
+    // During a staged rollout the additive v401 table may not exist yet.
+    // Member requests must remain available; deployment verification will flag
+    // the missing migration before promotion.
+    if (!String(error||"").toLowerCase().includes("no such table")) throw error;
+  }
+
+  const allItems=[...memberItems,...migrationItems].sort((a,b)=>{
+    const at=Date.parse(a.createdAt||0)||0, bt=Date.parse(b.createdAt||0)||0;
+    if(bt!==at)return bt-at;
+    return String(b.id).localeCompare(String(a.id));
+  });
+  const total=allItems.length;
+  const items=allItems.slice((page-1)*limit,page*limit);
+  return json({ok:true,data:{items,pagination:{page,limit,total,totalPages:total?Math.ceil(total/limit):0}}});
 }
 
 async function handleAdminRequestAnswer(request, requestId, env) {
@@ -2239,6 +2528,9 @@ async function handleAdminMembersCreateBulk(request, env) {
   if (existingLogin) return jsonError("LOGIN_ID_TAKEN", 409, { value: existingLogin.login_id });
   const existingNickname = await env.DB.prepare(`SELECT nickname FROM members WHERE nickname COLLATE NOCASE IN (${nicknamePlaceholders}) LIMIT 1`).bind(...accounts.map((item) => item.nickname)).first();
   if (existingNickname) return jsonError("NICKNAME_TAKEN", 409, { value: existingNickname.nickname });
+  for (const account of accounts) {
+    if (await peerNicknameDuplicate(env, account.nickname)) return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE", 409, { value: account.nickname });
+  }
 
   const statements = [];
   for (const account of accounts) {
@@ -2325,6 +2617,7 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   if(target.role!=="admin" && !["R1","R2","R3","R4","R5"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
   const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
   if(dupe) return jsonError("NICKNAME_TAKEN",409);
+  if(nickname!==target.nickname && await peerNicknameDuplicate(env,nickname)) return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE",409);
   const permissionChanged=hasAdminLevel&&requestedAdminLevel!==currentAdminLevel;
   const nextRole=permissionChanged?(requestedAdminLevel?"admin":"member"):target.role;
   const nextLevel=permissionChanged?requestedAdminLevel:target.admin_level;
@@ -2447,8 +2740,14 @@ async function handleAdminMemberDelete(request, memberId, env) {
   const target=await env.DB.prepare("SELECT id,role,admin_level,nickname FROM members WHERE id=?").bind(memberId).first();
   if(!target)return jsonError("MEMBER_NOT_FOUND",404);
   if(target.role==="admin")return jsonError("ADMIN_ACCOUNT_PROTECTED",409);
-  await env.DB.prepare("DELETE FROM members WHERE id=?").bind(memberId).run();
-  return json({ok:true,data:{deleted:true}});
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_deleted",targetType:"member",targetId:memberId,targetName:target.nickname,after:{deleted:true,siteId:env.SITE_ID||"ezpk1"}});
+  try {
+    await env.DB.prepare("DELETE FROM members WHERE id=?").bind(memberId).run();
+  } catch (error) {
+    if (String(error||"").toLowerCase().includes("foreign key")) return jsonError("MEMBER_DELETE_REFERENCED_HISTORY",409);
+    throw error;
+  }
+  return json({ok:true,data:{deleted:true,newSignupWillBeNewMember:true}});
 }
 
 async function handleAdminMemberPermissions(request, memberId, env) {
@@ -2723,19 +3022,26 @@ async function enforceMigrationRateLimit(request, env) {
   return null;
 }
 
-async function enforceMigrationStatusRateLimit(request, env) {
-  const rawIp = String(request.headers.get("CF-Connecting-IP") || "unknown").trim();
-  const salt = String(env.MIGRATION_RATE_LIMIT_SALT || env.PASSWORD_PEPPER || env.ADMIN_SETUP_KEY || "ezpk-migration-rate-v1");
-  const keyHash = await sha256Hex(`${salt}|status|${rawIp}`);
-  await env.DB.prepare("DELETE FROM migration_rate_limits WHERE datetime(updated_at) < datetime('now','-1 day')").run().catch(()=>{});
-  await env.DB.prepare(`INSERT INTO migration_rate_limits(key_hash,window_started_at,request_count,updated_at)
+async function bumpMigrationRateLimit(db, keyHash, maxRequests) {
+  await db.prepare(`INSERT INTO migration_rate_limits(key_hash,window_started_at,request_count,updated_at)
     VALUES(?,CURRENT_TIMESTAMP,1,CURRENT_TIMESTAMP)
     ON CONFLICT(key_hash) DO UPDATE SET
       window_started_at=CASE WHEN datetime(migration_rate_limits.window_started_at) <= datetime('now','-${MIGRATION_RATE_LIMIT_WINDOW_MINUTES} minutes') THEN CURRENT_TIMESTAMP ELSE migration_rate_limits.window_started_at END,
       request_count=CASE WHEN datetime(migration_rate_limits.window_started_at) <= datetime('now','-${MIGRATION_RATE_LIMIT_WINDOW_MINUTES} minutes') THEN 1 ELSE migration_rate_limits.request_count+1 END,
       updated_at=CURRENT_TIMESTAMP`).bind(keyHash).run();
-  const state = await env.DB.prepare("SELECT request_count FROM migration_rate_limits WHERE key_hash=?").bind(keyHash).first();
-  if (Number(state?.request_count || 0) > MIGRATION_STATUS_RATE_LIMIT_MAX_REQUESTS) {
+  const state = await db.prepare("SELECT request_count FROM migration_rate_limits WHERE key_hash=?").bind(keyHash).first();
+  return Number(state?.request_count || 0) > maxRequests;
+}
+
+async function enforceMigrationStatusRateLimit(request, uid, env) {
+  const rawIp = String(request.headers.get("CF-Connecting-IP") || "unknown").trim();
+  const salt = String(env.MIGRATION_RATE_LIMIT_SALT || env.PASSWORD_PEPPER || env.ADMIN_SETUP_KEY || "ezpk-migration-rate-v1");
+  await env.DB.prepare("DELETE FROM migration_rate_limits WHERE datetime(updated_at) < datetime('now','-1 day')").run().catch(()=>{});
+  const ipKey = await sha256Hex(`${salt}|status-ip|${rawIp}`);
+  const uidKey = await sha256Hex(`${salt}|status-ip-uid|${rawIp}|${uid}`);
+  const ipBlocked = await bumpMigrationRateLimit(env.DB, ipKey, MIGRATION_STATUS_RATE_LIMIT_MAX_REQUESTS);
+  const uidBlocked = await bumpMigrationRateLimit(env.DB, uidKey, 8);
+  if (ipBlocked || uidBlocked) {
     return jsonError("MIGRATION_STATUS_RATE_LIMITED", 429, { retryAfterSeconds: MIGRATION_RATE_LIMIT_WINDOW_MINUTES * 60 });
   }
   return null;
@@ -2753,17 +3059,211 @@ async function readMigrationJson(request) {
   }
 }
 
+async function migrationInquiryUidHash(uid, env) {
+  const salt = String(env.MIGRATION_RATE_LIMIT_SALT || env.PASSWORD_PEPPER || env.ADMIN_SETUP_KEY || "ezpk-migration-inquiry-v1");
+  return sha256Hex(`${salt}|migration-inquiry|${uid}`);
+}
+
+async function issueMigrationInquirySession(request, application, env) {
+  const token = randomHex(32);
+  const tokenHash = await sha256Hex(token);
+  const uidHash = await migrationInquiryUidHash(application.game_uid, env);
+  const expiresAt = new Date(Date.now() + MIGRATION_INQUIRY_TTL_SECONDS * 1000).toISOString();
+  await env.DB.prepare("DELETE FROM migration_inquiry_sessions WHERE datetime(expires_at) <= CURRENT_TIMESTAMP").run().catch(()=>{});
+  await env.DB.prepare(`INSERT INTO migration_inquiry_sessions(application_id,token_hash,uid_hash,expires_at,user_agent)
+    VALUES(?,?,?,?,?)`).bind(
+      application.id, tokenHash, uidHash, expiresAt, cleanUserAgent(request) || null,
+    ).run();
+  return { token, expiresAt };
+}
+
+async function requireMigrationInquiry(request, env) {
+  const token = getCookie(request, MIGRATION_INQUIRY_COOKIE);
+  if (!token) return { response: jsonError("MIGRATION_INQUIRY_AUTH_REQUIRED", 401), application: null };
+  const tokenHash = await sha256Hex(token);
+  const row = await env.DB.prepare(`SELECT s.id AS session_id,s.uid_hash,s.expires_at,
+      a.id,a.player_name,a.game_uid,a.application_status,a.deleted_at,a.updated_at
+    FROM migration_inquiry_sessions s
+    JOIN migration_applications a ON a.id=s.application_id
+    WHERE s.token_hash=? AND datetime(s.expires_at)>CURRENT_TIMESTAMP
+    LIMIT 1`).bind(tokenHash).first();
+  if (!row || row.deleted_at) {
+    if (row?.session_id) await env.DB.prepare("DELETE FROM migration_inquiry_sessions WHERE id=?").bind(row.session_id).run().catch(()=>{});
+    return { response: jsonError("MIGRATION_INQUIRY_AUTH_REQUIRED", 401), application: null };
+  }
+  const currentUidHash = await migrationInquiryUidHash(row.game_uid, env);
+  if (!constantTimeEqual(currentUidHash, row.uid_hash)) {
+    await env.DB.prepare("DELETE FROM migration_inquiry_sessions WHERE id=?").bind(row.session_id).run().catch(()=>{});
+    return { response: jsonError("MIGRATION_INQUIRY_SESSION_INVALID", 401), application: null };
+  }
+  await env.DB.prepare("UPDATE migration_inquiry_sessions SET last_used_at=CURRENT_TIMESTAMP WHERE id=?").bind(row.session_id).run().catch(()=>{});
+  return { response: null, application: row };
+}
+
+async function migrationInquiryThread(db, inquiryId) {
+  const rows = await db.prepare(`SELECT id,author_type,author_nickname_snapshot,message,created_at
+    FROM migration_inquiry_replies WHERE inquiry_id=? ORDER BY created_at ASC,id ASC`).bind(inquiryId).all();
+  return (rows.results || []).map((row) => ({
+    id: Number(row.id),
+    authorType: row.author_type,
+    authorNickname: row.author_nickname_snapshot,
+    message: row.message,
+    createdAt: row.created_at,
+  }));
+}
+
+async function migrationInquiryDto(db, row, includeThread = true) {
+  const replies = includeThread ? await migrationInquiryThread(db, row.id) : [];
+  return {
+    publicId: row.public_id,
+    requesterName: row.requester_name_snapshot,
+    title: row.title,
+    message: row.message,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    closedAt: row.closed_at,
+    replies,
+    hasAdminReply: replies.some((reply) => reply.authorType === "admin"),
+  };
+}
+
+async function latestMigrationInquirySummary(db, applicationId) {
+  const row = await db.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? ORDER BY created_at DESC,id DESC LIMIT 1`).bind(applicationId).first();
+  if (!row) return null;
+  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM migration_inquiry_replies WHERE inquiry_id=?").bind(row.id).first();
+  const adminRow = await db.prepare("SELECT id FROM migration_inquiry_replies WHERE inquiry_id=? AND author_type='admin' LIMIT 1").bind(row.id).first();
+  return {
+    publicId: row.public_id,
+    status: row.status,
+    updatedAt: row.updated_at,
+    replyCount: Number(countRow?.total || 0),
+    hasAdminReply: Boolean(adminRow),
+  };
+}
+
 async function handleMigrationStatusLookup(request, url, env) {
   const authenticatedMember = await requireOptionalMember(request, env.DB);
   if (authenticatedMember) return jsonError("MIGRATION_AUTHENTICATED_NOT_ALLOWED", 403);
-  const rateLimited = await enforceMigrationStatusRateLimit(request, env);
-  if (rateLimited) return rateLimited;
   const uid = String(url.searchParams.get("uid") || "").trim();
   if (!/^\d{16}$/.test(uid)) return jsonError("VALIDATION_ERROR", 400);
-  const row = await env.DB.prepare(`SELECT application_status,updated_at FROM migration_applications
+  const rateLimited = await enforceMigrationStatusRateLimit(request, uid, env);
+  if (rateLimited) return rateLimited;
+  const row = await env.DB.prepare(`SELECT id,player_name,game_uid,application_status,updated_at FROM migration_applications
     WHERE game_uid=? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1`).bind(uid).first();
-  if (!row) return json({ok:true,data:{found:false}});
-  return json({ok:true,data:{found:true,applicationStatus:row.application_status,updatedAt:row.updated_at}});
+  if (!row) {
+    return json({ok:true,data:{found:false}}, 200, {"set-cookie": clearMigrationInquiryCookie()});
+  }
+  const session = await issueMigrationInquirySession(request, row, env);
+  const inquiry = await latestMigrationInquirySummary(env.DB, row.id);
+  return json({ok:true,data:{
+    found:true,
+    playerName:row.player_name,
+    applicationStatus:row.application_status,
+    updatedAt:row.updated_at,
+    inquiry,
+  }}, 200, {"set-cookie": buildMigrationInquiryCookie(session.token, MIGRATION_INQUIRY_TTL_SECONDS)});
+}
+
+async function handleMigrationInquiriesList(request, env) {
+  const member = await requireOptionalMember(request, env.DB);
+  if (member) return jsonError("MIGRATION_INQUIRY_MEMBER_SESSION_NOT_ALLOWED", 403);
+  const auth = await requireMigrationInquiry(request, env);
+  if (auth.response) return auth.response;
+  const rows = await env.DB.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? ORDER BY created_at DESC,id DESC`).bind(auth.application.id).all();
+  const inquiries = [];
+  for (const row of rows.results || []) inquiries.push(await migrationInquiryDto(env.DB, row, true));
+  return json({ok:true,data:{
+    requesterType:"MIGRATION_APPLICANT",
+    playerName:auth.application.player_name,
+    applicationStatus:auth.application.application_status,
+    inquiries,
+  }});
+}
+
+async function handleMigrationInquiryCreate(request, env) {
+  const member = await requireOptionalMember(request, env.DB);
+  if (member) return jsonError("MIGRATION_INQUIRY_MEMBER_SESSION_NOT_ALLOWED", 403);
+  const auth = await requireMigrationInquiry(request, env);
+  if (auth.response) return auth.response;
+  const existing = await env.DB.prepare("SELECT public_id FROM migration_inquiries WHERE application_id=? AND status IN ('open','answered') LIMIT 1").bind(auth.application.id).first();
+  if (existing) return jsonError("MIGRATION_INQUIRY_OPEN_EXISTS", 409, {publicId:existing.public_id});
+  const body = await readJson(request);
+  const title = cleanString(body.title, 120);
+  const message = cleanString(body.message, 3000);
+  if (!title || !message) return jsonError("VALIDATION_ERROR", 400);
+  const publicId = `mi_${randomHex(18)}`;
+  await env.DB.prepare(`INSERT INTO migration_inquiries(public_id,application_id,requester_name_snapshot,title,message)
+    VALUES(?,?,?,?,?)`).bind(publicId,auth.application.id,auth.application.player_name,title,message).run();
+  const row = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE public_id=?").bind(publicId).first();
+  return json({ok:true,data:{inquiry:await migrationInquiryDto(env.DB,row,true)}},201);
+}
+
+async function findOwnedMigrationInquiry(publicId, applicationId, db) {
+  return db.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND application_id=? LIMIT 1").bind(publicId,applicationId).first();
+}
+
+async function handleMigrationInquiryReply(request, publicId, env) {
+  const auth = await requireMigrationInquiry(request, env);
+  if (auth.response) return auth.response;
+  const inquiry = await findOwnedMigrationInquiry(publicId,auth.application.id,env.DB);
+  if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
+  if (inquiry.status === "closed") return jsonError("MIGRATION_INQUIRY_CLOSED",409);
+  const body = await readJson(request);
+  const message = cleanString(body.message,5000);
+  if (!message) return jsonError("VALIDATION_ERROR",400);
+  await env.DB.batch([
+    env.DB.prepare(`INSERT INTO migration_inquiry_replies(inquiry_id,author_type,author_nickname_snapshot,message)
+      VALUES(?,'applicant',?,?)`).bind(inquiry.id,auth.application.player_name,message),
+    env.DB.prepare("UPDATE migration_inquiries SET status='open',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id),
+  ]);
+  const row = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE id=?").bind(inquiry.id).first();
+  return json({ok:true,data:{inquiry:await migrationInquiryDto(env.DB,row,true)}});
+}
+
+async function handleMigrationInquiryClose(request, publicId, env) {
+  const auth = await requireMigrationInquiry(request, env);
+  if (auth.response) return auth.response;
+  const inquiry = await findOwnedMigrationInquiry(publicId,auth.application.id,env.DB);
+  if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
+  await env.DB.prepare("UPDATE migration_inquiries SET status='closed',closed_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id).run();
+  return json({ok:true,data:{publicId,status:"closed"}});
+}
+
+async function handleAdminMigrationInquiryReply(request, publicId, env) {
+  const admin = await requireAdminMenuPermission(request,env.DB,"requests");
+  if (admin instanceof Response) return admin;
+  const inquiry = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE public_id=? LIMIT 1").bind(publicId).first();
+  if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
+  if (inquiry.status === "closed") return jsonError("MIGRATION_INQUIRY_CLOSED",409);
+  const body = await readJson(request);
+  const message = cleanString(body.message,5000);
+  if (!message) return jsonError("VALIDATION_ERROR",400);
+  await env.DB.batch([
+    env.DB.prepare(`INSERT INTO migration_inquiry_replies(inquiry_id,author_type,admin_member_id,author_nickname_snapshot,message)
+      VALUES(?,'admin',?,?,?)`).bind(inquiry.id,admin.id,admin.nickname,message),
+    env.DB.prepare("UPDATE migration_inquiries SET status='answered',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id),
+  ]);
+  const row = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE id=?").bind(inquiry.id).first();
+  await writeAdminLog(env,request,{actor:admin,category:"request",action:"migration_inquiry_answered",targetType:"migration_inquiry",targetName:inquiry.title,after:{publicId,status:"answered"}});
+  return json({ok:true,data:{inquiry:await migrationInquiryDto(env.DB,row,true)}});
+}
+
+async function handleAdminMigrationInquiryStatus(request, publicId, status, env) {
+  const admin = await requireAdminMenuPermission(request,env.DB,"requests");
+  if (admin instanceof Response) return admin;
+  const inquiry = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE public_id=? LIMIT 1").bind(publicId).first();
+  if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
+  if (status === "closed") {
+    await env.DB.prepare("UPDATE migration_inquiries SET status='closed',closed_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id).run();
+  } else {
+    // Re-open only when there is not another open thread for this application.
+    const other = await env.DB.prepare("SELECT id FROM migration_inquiries WHERE application_id=? AND id<>? AND status IN ('open','answered') LIMIT 1").bind(inquiry.application_id,inquiry.id).first();
+    if (other) return jsonError("MIGRATION_INQUIRY_OPEN_EXISTS",409);
+    await env.DB.prepare("UPDATE migration_inquiries SET status='open',closed_at=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id).run();
+  }
+  await writeAdminLog(env,request,{actor:admin,category:"request",action:status==="closed"?"migration_inquiry_closed":"migration_inquiry_reopened",targetType:"migration_inquiry",targetName:inquiry.title,after:{publicId,status}});
+  return json({ok:true,data:{publicId,status}});
 }
 
 async function handleMigrationApplicationCreate(request, env) {
@@ -3537,13 +4037,16 @@ async function readJson(request) {
 }
 
 function json(payload, status = 200, extraHeaders = {}) {
-  return new Response(JSON.stringify(payload), {
-    status,
-    headers: {
-      ...JSON_HEADERS,
-      ...extraHeaders,
-    },
-  });
+  const headers = new Headers(JSON_HEADERS);
+  for (const [name, value] of Object.entries(extraHeaders || {})) {
+    if (value === undefined || value === null) continue;
+    if (Array.isArray(value)) {
+      for (const item of value) headers.append(name, String(item));
+    } else {
+      headers.set(name, String(value));
+    }
+  }
+  return new Response(JSON.stringify(payload), { status, headers });
 }
 
 function jsonError(code, status, extra = {}) {
@@ -3590,6 +4093,63 @@ function buildSessionCookie(token, maxAge) {
 function clearSessionCookie() {
   return [
     `${SESSION_COOKIE}=`,
+    "Path=/",
+    "Max-Age=0",
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+  ].join("; ");
+}
+
+function routeHintDomainPart(request) {
+  try {
+    const host = new URL(request.url).hostname.toLowerCase();
+    return host === EZPK_ROOT_HOST || host.endsWith(`.${EZPK_ROOT_HOST}`) ? `Domain=${EZPK_ROOT_HOST}` : "";
+  } catch (_) { return ""; }
+}
+
+function buildRouteHintCookie(siteId, request) {
+  const parts = [
+    `${ROUTE_HINT_COOKIE}=${siteId === "ezpk2" ? "ezpk2" : "ezpk1"}`,
+    "Path=/",
+    "Max-Age=2592000",
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+  ];
+  const domain = routeHintDomainPart(request);
+  if (domain) parts.push(domain);
+  return parts.join("; ");
+}
+
+function clearRouteHintCookie(request) {
+  const parts = [
+    `${ROUTE_HINT_COOKIE}=`,
+    "Path=/",
+    "Max-Age=0",
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+  ];
+  const domain = routeHintDomainPart(request);
+  if (domain) parts.push(domain);
+  return parts.join("; ");
+}
+
+function buildMigrationInquiryCookie(token, maxAge = MIGRATION_INQUIRY_TTL_SECONDS) {
+  return [
+    `${MIGRATION_INQUIRY_COOKIE}=${encodeURIComponent(token)}`,
+    "Path=/",
+    `Max-Age=${Math.max(0, Number(maxAge) || 0)}`,
+    "HttpOnly",
+    "Secure",
+    "SameSite=Lax",
+  ].join("; ");
+}
+
+function clearMigrationInquiryCookie() {
+  return [
+    `${MIGRATION_INQUIRY_COOKIE}=`,
     "Path=/",
     "Max-Age=0",
     "HttpOnly",

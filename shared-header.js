@@ -9,13 +9,14 @@
     || currentHost === 'translate.goog'
     || currentHost.endsWith('.translate.googleusercontent.com')
     || currentHost === 'translate.googleusercontent.com';
-  const isCanonicalHost = currentHost === 'ezpk322.com';
+  const publicHosts = new Set(['ezpk322.com','ezpk1.ezpk322.com','ezpk2.ezpk322.com']);
+  const isCanonicalHost = publicHosts.has(currentHost);
   const isWwwHost = currentHost === 'www.ezpk322.com';
   const needsHttps = (isCanonicalHost || isWwwHost) && window.location.protocol !== 'https:';
   if (isTranslationProxy || isWwwHost || needsHttps) {
     const canonical = new URL(window.location.href);
     canonical.protocol = 'https:';
-    canonical.hostname = 'ezpk322.com';
+    canonical.hostname = (isTranslationProxy || isWwwHost) ? 'ezpk322.com' : currentHost;
     canonical.port = '';
     ['_x_tr_sl', '_x_tr_tl', '_x_tr_hl', '_x_tr_pto'].forEach(function (key) {
       canonical.searchParams.delete(key);
@@ -56,7 +57,7 @@
       || target.hostname.endsWith('.translate.googleusercontent.com')) {
       target.hostname = 'ezpk322.com';
     }
-    if (target.hostname === 'ezpk322.com') {
+    if (publicHosts.has(target.hostname)) {
       target.protocol = 'https:';
       target.port = '';
     }
@@ -144,6 +145,8 @@
   const header = document.querySelector('[data-shared-header]');
   if (!header) return;
   const isAdminContext = header.dataset.adminContext === 'true';
+  const allianceSiteId = currentHost === 'ezpk2.ezpk322.com' ? 'ezpk2' : 'ezpk1';
+  const allianceDisplayName = allianceSiteId === 'ezpk2' ? 'EZPK2' : 'EZPK1';
 
   const base = header.dataset.base || '.';
   const homeHref = header.dataset.homeHref || `${base}/`;
@@ -171,6 +174,8 @@
     th:{more:'เพิ่มเติม',public:'สาธารณะ',memberOnly:'เฉพาะสมาชิก',activity:'กิจกรรมพันธมิตร',information:'ข้อมูลและการสนับสนุน',other:'อื่น ๆ',comingSoon:'เร็ว ๆ นี้',locked:'ต้องเข้าสู่ระบบ',menu:'เมนู',closeMenu:'ปิดเมนู'},
     'zh-tw':{more:'更多',public:'公開',memberOnly:'成員專用',activity:'聯盟活動',information:'資訊與支援',other:'其他',comingSoon:'準備中',locked:'需要登入',menu:'選單',closeMenu:'關閉選單'}
   };
+
+  const ALLIANCE_SELECT_LABELS={ko:'연맹 선택',en:'ALLIANCE SELECT',pt:'ESCOLHER ALIANÇA',vi:'CHỌN LIÊN MINH',ar:'اختيار التحالف',ja:'同盟選択',th:'เลือกพันธมิตร','zh-tw':'選擇聯盟'};
 
   const ACCOUNT_LABELS = {
     ko: {
@@ -305,7 +310,7 @@
   const menuByKey = new Map(menuItems.map(item => [item.key,item]));
 
   header.innerHTML = `
-    <a href="${homeHref}" class="brand${isAdminContext ? ' admin-context-brand' : ''}">${isAdminContext ? '' : '<span class="brand-mark" aria-hidden="true">★</span>'}<span><b>${isAdminContext ? 'EZPK ADMIN' : '322 EZPK'}</b>${isAdminContext ? '' : '<small>ALLIANCE PORTAL</small>'}</span></a>
+    <a href="${homeHref}" class="brand${isAdminContext ? ' admin-context-brand' : ''}">${isAdminContext ? '' : '<span class="brand-mark" aria-hidden="true">★</span>'}<span><b>${isAdminContext ? `${allianceDisplayName} ADMIN` : `322 ${allianceDisplayName}`}</b>${isAdminContext ? '' : '<small>ALLIANCE PORTAL</small>'}</span></a>
     <nav id="nav">
       <div class="desktop-nav-items" id="desktopNavItems"></div>
       <div class="nav-more" id="navMore" hidden>
@@ -313,6 +318,7 @@
         <div id="navMoreMenu" hidden></div>
       </div>
     </nav>
+    <a id="allianceSelectorLink" class="alliance-selector-link" href="https://ezpk322.com/?select=1" hidden></a>
     <div class="header-account" id="desktopAccount" aria-live="polite">
       <span class="account-loading" data-account-label="loading"></span>
     </div>
@@ -455,6 +461,17 @@
 
   function menuUi(lang=currentLanguage()) { return MENU_UI[lang] || MENU_UI.en; }
 
+  function syncAllianceSelectorControls() {
+    const enabled = siteContext?.mode === 'DUAL';
+    const label = ALLIANCE_SELECT_LABELS[currentLanguage()] || ALLIANCE_SELECT_LABELS.en;
+    const desktopLink = header.querySelector('#allianceSelectorLink');
+    if (desktopLink) { desktopLink.hidden = !enabled; desktopLink.textContent = label; }
+    if (!mobileDrawerItems) return;
+    mobileDrawerItems.querySelector('[data-mobile-alliance-selector]')?.remove();
+    if (!enabled) return;
+    mobileDrawerItems.insertAdjacentHTML('afterbegin', `<section class="nav-menu-group mobile-alliance-selector-group" data-mobile-alliance-selector><div class="nav-menu-group-items"><a href="https://ezpk322.com/?select=1" class="mobile-alliance-selector-link"><span class="nav-label">${safeText(label)}</span></a></div></section>`);
+  }
+
   function navLinkMarkup(key, options={}) {
     const item = menuByKey.get(key);
     if (!item) return '';
@@ -539,6 +556,7 @@
         })
       ].join('');
     }
+    syncAllianceSelectorControls();
     navigationReady = true;
     navMore.hidden = window.innerWidth <= 1199;
     navMoreButton.textContent = `${ui.more} ▾`;
@@ -571,6 +589,12 @@
   });
   window.addEventListener('resize', updateResponsiveNavigation);
 
+  let siteContext=null;
+  async function loadSiteContext(){
+    try{const response=await fetch('/api/site-context',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});const payload=await response.json();if(response.ok&&payload?.ok)siteContext=payload.data||null;}catch(_){}
+    syncAllianceSelectorControls();
+  }
+
   function applyLanguage(lang, emit=true) {
     lang=normalizeLanguage(lang);
     renderNavLabels(lang);
@@ -584,6 +608,7 @@
     document.body.classList.toggle('rtl',lang==='ar');
     if(!isAdminContext)localStorage.setItem(STORAGE_KEY,lang);
     renderAccount();
+    syncAllianceSelectorControls();
     updateAuthModalLabels();
     if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang}}));
   }
@@ -698,6 +723,7 @@
       closeMenus();
       showGlobalToast(accountLabels().logoutSuccess);
       window.dispatchEvent(new CustomEvent('ezpk-auth-change', { detail:authState }));
+      window.location.href = 'https://ezpk322.com/';
     } catch (_) {
       showGlobalToast(accountLabels().requestFailed);
     }
@@ -917,6 +943,11 @@
           if (mobile) bindAccountEvents(mobile);
         }
         window.dispatchEvent(new CustomEvent('ezpk-auth-ready', { detail:authState }));
+        const routeUrl=new URL(window.location.href);
+        if(routeUrl.searchParams.get('route')==='1'){
+          if(authState.authenticated){routeUrl.searchParams.delete('route');history.replaceState(null,'',routeUrl.pathname+routeUrl.search+routeUrl.hash);}
+          else{try{await fetch('/api/routing/clear',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'});}catch(_){}window.location.replace('https://ezpk322.com/?select=1');return;}
+        }
         if (loginIntentAfterAuth) {
           loginIntentAfterAuth = false;
           openLogin();
@@ -931,6 +962,7 @@
   // v290: Start authentication before optional navigation/language bindings.
   // The administrator account area must not remain on "확인 중" when a
   // later, non-authentication UI initializer fails.
+  loadSiteContext();
   loadAuth();
 
   function closeMenus() {

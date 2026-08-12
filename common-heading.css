@@ -17,6 +17,7 @@
   .mini-game-hero,
   .logo-hero,
   .members-hero,
+  .migration-hero,
   .request-hero,
   .record-hero,
   .section-title-block,
@@ -39,6 +40,7 @@
   .mini-game-hero,
   .logo-hero,
   .members-hero,
+  .migration-hero,
   .request-hero,
   .record-hero,
   .section-title-block,
@@ -65,6 +67,7 @@
   .mini-game-hero,
   .logo-hero,
   .members-hero,
+  .migration-hero,
   .request-hero,
   .record-hero,
   .section-title-block,
@@ -95,6 +98,7 @@
   .mini-game-hero,
   .logo-hero,
   .members-hero,
+  .migration-hero,
   .request-hero,
   .record-hero,
   .section-title-block,
@@ -124,7 +128,7 @@
 }
 
 /* RTL keeps hierarchy while respecting reading direction */
-.rtl :is(.alliance-layout-hero,.admin-hero,.accounts-hero,.cw-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
+.rtl :is(.alliance-layout-hero,.admin-hero,.accounts-hero,.cw-hero,.section-head,.mini-game-hero,.logo-hero,.members-hero,.migration-hero,.request-hero,.record-hero,.section-title-block,.team-section-head,.tip-hero,.vote-home-heading,.vote-hero,.schedule-section > .head){
   direction:rtl;
   text-align:center !important;
 }
@@ -139,6 +143,7 @@
     .mini-game-hero,
     .logo-hero,
     .members-hero,
+    .migration-hero,
     .request-hero,
     .record-hero,
     .section-title-block,
@@ -161,6 +166,7 @@
     .mini-game-hero,
     .logo-hero,
     .members-hero,
+    .migration-hero,
     .request-hero,
     .record-hero,
     .section-title-block,
