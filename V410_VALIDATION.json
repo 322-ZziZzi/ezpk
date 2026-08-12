@@ -1,0 +1,33 @@
+{
+  "release": "v410",
+  "packageVersion": "4.1.0",
+  "base": "v409",
+  "scope": [
+    "gateway_global_section_padding_collision_fix",
+    "gateway_korean_heading_shortening",
+    "host_scoped_super_admin_join_code_management",
+    "db_test_sensitive_settings_redaction"
+  ],
+  "database": {
+    "schemaChanged": false,
+    "migrationCount": 30,
+    "latestMigration": "0031_v405_migration_inquiry_soft_delete.sql",
+    "new0032": false,
+    "v409MigrationByteExact": true
+  },
+  "validation": {
+    "deployGuard": "PASS",
+    "jsMjsSyntax": {"passed": 55, "total": 55},
+    "cssParse": {"passed": 37, "total": 37},
+    "themeBootstrap": {"passed": 27, "total": 27},
+    "htmlLocalRefs": {"checked": 382, "missing": 0},
+    "sqliteMigrationCycles": {"passed": 2, "total": 2},
+    "migrationDigestCrosscheck": {"passed": 30, "total": 30},
+    "dbTestSettingsValuesExposed": false,
+    "devDefaultJoinCodePrefilled": false
+  },
+  "operatorRequired": [
+    "npm run deploy:dry-run",
+    "post-deploy desktop/mobile production smoke"
+  ]
+}

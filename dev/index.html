@@ -24,14 +24,14 @@
   window.__EZPK_SITE__=site;
 })();
 </script>
-  <link rel="stylesheet" href="./dev.css?v=3500">
+  <link rel="stylesheet" href="./dev.css?v=4100">
 <link rel="stylesheet" href="/ezpk-theme.css?v=4070">
 </head>
 <body>
   <main class="shell">
     <header class="hero">
       <div>
-        <p class="eyebrow">EZPK · v179-2</p>
+        <p id="devSiteLabel" class="eyebrow">EZPK1 DEV</p>
         <h1>Developer Center</h1>
         <p class="subtitle">D1, 인증, 회원 API를 한 화면에서 점검합니다. 입력값은 브라우저에 저장하지 않습니다.</p>
       </div>
@@ -68,6 +68,29 @@
           </div>
         </details>
 
+
+        <details id="joinCodeSection" class="join-code-section" hidden>
+          <summary>연맹 가입 코드 관리</summary>
+          <div class="join-code-meta" aria-live="polite">
+            <div><span>대상 연맹</span><strong id="joinCodeSite">-</strong></div>
+            <div><span>상태</span><strong id="joinCodeConfigured">-</strong></div>
+            <div><span>마지막 변경</span><strong id="joinCodeUpdatedAt">-</strong></div>
+            <div><span>변경 관리자</span><strong id="joinCodeUpdatedBy">-</strong></div>
+          </div>
+          <form id="joinCodeForm" class="form-grid compact" autocomplete="off">
+            <label>새 가입 코드
+              <input id="newJoinCode" name="newCode" type="password" minlength="6" maxlength="32" pattern="[A-Za-z0-9_-]{6,32}" autocomplete="new-password" required>
+              <span class="field-hint">6~32자 · 영문 대소문자, 숫자, _ , - 사용 가능</span>
+            </label>
+            <label>새 가입 코드 확인
+              <input id="confirmJoinCode" name="confirmCode" type="password" minlength="6" maxlength="32" pattern="[A-Za-z0-9_-]{6,32}" autocomplete="new-password" required>
+            </label>
+            <label class="join-code-reveal full"><input id="showJoinCode" type="checkbox"> 입력한 코드 보기</label>
+            <p class="hint full">현재 가입 코드는 평문으로 표시하지 않습니다. 변경 즉시 이전 코드는 신규 회원가입에 사용할 수 없으며 기존 회원과 로그인 세션에는 영향을 주지 않습니다.</p>
+            <button class="button primary full" type="submit">가입 코드 변경</button>
+          </form>
+        </details>
+
         <details class="admin-setup-section">
           <summary>최초 관리자 생성</summary>
           <p class="hint admin-setup-hint">관리자 생성 전용입니다. 생성되는 ezpk_admin 계정은 관리자 전용 R5로 저장됩니다. 전투력과 산업 레벨은 로그인 후 세부 스펙에서 등록하세요. 성공 후에는 setup key를 다시 노출하지 마세요.</p>
@@ -96,7 +119,7 @@
 <option>R4</option>
 <option>R5</option>
 </select></label>
-            <label>연맹 코드<input name="allianceCode" value="00322" required></label>
+            <label>연맹 코드<input name="allianceCode" placeholder="가입 코드를 입력하세요" autocomplete="off" required></label>
             <button class="button primary full" type="submit">테스트 회원가입</button>
           </form>
         </details>
@@ -195,6 +218,17 @@
       <strong>보안 안내</strong> · 이 페이지는 검색엔진 비노출 설정이 적용되어 있지만 URL을 아는 사람은 접근할 수 있습니다. Secret과 실제 비밀번호는 테스트 후 즉시 입력창에서 지우세요.
     </footer>
   </main>
-  <script src="./dev.js" defer></script>
+  <dialog id="joinCodeConfirmDialog" class="confirm-dialog">
+    <form method="dialog">
+      <p class="eyebrow">CONFIRM UPDATE</p>
+      <h2>연맹 가입 코드를 변경할까요?</h2>
+      <p id="joinCodeConfirmText">변경 즉시 이전 가입 코드는 신규 회원가입에 사용할 수 없습니다.</p>
+      <div class="dialog-actions">
+        <button value="cancel" class="button ghost">취소</button>
+        <button id="confirmJoinCodeUpdate" value="confirm" class="button primary">변경 확정</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="./dev.js?v=4100" defer></script>
 </body>
 </html>

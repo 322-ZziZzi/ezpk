@@ -305,6 +305,11 @@ export default {
         case "GET /api/db-test":
           return handleDbTest(env);
 
+        case "GET /api/dev/alliance-join-code":
+          return handleAllianceJoinCodeGet(request, env);
+        case "PUT /api/dev/alliance-join-code":
+          return handleAllianceJoinCodeUpdate(request, env);
+
         case "POST /api/setup/admin":
           return handleSetupAdmin(request, env, url);
 
@@ -510,14 +515,104 @@ async function handleMigrationEligibility(request, env) {
 }
 
 async function handleDbTest(env) {
-  const result = await env.DB
-    .prepare("SELECT key, value FROM settings ORDER BY key")
-    .all();
+  // v410: diagnostic health only. Never expose settings values such as alliance_join_code.
+  const row = await env.DB
+    .prepare("SELECT COUNT(*) AS total FROM settings")
+    .first();
 
   return json({
     ok: true,
-    data: { settings: result.results ?? [] },
+    data: {
+      database: "ok",
+      settingsCount: Number(row?.total || 0),
+      sensitiveSettingsRedacted: true,
+      siteId: env.SITE_ID || "ezpk1",
+    },
   });
+}
+
+const ALLIANCE_JOIN_CODE_PATTERN = /^[A-Za-z0-9_-]{6,32}$/;
+const ALLIANCE_JOIN_CODE_RATE_LIMIT_PER_MINUTE = 5;
+
+async function allianceJoinCodeMetadata(env) {
+  const row = await env.DB.prepare(`
+    SELECT updated_at, updated_by,
+           CASE WHEN length(trim(value)) > 0 THEN 1 ELSE 0 END AS configured
+    FROM settings
+    WHERE key = 'alliance_join_code'
+    LIMIT 1
+  `).first();
+  return {
+    siteId: env.SITE_ID || "ezpk1",
+    displayName: env.SITE_DISPLAY_NAME || ((env.SITE_ID || "ezpk1") === "ezpk2" ? "EZPK2" : "EZPK1"),
+    configured: Boolean(row?.configured),
+    updatedAt: row?.updated_at || null,
+    updatedBy: row?.updated_by || null,
+  };
+}
+
+async function handleAllianceJoinCodeGet(request, env) {
+  const admin = await requireSuperAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+  return json({ ok: true, data: await allianceJoinCodeMetadata(env) });
+}
+
+async function handleAllianceJoinCodeUpdate(request, env) {
+  const admin = await requireSuperAdmin(request, env.DB);
+  if (admin instanceof Response) return admin;
+
+  const recent = await env.DB.prepare(`
+    SELECT COUNT(*) AS total
+    FROM admin_activity_logs
+    WHERE actor_member_id = ?
+      AND action = 'alliance_join_code_updated'
+      AND datetime(created_at) >= datetime('now','-1 minute')
+  `).bind(admin.id).first();
+  if (Number(recent?.total || 0) >= ALLIANCE_JOIN_CODE_RATE_LIMIT_PER_MINUTE) {
+    return jsonError("JOIN_CODE_RATE_LIMITED", 429, { retryAfterSeconds: 60 });
+  }
+
+  const body = await readJson(request);
+  const newCode = cleanString(body.newCode, 32);
+  const confirmCode = cleanString(body.confirmCode, 32);
+  if (!newCode || !ALLIANCE_JOIN_CODE_PATTERN.test(newCode)) {
+    return jsonError("INVALID_ALLIANCE_JOIN_CODE_FORMAT", 400, {
+      minLength: 6, maxLength: 32, allowed: "A-Z a-z 0-9 _ -",
+    });
+  }
+  if (!confirmCode || newCode !== confirmCode) {
+    return jsonError("ALLIANCE_JOIN_CODE_CONFIRM_MISMATCH", 400);
+  }
+
+  const current = await getSetting(env.DB, "alliance_join_code");
+  if (current !== null && constantTimeEqual(String(current), newCode)) {
+    return jsonError("ALLIANCE_JOIN_CODE_UNCHANGED", 409);
+  }
+
+  await env.DB.prepare(`
+    INSERT INTO settings (key, value, updated_at, updated_by)
+    VALUES ('alliance_join_code', ?, CURRENT_TIMESTAMP, ?)
+    ON CONFLICT(key) DO UPDATE SET
+      value = excluded.value,
+      updated_at = CURRENT_TIMESTAMP,
+      updated_by = excluded.updated_by
+  `).bind(newCode, admin.login_id || admin.nickname || "super-admin").run();
+
+  await writeAdminLog(env, request, {
+    actor: admin,
+    category: "security",
+    action: "alliance_join_code_updated",
+    targetType: "setting",
+    targetId: "alliance_join_code",
+    targetName: env.SITE_DISPLAY_NAME || env.SITE_ID || "EZPK1",
+    after: {
+      siteId: env.SITE_ID || "ezpk1",
+      configured: true,
+      previousCodeInvalidatedImmediately: true,
+    },
+  });
+
+  return json({ ok: true, data: await allianceJoinCodeMetadata(env) });
 }
 
 async function handleSetupAdmin(request, env, url) {

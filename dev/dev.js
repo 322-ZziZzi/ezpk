@@ -8,7 +8,20 @@ const lastRequestStatus = document.querySelector('#lastRequestStatus');
 const profileRankMemberField = document.querySelector('#profileRankMemberField');
 const profileRankAdminField = document.querySelector('#profileRankAdminField');
 const profileMemberRank = document.querySelector('#profileMemberRank');
+const devSiteLabel = document.querySelector('#devSiteLabel');
+const joinCodeSection = document.querySelector('#joinCodeSection');
+const joinCodeForm = document.querySelector('#joinCodeForm');
+const joinCodeSite = document.querySelector('#joinCodeSite');
+const joinCodeConfigured = document.querySelector('#joinCodeConfigured');
+const joinCodeUpdatedAt = document.querySelector('#joinCodeUpdatedAt');
+const joinCodeUpdatedBy = document.querySelector('#joinCodeUpdatedBy');
+const newJoinCode = document.querySelector('#newJoinCode');
+const confirmJoinCode = document.querySelector('#confirmJoinCode');
+const showJoinCode = document.querySelector('#showJoinCode');
+const joinCodeConfirmDialog = document.querySelector('#joinCodeConfirmDialog');
+const joinCodeConfirmText = document.querySelector('#joinCodeConfirmText');
 let currentMember = null;
+let currentSite = {siteId:'ezpk1', displayName:'EZPK1'};
 
 function applyMemberToDeveloperCenter(member) {
   currentMember = member || null;
@@ -26,6 +39,10 @@ function applyMemberToDeveloperCenter(member) {
   } else {
     authStatus.textContent = '비로그인';
   }
+
+  const isSuperAdmin = member?.role === 'admin' && member?.adminLevel === 'super';
+  if (joinCodeSection) joinCodeSection.hidden = !isSuperAdmin;
+  if (isSuperAdmin) loadJoinCodeMetadata().catch(() => {});
 }
 
 async function api(path, options = {}) {
@@ -81,7 +98,47 @@ function numberOrNull(value) {
   return value === '' ? null : Number(value);
 }
 
+function applySiteContext(data = {}) {
+  currentSite = {
+    siteId: data.siteId || 'ezpk1',
+    displayName: data.displayName || (data.siteId === 'ezpk2' ? 'EZPK2' : 'EZPK1'),
+  };
+  if (devSiteLabel) devSiteLabel.textContent = `${currentSite.displayName} DEV`;
+  if (joinCodeSite) joinCodeSite.textContent = currentSite.displayName;
+}
+
+function renderJoinCodeMetadata(data = {}) {
+  applySiteContext(data);
+  if (joinCodeConfigured) joinCodeConfigured.textContent = data.configured ? '설정됨' : '미설정';
+  if (joinCodeUpdatedAt) joinCodeUpdatedAt.textContent = data.updatedAt || '-';
+  if (joinCodeUpdatedBy) joinCodeUpdatedBy.textContent = data.updatedBy || '-';
+}
+
+async function loadJoinCodeMetadata() {
+  if (!currentMember || currentMember.role !== 'admin' || currentMember.adminLevel !== 'super') return;
+  const result = await api('/api/dev/alliance-join-code');
+  if (result.response.ok) renderJoinCodeMetadata(result.body?.data || {});
+}
+
+function confirmJoinCodeChange() {
+  const message = `${currentSite.displayName} 가입 코드를 변경합니다. 변경 즉시 이전 가입 코드는 신규 회원가입에 사용할 수 없습니다.`;
+  if (joinCodeConfirmText) joinCodeConfirmText.textContent = message;
+  if (!joinCodeConfirmDialog || typeof joinCodeConfirmDialog.showModal !== 'function') {
+    return Promise.resolve(window.confirm(message));
+  }
+  return new Promise(resolve => {
+    const onClose = () => {
+      joinCodeConfirmDialog.removeEventListener('close', onClose);
+      resolve(joinCodeConfirmDialog.returnValue === 'confirm');
+    };
+    joinCodeConfirmDialog.addEventListener('close', onClose);
+    joinCodeConfirmDialog.showModal();
+  });
+}
+
 async function quickCheck() {
+  const site = await api('/api/site-context');
+  if (site.response.ok) applySiteContext(site.body?.data || {});
   const db = await api('/api/db-test');
   dbStatus.textContent = db.response.ok ? '정상' : '오류';
   const auth = await api('/api/auth/me');
@@ -182,5 +239,42 @@ document.querySelector('#membersForm').addEventListener('submit', event => {
   Object.entries(data).forEach(([key,value]) => { if (value !== '') params.set(key,value); });
   api(`/api/members?${params.toString()}`);
 });
+
+if (showJoinCode) {
+  showJoinCode.addEventListener('change', () => {
+    const type = showJoinCode.checked ? 'text' : 'password';
+    if (newJoinCode) newJoinCode.type = type;
+    if (confirmJoinCode) confirmJoinCode.type = type;
+  });
+}
+
+if (joinCodeForm) {
+  joinCodeForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = formObject(joinCodeForm);
+    data.newCode = String(data.newCode || '').trim();
+    data.confirmCode = String(data.confirmCode || '').trim();
+    if (!/^[A-Za-z0-9_-]{6,32}$/.test(data.newCode)) {
+      output.textContent = '가입 코드는 6~32자의 영문 대소문자, 숫자, _ , - 만 사용할 수 있습니다.';
+      badge.textContent = '입력 확인';
+      badge.className = 'badge error';
+      return;
+    }
+    if (data.newCode !== data.confirmCode) {
+      output.textContent = '새 가입 코드와 확인 값이 일치하지 않습니다.';
+      badge.textContent = '입력 확인';
+      badge.className = 'badge error';
+      return;
+    }
+    if (!await confirmJoinCodeChange()) return;
+    const result = await jsonPost('/api/dev/alliance-join-code', data, 'PUT');
+    if (result.response.ok) {
+      renderJoinCodeMetadata(result.body?.data || {});
+      joinCodeForm.reset();
+      if (newJoinCode) newJoinCode.type = 'password';
+      if (confirmJoinCode) confirmJoinCode.type = 'password';
+    }
+  });
+}
 
 quickCheck().catch(() => {});
