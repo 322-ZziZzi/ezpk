@@ -4,7 +4,7 @@
   "main": "./worker.js",
   "compatibility_date": "2026-07-17",
 
-  // v402 multi-alliance production configuration with Worker-first host routing.
+  // v403 multi-alliance production configuration with Worker-first host routing.
   // EZPK2 database_id resolved from the operator-provided Cloudflare D1 UUID.
   "routes": [
     { "pattern": "ezpk322.com", "custom_domain": true },

@@ -1,1 +1,67 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"><meta name="theme-color" content="#05070b"><title>EZPK Alliance Select</title><link rel="stylesheet" href="../style.css?v=4020"><link rel="stylesheet" href="gateway.css?v=4020"></head><body><main class="gateway-main"><header class="gateway-brand"><span class="gateway-mark">★</span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></header><section class="gateway-heading"><h1 id="gatewayTitle">Choose Your Alliance</h1><p id="gatewayLead">Select the alliance portal you want to enter.</p></section><section class="gateway-grid"><a class="gateway-card" id="ezpk1Card" href="https://ezpk1.ezpk322.com/"><span class="gateway-card-type">EZPK1</span><h2 id="ezpk1Title">Main Alliance</h2><p id="ezpk1Body">Active growth, teamwork, and alliance participation.</p><strong id="enterEzpk1">Enter EZPK1 →</strong></a><a class="gateway-card" id="ezpk2Card" href="https://ezpk2.ezpk322.com/"><span class="gateway-card-type">EZPK2</span><h2 id="ezpk2Title">Sub Alliance</h2><p id="ezpk2Body">A lighter, more flexible way to enjoy the game together.</p><strong id="enterEzpk2">Enter EZPK2 →</strong></a></section><div class="gateway-lang"><button type="button" data-lang="ko">한국어</button><button type="button" data-lang="en">English</button><button type="button" data-lang="pt">Português</button><button type="button" data-lang="vi">Tiếng Việt</button><button type="button" data-lang="ar">العربية</button><button type="button" data-lang="ja">日本語</button><button type="button" data-lang="th">ไทย</button><button type="button" data-lang="zh-tw">繁體中文</button></div><p id="gatewayStatus" class="gateway-status" hidden></p></main><script src="gateway.js?v=4020"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes">
+  <meta name="theme-color" content="#05070b">
+  <title>EZPK Alliance Select</title>
+  <link rel="stylesheet" href="../style.css?v=4030">
+  <link rel="stylesheet" href="gateway.css?v=4030">
+</head>
+<body class="gateway-body">
+  <header class="site-header gateway-site-header">
+    <a class="brand gateway-brand" href="https://ezpk322.com/?select=1" aria-label="EZPK Alliance Portal">
+      <span class="brand-mark" aria-hidden="true">★</span>
+      <span><b>322 EZPK</b><small>ALLIANCE PORTAL</small></span>
+    </a>
+    <div class="lang gateway-language">
+      <button id="gatewayLangBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="gatewayLangMenu">
+        <span class="gateway-language-icon" aria-hidden="true">🌐</span>
+        <span class="gateway-language-label"><span id="gatewayFlag">🇺🇸</span><span id="gatewayLanguageName">English</span><span aria-hidden="true">▾</span></span>
+      </button>
+      <div id="gatewayLangMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-lang="ko">🇰🇷 한국어</button>
+        <button type="button" role="menuitem" data-lang="en">🇺🇸 English</button>
+        <button type="button" role="menuitem" data-lang="pt">🇧🇷 Português</button>
+        <button type="button" role="menuitem" data-lang="vi">🇻🇳 Tiếng Việt</button>
+        <button type="button" role="menuitem" data-lang="ar">🇸🇦 العربية</button>
+        <button type="button" role="menuitem" data-lang="ja">🇯🇵 日本語</button>
+        <button type="button" role="menuitem" data-lang="th">🇹🇭 ไทย</button>
+        <button type="button" role="menuitem" data-lang="zh-tw">🇹🇼 繁體中文</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="gateway-main">
+    <section class="gateway-heading" aria-labelledby="gatewayTitle">
+      <h1 id="gatewayTitle">Choose Your Alliance</h1>
+      <p id="gatewayLead">Select the EZPK alliance portal you want to enter.</p>
+    </section>
+
+    <section class="gateway-grid" aria-label="Alliance portals">
+      <a class="gateway-card" id="ezpk1Card" href="https://ezpk1.ezpk322.com/">
+        <div class="gateway-card-topline">
+          <span class="gateway-alliance-name">EZPK1</span>
+          <span class="gateway-role" id="ezpk1Title">Main Alliance</span>
+        </div>
+        <p id="ezpk1Body">The EZPK main alliance focused on active growth, participation, and teamwork.</p>
+        <span class="gateway-enter"><span id="enterEzpk1">Enter EZPK1</span><span aria-hidden="true">→</span></span>
+      </a>
+
+      <a class="gateway-card" id="ezpk2Card" href="https://ezpk2.ezpk322.com/">
+        <div class="gateway-card-topline">
+          <span class="gateway-alliance-name">EZPK2</span>
+          <span class="gateway-role" id="ezpk2Title">Sub Alliance</span>
+        </div>
+        <p id="ezpk2Body">The EZPK sub alliance for a lighter and more flexible way to play together.</p>
+        <span class="gateway-enter"><span id="enterEzpk2">Enter EZPK2</span><span aria-hidden="true">→</span></span>
+      </a>
+    </section>
+
+    <p id="gatewayStatus" class="gateway-status" role="status" hidden></p>
+  </main>
+
+  <footer class="gateway-footer"><b>322 EZPK ALLIANCE</b><span id="gatewayFooter">Choose an alliance to continue.</span></footer>
+  <script src="gateway.js?v=4030"></script>
+</body>
+</html>

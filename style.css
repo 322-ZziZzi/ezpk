@@ -2346,3 +2346,26 @@ html[dir='rtl'] .ezpk-auth-dialog h2{margin-right:0;margin-left:34px}
   [data-shared-header].site-header{grid-template-columns:auto minmax(0,1fr) auto auto auto!important}
   [data-shared-header] .alliance-selector-link{max-width:138px;overflow:hidden;text-overflow:ellipsis}
 }
+
+/* v403: final desktop multi-alliance header containment.
+   v402 changed column definitions but the desktop header itself was still flex.
+   Use an explicit grid so Alliance Select / Account / Language remain inside the viewport. */
+@media(min-width:1200px){
+  [data-shared-header].site-header:not(.admin-auth-host){display:grid!important;grid-template-columns:max-content minmax(0,1fr) max-content max-content max-content!important;align-items:center!important;column-gap:12px!important;width:100%!important;min-width:0!important}
+  [data-shared-header]:not(.admin-auth-host) .brand{grid-column:1!important;min-width:0!important;justify-self:start!important}
+  [data-shared-header]:not(.admin-auth-host) #nav{grid-column:2!important;width:100%!important;min-width:0!important;max-width:100%!important;justify-self:stretch!important}
+  [data-shared-header]:not(.admin-auth-host) .desktop-nav-items{min-width:0!important;max-width:100%!important}
+  [data-shared-header]:not(.admin-auth-host) .alliance-selector-link{grid-column:3!important;min-height:42px!important;max-width:124px!important;padding-inline:12px!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  [data-shared-header]:not(.admin-auth-host) .header-account{grid-column:4!important;min-width:0!important;justify-self:end!important}
+  [data-shared-header]:not(.admin-auth-host) .lang{grid-column:5!important;min-width:0!important;justify-self:end!important}
+  [data-shared-header]:not(.admin-auth-host) .lang>#langBtn{max-width:142px!important;overflow:hidden!important}
+  [data-shared-header]:not(.admin-auth-host) .desktop-language-label{max-width:110px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+}
+@media(min-width:1200px) and (max-width:1380px){
+  [data-shared-header].site-header:not(.admin-auth-host){column-gap:9px!important;padding-left:2vw!important;padding-right:2vw!important}
+  [data-shared-header]:not(.admin-auth-host) .desktop-nav-items{gap:14px!important}
+  [data-shared-header]:not(.admin-auth-host) .alliance-selector-link{max-width:104px!important;padding-inline:9px!important;font-size:10px!important}
+  [data-shared-header]:not(.admin-auth-host) .header-account .account-button,[data-shared-header]:not(.admin-auth-host) .lang>#langBtn{padding-inline:12px!important}
+  [data-shared-header]:not(.admin-auth-host) .lang>#langBtn{max-width:122px!important}
+  [data-shared-header]:not(.admin-auth-host) .desktop-language-label{max-width:92px!important}
+}

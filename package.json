@@ -1,11 +1,11 @@
 {
   "name": "ezpk-war-portal",
   "private": true,
-  "version": "4.0.2",
+  "version": "4.0.3",
   "scripts": {
     "dev": "wrangler dev",
     "deploy:dry-run": "wrangler deploy --dry-run",
-    "predeploy": "node scripts/v402-deploy-guard.mjs",
+    "predeploy": "node scripts/v403-deploy-guard.mjs",
     "deploy": "wrangler deploy",
     "migrate:local": "wrangler d1 migrations apply DB --local",
     "migrate:remote": "wrangler d1 migrations apply DB --remote",
