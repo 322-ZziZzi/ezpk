@@ -1,0 +1,50 @@
+{
+  "release": "v412",
+  "packageVersion": "4.1.2",
+  "base": "v411",
+  "scope": [
+    "gateway_desktop_migration_to_heading_gap_100px",
+    "gateway_desktop_heading_to_description_gap_10px",
+    "gateway_desktop_description_to_alliance_grid_gap_26px",
+    "gateway_mobile_migration_to_heading_gap_100px",
+    "gateway_mobile_heading_to_description_gap_12px",
+    "gateway_mobile_description_to_first_card_gap_22px",
+    "gateway_mobile_alliance_card_gap_12px"
+  ],
+  "database": {
+    "schemaChanged": false,
+    "migrationCount": 30,
+    "latestMigration": "0031_v405_migration_inquiry_soft_delete.sql",
+    "new0032": false,
+    "v411MigrationByteExact": true
+  },
+  "validation": {
+    "deployGuard": "PASS",
+    "jsMjsSyntax": {"passed": 57, "total": 57},
+    "cssParse": {"passed": 37, "total": 37},
+    "themeBootstrap": {"passed": 27, "total": 27},
+    "htmlLocalRefs": {"checked": 382, "missing": 0},
+    "sqliteMigrationCycles": {"passed": 2, "total": 2},
+    "migrationDigestCrosscheck": {"passed": 30, "total": 30},
+    "desktopSpacing": {
+      "migrationCardToHeadingPx": 100,
+      "headingToDescriptionPx": 10,
+      "descriptionToGridPx": 26
+    },
+    "mobileSpacing": {
+      "migrationCardToHeadingPx": 100,
+      "headingToDescriptionPx": 12,
+      "descriptionToFirstCardPx": 22,
+      "allianceCardGapPx": 12
+    },
+    "gatewayOuterWidthAlignmentPreserved": true,
+    "internalChecksums": {"passed": 292, "total": 292},
+    "packageFiles": 293,
+    "zipCrc": "PASS",
+    "zipPathSafety": {"duplicates": 0, "unsafe": 0, "casefoldCollisions": 0}
+  },
+  "operatorRequired": [
+    "npm run deploy:dry-run",
+    "post-deploy desktop/mobile production smoke"
+  ]
+}
