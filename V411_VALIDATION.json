@@ -1,0 +1,66 @@
+{
+  "release": "v411",
+  "packageVersion": "4.1.1",
+  "base": "v410",
+  "scope": [
+    "gateway_desktop_migration_to_heading_gap_77px",
+    "gateway_heading_to_description_gap_10px",
+    "gateway_description_to_alliance_grid_gap_26px"
+  ],
+  "database": {
+    "schemaChanged": false,
+    "migrationCount": 30,
+    "latestMigration": "0031_v405_migration_inquiry_soft_delete.sql",
+    "new0032": false,
+    "v410MigrationByteExact": true
+  },
+  "validation": {
+    "deployGuard": "PASS",
+    "jsMjsSyntax": {
+      "passed": 56,
+      "total": 56
+    },
+    "cssParse": {
+      "passed": 37,
+      "total": 37
+    },
+    "themeBootstrap": {
+      "passed": 27,
+      "total": 27
+    },
+    "htmlLocalRefs": {
+      "checked": 382,
+      "missing": 0
+    },
+    "sqliteMigrationCycles": {
+      "passed": 2,
+      "total": 2
+    },
+    "migrationDigestCrosscheck": {
+      "passed": 30,
+      "total": 30
+    },
+    "desktopSpacing": {
+      "migrationCardToHeadingPx": 77,
+      "headingToDescriptionPx": 10,
+      "descriptionToGridPx": 26
+    },
+    "gatewayOuterWidthAlignmentPreserved": true,
+    "mobileSpacingOverridesPreserved": true,
+    "internalChecksums": {
+      "passed": 287,
+      "total": 287
+    },
+    "packageFiles": 288,
+    "zipCrc": "PASS",
+    "zipPathSafety": {
+      "duplicates": 0,
+      "unsafe": 0,
+      "casefoldCollisions": 0
+    }
+  },
+  "operatorRequired": [
+    "npm run deploy:dry-run",
+    "post-deploy desktop/mobile production smoke"
+  ]
+}
