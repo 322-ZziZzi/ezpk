@@ -609,8 +609,14 @@
   function syncAllianceSelectorControls(lang=currentLanguage()) {
     const enabled = siteContext?.mode === 'DUAL';
     const label = ALLIANCE_SELECT_LABELS[lang] || ALLIANCE_SELECT_LABELS.en;
+    const compactLabel = menuUi(lang).alliance || label;
     const desktopLink = header.querySelector('#allianceSelectorLink');
-    if (desktopLink) { desktopLink.hidden = !enabled; desktopLink.textContent = label; }
+    if (desktopLink) {
+      desktopLink.hidden = !enabled;
+      desktopLink.setAttribute('aria-label', label);
+      desktopLink.setAttribute('title', label);
+      desktopLink.innerHTML = `<span class="desktop-alliance-label desktop-alliance-label-full">${safeText(label)}</span><span class="desktop-alliance-label desktop-alliance-label-short">${safeText(compactLabel)}</span>`;
+    }
     if (!mobileDrawerItems) return;
     mobileDrawerItems.querySelector('[data-mobile-alliance-selector]')?.remove();
     if (!enabled) return;

@@ -1,0 +1,66 @@
+/* v422 · PC header regression repair.
+   Primary navigation is never moved/removed to make room for Alliance Select.
+   Only action controls + primary nav typography/gaps compact within >=1200px. */
+@media(max-width:1199px){
+  [data-shared-header]:not(.admin-auth-host) .alliance-selector-link{display:none!important}
+}
+@media(min-width:1200px){
+  [data-shared-header].site-header:not(.admin-auth-host){
+    grid-template-columns:max-content minmax(0,1fr) max-content max-content max-content!important;
+    column-gap:9px!important;
+    width:100%!important;min-width:0!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) #nav{
+    display:flex!important;min-width:0!important;width:100%!important;overflow:visible!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) .desktop-nav-items{
+    display:flex!important;align-items:center!important;min-width:0!important;max-width:100%!important;
+    gap:14px!important;overflow:visible!important;white-space:nowrap!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) .desktop-nav-items>a{
+    display:inline-flex!important;flex:0 0 auto!important;min-width:0!important;
+    font-size:11px!important;line-height:1!important;white-space:nowrap!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) .alliance-selector-link{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    min-width:0!important;max-width:116px!important;height:42px!important;min-height:42px!important;
+    padding-inline:10px!important;overflow:hidden!important;white-space:nowrap!important;
+    text-overflow:clip!important;font-size:10.5px!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) .desktop-alliance-label{display:inline-block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:clip}
+  [data-shared-header]:not(.admin-auth-host) .desktop-alliance-label-short{display:none}
+  [data-shared-header]:not(.admin-auth-host) .header-account{min-width:0!important;gap:7px!important}
+  [data-shared-header]:not(.admin-auth-host) .header-account .account-button{
+    min-width:0!important;max-width:128px!important;padding-inline:12px!important;overflow:hidden!important;text-overflow:clip!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) .account-member-trigger{max-width:176px!important;min-width:0!important}
+  [data-shared-header]:not(.admin-auth-host) .lang>#langBtn{
+    min-width:0!important;max-width:154px!important;padding-inline:12px!important;overflow:hidden!important;text-overflow:clip!important;
+  }
+  [data-shared-header]:not(.admin-auth-host) .desktop-language-label{
+    display:inline-flex!important;align-items:center!important;gap:4px!important;max-width:none!important;
+    overflow:visible!important;text-overflow:clip!important;white-space:nowrap!important;
+  }
+  [data-shared-header][data-ezpk-header-fit-level='compact']:not(.admin-auth-host){column-gap:7px!important}
+  [data-shared-header][data-ezpk-header-fit-level='compact']:not(.admin-auth-host) .desktop-nav-items{gap:10px!important}
+  [data-shared-header][data-ezpk-header-fit-level='compact']:not(.admin-auth-host) .desktop-nav-items>a{font-size:10.3px!important}
+  [data-shared-header][data-ezpk-header-fit-level='compact']:not(.admin-auth-host) .alliance-selector-link,
+  [data-shared-header][data-ezpk-header-fit-level='compact']:not(.admin-auth-host) .header-account .account-button,
+  [data-shared-header][data-ezpk-header-fit-level='compact']:not(.admin-auth-host) .lang>#langBtn{font-size:10px!important;padding-inline:8px!important}
+  [data-shared-header][data-ezpk-header-fit-level='tight']:not(.admin-auth-host){column-gap:6px!important;padding-left:2vw!important;padding-right:2vw!important}
+  [data-shared-header][data-ezpk-header-fit-level='tight']:not(.admin-auth-host) .desktop-nav-items{gap:8px!important}
+  [data-shared-header][data-ezpk-header-fit-level='tight']:not(.admin-auth-host) .desktop-nav-items>a{font-size:9.5px!important;letter-spacing:-.01em!important}
+  [data-shared-header][data-ezpk-header-fit-level='tight']:not(.admin-auth-host) .alliance-selector-link,
+  [data-shared-header][data-ezpk-header-fit-level='tight']:not(.admin-auth-host) .header-account .account-button,
+  [data-shared-header][data-ezpk-header-fit-level='tight']:not(.admin-auth-host) .lang>#langBtn{font-size:9.5px!important;padding-inline:6px!important;letter-spacing:0!important}
+}
+@media(min-width:1200px) and (max-width:1439px){
+  [data-shared-header]:not(.admin-auth-host) .desktop-alliance-label-full{display:none!important}
+  [data-shared-header]:not(.admin-auth-host) .desktop-alliance-label-short{display:inline-block!important}
+  [data-shared-header]:not(.admin-auth-host) .alliance-selector-link{max-width:94px!important}
+}
+@media(min-width:1440px){
+  [data-shared-header]:not(.admin-auth-host) .desktop-alliance-label-full{display:inline-block!important}
+  [data-shared-header]:not(.admin-auth-host) .desktop-alliance-label-short{display:none!important}
+  [data-shared-header]:not(.admin-auth-host) .alliance-selector-link{max-width:152px!important}
+}

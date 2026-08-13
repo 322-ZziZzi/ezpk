@@ -510,3 +510,7 @@ Migration image export header cleanup: removed the visible sorting-description t
 ## v417 — Global Language State Synchronization
 
 Single `window.EZPKLanguage` authority. See `V417_LANGUAGE_STATE_SYNC_REPORT.md`.
+
+## v4.2.2 / v422 — PC Header Navigation Regression Repair
+
+The shared PC Header no longer moves primary navigation links into `More` to make room for Alliance Select. v422 keeps all direct primary navigation exposed on desktop, compacts only typography/gaps/actions, and uses a short translated Alliance label at 1200–1439px with the full translated label preserved for accessibility and wider desktop. v421 mobile/tablet Alliance selector behavior is unchanged. See `V422_PC_HEADER_NAVIGATION_REGRESSION_REPAIR_REPORT.md`.
