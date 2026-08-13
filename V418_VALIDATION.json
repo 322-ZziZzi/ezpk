@@ -1,0 +1,513 @@
+{
+  "version": "4.1.8",
+  "baseline": "EZPK-v417-deploy-ready.zip",
+  "static_predeploy": "PASS",
+  "js_mjs_syntax": {
+    "checked": 67,
+    "failed": 0,
+    "status": "PASS"
+  },
+  "css_brace_balance": {
+    "checked": 38,
+    "failed": 0,
+    "status": "PASS"
+  },
+  "user_page_text_fit_assets": {
+    "pages": 25,
+    "css": 25,
+    "js": 25,
+    "status": "PASS"
+  },
+  "existing_grid_declarations_changed": 0,
+  "v417_existing_paths_removed": 0,
+  "new_files_before_report_packaging": [
+    "scripts/v418-deploy-guard.mjs",
+    "text-fit-v418.css",
+    "text-fit-v418.js"
+  ],
+  "changed_existing_paths_before_report_packaging": 30,
+  "migrations": {
+    "count": 30,
+    "byte_exact": 30,
+    "status": "PASS"
+  },
+  "historical_guards": {
+    "scripts/v414-deploy-guard.mjs": "PASS",
+    "scripts/v415-deploy-guard.mjs": "PASS",
+    "scripts/v416-deploy-guard.mjs": "PASS",
+    "scripts/v417-deploy-guard.mjs": "PASS"
+  },
+  "home_quick_links_font_stress": {
+    "font": "Arimo Bold approximation",
+    "viewports": [
+      320,
+      360,
+      390,
+      430
+    ],
+    "languages": 14,
+    "cases": 56,
+    "predicted_overflow": 0,
+    "status": "PASS",
+    "details": [
+      {
+        "viewport": 320,
+        "lang": "en",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "fr",
+        "level": "tight",
+        "max_lines": 2,
+        "font_px": 11.9,
+        "content_width_px": 127.1
+      },
+      {
+        "viewport": 320,
+        "lang": "de",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "ko",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "th",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "ja",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "pt",
+        "level": "compact",
+        "max_lines": 2,
+        "font_px": 12.88,
+        "content_width_px": 125.1
+      },
+      {
+        "viewport": 320,
+        "lang": "es",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "tr",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "zh-tw",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "it",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "ar",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "vi",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 320,
+        "lang": "id",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 123.5
+      },
+      {
+        "viewport": 360,
+        "lang": "en",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "fr",
+        "level": "compact",
+        "max_lines": 2,
+        "font_px": 12.88,
+        "content_width_px": 145.1
+      },
+      {
+        "viewport": 360,
+        "lang": "de",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "ko",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "th",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "ja",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "pt",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "es",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "tr",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "zh-tw",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "it",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "ar",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "vi",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 360,
+        "lang": "id",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 143.5
+      },
+      {
+        "viewport": 390,
+        "lang": "en",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "fr",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "de",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "ko",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "th",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "ja",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "pt",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "es",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "tr",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "zh-tw",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "it",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "ar",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "vi",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 390,
+        "lang": "id",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 158.5
+      },
+      {
+        "viewport": 430,
+        "lang": "en",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "fr",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "de",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "ko",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "th",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "ja",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "pt",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "es",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "tr",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "zh-tw",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "it",
+        "level": "normal",
+        "max_lines": 2,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "ar",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "vi",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      },
+      {
+        "viewport": 430,
+        "lang": "id",
+        "level": "normal",
+        "max_lines": 1,
+        "font_px": 14,
+        "content_width_px": 178.5
+      }
+    ]
+  },
+  "browser_runtime_matrix": {
+    "status": "NOT_EXECUTED",
+    "reason": "Managed Chromium policy URLBlocklist blocks local/file/data navigation in this validation environment. v418 static/source and deterministic font-width stress checks were completed instead."
+  },
+  "wrangler_dry_run": {
+    "status": "NOT_EXECUTED",
+    "reason": "No installed node_modules/.bin/wrangler in the clean validation workspace."
+  },
+  "expected_final_package_files": 328,
+  "final_package_notes": "Includes V418_FILE_CHECKSUMS.sha256; checksum manifest excludes itself."
+}

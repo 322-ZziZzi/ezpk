@@ -1,3 +1,12 @@
+## v418 Multilingual Responsive Text-Fit
+
+- Preserves existing grids while preventing long 14-language UI translations from escaping buttons, tabs, cards, and menus.
+- Fixes the global shared-header `nav` CSS scope leak that forced Home Quick Links to stay on one line.
+- Adds group-level Normal / Compact / Tight text fitting with two-line tile support, actual overflow measurement, ResizeObserver/language-change recalculation, and user-data exclusions.
+- Removes conflicting legacy shrink rules from Season 6 tabs and mini-game result buttons.
+- Preserves all 30 D1 migrations and historical v414-v417 guards byte-for-byte.
+- See `V418_TEXT_FIT_REMEDIATION_REPORT.md` and `V418_DEPLOY_VALIDATION_RUNBOOK.md`.
+
 ## v416 14-language full-UI remediation
 
 - Completes the confirmed v416 i18n remediation scope across shared Header, Request, BGB, Capital War preview metadata, and all mini-games.

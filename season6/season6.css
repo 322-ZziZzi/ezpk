@@ -71,7 +71,7 @@
 
 @media(max-width:620px){
   .strategy-tabs{gap:6px;padding:9px}
-  .strategy-tab{padding:12px 5px;font-size:clamp(11px,3.4vw,14px);letter-spacing:-.02em}
+  .strategy-tab{padding:12px 5px;font-size:14px;letter-spacing:-.02em}
   .strategy-content{min-height:240px;padding:42px 18px 46px}
   .common-orders-panel{min-height:220px;padding:42px 18px 46px}
   .strategy-content-icon,.common-orders-icon{width:50px;height:50px;border-radius:14px}
