@@ -1,0 +1,21 @@
+{
+  "shared_pages": 23,
+  "ref_issues": [],
+  "primary_font_values": [
+    14.0,
+    14.0,
+    13.5
+  ],
+  "more_font_values": [
+    14.0,
+    14.0,
+    13.5
+  ],
+  "primary_floor_pass": true,
+  "more_floor_pass": true,
+  "min_visible_guard": true,
+  "normal_reset": true,
+  "geometry_collision": true,
+  "stale_mutation_observer_absent": true,
+  "safe_more_active": true
+}

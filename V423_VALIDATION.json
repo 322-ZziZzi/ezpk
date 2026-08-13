@@ -1,0 +1,66 @@
+{
+  "version": "4.2.3",
+  "baseline": "EZPK-v422-deploy-ready.zip",
+  "scope": "PC shared Header readability / fit remediation only; v421 mobile Alliance selector preserved",
+  "source_static_status": "PASS",
+  "live_browser_status": "REQUIRED",
+  "managed_local_chromium": "NOT_COMPLETED_PROCESS_HANG_NO_FALSE_PASS",
+  "shared_header_user_pages": 23,
+  "active_header_fit": "header-fit-v423.js/css?v=4230",
+  "active_legacy_v422_v419_fit_refs": 0,
+  "primary_font_values_px": [
+    14.0,
+    14.0,
+    13.5
+  ],
+  "more_font_values_px": [
+    14.0,
+    14.0,
+    13.5
+  ],
+  "primary_runtime_floor_px": 13,
+  "min_visible_primary": 4,
+  "geometry_collision_measurement": true,
+  "normal_reset_before_measure": true,
+  "mutation_observer_self_loop_absent": true,
+  "safe_more_active_sync": true,
+  "d1_migrations_total": 30,
+  "d1_migrations_byte_exact_vs_v422": 30,
+  "historical_deploy_guards_total_through_v422": 21,
+  "historical_deploy_guards_byte_exact_vs_v422": 21,
+  "shared_header_js_changed_vs_v422": false,
+  "style_css_changed_vs_v422": false,
+  "mobile_v421_selector_changed": false,
+  "worker_api_db_contract_changed": false,
+  "required_live_widths": [
+    1199,
+    1200,
+    1201,
+    1280,
+    1366,
+    1440,
+    1600,
+    1920
+  ],
+  "required_live_languages": [
+    "en",
+    "fr",
+    "de",
+    "ko",
+    "th",
+    "ja",
+    "pt",
+    "es",
+    "tr",
+    "zh-tw",
+    "it",
+    "ar",
+    "vi",
+    "id"
+  ],
+  "required_live_states": [
+    "guest",
+    "member",
+    "admin-capable-member"
+  ]
+}

@@ -1,4 +1,26 @@
-> Current deploy-ready baseline: **v421 / 4.2.1** — mobile-only dual-alliance button selector in the hamburger Drawer.
+> Current deploy-ready baseline: **v423 / 4.2.3** — readable PC Header fit with a hard Primary Navigation font floor and geometry-based overflow handling.
+
+## v423 PC Header Readability / Fit Remediation
+
+- Fixes the v422 regression where PC Primary Navigation could shrink to roughly 9.5–11px.
+- Keeps desktop Primary Navigation at 14px in Normal/Compact and 13.5px in Tight; the runtime regression floor is 13px.
+- Resets to Normal before every resize/language/auth re-measure so stale Compact/Tight state cannot survive.
+- Uses actual rendered collision / nav-boundary geometry instead of width estimates to decide whether compaction is necessary.
+- Reclaims space from Header gaps, Alliance Select, account controls, member-name width, and language control before touching Primary Navigation typography.
+- Allows trailing low-priority Primary items to move into `More` only after Compact/Tight geometry still fails, and never below four directly visible Primary items.
+- Keeps `More` at the same readable typography floor and synchronizes its active state when a moved item is active.
+- Preserves the 1200–1439 compact Alliance label / >=1440 full Alliance label contract, with full translated `aria-label`/`title`.
+- Preserves v421 mobile Alliance selector, v420 hamburger discovery cue, all 30 D1 migrations, and Worker/API contracts.
+- Adds explicit Header regression audit fields for visible-primary minimum, Primary font floor, collisions, bounds, nav overflow, and moved count.
+- Fresh live-host browser visual verification remains the final deployment gate because managed local Chromium could not complete headless rendering in this environment.
+- See `V423_PC_HEADER_READABILITY_REMEDIATION_REPORT.md` and `V423_DEPLOY_VALIDATION_RUNBOOK.md`.
+
+## v422 PC Header Navigation Regression Repair
+
+- Prevented the earlier v419 fitter from moving every Primary Navigation link into `More`.
+- Introduced the compact/full desktop Alliance label contract retained by v423.
+- Superseded as active Header fit authority by v423 because its Tight typography could still shrink Primary Navigation too aggressively.
+
 ## v421 Mobile Alliance Context Selector
 
 - Replaces the mobile Drawer’s single `Alliance Select` link with a two-button Alliance context selector in DUAL mode.
