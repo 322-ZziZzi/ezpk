@@ -3,7 +3,7 @@
   const $=selector=>document.querySelector(selector);
   const STORAGE_KEY='ezpk-lang-v5';
   const SUPPORTED=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];
-  let lang=SUPPORTED.includes(localStorage.getItem(STORAGE_KEY))?localStorage.getItem(STORAGE_KEY):'en';
+  let lang=SUPPORTED.includes(window.EZPKLanguage?.get?.())?window.EZPKLanguage.get():'en';
   let authState=null,loaded=false,loading=false,layout=null,currentMemberId=null,selectedId=null;
   let scale=1,panX=0,panY=0,suppressClick=false;
   const ZOOM_STEPS=[.35,.5,.65,.8,1,1.2,1.4,1.7,2,2.3,2.6];
@@ -119,5 +119,5 @@ Object.assign(IMAGE_T,{
 
   document.addEventListener('DOMContentLoaded',()=>{applyText();setupMapControls();$('#allianceLayoutGate').hidden=true;$('#allianceLayoutProtected').hidden=true;$('#gateLogin').onclick=()=>window.EZPKMemberAuth?.openLogin();$('#memberSearch').addEventListener('input',renderSearch);$('#findMe').onclick=()=>{const item=layout?.positions?.find(p=>Number(p.memberId)===currentMemberId);if(item)selectMember(item.memberId,true);else showTransient(tx().noMe);};$('#openFullscreen').onclick=openFullscreen;$('#closeFullscreen').onclick=closeFullscreen;document.querySelectorAll('[data-layout-image]').forEach(button=>button.onclick=openLayoutImage);$('#layoutImageClose').onclick=()=>$('#layoutImageDialog').close();$('#layoutImageDialog').addEventListener('click',event=>{if(event.target===$('#layoutImageDialog'))$('#layoutImageDialog').close();});addEventListener('resize',()=>{applyText();if(layout)requestAnimationFrame(fitMap);});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('#layoutExplorer').classList.contains('is-fullscreen'))closeFullscreen();});const state=window.EZPKMemberAuth?.getState?.();if(state?.loaded)applyAccess(state);});
   function showTransient(message){const box=$('#searchResults');box.hidden=false;box.innerHTML=`<p>${esc(message)}</p>`;setTimeout(()=>{box.hidden=true;},2600);}
-  window.addEventListener('ezpk-auth-ready',event=>applyAccess(event.detail));window.addEventListener('ezpk-auth-change',event=>applyAccess(event.detail));window.addEventListener('ezpk-language-change',event=>{lang=SUPPORTED.includes(event.detail?.lang)?event.detail.lang:(SUPPORTED.includes(localStorage.getItem(STORAGE_KEY))?localStorage.getItem(STORAGE_KEY):'en');applyText();renderSearch();});
+  window.addEventListener('ezpk-auth-ready',event=>applyAccess(event.detail));window.addEventListener('ezpk-auth-change',event=>applyAccess(event.detail));window.addEventListener('ezpk-language-change',event=>{lang=SUPPORTED.includes(event.detail?.lang)?event.detail.lang:(SUPPORTED.includes(window.EZPKLanguage?.get?.())?window.EZPKLanguage.get():'en');applyText();renderSearch();});
 })();

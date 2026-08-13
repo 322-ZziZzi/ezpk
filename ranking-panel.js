@@ -4,7 +4,7 @@
   const MAX_ROWS=30;
   const stateMap=new WeakMap();
   const escapeHtml=value=>String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
-  function ariaCopy(){const lang=window.EZPKLanguage?.get?.()||localStorage.getItem('ezpk-lang-v5')||'en';return window.EZPK_I18N_V414?.get?.('rankingAria',lang)||window.EZPK_I18N_V414?.get?.('rankingAria','en')}
+  function ariaCopy(){const lang=window.EZPKLanguage?.get?.()||window.EZPKLanguage?.get?.()||'en';return window.EZPK_I18N_V414?.get?.('rankingAria',lang)||window.EZPK_I18N_V414?.get?.('rankingAria','en')}
   function markup(){const a=ariaCopy();return `<div class="ranking-head"><div><span id="rankingEyebrow">TOP 30</span><h2 id="rankingTitle"></h2></div><button id="refreshRanking" type="button" aria-label="${escapeHtml(a.refresh)}">↻</button></div><div class="month-chip" id="monthChip"></div><div id="rankingStatus" class="ranking-status"></div><ol id="rankingList" class="ranking-list"></ol><div class="ranking-pagination" role="navigation" aria-label="${escapeHtml(a.pages)}"><button class="ranking-page-button ranking-prev" type="button" aria-label="${escapeHtml(a.prev)}">‹</button><span class="ranking-page-indicator" aria-live="polite">1 / 1</span><button class="ranking-page-button ranking-next" type="button" aria-label="${escapeHtml(a.next)}">›</button></div><p id="rankingNote" class="ranking-note"></p>`}
   function getPanel(panel){return typeof panel==='string'?document.querySelector(panel):panel||document.querySelector('.ranking-panel')}
   function getState(panel){if(!stateMap.has(panel))stateMap.set(panel,{rows:[],page:0,scoreKey:'score'});return stateMap.get(panel)}

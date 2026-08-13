@@ -1,5 +1,5 @@
 const $=(s)=>document.querySelector(s);
-let lang=localStorage.getItem('ezpk-lang-v5')||'en';
+let lang=window.EZPKLanguage?.get?.()||'en';
 let currentPage=1,totalPages=1,currentMember=null,accessMode='none',migrationState=null;
 const isMobile=()=>matchMedia('(max-width:900px)').matches;
 const limit=()=>isMobile()?5:15;
@@ -110,4 +110,4 @@ $('#requestEditForm')?.addEventListener('submit',async e=>{e.preventDefault();co
 $('#editCancel')?.addEventListener('click',()=>$('#requestEditDialog').close());$('#requestRefresh')?.addEventListener('click',()=>load(currentPage));$('#requestPrev')?.addEventListener('click',()=>currentPage>1&&load(currentPage-1));$('#requestNext')?.addEventListener('click',()=>currentPage<totalPages&&load(currentPage+1));
 addEventListener('resize',()=>{clearTimeout(window.__rqResize);window.__rqResize=setTimeout(()=>{if(accessMode==='member')load(1)},180)});
 document.addEventListener('DOMContentLoaded',()=>{applyText();renderGate();$('#requestLock').hidden=true;$('#requestProtected').hidden=true;$('[data-member-login]').onclick=()=>window.EZPKMemberAuth?.openLogin();const state=window.EZPKMemberAuth?.getState?.();if(state?.loaded)applyAccess(state)});
-window.addEventListener('ezpk-auth-ready',e=>applyAccess(e.detail));window.addEventListener('ezpk-auth-change',e=>applyAccess(e.detail));window.addEventListener('ezpk-language-change',async e=>{lang=e.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en';applyText();renderGate();if(accessMode!=='none')await load(currentPage)});
+window.addEventListener('ezpk-auth-ready',e=>applyAccess(e.detail));window.addEventListener('ezpk-auth-change',e=>applyAccess(e.detail));window.addEventListener('ezpk-language-change',async e=>{lang=e.detail?.lang||window.EZPKLanguage?.get?.()||'en';applyText();renderGate();if(accessMode!=='none')await load(currentPage)});

@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const LANGS=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];let lang=LANGS.includes(localStorage.getItem('ezpk-lang-v5'))?localStorage.getItem('ezpk-lang-v5'):'en';let data=null,activeTeam='capital',timer=null,currentNickname='';
+const LANGS=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];let lang=LANGS.includes(window.EZPKLanguage?.get?.())?window.EZPKLanguage.get():'en';let data=null,activeTeam='capital',timer=null,currentNickname='';
 const TEAM_KEYS=['capital','tower','mobile','support'];
 const TEAM_COLORS={capital:'#d9bb65',tower:'#5f8fe5',mobile:'#d85a5a',support:'#4fbd83'};
 const PREVIEW_TEXT={

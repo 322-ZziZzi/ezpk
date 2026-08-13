@@ -14,7 +14,7 @@
   };
 window.EZPK_I18N_V414?.apply('signup',T);
 
-  let lang = normalize(localStorage.getItem(STORAGE_KEY) || "en");
+  let lang = normalize(window.EZPKLanguage?.get?.() || "en");
   const form = document.querySelector("#signupForm");
   const errorBox = document.querySelector("#signupError");
   const submit = document.querySelector("#signupSubmit");
@@ -117,9 +117,6 @@ window.EZPK_I18N_V414?.apply('signup',T);
   });
 
   window.addEventListener("ezpk-language-change", event => applyLanguage(event.detail?.lang));
-  window.addEventListener("storage", event => {
-    if (event.key === STORAGE_KEY) applyLanguage(event.newValue);
-  });
 
   applyLanguage(lang);
 })();

@@ -30,7 +30,7 @@ window.EZPK_I18N_V414?.apply('schedule',COPY);
   let loadState = 'idle';
 
   function language() {
-    const code = localStorage.getItem('ezpk-lang-v5') || 'en';
+    const code = window.EZPKLanguage?.get?.() || 'en';
     return COPY[code] ? code : 'en';
   }
   function currentUi() {

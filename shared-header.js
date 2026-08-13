@@ -550,16 +550,12 @@
     }
     return 'en';
   }
-  function currentLanguage() { return readExplicitLanguagePreference() || detectBrowserLanguage() || 'en'; }
+  function currentLanguage() { return window.EZPKLanguage?.get?.() || readExplicitLanguagePreference() || detectBrowserLanguage() || 'en'; }
   function persistExplicitLanguage(lang) {
     const normalized=normalizeLanguage(lang);
-    try {
-      localStorage.setItem(USER_LANGUAGE_KEY,normalized);
-      localStorage.setItem(STORAGE_KEY,normalized);
-      localStorage.removeItem(AUTO_LANGUAGE_KEY);
-    } catch (_) {}
-    writeLanguageCookie(normalized);
-    return normalized;
+    if (window.EZPKLanguage?.set) return window.EZPKLanguage.set(normalized,{emit:false,explicit:true,source:'shared-header'});
+    try { localStorage.setItem(USER_LANGUAGE_KEY,normalized);localStorage.setItem(STORAGE_KEY,normalized);localStorage.removeItem(AUTO_LANGUAGE_KEY); } catch (_) {}
+    writeLanguageCookie(normalized);return normalized;
   }
   function clearLanguagePreference() {
     try {
@@ -589,9 +585,9 @@
 
   function menuUi(lang=currentLanguage()) { return MENU_UI[lang] || MENU_UI.en; }
 
-  function syncAllianceSelectorControls() {
+  function syncAllianceSelectorControls(lang=currentLanguage()) {
     const enabled = siteContext?.mode === 'DUAL';
-    const label = ALLIANCE_SELECT_LABELS[currentLanguage()] || ALLIANCE_SELECT_LABELS.en;
+    const label = ALLIANCE_SELECT_LABELS[lang] || ALLIANCE_SELECT_LABELS.en;
     const desktopLink = header.querySelector('#allianceSelectorLink');
     if (desktopLink) { desktopLink.hidden = !enabled; desktopLink.textContent = label; }
     if (!mobileDrawerItems) return;
@@ -600,11 +596,11 @@
     mobileDrawerItems.insertAdjacentHTML('afterbegin', `<section class="nav-menu-group mobile-alliance-selector-group" data-mobile-alliance-selector><div class="nav-menu-group-items"><a href="https://ezpk322.com/?select=1" class="mobile-alliance-selector-link"><span class="nav-label">${safeText(label)}</span></a></div></section>`);
   }
 
-  function navLinkMarkup(key, options={}) {
+  function navLinkMarkup(key, options={}, lang=currentLanguage()) {
     const item = menuByKey.get(key);
     if (!item) return '';
-    const labels = NAV_LABELS[currentLanguage()] || NAV_LABELS.en;
-    const ui = menuUi();
+    const labels = NAV_LABELS[lang] || NAV_LABELS.en;
+    const ui = menuUi(lang);
     const active = key === activeMenu;
     const locked = Boolean(options.locked);
     const classes = [active?'active':'',locked?'is-locked':'',key==='immigration'?'nav-immigration':''].filter(Boolean).join(' ');
@@ -614,8 +610,8 @@
     return `<a href="${item.href}" data-menu="${key}" data-nav-key="${key}"${locked?' data-nav-locked="true"':''}${classes?` class="${classes}"`:''}${active?' aria-current="page"':''}><span class="nav-label">${safeText(labels[key] || key)}</span>${badge}${lock}</a>`;
   }
 
-  function menuGroupMarkup(title, keys, options={}) {
-    const links = keys.map(key=>navLinkMarkup(key, options[key] || {})).join('');
+  function menuGroupMarkup(title, keys, options={}, lang=currentLanguage()) {
+    const links = keys.map(key=>navLinkMarkup(key, options[key] || {},lang)).join('');
     return `<section class="nav-menu-group${options.className?` ${options.className}`:''}"><h2>${safeText(title)}</h2><div class="nav-menu-group-items">${links}</div></section>`;
   }
 
@@ -685,7 +681,7 @@
         })
       ].join('');
     }
-    syncAllianceSelectorControls();
+    syncAllianceSelectorControls(lang);
     navigationReady = true;
     navMore.hidden = window.innerWidth <= 1199;
     navMoreButton.textContent = `${ui.more} ▾`;
@@ -729,11 +725,8 @@
   function applyLanguage(lang, emit=true, explicit=false) {
     lang=normalizeLanguage(lang);
     if (explicit) lang=persistExplicitLanguage(lang);
-    else if (!isAdminContext) {
-      try {
-        if (!readExplicitLanguagePreference()) localStorage.setItem(AUTO_LANGUAGE_KEY,lang);
-        localStorage.setItem(STORAGE_KEY,lang);
-      } catch (_) {}
+    else if (!isAdminContext && !window.EZPKLanguage) {
+      try { if (!readExplicitLanguagePreference()) localStorage.setItem(AUTO_LANGUAGE_KEY,lang);localStorage.setItem(STORAGE_KEY,lang); } catch (_) {}
     }
     renderNavLabels(lang);
     const menuButton=header.querySelector('#menuBtn');
@@ -749,7 +742,7 @@
     renderAccount();
     syncAllianceSelectorControls();
     updateAuthModalLabels();
-    if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang}}));
+    if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang,source:'shared-header'}}));
   }
 
   function safeText(value) {
@@ -1345,9 +1338,19 @@
       else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
     }
   });
-  window.addEventListener('storage',function(e){if(e.key===STORAGE_KEY)applyLanguage(e.newValue,false)});
-
-  window.EZPKLanguage={key:STORAGE_KEY,userKey:USER_LANGUAGE_KEY,supported:SUPPORTED_LANGS,normalize:normalizeLanguage,get:currentLanguage,set:(lang)=>applyLanguage(lang,true,true),clearPreference:clearLanguagePreference,detectBrowser:detectBrowserLanguage};
+  window.addEventListener('ezpk-language-change',function(event){
+    if(event.detail?.source==='shared-header')return;
+    const next=normalizeLanguage(event.detail?.lang||currentLanguage());
+    if(event.detail?.source!=='language-core'&&event.detail?.source!=='language-core-storage'&&event.detail?.source!=='language-core-reconcile') window.EZPKLanguage?.set?.(next,{emit:false,explicit:true,source:'shared-header-bridge'});
+    applyLanguage(next,false,false);
+  });
+  function reconcileLanguageDisplay(emit=true){const next=currentLanguage();const meta=META[next]||META.en;const f=header.querySelector('#flag'),n=header.querySelector('#lname');const mismatch=(f&&f.textContent!==meta[0])||(n&&n.textContent!==meta[1])||document.documentElement.lang!==(next==='zh-tw'?'zh-Hant':next);if(mismatch)applyLanguage(next,emit,false);return next}
+  window.addEventListener('pageshow',()=>reconcileLanguageDisplay(true));
+  window.addEventListener('focus',()=>reconcileLanguageDisplay(true));
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)reconcileLanguageDisplay(true)});
+  const languageDisplayObserver=new MutationObserver(()=>{const next=currentLanguage(),meta=META[next]||META.en,f=header.querySelector('#flag'),n=header.querySelector('#lname');if((f&&f.textContent!==meta[0])||(n&&n.textContent!==meta[1]))requestAnimationFrame(()=>reconcileLanguageDisplay(true))});
+  const observedFlag=header.querySelector('#flag'),observedName=header.querySelector('#lname');if(observedFlag)languageDisplayObserver.observe(observedFlag,{childList:true,characterData:true,subtree:true});if(observedName)languageDisplayObserver.observe(observedName,{childList:true,characterData:true,subtree:true});
+  if(!window.EZPKLanguage) window.EZPKLanguage={version:416,key:STORAGE_KEY,userKey:USER_LANGUAGE_KEY,supported:SUPPORTED_LANGS,normalize:normalizeLanguage,get:currentLanguage,set:(lang)=>applyLanguage(lang,true,true),clearPreference:clearLanguagePreference,detectBrowser:detectBrowserLanguage};
   window.EZPKSharedHeader = {
     renderNavLabels,
     applyLanguage,

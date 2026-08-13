@@ -162,7 +162,7 @@
   const state={playerName:'',gameUid:'',discord:'',currentState:'',currentAlliance:'',vehicle1PowerValue:'',vehicle1PowerUnit:'',vehicle2PowerValue:'',vehicle2PowerUnit:'',industryLevel:null,spendingLevel:null,migrationTier:'',migrationReason:'',additionalNotes:'',migrationGroup:'',referrer:''};
 
   const esc=(value)=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-  const lang=()=>{const code=localStorage.getItem(LANG_KEY)||'en';return LANGS.includes(code)?code:'en'};
+  const lang=()=>{const code=window.EZPKLanguage?.get?.()||'en';return LANGS.includes(code)?code:'en'};
   const t=()=>TEXT[lang()]||TEXT.en;
   const statusT=()=>STATUS_TEXT[lang()]||STATUS_TEXT.en;
   const fill=(text,values={})=>Object.entries(values).reduce((out,[k,v])=>out.replaceAll(`{${k}}`,String(v)),text);

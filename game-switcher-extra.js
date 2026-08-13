@@ -96,7 +96,7 @@ function render(lang){
  renderExtra(lang,root,current,label);
 }
 
-window.addEventListener('ezpk-render-extra-games',event=>render(event.detail?.lang||localStorage.getItem('ezpk-lang-v5')||'en'));
+window.addEventListener('ezpk-render-extra-games',event=>render(event.detail?.lang||window.EZPKLanguage?.get?.()||'en'));
 window.addEventListener('ezpk-language-change',event=>render(event.detail?.lang||'en'));
-render(localStorage.getItem('ezpk-lang-v5')||'en');
+render(window.EZPKLanguage?.get?.()||'en');
 })();

@@ -108,6 +108,6 @@ window.EZPK_I18N_V414?.apply('gameResult',COMMON_MODAL_COPY);
   }
 
   window.addEventListener('ezpk-language-change',event=>syncCommonModalLanguage(event.detail?.lang||'en'));
-  syncCommonModalLanguage(window.EZPKLanguage?.get?.()||localStorage.getItem('ezpk-lang-v5')||'en');
+  syncCommonModalLanguage(window.EZPKLanguage?.get?.()||window.EZPKLanguage?.get?.()||'en');
   window.EZPKGameResultFlow={showRanking,syncCommonModalLanguage};
 })();

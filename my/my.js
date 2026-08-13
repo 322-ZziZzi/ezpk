@@ -17,7 +17,7 @@ window.EZPK_I18N_V414?.apply('my',T);
 const MY_V415={"en":{"groupInfo":"My Information","groupActivity":"Activity","groupAccount":"Account Settings"},"fr":{"groupInfo":"Mes informations","groupActivity":"Activité","groupAccount":"Paramètres du compte"},"de":{"groupInfo":"Meine Informationen","groupActivity":"Aktivität","groupAccount":"Kontoeinstellungen"},"ko":{"groupInfo":"내 정보","groupActivity":"활동","groupAccount":"계정 설정"},"th":{"groupInfo":"ข้อมูลของฉัน","groupActivity":"กิจกรรม","groupAccount":"การตั้งค่าบัญชี"},"ja":{"groupInfo":"自分の情報","groupActivity":"アクティビティ","groupAccount":"アカウント設定"},"pt":{"groupInfo":"Minhas informações","groupActivity":"Atividade","groupAccount":"Configurações da conta"},"es":{"groupInfo":"Mi información","groupActivity":"Actividad","groupAccount":"Ajustes de la cuenta"},"tr":{"groupInfo":"Bilgilerim","groupActivity":"Etkinlik","groupAccount":"Hesap Ayarları"},"zh-tw":{"groupInfo":"我的資訊","groupActivity":"活動","groupAccount":"帳號設定"},"it":{"groupInfo":"Le mie informazioni","groupActivity":"Attività","groupAccount":"Impostazioni account"},"ar":{"groupInfo":"معلوماتي","groupActivity":"النشاط","groupAccount":"إعدادات الحساب"},"vi":{"groupInfo":"Thông tin của tôi","groupActivity":"Hoạt động","groupAccount":"Cài đặt tài khoản"},"id":{"groupInfo":"Informasi Saya","groupActivity":"Aktivitas","groupAccount":"Pengaturan Akun"}};
 for(const [code,copy] of Object.entries(MY_V415)){if(T[code])Object.assign(T[code],copy)}
 
-  let lang = normalize(localStorage.getItem(STORAGE_KEY) || document.documentElement.lang || "en");
+  let lang = normalize(window.EZPKLanguage?.get?.() || document.documentElement.lang || "en");
   let memberData = null;
   const $ = (s, root=document) => root.querySelector(s);
 
@@ -495,7 +495,6 @@ Object.assign(REQUEST_LABELS,{
   });
 
   window.addEventListener("ezpk-language-change", e => applyLanguage(e.detail?.lang));
-  window.addEventListener("storage", e => { if (e.key === STORAGE_KEY) applyLanguage(e.newValue); });
   applyLanguage(lang);
   loadMember();
 })();

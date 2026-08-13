@@ -1,10 +1,6 @@
 (()=>{
   'use strict';
-  const KEY='ezpk-lang-v5';
-  const USER_KEY='ezpk-lang-user-v6';
-  const AUTO_KEY='ezpk-lang-auto-v6';
-  const COOKIE='ezpk_lang';
-  const SUPPORTED=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];
+  const SUPPORTED=window.EZPKLanguage?.supported||['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];
   const META={
     en:{flag:'🇺🇸',name:'English'},fr:{flag:'🇫🇷',name:'Français'},de:{flag:'🇩🇪',name:'Deutsch'},ko:{flag:'🇰🇷',name:'한국어'},th:{flag:'🇹🇭',name:'ไทย'},ja:{flag:'🇯🇵',name:'日本語'},pt:{flag:'🇧🇷',name:'Português'},es:{flag:'🇪🇸',name:'Español'},tr:{flag:'🇹🇷',name:'Türkçe'},'zh-tw':{flag:'🇹🇼',name:'繁體中文'},it:{flag:'🇮🇹',name:'Italiano'},ar:{flag:'🇸🇦',name:'العربية'},vi:{flag:'🇻🇳',name:'Tiếng Việt'},id:{flag:'🇮🇩',name:'Bahasa Indonesia'}
   };
@@ -27,27 +23,7 @@
   const GATEWAY_V415={"en":{"pageTitle":"EZPK Alliance Select","portalAria":"EZPK Alliance Portal","sectionsAria":"Gateway sections","migrationAria":"EZPK1 migration application","portalsAria":"Alliance portals"},"fr":{"pageTitle":"Sélection de l’alliance EZPK","portalAria":"Portail de l’alliance EZPK","sectionsAria":"Sections de la passerelle","migrationAria":"Demande de migration EZPK1","portalsAria":"Portails des alliances"},"de":{"pageTitle":"EZPK-Allianz auswählen","portalAria":"EZPK-Allianzportal","sectionsAria":"Portalbereiche","migrationAria":"EZPK1-Migrationsantrag","portalsAria":"Allianzportale"},"ko":{"pageTitle":"EZPK 연맹 선택","portalAria":"EZPK 연맹 포털","sectionsAria":"게이트웨이 구역","migrationAria":"EZPK1 이민 신청","portalsAria":"연맹 포털"},"th":{"pageTitle":"เลือกพันธมิตร EZPK","portalAria":"พอร์ทัลพันธมิตร EZPK","sectionsAria":"ส่วนต่าง ๆ ของเกตเวย์","migrationAria":"การสมัครย้ายไป EZPK1","portalsAria":"พอร์ทัลพันธมิตร"},"ja":{"pageTitle":"EZPK 同盟選択","portalAria":"EZPK 同盟ポータル","sectionsAria":"ゲートウェイセクション","migrationAria":"EZPK1 移住申請","portalsAria":"同盟ポータル"},"pt":{"pageTitle":"Seleção de Aliança EZPK","portalAria":"Portal da Aliança EZPK","sectionsAria":"Seções do portal","migrationAria":"Inscrição de migração EZPK1","portalsAria":"Portais das alianças"},"es":{"pageTitle":"Selección de alianza EZPK","portalAria":"Portal de alianza EZPK","sectionsAria":"Secciones del portal","migrationAria":"Solicitud de migración EZPK1","portalsAria":"Portales de alianzas"},"tr":{"pageTitle":"EZPK İttifak Seçimi","portalAria":"EZPK İttifak Portalı","sectionsAria":"Geçit bölümleri","migrationAria":"EZPK1 göç başvurusu","portalsAria":"İttifak portalları"},"zh-tw":{"pageTitle":"EZPK 聯盟選擇","portalAria":"EZPK 聯盟入口","sectionsAria":"入口區段","migrationAria":"EZPK1 移民申請","portalsAria":"聯盟入口"},"it":{"pageTitle":"Selezione Alleanza EZPK","portalAria":"Portale Alleanza EZPK","sectionsAria":"Sezioni del portale","migrationAria":"Domanda di migrazione EZPK1","portalsAria":"Portali delle alleanze"},"ar":{"pageTitle":"اختيار تحالف EZPK","portalAria":"بوابة تحالف EZPK","sectionsAria":"أقسام البوابة","migrationAria":"طلب الهجرة إلى EZPK1","portalsAria":"بوابات التحالفات"},"vi":{"pageTitle":"Chọn Liên minh EZPK","portalAria":"Cổng Liên minh EZPK","sectionsAria":"Các mục cổng vào","migrationAria":"Đăng ký di cư EZPK1","portalsAria":"Cổng liên minh"},"id":{"pageTitle":"Pilih Aliansi EZPK","portalAria":"Portal Aliansi EZPK","sectionsAria":"Bagian gateway","migrationAria":"Pengajuan migrasi EZPK1","portalsAria":"Portal aliansi"}};
   for(const code of SUPPORTED) Object.assign(T[code],GATEWAY_V415[code]);
   const $=s=>document.querySelector(s),btn=$('#gatewayLangBtn'),menu=$('#gatewayLangMenu');
-  function normalize(value){
-    const raw=String(value||'').trim().toLowerCase().replaceAll('_','-');
-    if(!raw)return'';
-    if(raw==='zh-tw'||raw==='zh-hk'||raw==='zh-mo'||raw.startsWith('zh-hant'))return'zh-tw';
-    if(raw==='zh'||raw==='zh-cn'||raw.startsWith('zh-hans'))return'';
-    if(SUPPORTED.includes(raw))return raw;
-    const base=raw.split('-')[0];
-    return SUPPORTED.includes(base)?base:'';
-  }
-  function readCookie(){try{const hit=document.cookie.split(';').map(v=>v.trim()).find(v=>v.startsWith(COOKIE+'='));return hit?normalize(decodeURIComponent(hit.slice(COOKIE.length+1))):''}catch(_){return''}}
-  function writeCookie(lang,maxAge=31536000){const host=String(location.hostname||'').toLowerCase();const pub=host==='ezpk322.com'||host==='ezpk1.ezpk322.com'||host==='ezpk2.ezpk322.com';const parts=[`${COOKIE}=${encodeURIComponent(normalize(lang))}`,'Path=/','SameSite=Lax',`Max-Age=${maxAge}`];if(pub)parts.push('Domain=.ezpk322.com','Secure');document.cookie=parts.join('; ')}
-  function explicitPreference(){
-    try{const direct=normalize(localStorage.getItem(USER_KEY));if(direct)return direct}catch(_){}
-    const cookie=readCookie();if(cookie){try{localStorage.setItem(USER_KEY,cookie)}catch(_){}return cookie}
-    try{const legacy=normalize(localStorage.getItem(KEY)),auto=normalize(localStorage.getItem(AUTO_KEY));if(legacy&&legacy!==auto){localStorage.setItem(USER_KEY,legacy);writeCookie(legacy);return legacy}}catch(_){}
-    return'';
-  }
-  function browserLanguage(){const candidates=[];try{if(Array.isArray(navigator.languages))candidates.push(...navigator.languages)}catch(_){}try{if(navigator.language)candidates.push(navigator.language)}catch(_){}for(const item of candidates){const code=normalize(item);if(code)return code}return'en'}
-  function language(){return explicitPreference()||browserLanguage()||'en'}
-  function syncStorage(lang,explicit=false){const code=normalize(lang)||'en';try{localStorage.setItem(KEY,code);if(explicit){localStorage.setItem(USER_KEY,code);localStorage.removeItem(AUTO_KEY)}else if(!explicitPreference())localStorage.setItem(AUTO_KEY,code)}catch(_){}if(explicit)writeCookie(code);return code}
-  let current=syncStorage(language(),false);
+  let current=window.EZPKLanguage?.get?.()||'en';
   function setMenu(open){menu.hidden=!open;btn.setAttribute('aria-expanded',open?'true':'false')}
   function setActiveTab(name){document.querySelectorAll('[data-gateway-tab]').forEach(el=>{const active=el.dataset.gatewayTab===name;el.classList.toggle('is-active',active);el.setAttribute('aria-pressed',String(active))})}
   function render(){
@@ -58,9 +34,10 @@
     window.EZPKMigrationEntry?.render('gatewayMigrationEntry',l);document.querySelectorAll('[data-lang]').forEach(el=>el.classList.toggle('is-active',el.dataset.lang===l));if(!$('#gatewayStatus').hidden)$('#gatewayStatus').textContent=t.inactive;
   }
   btn.addEventListener('click',e=>{e.stopPropagation();setMenu(menu.hidden)});
-  menu.addEventListener('click',e=>{const c=e.target.closest('[data-lang]');if(!c)return;current=syncStorage(c.dataset.lang,true);setMenu(false);render()});
+  menu.addEventListener('click',e=>{const c=e.target.closest('[data-lang]');if(!c)return;current=window.EZPKLanguage?.set?.(c.dataset.lang,{source:'gateway'})||c.dataset.lang;setMenu(false);render()});
   document.addEventListener('click',e=>{if(!menu.hidden&&!e.target.closest('.gateway-language'))setMenu(false)});document.addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)});
 
+  window.addEventListener('ezpk-language-change',event=>{const next=event.detail?.lang||window.EZPKLanguage?.get?.()||'en';if(T[next]){current=next;render()}});
   const reduced=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   document.querySelector('.gateway-mobile-tabs')?.addEventListener('click',e=>{
     const tab=e.target.closest('[data-gateway-scroll]');if(!tab)return;

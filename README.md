@@ -473,3 +473,8 @@ Migration image export header cleanup: removed the visible sorting-description t
 - 이미지 다운로드 상단 티어 인원 요약 바의 한국어 표기를 영문으로 수정했습니다.
 - 요약 라벨은 `Special / Advanced / Intermediate / Normal`을 사용하며, 인원 숫자 뒤의 한국어 `명` 표기는 제거했습니다.
 - 요약 집계, 티어 색상, 이미지 고정 정렬, 관리자 목록 정렬/대량 상태 변경, Excel Import 동작은 변경하지 않았습니다.
+
+
+## v417 — Global Language State Synchronization
+
+Single `window.EZPKLanguage` authority. See `V417_LANGUAGE_STATE_SYNC_REPORT.md`.

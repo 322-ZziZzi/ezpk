@@ -1,7 +1,6 @@
 (()=>{
   'use strict';
-  const LEGACY='ezpk-lang-v5',USER='ezpk-lang-user-v6',AUTO='ezpk-lang-auto-v6',COOKIE='ezpk_lang';
-  const SUPPORTED=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];
+  const lang=()=>window.EZPKLanguage?.get?.()||'en';
   const T={
     en:['EZPK2 is currently inactive','This alliance portal is not accepting new activity at this time. Existing data is preserved.','Go to EZPK1','Alliance Select'],
     fr:['EZPK2 est actuellement inactive','Ce portail d’alliance n’accepte pas de nouvelle activité pour le moment. Les données existantes sont conservées.','Aller à EZPK1','Choisir l’alliance'],
@@ -18,12 +17,7 @@
     vi:['EZPK2 hiện không hoạt động','Cổng liên minh này hiện không nhận hoạt động mới. Dữ liệu hiện có vẫn được bảo toàn.','Đi đến EZPK1','Chọn liên minh'],
     id:['EZPK2 saat ini tidak aktif','Portal aliansi ini saat ini tidak menerima aktivitas baru. Data yang ada tetap disimpan.','Ke EZPK1','Pilih Aliansi']
   };
-  function normalize(value){const raw=String(value||'').trim().toLowerCase().replaceAll('_','-');if(!raw)return'';if(raw==='zh-tw'||raw==='zh-hk'||raw==='zh-mo'||raw.startsWith('zh-hant'))return'zh-tw';if(raw==='zh'||raw==='zh-cn'||raw.startsWith('zh-hans'))return'';if(SUPPORTED.includes(raw))return raw;const base=raw.split('-')[0];return SUPPORTED.includes(base)?base:''}
-  function cookie(){try{const hit=document.cookie.split(';').map(v=>v.trim()).find(v=>v.startsWith(COOKIE+'='));return hit?normalize(decodeURIComponent(hit.slice(COOKIE.length+1))):''}catch(_){return''}}
-  function explicit(){try{const direct=normalize(localStorage.getItem(USER));if(direct)return direct}catch(_){}const c=cookie();if(c)return c;try{const legacy=normalize(localStorage.getItem(LEGACY)),auto=normalize(localStorage.getItem(AUTO));if(legacy&&legacy!==auto)return legacy}catch(_){}return''}
-  function browser(){const candidates=[];try{if(Array.isArray(navigator.languages))candidates.push(...navigator.languages)}catch(_){}try{if(navigator.language)candidates.push(navigator.language)}catch(_){}for(const v of candidates){const l=normalize(v);if(l)return l}return'en'}
-  const l=explicit()||browser()||'en',t=T[l]||T.en;
-  try{localStorage.setItem(LEGACY,l);if(!explicit())localStorage.setItem(AUTO,l)}catch(_){}
-  document.documentElement.lang=l==='zh-tw'?'zh-Hant':l;document.documentElement.dir=l==='ar'?'rtl':'ltr';document.body.classList.toggle('rtl',l==='ar');
-  document.querySelector('#inactiveTitle').textContent=t[0];document.querySelector('#inactiveBody').textContent=t[1];document.querySelector('#inactiveButton').textContent=t[2];document.querySelector('#inactiveSelect').textContent=t[3];
+  function render(){const l=lang(),t=T[l]||T.en;document.documentElement.lang=l==='zh-tw'?'zh-Hant':l;document.documentElement.dir=l==='ar'?'rtl':'ltr';document.body.classList.toggle('rtl',l==='ar');document.querySelector('#inactiveTitle').textContent=t[0];document.querySelector('#inactiveBody').textContent=t[1];document.querySelector('#inactiveButton').textContent=t[2];document.querySelector('#inactiveSelect').textContent=t[3]}
+  window.addEventListener('ezpk-language-change',render);
+  render();
 })();

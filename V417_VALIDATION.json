@@ -1,0 +1,32 @@
+{
+  "version": "4.1.7",
+  "baseline": "v416",
+  "languages": 14,
+  "user_pages": 25,
+  "runtime_initial_checks": 350,
+  "runtime_selector_transition_checks": 336,
+  "runtime_total_state_checks": 686,
+  "runtime_failures": 0,
+  "direct_shared_flag_name_writes_outside_shared_header": 0,
+  "direct_legacy_language_reads_user_scripts": 0,
+  "direct_legacy_language_writes_user_scripts": 0,
+  "migrations_count": 30,
+  "migrations_byte_exact_vs_v416": true,
+  "removed_v416_paths": [],
+  "added_paths": [
+    "V417_DEPLOY_VALIDATION_RUNBOOK.md",
+    "V417_FILE_CHECKSUMS.sha256",
+    "V417_LANGUAGE_STATE_SYNC_REPORT.md",
+    "V417_VALIDATION.json",
+    "language-core-v417.js",
+    "scripts/v417-deploy-guard.mjs"
+  ],
+  "changed_existing_paths_count": 56,
+  "historical_guards_byte_exact": {
+    "scripts/v414-deploy-guard.mjs": true,
+    "scripts/v415-deploy-guard.mjs": true,
+    "scripts/v416-deploy-guard.mjs": true
+  },
+  "predeploy": "PASS",
+  "js_mjs_syntax": "PASS"
+}

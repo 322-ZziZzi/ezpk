@@ -143,7 +143,7 @@ window.EZPK_I18N_V414?.apply('home',HOME_TEXT);
 
   const supported = Object.keys(HOME_TEXT);
   const language = function () {
-    const code = localStorage.getItem('ezpk-lang-v5') || 'en';
+    const code = window.EZPKLanguage?.get?.() || 'en';
     return supported.includes(code) ? code : 'en';
   };
 

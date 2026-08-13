@@ -2,7 +2,7 @@
 'use strict';
 const game=document.body.dataset.game;
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-let score=0,start=0,timer=null,nick='',cleanupGame=()=>{},fitCleanup=()=>{},currentLang=(window.EZPKLanguage?.get?.()||localStorage.getItem('ezpk-lang-v5')||'en'),soundOn=!(window.GameAudio?.isMuted?.()||false);
+let score=0,start=0,timer=null,nick='',cleanupGame=()=>{},fitCleanup=()=>{},currentLang=(window.EZPKLanguage?.get?.()||window.EZPKLanguage?.get?.()||'en'),soundOn=!(window.GameAudio?.isMuted?.()||false);
 
 const I18N={
  en:{
