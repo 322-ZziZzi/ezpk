@@ -1,0 +1,125 @@
+{
+  "version": "4.2.5",
+  "release": "v425",
+  "predecessor": "v424",
+  "status": "STATIC_STRUCTURAL_PASS_LIVE_BROWSER_PENDING",
+  "scope": "Mini Games multilingual flow-safe card remediation across PC/tablet/mobile",
+  "predeploy": "PASS",
+  "base_files": 371,
+  "files_before_validation_artifacts": 376,
+  "base_paths_preserved": 371,
+  "deleted_paths": [],
+  "added_paths_before_validation": [
+    "V425_DEPLOY_VALIDATION_RUNBOOK.md",
+    "V425_MINI_GAME_CARD_FLOW_REMEDIATION_REPORT.md",
+    "V425_MINI_GAME_CARD_POLICY_MATRIX.json",
+    "scripts/v425-deploy-guard.mjs",
+    "text-fit-v425.js"
+  ],
+  "changed_existing_paths": [
+    "README.md",
+    "drone-hunter/index.html",
+    "game-switcher.css",
+    "game/index.html",
+    "hero-merge/index.html",
+    "missile-defense/index.html",
+    "package-lock.json",
+    "package.json",
+    "portal-escape/index.html",
+    "tank-battle/index.html",
+    "treasure-hunter/index.html",
+    "zombie-defense/index.html"
+  ],
+  "d1_migrations": {
+    "total": 30,
+    "byte_exact": 30
+  },
+  "historical_deploy_guards": {
+    "total": 23,
+    "byte_exact": 23
+  },
+  "protected_v424_assets": {
+    "shared-header.js": true,
+    "style.css": true,
+    "worker.js": true,
+    "wrangler.jsonc": true,
+    "header-fit-v424.js": true,
+    "header-fit-v424.css": true
+  },
+  "mini_game_pages": 8,
+  "mini_game_cache_tokens": {
+    "game_switcher_css": "4250",
+    "text_fit_js": "4250"
+  },
+  "card_contract": {
+    "content_driven_height": true,
+    "cta_normal_flow": true,
+    "absolute_cta": false,
+    "mobile_description_visible": true,
+    "mobile_one_column_at_or_below_560": true,
+    "title_long_word_wrap": true,
+    "description_natural_wrap": true,
+    "cta_min_height_px": 44,
+    "generic_text_fit_excluded": true,
+    "rtl_directional_positioning": false
+  },
+  "json_parse_pass": 35,
+  "js_mjs_syntax_pass": 80,
+  "managed_chromium": {
+    "status": "UNAVAILABLE",
+    "probe": "minimal data URL",
+    "timeout_seconds": 15,
+    "exit_code": 124,
+    "dom_output_bytes": 0,
+    "browser_pass_claimed": false
+  },
+  "live_host_gate": {
+    "languages": [
+      "en",
+      "fr",
+      "de",
+      "ko",
+      "th",
+      "ja",
+      "pt",
+      "es",
+      "tr",
+      "zh-tw",
+      "it",
+      "ar",
+      "vi",
+      "id"
+    ],
+    "widths": [
+      320,
+      360,
+      390,
+      430,
+      560,
+      561,
+      768,
+      900,
+      901,
+      1200,
+      1366,
+      1440,
+      1920
+    ],
+    "zoom_percent": [
+      100,
+      125,
+      150
+    ]
+  },
+  "final_files_in_package": 378,
+  "final_added_paths_vs_v424": 7,
+  "final_changed_existing_paths_vs_v424": 12,
+  "final_deleted_paths_vs_v424": 0,
+  "final_js_mjs_syntax_pass": 80,
+  "final_json_parse_pass": 36,
+  "checksum_manifest_entries": 377,
+  "zip_integrity": "PASS",
+  "zip_duplicate_paths": 0,
+  "zip_casefold_collisions": 0,
+  "zip_unsafe_paths": 0
+}

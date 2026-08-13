@@ -1,0 +1,96 @@
+{
+  "version": "4.2.5",
+  "authority": "V425_MINI_GAME_CARD_FLOW_SAFE_CONTRACT",
+  "scope": "Mini Games library cards only; PC/tablet/mobile",
+  "languages": [
+    "en",
+    "fr",
+    "de",
+    "ko",
+    "th",
+    "ja",
+    "pt",
+    "es",
+    "tr",
+    "zh-tw",
+    "it",
+    "ar",
+    "vi",
+    "id"
+  ],
+  "responsive_policy": [
+    {
+      "viewport": "<=560px",
+      "columns": 1,
+      "card_height": "natural content height",
+      "description": "visible",
+      "cta": "normal-flow final row"
+    },
+    {
+      "viewport": "561-900px",
+      "columns": 2,
+      "card_height": "row stretch / content-driven",
+      "description": "visible",
+      "cta": "normal-flow final row"
+    },
+    {
+      "viewport": ">=901px",
+      "columns": 4,
+      "card_height": "row stretch / content-driven",
+      "description": "visible",
+      "cta": "normal-flow final row"
+    }
+  ],
+  "action_contract": {
+    "play": "interactive anchor in final grid row",
+    "current_game": "non-link status span in same final grid row",
+    "min_target_px": 44,
+    "absolute_positioning": false,
+    "directional_left_right_positioning": false,
+    "focus_ring_clipping": "forbidden"
+  },
+  "text_contract": {
+    "generic_text_fit_owned": false,
+    "fixed_height": false,
+    "line_clamp": false,
+    "mobile_description_hidden": false,
+    "title_wrap": "normal + targeted overflow-wrap:anywhere + hyphens:auto",
+    "description_wrap": "normal + break-word + hyphens:auto",
+    "global_word_break_break_all": false
+  },
+  "runtime_reflow": {
+    "language_change": "CSS normal flow automatically recalculates height after translated DOM update",
+    "fonts_ready": "CSS normal flow; live geometry check after fonts.ready remains deployment gate",
+    "rtl": "logical grid flow follows document direction; no CTA left/right override"
+  },
+  "visual_gate_viewports": [
+    320,
+    360,
+    390,
+    430,
+    560,
+    561,
+    768,
+    900,
+    901,
+    1200,
+    1366,
+    1440,
+    1920
+  ],
+  "visual_gate_zoom_percent": [
+    100,
+    125,
+    150
+  ],
+  "required_geometry_assertions": [
+    "CARD_TEXT_CTA_OVERLAP=0",
+    "CARD_CONTENT_CLIPPING=0",
+    "CARD_HORIZONTAL_OVERFLOW=0",
+    "CTA_FOCUS_RING_VISIBLE=true",
+    "RTL_LAYOUT=PASS",
+    "ROW_EQUAL_HEIGHT_PC_TABLET=PASS",
+    "MOBILE_NATURAL_HEIGHT=PASS"
+  ],
+  "managed_chromium_status": "UNAVAILABLE: local headless Chromium times out before DOM output; do not claim browser PASS"
+}
