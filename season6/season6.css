@@ -161,3 +161,14 @@
 .rtl .team-member-cell.is-current-member{padding-left:35px;padding-right:12px}
 .rtl .team-you-badge{right:auto;left:5px}
 @media(max-width:900px){.team-member-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.team-member-cell{height:36px;min-height:36px;padding:0 6px}.team-member-name{font-size:12px!important}.team-member-cell.is-current-member{padding-left:10px;padding-right:31px}.rtl .team-member-cell.is-current-member{padding-left:31px;padding-right:10px}.team-you-badge{right:4px;font-size:6.5px}.rtl .team-you-badge{right:auto;left:4px}}
+
+
+/* v414: native text replacement for Season 6 text-bearing guide images in newly supported locales. */
+.season6-localized-guide{width:100%;max-width:1080px;margin:0 auto;padding:24px 26px;border:1px solid color-mix(in srgb,currentColor 18%,transparent);border-radius:18px;background:color-mix(in srgb,currentColor 5%,transparent);color:inherit;text-align:start}
+.season6-localized-guide[hidden]{display:none!important}
+.season6-localized-guide h3{margin:0 0 18px;font-size:clamp(1.18rem,2.5vw,1.55rem);line-height:1.35}
+.season6-localized-guide section+section{margin-top:22px;padding-top:20px;border-top:1px solid color-mix(in srgb,currentColor 13%,transparent)}
+.season6-localized-guide h4{margin:0 0 10px;font-size:1rem;line-height:1.45}
+.season6-localized-guide ul{margin:0;padding-inline-start:1.35rem;display:grid;gap:8px}
+.season6-localized-guide li{line-height:1.65}
+@media(max-width:760px){.season6-localized-guide{padding:20px 18px;border-radius:15px}.season6-localized-guide section+section{margin-top:18px;padding-top:17px}}

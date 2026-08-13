@@ -1,0 +1,104 @@
+{
+  "version": "4.1.3",
+  "package": "EZPK-v413-deploy-ready.zip",
+  "baseline": "EZPK-v412-deploy-ready.zip",
+  "scope": "Gateway responsive navigation/spacing + 14-language resolver/coverage; no DB schema change",
+  "checks": {
+    "deploy_guard": "PASS",
+    "js_mjs_syntax": {
+      "status": "PASS",
+      "count": 58
+    },
+    "css_parse": {
+      "status": "PASS",
+      "count": 37
+    },
+    "theme_bootstrap": {
+      "status": "PASS",
+      "covered": 27,
+      "total": 27
+    },
+    "html_local_references": {
+      "status": "PASS",
+      "checked": 358,
+      "missing": 0
+    },
+    "shared_header_pages": {
+      "status": "PASS",
+      "count": 24,
+      "cache": "v4130"
+    },
+    "user_facing_i18n_entry_pages": {
+      "status": "PASS",
+      "covered": 26,
+      "total": 26,
+      "dev_excluded": true
+    },
+    "language_selectors": {
+      "status": "PASS",
+      "shared_header": 14,
+      "gateway": 14
+    },
+    "data_ui_dictionary": {
+      "status": "PASS",
+      "languages": 14,
+      "ui_keys_per_language": 77
+    },
+    "sqlite_migrations": {
+      "status": "PASS",
+      "clean_cycles": 2,
+      "migrations_each_cycle": 30
+    },
+    "migration_byte_crosscheck_v412": {
+      "status": "PASS",
+      "matched": 30,
+      "total": 30
+    },
+    "worker_byte_identity_v412": "PASS",
+    "wrangler_config_byte_identity_v412": "PASS",
+    "zip_crc": "PASS",
+    "internal_checksums": {
+      "status": "PASS",
+      "entries": 297,
+      "manifest_self_excluded": true
+    },
+    "operator_wrangler_dry_run": "REQUIRED_NOT_EXECUTED_IN_GENERATION_CONTAINER"
+  },
+  "database": {
+    "schema_change": false,
+    "migration_count": 30,
+    "latest": "0031_v405_migration_inquiry_soft_delete.sql",
+    "new_0032": false
+  },
+  "gateway": {
+    "desktop_px": [
+      100,
+      10,
+      26
+    ],
+    "mobile_px": [
+      80,
+      12,
+      22,
+      12
+    ],
+    "mobile_sticky_tabs": true,
+    "url_mutation": false
+  },
+  "languages": [
+    "en",
+    "fr",
+    "de",
+    "ko",
+    "th",
+    "ja",
+    "pt",
+    "es",
+    "tr",
+    "zh-tw",
+    "it",
+    "ar",
+    "vi",
+    "id"
+  ]
+}

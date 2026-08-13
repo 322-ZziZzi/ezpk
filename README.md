@@ -1,3 +1,12 @@
+## v416 14-language full-UI remediation
+
+- Completes the confirmed v416 i18n remediation scope across shared Header, Request, BGB, Capital War preview metadata, and all mini-games.
+- Adds 14-language mini-game UI/accessibility localization while preserving the approved fixed-term whitelist.
+- Adds `scripts/v416-deploy-guard.mjs`; `npm run predeploy` is now the v416 deployment gate.
+- Preserves all 30 existing D1 migrations byte-for-byte; v416 adds no database migration.
+- Runtime audit executed 25 user pages × 14 languages. 336 combinations were clean; Tip's 14 combinations are limited only by the audit harness's opaque `about:blank` origin and require the normal same-origin deployment smoke test.
+- See `V416_I18N_REMEDIATION_REPORT.md` and `V416_DEPLOY_VALIDATION_RUNBOOK.md`.
+
 ## v401 Multi-Alliance / Migration Inquiry
 
 - Added shared-code EZPK1/EZPK2 operation with server-side hostname-to-D1 routing: existing EZPK1 `DB` and independent EZPK2 `EZPK2_DB`.

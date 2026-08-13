@@ -15,6 +15,7 @@
     ja:{score:'スコア'},
     'zh-tw':{score:'分數'}
   };
+window.EZPK_I18N_V414?.apply('gameResult',COMMON_MODAL_COPY);
 
   function syncCommonModalLanguage(lang){
     const normalized=COMMON_MODAL_COPY[lang]?lang:'en';

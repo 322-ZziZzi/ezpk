@@ -87,7 +87,23 @@
   function showInAppBrowserGuide() {
     if (!isInAppBrowser || document.getElementById('ezpkInAppGuide')) return;
     let lang = 'en';
-    try { lang = localStorage.getItem('ezpk-lang-v5') || 'en'; } catch (_) {}
+    try {
+      const normalize = function(value){
+        const raw=String(value||'').trim().toLowerCase().replaceAll('_','-');
+        if(raw==='zh-tw'||raw==='zh-hk'||raw==='zh-mo'||raw.startsWith('zh-hant'))return 'zh-tw';
+        if(raw==='zh'||raw==='zh-cn'||raw.startsWith('zh-hans'))return '';
+        const supported=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];
+        if(supported.includes(raw))return raw;
+        const base=raw.split('-')[0];return supported.includes(base)?base:'';
+      };
+      const cookie=(document.cookie.split(';').map(v=>v.trim()).find(v=>v.startsWith('ezpk_lang='))||'').split('=').slice(1).join('=');
+      const explicit=normalize(localStorage.getItem('ezpk-lang-user-v6'))||normalize(decodeURIComponent(cookie||''));
+      if(explicit) lang=explicit;
+      else {
+        const candidates=[...(Array.isArray(navigator.languages)?navigator.languages:[]),navigator.language].filter(Boolean);
+        lang=candidates.map(normalize).find(Boolean)||'en';
+      }
+    } catch (_) {}
     const copyByLang = {
       ko:{title:'외부 브라우저에서 열어주세요',lead:'현재 앱 내부 브라우저에서는 로그인 세션이 유지되지 않을 수 있습니다.',steps:isIOS?'아래 주소를 복사한 뒤 Safari 또는 Chrome 주소창에 붙여 넣어 주세요.':'아래 버튼으로 Chrome을 열거나 주소를 복사해 Chrome 주소창에 붙여 넣어 주세요.',open:'외부 브라우저로 열기',copy:'주소 복사',continue:'현재 브라우저에서 계속',copied:'주소가 복사되었습니다.'},
       en:{title:'Open in an external browser',lead:'This in-app browser may not preserve your login session.',steps:isIOS?'Copy the address below and paste it into Safari or Chrome.':'Open Chrome below, or copy the address and paste it into Chrome.',open:'Open external browser',copy:'Copy address',continue:'Continue here',copied:'Address copied.'},
@@ -96,7 +112,13 @@
       ar:{title:'افتح في متصفح خارجي',lead:'قد لا يحتفظ المتصفح داخل التطبيق بجلسة تسجيل الدخول.',steps:'انسخ العنوان أدناه وافتحه في Chrome أو Safari.',open:'فتح متصفح خارجي',copy:'نسخ العنوان',continue:'المتابعة هنا',copied:'تم نسخ العنوان.'},
       ja:{title:'外部ブラウザで開いてください',lead:'アプリ内ブラウザではログイン状態が維持されない場合があります。',steps:'下のアドレスをコピーしてSafariまたはChromeで開いてください。',open:'外部ブラウザで開く',copy:'アドレスをコピー',continue:'このまま続ける',copied:'アドレスをコピーしました。'},
       th:{title:'เปิดด้วยเบราว์เซอร์ภายนอก',lead:'เบราว์เซอร์ในแอปอาจไม่เก็บสถานะการเข้าสู่ระบบ',steps:'คัดลอกที่อยู่ด้านล่างแล้วเปิดด้วย Chrome หรือ Safari',open:'เปิดเบราว์เซอร์ภายนอก',copy:'คัดลอกที่อยู่',continue:'ใช้งานต่อที่นี่',copied:'คัดลอกที่อยู่แล้ว'},
-      'zh-tw':{title:'請使用外部瀏覽器開啟',lead:'應用程式內建瀏覽器可能無法保留登入狀態。',steps:'請複製下方網址並使用 Safari 或 Chrome 開啟。',open:'使用外部瀏覽器開啟',copy:'複製網址',continue:'繼續使用目前瀏覽器',copied:'網址已複製。'}
+      'zh-tw':{title:'請使用外部瀏覽器開啟',lead:'應用程式內建瀏覽器可能無法保留登入狀態。',steps:'請複製下方網址並使用 Safari 或 Chrome 開啟。',open:'使用外部瀏覽器開啟',copy:'複製網址',continue:'繼續使用目前瀏覽器',copied:'網址已複製。'},
+      fr:{title:'Ouvrir dans un navigateur externe',lead:'Ce navigateur intégré peut ne pas conserver votre session de connexion.',steps:'Copiez l’adresse ci-dessous et ouvrez-la dans Chrome ou Safari.',open:'Ouvrir le navigateur externe',copy:'Copier l’adresse',continue:'Continuer ici',copied:'Adresse copiée.'},
+      de:{title:'In externem Browser öffnen',lead:'Dieser In-App-Browser speichert Ihre Anmeldesitzung möglicherweise nicht zuverlässig.',steps:'Kopieren Sie die Adresse unten und öffnen Sie sie in Chrome oder Safari.',open:'Externen Browser öffnen',copy:'Adresse kopieren',continue:'Hier fortfahren',copied:'Adresse kopiert.'},
+      es:{title:'Abrir en un navegador externo',lead:'Este navegador integrado puede no conservar tu sesión de inicio de sesión.',steps:'Copia la dirección de abajo y ábrela en Chrome o Safari.',open:'Abrir navegador externo',copy:'Copiar dirección',continue:'Continuar aquí',copied:'Dirección copiada.'},
+      tr:{title:'Harici tarayıcıda açın',lead:'Bu uygulama içi tarayıcı oturumunuzu korumayabilir.',steps:'Aşağıdaki adresi kopyalayıp Chrome veya Safari’de açın.',open:'Harici tarayıcıyı aç',copy:'Adresi kopyala',continue:'Burada devam et',copied:'Adres kopyalandı.'},
+      it:{title:'Apri in un browser esterno',lead:'Questo browser integrato potrebbe non mantenere la sessione di accesso.',steps:'Copia l’indirizzo qui sotto e aprilo in Chrome o Safari.',open:'Apri browser esterno',copy:'Copia indirizzo',continue:'Continua qui',copied:'Indirizzo copiato.'},
+      id:{title:'Buka di browser eksternal',lead:'Browser dalam aplikasi ini mungkin tidak mempertahankan sesi login Anda.',steps:'Salin alamat di bawah lalu buka di Chrome atau Safari.',open:'Buka browser eksternal',copy:'Salin alamat',continue:'Lanjutkan di sini',copied:'Alamat disalin.'}
     };
     const t = copyByLang[lang] || copyByLang.en;
     const url = canonicalPublicUrl();
@@ -161,7 +183,13 @@
     ar: { home:'الرئيسية', immigration:'طلب الهجرة', vote:'التصويت', capitalWar:'حرب العاصمة', seasonUpcoming:'الموسم 6', seasonArchive:'الموسم 5 (انتهى)', members:'الأعضاء', bgb:'BGB', tip:'نصائح', request:'لوحة الطلبات', allianceLayout:'مخطط التحالف', accounts:'سوق الحسابات', game:'الألعاب المصغرة', logo:'الشعار' },
     ja: { home:'ホーム', immigration:'移民申請', vote:'投票', capitalWar:'首都戦', seasonUpcoming:'シーズン6', seasonArchive:'シーズン5（終了）', members:'メンバー', bgb:'BGB', tip:'ヒント', request:'リクエスト掲示板', allianceLayout:'同盟配置図', accounts:'アカウントマーケット', game:'ミニゲーム', logo:'ロゴ' },
     th: { home:'หน้าแรก', immigration:'สมัครย้ายเซิร์ฟเวอร์', vote:'โหวต', capitalWar:'สงครามเมืองหลวง', seasonUpcoming:'ซีซัน 6', seasonArchive:'ซีซัน 5 (สิ้นสุดแล้ว)', members:'สมาชิก', bgb:'BGB', tip:'เคล็ดลับ', request:'กระดานคำขอ', allianceLayout:'ผังพันธมิตร', accounts:'ตลาดบัญชี', game:'มินิเกม', logo:'โลโก้' },
-    'zh-tw': { home:'首頁', immigration:'移民申請', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', allianceLayout:'聯盟配置圖', accounts:'帳號市集', game:'小遊戲', logo:'標誌' }
+    'zh-tw': { home:'首頁', immigration:'移民申請', vote:'投票', capitalWar:'首都戰', seasonUpcoming:'第 6 賽季', seasonArchive:'第 5 賽季（已結束）', members:'成員名單', bgb:'BGB', tip:'攻略', request:'留言板', allianceLayout:'聯盟配置圖', accounts:'帳號市集', game:'小遊戲', logo:'標誌' },
+    fr: { home:'ACCUEIL', immigration:'MIGRATION', vote:'VOTE', capitalWar:'GUERRE DE LA CAPITALE', seasonUpcoming:'SAISON 6', seasonArchive:'SAISON 5 (TERMINÉE)', members:'MEMBRES', bgb:'BGB', tip:'ASTUCES', request:'TABLEAU DES DEMANDES', allianceLayout:'PLAN DE L’ALLIANCE', accounts:'MARCHÉ DES COMPTES', game:'MINI-JEUX', logo:'LOGO' },
+    de: { home:'START', immigration:'MIGRATION', vote:'ABSTIMMUNG', capitalWar:'HAUPTSTADTKRIEG', seasonUpcoming:'SAISON 6', seasonArchive:'SAISON 5 (BEENDET)', members:'MITGLIEDER', bgb:'BGB', tip:'TIPPS', request:'ANFRAGEBOARD', allianceLayout:'ALLIANZ-AUFSTELLUNG', accounts:'ACCOUNT-MARKT', game:'MINISPIELE', logo:'LOGO' },
+    es: { home:'INICIO', immigration:'MIGRACIÓN', vote:'VOTACIÓN', capitalWar:'GUERRA DE LA CAPITAL', seasonUpcoming:'TEMPORADA 6', seasonArchive:'TEMPORADA 5 (FINALIZADA)', members:'MIEMBROS', bgb:'BGB', tip:'CONSEJOS', request:'TABLÓN DE SOLICITUDES', allianceLayout:'DISTRIBUCIÓN DE ALIANZA', accounts:'MERCADO DE CUENTAS', game:'MINIJUEGOS', logo:'LOGO' },
+    tr: { home:'ANA SAYFA', immigration:'GÖÇ', vote:'OYLAMA', capitalWar:'BAŞKENT SAVAŞI', seasonUpcoming:'SEZON 6', seasonArchive:'SEZON 5 (BİTTİ)', members:'ÜYELER', bgb:'BGB', tip:'İPUÇLARI', request:'İSTEK PANOSU', allianceLayout:'İTTİFAK DÜZENİ', accounts:'HESAP PAZARI', game:'MİNİ OYUNLAR', logo:'LOGO' },
+    it: { home:'HOME', immigration:'MIGRAZIONE', vote:'VOTO', capitalWar:'GUERRA DELLA CAPITALE', seasonUpcoming:'STAGIONE 6', seasonArchive:'STAGIONE 5 (TERMINATA)', members:'MEMBRI', bgb:'BGB', tip:'CONSIGLI', request:'BACHECA RICHIESTE', allianceLayout:'DISPOSIZIONE ALLEANZA', accounts:'MERCATO ACCOUNT', game:'MINIGIOCHI', logo:'LOGO' },
+    id: { home:'BERANDA', immigration:'MIGRASI', vote:'VOTING', capitalWar:'PERANG IBU KOTA', seasonUpcoming:'MUSIM 6', seasonArchive:'MUSIM 5 (SELESAI)', members:'ANGGOTA', bgb:'BGB', tip:'TIPS', request:'PAPAN PERMINTAAN', allianceLayout:'TATA LETAK ALIANSI', accounts:'PASAR AKUN', game:'MINI GAME', logo:'LOGO' }
   };
 
   const MENU_UI = {
@@ -172,10 +200,16 @@
     ar:{more:'المزيد',public:'عام',memberOnly:'للأعضاء فقط',activity:'نشاط التحالف',information:'المعلومات والدعم',other:'أخرى',comingSoon:'قريبًا',locked:'يتطلب تسجيل الدخول',menu:'القائمة',closeMenu:'إغلاق القائمة'},
     ja:{more:'その他',public:'公開',memberOnly:'メンバー限定',activity:'同盟活動',information:'情報・サポート',other:'その他',comingSoon:'準備中',locked:'ログインが必要',menu:'メニュー',closeMenu:'メニューを閉じる'},
     th:{more:'เพิ่มเติม',public:'สาธารณะ',memberOnly:'เฉพาะสมาชิก',activity:'กิจกรรมพันธมิตร',information:'ข้อมูลและการสนับสนุน',other:'อื่น ๆ',comingSoon:'เร็ว ๆ นี้',locked:'ต้องเข้าสู่ระบบ',menu:'เมนู',closeMenu:'ปิดเมนู'},
-    'zh-tw':{more:'更多',public:'公開',memberOnly:'成員專用',activity:'聯盟活動',information:'資訊與支援',other:'其他',comingSoon:'準備中',locked:'需要登入',menu:'選單',closeMenu:'關閉選單'}
+    'zh-tw':{more:'更多',public:'公開',memberOnly:'成員專用',activity:'聯盟活動',information:'資訊與支援',other:'其他',comingSoon:'準備中',locked:'需要登入',menu:'選單',closeMenu:'關閉選單'},
+    fr:{more:'PLUS',public:'PUBLIC',memberOnly:'MEMBRES UNIQUEMENT',activity:'ACTIVITÉ DE L’ALLIANCE',information:'INFOS & SUPPORT',other:'AUTRE',comingSoon:'BIENTÔT',locked:'CONNEXION REQUISE',menu:'MENU',closeMenu:'FERMER LE MENU'},
+    de:{more:'MEHR',public:'ÖFFENTLICH',memberOnly:'NUR MITGLIEDER',activity:'ALLIANZ-AKTIVITÄT',information:'INFO & SUPPORT',other:'SONSTIGES',comingSoon:'BALD',locked:'ANMELDUNG ERFORDERLICH',menu:'MENÜ',closeMenu:'MENÜ SCHLIESSEN'},
+    es:{more:'MÁS',public:'PÚBLICO',memberOnly:'SOLO MIEMBROS',activity:'ACTIVIDAD DE ALIANZA',information:'INFO Y SOPORTE',other:'OTROS',comingSoon:'PRÓXIMAMENTE',locked:'INICIO DE SESIÓN REQUERIDO',menu:'MENÚ',closeMenu:'CERRAR MENÚ'},
+    tr:{more:'DAHA FAZLA',public:'HERKESE AÇIK',memberOnly:'SADECE ÜYELER',activity:'İTTİFAK ETKİNLİĞİ',information:'BİLGİ & DESTEK',other:'DİĞER',comingSoon:'YAKINDA',locked:'GİRİŞ GEREKLİ',menu:'MENÜ',closeMenu:'MENÜYÜ KAPAT'},
+    it:{more:'ALTRO',public:'PUBBLICO',memberOnly:'SOLO MEMBRI',activity:'ATTIVITÀ ALLEANZA',information:'INFO & SUPPORTO',other:'ALTRO',comingSoon:'PROSSIMAMENTE',locked:'ACCESSO RICHIESTO',menu:'MENU',closeMenu:'CHIUDI MENU'},
+    id:{more:'LAINNYA',public:'PUBLIK',memberOnly:'KHUSUS ANGGOTA',activity:'AKTIVITAS ALIANSI',information:'INFO & DUKUNGAN',other:'LAINNYA',comingSoon:'SEGERA',locked:'PERLU LOGIN',menu:'MENU',closeMenu:'TUTUP MENU'}
   };
 
-  const ALLIANCE_SELECT_LABELS={ko:'연맹 선택',en:'ALLIANCE SELECT',pt:'ESCOLHER ALIANÇA',vi:'CHỌN LIÊN MINH',ar:'اختيار التحالف',ja:'同盟選択',th:'เลือกพันธมิตร','zh-tw':'選擇聯盟'};
+  const ALLIANCE_SELECT_LABELS={ko:'연맹 선택',en:'ALLIANCE SELECT',fr:'CHOISIR L’ALLIANCE',de:'ALLIANZ WÄHLEN',pt:'ESCOLHER ALIANÇA',es:'ELEGIR ALIANZA',tr:'İTTİFAK SEÇ',vi:'CHỌN LIÊN MINH',it:'SCEGLI ALLEANZA',id:'PILIH ALIANSI',ar:'اختيار التحالف',ja:'同盟選択',th:'เลือกพันธมิตร','zh-tw':'選擇聯盟'};
 
   const ACCOUNT_LABELS = {
     ko: {
@@ -249,7 +283,7 @@
       adminComing:'ستتوفر صفحة الإدارة في الإصدار القادم.'
     },
     ja: {
-      login:'ログイン', signup:'新規登録', account:'アカウント', member:'メンバー',
+      login:'ログイン', signup:'新規登録', account:'アカウント', myAccount:'マイアカウント', member:'メンバー',
       administrator:'管理者', admin:'管理', myPage:'マイページ', logout:'ログアウト',
       loading:'確認中', loginId:'ログインID', password:'パスワード', loginSubtitle:'同盟メンバーアカウントでログインしてください。',
       noAccount:'アカウントをお持ちでないですか？', loginSuccess:'ログインしました。',
@@ -289,7 +323,13 @@
       requestFailed:'無法完成要求。',
       close:'關閉', showPassword:'顯示密碼', hidePassword:'隱藏密碼',
       adminComing:'管理頁面將於下一版本提供。'
-    }
+    },
+    fr:{login:'CONNEXION',signup:'INSCRIPTION',account:'COMPTE',myAccount:'MON COMPTE',member:'MEMBRE',administrator:'ADMINISTRATEUR',admin:'ADMIN',myPage:'MA PAGE',logout:'DÉCONNEXION',loading:'VÉRIFICATION',loginId:'Identifiant',password:'Mot de passe',loginSubtitle:'Connectez-vous avec votre compte de membre de l’alliance.',noAccount:'Vous n’avez pas de compte ?',loginSuccess:'Connexion réussie.',logoutSuccess:'Déconnexion réussie.',invalidLogin:'Identifiant ou mot de passe incorrect.',suspended:'Ce compte est suspendu.',left:'Ce compte a été fermé.',sessionExpired:'Votre session a expiré. Veuillez vous reconnecter.',sessionNotSaved:'La session de connexion n’a pas pu être vérifiée. Ouvrez directement ezpk322.com puis reconnectez-vous.',requestFailed:'La demande n’a pas pu être traitée.',close:'Fermer',showPassword:'Afficher le mot de passe',hidePassword:'Masquer le mot de passe',adminComing:'La page d’administration sera disponible dans la prochaine version.'},
+    de:{login:'ANMELDEN',signup:'REGISTRIEREN',account:'KONTO',myAccount:'MEIN KONTO',member:'MITGLIED',administrator:'ADMINISTRATOR',admin:'ADMIN',myPage:'MEINE SEITE',logout:'ABMELDEN',loading:'PRÜFEN',loginId:'Login-ID',password:'Passwort',loginSubtitle:'Melden Sie sich mit Ihrem Allianz-Mitgliedskonto an.',noAccount:'Noch kein Konto?',loginSuccess:'Erfolgreich angemeldet.',logoutSuccess:'Erfolgreich abgemeldet.',invalidLogin:'Ungültige Login-ID oder falsches Passwort.',suspended:'Dieses Konto ist gesperrt.',left:'Dieses Konto wurde geschlossen.',sessionExpired:'Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',sessionNotSaved:'Die Anmeldesitzung konnte nicht bestätigt werden. Öffnen Sie ezpk322.com direkt und melden Sie sich erneut an.',requestFailed:'Die Anfrage konnte nicht abgeschlossen werden.',close:'Schließen',showPassword:'Passwort anzeigen',hidePassword:'Passwort ausblenden',adminComing:'Die Admin-Seite wird in der nächsten Version verfügbar sein.'},
+    es:{login:'INICIAR SESIÓN',signup:'REGISTRARSE',account:'CUENTA',myAccount:'MI CUENTA',member:'MIEMBRO',administrator:'ADMINISTRADOR',admin:'ADMIN',myPage:'MI PÁGINA',logout:'CERRAR SESIÓN',loading:'COMPROBANDO',loginId:'ID de acceso',password:'Contraseña',loginSubtitle:'Inicia sesión con tu cuenta de miembro de la alianza.',noAccount:'¿No tienes una cuenta?',loginSuccess:'Sesión iniciada correctamente.',logoutSuccess:'Sesión cerrada correctamente.',invalidLogin:'ID de acceso o contraseña incorrectos.',suspended:'Esta cuenta está suspendida.',left:'Esta cuenta se ha cerrado.',sessionExpired:'Tu sesión ha caducado. Vuelve a iniciar sesión.',sessionNotSaved:'No se pudo verificar la sesión. Abre ezpk322.com directamente y vuelve a iniciar sesión.',requestFailed:'No se pudo completar la solicitud.',close:'Cerrar',showPassword:'Mostrar contraseña',hidePassword:'Ocultar contraseña',adminComing:'La página de administración estará disponible en la próxima versión.'},
+    tr:{login:'GİRİŞ',signup:'KAYIT OL',account:'HESAP',myAccount:'HESABIM',member:'ÜYE',administrator:'YÖNETİCİ',admin:'YÖNETİM',myPage:'SAYFAM',logout:'ÇIKIŞ',loading:'KONTROL EDİLİYOR',loginId:'Giriş ID',password:'Şifre',loginSubtitle:'İttifak üye hesabınızla giriş yapın.',noAccount:'Hesabınız yok mu?',loginSuccess:'Giriş yapıldı.',logoutSuccess:'Çıkış yapıldı.',invalidLogin:'Giriş ID veya şifre hatalı.',suspended:'Bu hesap askıya alındı.',left:'Bu hesap kapatıldı.',sessionExpired:'Oturumunuz sona erdi. Lütfen tekrar giriş yapın.',sessionNotSaved:'Oturum doğrulanamadı. ezpk322.com adresini doğrudan açıp tekrar giriş yapın.',requestFailed:'İstek tamamlanamadı.',close:'Kapat',showPassword:'Şifreyi göster',hidePassword:'Şifreyi gizle',adminComing:'Yönetici sayfası bir sonraki sürümde sunulacaktır.'},
+    it:{login:'ACCEDI',signup:'REGISTRATI',account:'ACCOUNT',myAccount:'IL MIO ACCOUNT',member:'MEMBRO',administrator:'AMMINISTRATORE',admin:'ADMIN',myPage:'LA MIA PAGINA',logout:'ESCI',loading:'VERIFICA',loginId:'ID di accesso',password:'Password',loginSubtitle:'Accedi con il tuo account membro dell’alleanza.',noAccount:'Non hai un account?',loginSuccess:'Accesso effettuato.',logoutSuccess:'Disconnessione effettuata.',invalidLogin:'ID di accesso o password non validi.',suspended:'Questo account è sospeso.',left:'Questo account è stato chiuso.',sessionExpired:'La sessione è scaduta. Accedi di nuovo.',sessionNotSaved:'Impossibile verificare la sessione. Apri direttamente ezpk322.com e accedi di nuovo.',requestFailed:'Impossibile completare la richiesta.',close:'Chiudi',showPassword:'Mostra password',hidePassword:'Nascondi password',adminComing:'La pagina Admin sarà disponibile nella prossima versione.'},
+    id:{login:'MASUK',signup:'DAFTAR',account:'AKUN',myAccount:'AKUN SAYA',member:'ANGGOTA',administrator:'ADMINISTRATOR',admin:'ADMIN',myPage:'HALAMAN SAYA',logout:'KELUAR',loading:'MEMERIKSA',loginId:'ID Login',password:'Kata Sandi',loginSubtitle:'Masuk dengan akun anggota aliansi Anda.',noAccount:'Belum punya akun?',loginSuccess:'Berhasil masuk.',logoutSuccess:'Berhasil keluar.',invalidLogin:'ID login atau kata sandi salah.',suspended:'Akun ini ditangguhkan.',left:'Akun ini telah ditutup.',sessionExpired:'Sesi Anda telah berakhir. Silakan masuk lagi.',sessionNotSaved:'Sesi login tidak dapat diverifikasi. Buka ezpk322.com secara langsung lalu masuk lagi.',requestFailed:'Permintaan tidak dapat diselesaikan.',close:'Tutup',showPassword:'Tampilkan kata sandi',hidePassword:'Sembunyikan kata sandi',adminComing:'Halaman Admin akan tersedia pada versi berikutnya.'}
   };
 
   const immigrationHref = `${base}/migration/`;
@@ -328,14 +368,20 @@
         <span class="desktop-language-label"><span id="flag"></span><span id="lname"></span> ▾</span>
       </button>
       <div id="langMenu" hidden>
-        <button type="button" data-l="ko">🇰🇷 한국어</button>
         <button type="button" data-l="en">🇺🇸 English</button>
-        <button type="button" data-l="pt">🇧🇷 Português</button>
-        <button type="button" data-l="vi">🇻🇳 Tiếng Việt</button>
-        <button type="button" data-l="ar">🇸🇦 العربية</button>
-        <button type="button" data-l="ja">🇯🇵 日本語</button>
+        <button type="button" data-l="fr">🇫🇷 Français</button>
+        <button type="button" data-l="de">🇩🇪 Deutsch</button>
+        <button type="button" data-l="ko">🇰🇷 한국어</button>
         <button type="button" data-l="th">🇹🇭 ไทย</button>
+        <button type="button" data-l="ja">🇯🇵 日本語</button>
+        <button type="button" data-l="pt">🇧🇷 Português</button>
+        <button type="button" data-l="es">🇪🇸 Español</button>
+        <button type="button" data-l="tr">🇹🇷 Türkçe</button>
         <button type="button" data-l="zh-tw">🇹🇼 繁體中文</button>
+        <button type="button" data-l="it">🇮🇹 Italiano</button>
+        <button type="button" data-l="ar">🇸🇦 العربية</button>
+        <button type="button" data-l="vi">🇻🇳 Tiếng Việt</button>
+        <button type="button" data-l="id">🇮🇩 Bahasa Indonesia</button>
       </div>
     </div>`}
     <button id="menuBtn" class="ezpk-menu-discovery-cue" type="button" aria-label="Menu" aria-expanded="false">☰</button>`;
@@ -380,11 +426,14 @@
   `);
 
   const META = {
-    ko:['🇰🇷','한국어'], en:['🇺🇸','English'], pt:['🇧🇷','Português'], vi:['🇻🇳','Tiếng Việt'],
-    ar:['🇸🇦','العربية'], ja:['🇯🇵','日本語'], th:['🇹🇭','ไทย'], 'zh-tw':['🇹🇼','繁體中文']
+    en:['🇺🇸','English'], fr:['🇫🇷','Français'], de:['🇩🇪','Deutsch'], ko:['🇰🇷','한국어'], th:['🇹🇭','ไทย'], ja:['🇯🇵','日本語'],
+    pt:['🇧🇷','Português'], es:['🇪🇸','Español'], tr:['🇹🇷','Türkçe'], 'zh-tw':['🇹🇼','繁體中文'], it:['🇮🇹','Italiano'], ar:['🇸🇦','العربية'], vi:['🇻🇳','Tiếng Việt'], id:['🇮🇩','Bahasa Indonesia']
   };
   const STORAGE_KEY='ezpk-lang-v5';
-  const SUPPORTED_LANGS=Object.freeze(['ko','en','pt','vi','ar','ja','th','zh-tw']);
+  const USER_LANGUAGE_KEY='ezpk-lang-user-v6';
+  const AUTO_LANGUAGE_KEY='ezpk-lang-auto-v6';
+  const LANGUAGE_COOKIE='ezpk_lang';
+  const SUPPORTED_LANGS=Object.freeze(['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id']);
   let authState = { authenticated:false, member:null };
   let authLoaded = false;
   let strategyAccess = { loaded:false, resolved:false, bgbLocked:false, season6Locked:false, capitalWarLocked:true };
@@ -447,8 +496,82 @@
     applyStrategyMenuVisibility();
   }
 
-  function normalizeLanguage(lang) { return SUPPORTED_LANGS.includes(lang) ? lang : 'en'; }
-  function currentLanguage() { return normalizeLanguage(localStorage.getItem(STORAGE_KEY) || 'en'); }
+  function normalizeLocaleCandidate(value) {
+    const raw=String(value||'').trim().toLowerCase().replaceAll('_','-');
+    if (!raw) return '';
+    if (raw==='zh-tw'||raw==='zh-hk'||raw==='zh-mo'||raw.startsWith('zh-hant')) return 'zh-tw';
+    if (raw==='zh'||raw==='zh-cn'||raw.startsWith('zh-hans')) return '';
+    if (SUPPORTED_LANGS.includes(raw)) return raw;
+    const base=raw.split('-')[0];
+    return SUPPORTED_LANGS.includes(base) ? base : '';
+  }
+  function normalizeLanguage(lang) { return normalizeLocaleCandidate(lang) || 'en'; }
+  function readLanguageCookie() {
+    try {
+      const match=document.cookie.split(';').map(part=>part.trim()).find(part=>part.startsWith(LANGUAGE_COOKIE+'='));
+      return match ? normalizeLocaleCandidate(decodeURIComponent(match.slice(LANGUAGE_COOKIE.length+1))) : '';
+    } catch (_) { return ''; }
+  }
+  function writeLanguageCookie(lang,maxAge=31536000) {
+    const normalized=normalizeLocaleCandidate(lang);
+    const isPublic=currentHost==='ezpk322.com'||currentHost==='ezpk1.ezpk322.com'||currentHost==='ezpk2.ezpk322.com';
+    const parts=[`${LANGUAGE_COOKIE}=${encodeURIComponent(normalized)}`,'Path=/','SameSite=Lax',`Max-Age=${maxAge}`];
+    if (isPublic) parts.push('Domain=.ezpk322.com','Secure');
+    document.cookie=parts.join('; ');
+  }
+  function readExplicitLanguagePreference() {
+    try {
+      const direct=normalizeLocaleCandidate(localStorage.getItem(USER_LANGUAGE_KEY));
+      if (direct) return direct;
+    } catch (_) {}
+    const cookie=readLanguageCookie();
+    if (cookie) {
+      try { localStorage.setItem(USER_LANGUAGE_KEY,cookie); } catch (_) {}
+      return cookie;
+    }
+    try {
+      const legacy=normalizeLocaleCandidate(localStorage.getItem(STORAGE_KEY));
+      const auto=normalizeLocaleCandidate(localStorage.getItem(AUTO_LANGUAGE_KEY));
+      if (legacy && legacy!==auto) {
+        localStorage.setItem(USER_LANGUAGE_KEY,legacy);
+        writeLanguageCookie(legacy);
+        return legacy;
+      }
+    } catch (_) {}
+    return '';
+  }
+  function detectBrowserLanguage() {
+    const candidates=[];
+    try { if (Array.isArray(navigator.languages)) candidates.push(...navigator.languages); } catch (_) {}
+    try { if (navigator.language) candidates.push(navigator.language); } catch (_) {}
+    for (const candidate of candidates) {
+      const normalized=normalizeLocaleCandidate(candidate);
+      if (normalized) return normalized;
+    }
+    return 'en';
+  }
+  function currentLanguage() { return readExplicitLanguagePreference() || detectBrowserLanguage() || 'en'; }
+  function persistExplicitLanguage(lang) {
+    const normalized=normalizeLanguage(lang);
+    try {
+      localStorage.setItem(USER_LANGUAGE_KEY,normalized);
+      localStorage.setItem(STORAGE_KEY,normalized);
+      localStorage.removeItem(AUTO_LANGUAGE_KEY);
+    } catch (_) {}
+    writeLanguageCookie(normalized);
+    return normalized;
+  }
+  function clearLanguagePreference() {
+    try {
+      localStorage.removeItem(USER_LANGUAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(AUTO_LANGUAGE_KEY);
+    } catch (_) {}
+    writeLanguageCookie('',0);
+    const detected=detectBrowserLanguage();
+    applyLanguage(detected,true,false);
+    return detected;
+  }
   function accountLabels() { return ACCOUNT_LABELS[currentLanguage()] || ACCOUNT_LABELS.en; }
 
   function renderNavLabels(lang) {
@@ -603,9 +726,18 @@
     requestAnimationFrame(updateResponsiveNavigation);
   }
 
-  function applyLanguage(lang, emit=true) {
+  function applyLanguage(lang, emit=true, explicit=false) {
     lang=normalizeLanguage(lang);
+    if (explicit) lang=persistExplicitLanguage(lang);
+    else if (!isAdminContext) {
+      try {
+        if (!readExplicitLanguagePreference()) localStorage.setItem(AUTO_LANGUAGE_KEY,lang);
+        localStorage.setItem(STORAGE_KEY,lang);
+      } catch (_) {}
+    }
     renderNavLabels(lang);
+    const menuButton=header.querySelector('#menuBtn');
+    if(menuButton)menuButton.setAttribute('aria-label',menuUi(lang).menu);
     const meta=META[lang];
     const flagElement=header.querySelector('#flag');
     const languageNameElement=header.querySelector('#lname');
@@ -614,7 +746,6 @@
     document.documentElement.lang=lang==='zh-tw'?'zh-Hant':lang;
     document.documentElement.dir=lang==='ar'?'rtl':'ltr';
     document.body.classList.toggle('rtl',lang==='ar');
-    if(!isAdminContext)localStorage.setItem(STORAGE_KEY,lang);
     renderAccount();
     syncAllianceSelectorControls();
     updateAuthModalLabels();
@@ -660,7 +791,7 @@
     const password = loginForm.elements.password;
     toggle.textContent = password.type === 'password' ? '◉' : '×';
     toggle.setAttribute('aria-label', password.type === 'password' ? labels.showPassword : labels.hidePassword);
-    loginModal.querySelector('[data-auth-close]').setAttribute('aria-label', labels.close);
+    loginModal.querySelector('.ezpk-auth-close')?.setAttribute('aria-label', labels.close);
   }
 
   function openLogin(event) {
@@ -945,8 +1076,9 @@
           console.error('[EZPK Header] account render failed', renderError);
           const desktop = header.querySelector('#desktopAccount');
           const mobile = document.querySelector('#mobileDrawerAccount');
-          if (desktop) desktop.innerHTML = '<button type="button" class="account-button account-login" data-account-action="login">로그인</button>';
-          if (mobile) mobile.innerHTML = '<div class="mobile-account-actions mobile-account-actions--guest"><button type="button" data-account-action="login">로그인</button></div><div class="mobile-account-divider"></div>';
+          const recoveryLoginLabel = accountLabels().login;
+          if (desktop) desktop.innerHTML = '<button type="button" class="account-button account-login" data-account-action="login">'+escapeHtml(recoveryLoginLabel)+'</button>';
+          if (mobile) mobile.innerHTML = '<div class="mobile-account-actions mobile-account-actions--guest"><button type="button" data-account-action="login">'+escapeHtml(recoveryLoginLabel)+'</button></div><div class="mobile-account-divider"></div>';
           if (desktop) bindAccountEvents(desktop);
           if (mobile) bindAccountEvents(mobile);
         }
@@ -1173,7 +1305,7 @@
       button.addEventListener('click', function () {
         langMenu.hidden=true;
         langBtn.setAttribute('aria-expanded','false');
-        applyLanguage(button.dataset.l,true);
+        applyLanguage(button.dataset.l,true,true);
       });
     });
   }
@@ -1215,7 +1347,7 @@
   });
   window.addEventListener('storage',function(e){if(e.key===STORAGE_KEY)applyLanguage(e.newValue,false)});
 
-  window.EZPKLanguage={key:STORAGE_KEY,supported:SUPPORTED_LANGS,normalize:normalizeLanguage,get:currentLanguage,set:(lang)=>applyLanguage(lang,true)};
+  window.EZPKLanguage={key:STORAGE_KEY,userKey:USER_LANGUAGE_KEY,supported:SUPPORTED_LANGS,normalize:normalizeLanguage,get:currentLanguage,set:(lang)=>applyLanguage(lang,true,true),clearPreference:clearLanguagePreference,detectBrowser:detectBrowserLanguage};
   window.EZPKSharedHeader = {
     renderNavLabels,
     applyLanguage,

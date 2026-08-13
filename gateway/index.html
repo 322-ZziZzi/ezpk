@@ -24,9 +24,9 @@
   window.__EZPK_SITE__=site;
 })();
 </script>
-  <link rel="stylesheet" href="/style.css?v=4040">
-  <link rel="stylesheet" href="/gateway/gateway.css?v=4120">
-<link rel="stylesheet" href="/ezpk-theme.css?v=4070">
+  <link rel="stylesheet" href="/style.css?v=4150">
+  <link rel="stylesheet" href="/gateway/gateway.css?v=4150">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4150">
 </head>
 <body class="gateway-body">
   <header class="site-header gateway-site-header">
@@ -40,17 +40,28 @@
         <span class="gateway-language-label"><span id="gatewayFlag">🇺🇸</span><span id="gatewayLanguageName">English</span><span aria-hidden="true">▾</span></span>
       </button>
       <div id="gatewayLangMenu" role="menu" hidden>
-        <button type="button" role="menuitem" data-lang="ko">🇰🇷 한국어</button>
         <button type="button" role="menuitem" data-lang="en">🇺🇸 English</button>
-        <button type="button" role="menuitem" data-lang="pt">🇧🇷 Português</button>
-        <button type="button" role="menuitem" data-lang="vi">🇻🇳 Tiếng Việt</button>
-        <button type="button" role="menuitem" data-lang="ar">🇸🇦 العربية</button>
-        <button type="button" role="menuitem" data-lang="ja">🇯🇵 日本語</button>
+        <button type="button" role="menuitem" data-lang="fr">🇫🇷 Français</button>
+        <button type="button" role="menuitem" data-lang="de">🇩🇪 Deutsch</button>
+        <button type="button" role="menuitem" data-lang="ko">🇰🇷 한국어</button>
         <button type="button" role="menuitem" data-lang="th">🇹🇭 ไทย</button>
+        <button type="button" role="menuitem" data-lang="ja">🇯🇵 日本語</button>
+        <button type="button" role="menuitem" data-lang="pt">🇧🇷 Português</button>
+        <button type="button" role="menuitem" data-lang="es">🇪🇸 Español</button>
+        <button type="button" role="menuitem" data-lang="tr">🇹🇷 Türkçe</button>
         <button type="button" role="menuitem" data-lang="zh-tw">🇹🇼 繁體中文</button>
+        <button type="button" role="menuitem" data-lang="it">🇮🇹 Italiano</button>
+        <button type="button" role="menuitem" data-lang="ar">🇸🇦 العربية</button>
+        <button type="button" role="menuitem" data-lang="vi">🇻🇳 Tiếng Việt</button>
+        <button type="button" role="menuitem" data-lang="id">🇮🇩 Bahasa Indonesia</button>
       </div>
     </div>
   </header>
+
+  <div class="gateway-mobile-tabs" role="navigation" aria-label="Gateway sections">
+    <button id="gatewayTabMigration" type="button" data-gateway-tab="migration" data-gateway-scroll="migration" aria-pressed="true">Migration</button>
+    <button id="gatewayTabAlliance" type="button" data-gateway-tab="alliance" data-gateway-scroll="alliance" aria-pressed="false">Alliance Select</button>
+  </div>
 
   <main class="gateway-main">
     <section id="gatewayMigrationEntry" class="immigration-section gateway-migration-section" aria-label="EZPK1 migration application">
@@ -68,7 +79,7 @@
       <p id="gatewayLead">Select the EZPK alliance portal you want to enter.</p>
     </section>
 
-    <section class="gateway-grid" aria-label="Alliance portals">
+    <section id="gatewayAllianceCards" class="gateway-grid" aria-label="Alliance portals">
       <a class="gateway-card" id="ezpk1Card" href="https://ezpk1.ezpk322.com/">
         <div class="gateway-card-topline">
           <span class="gateway-alliance-name">EZPK1</span>
@@ -92,7 +103,8 @@
   </main>
 
   <footer class="gateway-footer"><b>322 EZPK ALLIANCE</b><span id="gatewayFooter">Choose an alliance to continue.</span></footer>
-  <script src="/shared-migration-entry.js?v=4100"></script>
-  <script src="/gateway/gateway.js?v=4100"></script>
+    <script src="/i18n-v414.js?v=4160"></script>
+<script src="/shared-migration-entry.js?v=4150"></script>
+  <script src="/gateway/gateway.js?v=4150"></script>
 </body>
 </html>

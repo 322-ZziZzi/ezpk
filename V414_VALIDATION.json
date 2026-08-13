@@ -1,0 +1,113 @@
+{
+  "release": "v414",
+  "package_name": "EZPK-v414-deploy-ready.zip",
+  "status": "DEPLOY_READY_STATIC_VALIDATION_PASS_OPERATOR_DRY_RUN_PENDING",
+  "source_baseline": {
+    "name": "EZPK-v413-deploy-ready.zip",
+    "sha256": "b81cf7c4ff2d2f98f5fbbd02438de710898b189f588728421ae40e14dcca75f3"
+  },
+  "scope": {
+    "supported_languages": [
+      "en",
+      "fr",
+      "de",
+      "ko",
+      "th",
+      "ja",
+      "pt",
+      "es",
+      "tr",
+      "zh-tw",
+      "it",
+      "ar",
+      "vi",
+      "id"
+    ],
+    "entry_pages_total": 27,
+    "multilingual_user_member_pages": 25,
+    "operator_only_excluded": [
+      "admin/index.html",
+      "dev/index.html"
+    ],
+    "static_language_page_matrix": "14x25",
+    "static_language_page_matrix_checks": 350
+  },
+  "i18n": {
+    "required_keyset_equality_new_six": "PASS",
+    "new_native_languages": [
+      "fr",
+      "de",
+      "es",
+      "tr",
+      "it",
+      "id"
+    ],
+    "whole_english_clone_guard": "PASS",
+    "request_promotion_copy_14": "PASS",
+    "season6_hero_th_ja_new6": "PASS",
+    "season6_three_text_image_families_new6": "LOCALIZED_HTML_REPLACEMENT_PASS",
+    "season_strategy_new6": "PASS",
+    "arabic_rtl": "PASS",
+    "traditional_chinese_zh_hant": "PASS",
+    "browser_resolver": "PASS"
+  },
+  "gateway": {
+    "desktop_spacing_px": [
+      100,
+      10,
+      26
+    ],
+    "mobile_spacing_px": [
+      80,
+      12,
+      22,
+      12
+    ],
+    "mobile_sticky_tabs": "PASS"
+  },
+  "validation": {
+    "predeploy_guard": "PASS",
+    "js_mjs_syntax": {
+      "pass": 60,
+      "fail": 0
+    },
+    "css_parse": {
+      "pass": 37,
+      "fail": 0
+    },
+    "local_html_refs": {
+      "checked": 384,
+      "missing": 0
+    },
+    "migration_count": 30,
+    "latest_migration": "0031_v405_migration_inquiry_soft_delete.sql",
+    "new_0032": false,
+    "migration_byte_crosscheck_v413": {
+      "pass": 30,
+      "fail": 0
+    },
+    "sqlite_fresh_cycles": {
+      "pass": 2,
+      "fail": 0
+    },
+    "worker_byte_identical_v413": true,
+    "wrangler_byte_identical_v413": true,
+    "npm_deploy_dry_run": {
+      "status": "NOT_RUN",
+      "reason": "wrangler executable is not installed in build container"
+    },
+    "headless_browser_matrix": {
+      "status": "NOT_CLAIMED",
+      "reason": "local Chromium navigation is blocked by build sandbox; operator browser smoke required"
+    }
+  },
+  "package": {
+    "sha256": null,
+    "zip_crc": null,
+    "duplicate_paths": null,
+    "unsafe_paths": null,
+    "casefold_collisions": null,
+    "entries": null
+  },
+  "generated_utc": "2026-08-13T00:00:00Z"
+}

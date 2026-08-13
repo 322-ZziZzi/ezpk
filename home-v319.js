@@ -3,7 +3,7 @@
 
   const HOME_TEXT = {
     ko: {
-      brandKicker:'STATE #322 · INTERNATIONAL ALLIANCE',
+      brandKicker:'서버 #322 · 국제 연맹',
       brandHeadline:'함께 즐기고, 함께 성장하며, 전략적으로 움직입니다.',
       brandDescription:'연맹 활동에 필요한 일정, 투표, 팀 편성과 전략을 한곳에서 확인하세요.',
       login:'로그인', signup:'회원가입',
@@ -139,6 +139,7 @@
       footer:'各司其職、彼此信任，並肩同行直到最後！'
     }
   };
+window.EZPK_I18N_V414?.apply('home',HOME_TEXT);
 
   const supported = Object.keys(HOME_TEXT);
   const language = function () {

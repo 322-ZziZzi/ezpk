@@ -2,7 +2,7 @@
   'use strict';
   const $=selector=>document.querySelector(selector);
   const STORAGE_KEY='ezpk-lang-v5';
-  const SUPPORTED=['ko','en','pt','vi','ar','ja','th','zh-tw'];
+  const SUPPORTED=['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar','vi','id'];
   let lang=SUPPORTED.includes(localStorage.getItem(STORAGE_KEY))?localStorage.getItem(STORAGE_KEY):'en';
   let authState=null,loaded=false,loading=false,layout=null,currentMemberId=null,selectedId=null;
   let scale=1,panX=0,panY=0,suppressClick=false;
@@ -19,9 +19,29 @@
     th:{title:'ผังพันธมิตร',lead:'นี่คือผังพันธมิตรล่าสุดที่เผยแพร่',placed:'สมาชิกที่จัดวาง',count:n=>`${n} คน`,published:'เผยแพร่ล่าสุด',search:'ค้นหาชื่อเล่น',find:'ค้นหาตำแหน่งของฉัน',findShort:'ตำแหน่งของฉัน',map:'ผังที่เผยแพร่',overview:'ผังทั้งหมด',overviewHint:'ตรวจสอบตำแหน่งตามหมายเลข',fullscreen:'ดูผังแบบเต็มหน้าจอ',gesture:'ลากเพื่อเลื่อน · ใช้ล้อเพื่อซูม',mobileGesture:'เลื่อน · บีบนิ้วเพื่อซูม',close:'ปิดผัง',login:'เข้าสู่ระบบ',gate:'ผังพันธมิตร 🔒',gateLead:'เฉพาะสมาชิกพันธมิตรที่เข้าสู่ระบบแล้วเท่านั้นที่ดูผังได้',guide:'คำแนะนำการจัดวาง',g1:'โปรดย้ายไปยังตำแหน่งที่กำหนดให้คุณเท่านั้น',g2:'ผังนี้จัดทำจากข้อมูลสเปกล่าสุดที่สมาชิกลงทะเบียนไว้',g3:'หากต้องการเปลี่ยนตำแหน่ง โปรดตกลงกับสมาชิกที่เกี่ยวข้องก่อน',g4:'ตำแหน่งอาจเปลี่ยนชั่วคราวในวันสังหารหรือกิจกรรมต่าง ๆ',g5a:'หากมีคำขอเกี่ยวกับการจัดวาง โปรดฝากไว้ที่',g5b:'กระดานคำขอ',g5c:'',loading:'กำลังโหลดผังพันธมิตร',empty:'ยังไม่มีผังพันธมิตรที่เผยแพร่',notFound:'ไม่พบสมาชิกที่ตรงกัน',noMe:'ไม่พบตำแหน่งของคุณในผังที่เผยแพร่ปัจจุบัน',failed:'ไม่สามารถโหลดผังได้ โปรดลองอีกครั้งในภายหลัง',retry:'โหลดอีกครั้ง',unregistered:'ยังไม่ลงทะเบียน',menu:'เมนู',account:'บัญชีของฉัน',back:'ย้อนกลับ',selected:'สมาชิกที่เลือก',building:(n,name)=>`${name} ตำแหน่ง ${n}`},
     'zh-tw':{title:'聯盟配置圖',lead:'這是目前已發布的最新聯盟配置圖。',placed:'配置人數',count:n=>`${n}人`,published:'最後發布',search:'搜尋暱稱',find:'尋找我的位置',findShort:'我的位置',map:'已發布配置圖',overview:'完整配置圖',overviewHint:'依編號確認位置',fullscreen:'全螢幕查看配置圖',gesture:'拖曳移動・滾輪縮放',mobileGesture:'移動・雙指縮放',close:'關閉配置圖',login:'登入',gate:'聯盟配置圖 🔒',gateLead:'只有已登入的聯盟成員才能查看配置圖。',guide:'配置說明',g1:'請只移動到分配給您的位置。',g2:'配置圖依據成員最新登記的規格資料製作。',g3:'如需更換位置，請先與相關成員協商。',g4:'擊殺日或其他活動期間，配置可能會暫時調整。',g5a:'如有配置相關需求，請前往',g5b:'留言板',g5c:'提出。',loading:'正在載入聯盟配置圖。',empty:'目前尚未發布聯盟配置圖。',notFound:'找不到符合的成員。',noMe:'目前發布的配置圖中找不到您的位置。',failed:'無法載入配置圖，請稍後再試。',retry:'重新載入',unregistered:'未登記',menu:'選單',account:'我的帳號',back:'返回',selected:'已選擇的成員',building:(n,name)=>`${name}，配置第${n}位`}
   };
+window.EZPK_I18N_V414?.apply('allianceLayout',T);
+const ALLIANCE_DYNAMIC_414={
+fr:{count:n=>`${n} membres`,building:(n,name)=>`${name}, position ${n}`},
+de:{count:n=>`${n} Mitglieder`,building:(n,name)=>`${name}, Position ${n}`},
+es:{count:n=>`${n} miembros`,building:(n,name)=>`${name}, posición ${n}`},
+tr:{count:n=>`${n} üye`,building:(n,name)=>`${name}, konum ${n}`},
+it:{count:n=>`${n} membri`,building:(n,name)=>`${name}, posizione ${n}`},
+id:{count:n=>`${n} anggota`,building:(n,name)=>`${name}, posisi ${n}`}
+};
+for(const [code,copy] of Object.entries(ALLIANCE_DYNAMIC_414))Object.assign(T[code],copy);
+
   const ZOOM_T={
     ko:{out:'축소',in:'확대',reset:'원래대로',controls:'배치도 확대 및 축소'},en:{out:'Zoom out',in:'Zoom in',reset:'Reset',controls:'Layout zoom controls'},pt:{out:'Reduzir',in:'Ampliar',reset:'Restaurar',controls:'Controles de zoom do mapa'},vi:{out:'Thu nhỏ',in:'Phóng to',reset:'Đặt lại',controls:'Điều khiển thu phóng sơ đồ'},ar:{out:'تصغير',in:'تكبير',reset:'إعادة',controls:'عناصر تكبير المخطط'},ja:{out:'縮小',in:'拡大',reset:'元に戻す',controls:'配置図の拡大縮小'},th:{out:'ย่อ',in:'ขยาย',reset:'คืนค่า',controls:'การซูมผัง'},'zh-tw':{out:'縮小',in:'放大',reset:'還原',controls:'配置圖縮放控制'}
   };
+Object.assign(ZOOM_T,{
+  fr:{out:'Réduire',in:'Agrandir',reset:'Réinitialiser',controls:'Commandes de zoom du plan'},
+  de:{out:'Verkleinern',in:'Vergrößern',reset:'Zurücksetzen',controls:'Zoom-Steuerung des Allianzplans'},
+  es:{out:'Alejar',in:'Acercar',reset:'Restablecer',controls:'Controles de zoom del plano'},
+  tr:{out:'Uzaklaştır',in:'Yakınlaştır',reset:'Sıfırla',controls:'Yerleşim yakınlaştırma kontrolleri'},
+  it:{out:'Riduci',in:'Ingrandisci',reset:'Reimposta',controls:'Controlli zoom della disposizione'},
+  id:{out:'Perkecil',in:'Perbesar',reset:'Atur ulang',controls:'Kontrol zoom tata letak'}
+});
+
   const IMAGE_T={
     ko:{view:'배치도 다운로드',title:'배치도 이미지',pc:'이미지를 마우스 오른쪽 버튼으로 클릭해 저장하세요.',mobile:'이미지를 길게 눌러 저장하세요.',loading:'배치도 이미지를 만드는 중입니다.',alt:'저장용 연맹 배치도 이미지',close:'닫기'},
     en:{view:'Download layout',title:'Layout image',pc:'Right-click the image to save it.',mobile:'Press and hold the image to save it.',loading:'Creating the layout image.',alt:'Alliance layout image for saving',close:'Close'},
@@ -32,6 +52,15 @@
     th:{view:'ดาวน์โหลดผัง',title:'รูปผัง',pc:'คลิกขวาที่รูปเพื่อบันทึก',mobile:'แตะรูปค้างไว้เพื่อบันทึก',loading:'กำลังสร้างรูปผัง',alt:'รูปผังพันธมิตรสำหรับบันทึก',close:'ปิด'},
     'zh-tw':{view:'下載配置圖',title:'配置圖圖片',pc:'在圖片上按滑鼠右鍵即可儲存。',mobile:'長按圖片即可儲存。',loading:'正在建立配置圖圖片。',alt:'可儲存的聯盟配置圖圖片',close:'關閉'}
   };
+Object.assign(IMAGE_T,{
+  fr:{view:'Télécharger le plan',title:'Image du plan',pc:'Faites un clic droit sur l’image pour l’enregistrer.',mobile:'Appuyez longuement sur l’image pour l’enregistrer.',loading:'Création de l’image du plan.',alt:'Image du plan de l’alliance à enregistrer',close:'Fermer'},
+  de:{view:'Plan herunterladen',title:'Planbild',pc:'Klicke mit der rechten Maustaste auf das Bild, um es zu speichern.',mobile:'Halte das Bild gedrückt, um es zu speichern.',loading:'Planbild wird erstellt.',alt:'Allianzplan zum Speichern',close:'Schließen'},
+  es:{view:'Descargar plano',title:'Imagen del plano',pc:'Haz clic derecho en la imagen para guardarla.',mobile:'Mantén pulsada la imagen para guardarla.',loading:'Creando la imagen del plano.',alt:'Imagen del plano de la alianza para guardar',close:'Cerrar'},
+  tr:{view:'Yerleşimi indir',title:'Yerleşim görseli',pc:'Kaydetmek için görsele sağ tıklayın.',mobile:'Kaydetmek için görsele basılı tutun.',loading:'Yerleşim görseli oluşturuluyor.',alt:'Kaydetmek için ittifak yerleşim görseli',close:'Kapat'},
+  it:{view:'Scarica disposizione',title:'Immagine disposizione',pc:'Fai clic con il tasto destro sull’immagine per salvarla.',mobile:'Tieni premuta l’immagine per salvarla.',loading:'Creazione dell’immagine della disposizione.',alt:'Immagine della disposizione dell’alleanza da salvare',close:'Chiudi'},
+  id:{view:'Unduh tata letak',title:'Gambar tata letak',pc:'Klik kanan gambar untuk menyimpannya.',mobile:'Tekan dan tahan gambar untuk menyimpannya.',loading:'Membuat gambar tata letak.',alt:'Gambar tata letak aliansi untuk disimpan',close:'Tutup'}
+});
+
   const tx=()=>T[lang]||T.en;
   const frame=direction=>direction==='top'?{rs:3,re:4,cs:4,ce:7}:direction==='bottom'?{rs:5,re:6,cs:4,ce:7}:direction==='left'?{rs:4,re:5,cs:3,ce:6}:{rs:4,re:5,cs:4,ce:7};
 

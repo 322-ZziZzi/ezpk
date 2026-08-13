@@ -15,6 +15,7 @@
     th:{showAll:'ดูกิจกรรมทั้งหมด',showLess:'ย่อรายการ',live:'กำลังดำเนินอยู่',soon:'กำลังจะเริ่ม',day:'วัน',hour:'ชม.',minute:'นาที'},
     'zh-tw':{showAll:'查看全部活動',showLess:'收合行程',live:'進行中',soon:'即將開始',day:'天',hour:'小時',minute:'分鐘'}
   };
+window.EZPK_I18N_V414?.apply('schedule',COPY);
   const fallback = {
     scheduleUpcoming:'UPCOMING',scheduleStartIn:'START IN',scheduleLive:'LIVE',
     scheduleFinished:'FINISHED',scheduleStart:'START',scheduleImportant:'IMPORTANT'

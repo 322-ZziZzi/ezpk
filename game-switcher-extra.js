@@ -33,6 +33,7 @@ const labels={
  th:['เล่นได้แล้ว','เกมปัจจุบัน','เล่น'],
  'zh-tw':['立即遊玩','目前遊戲','開始']
 };
+for(const [code,copy] of Object.entries(window.EZPK_I18N_V414?.B?.gameSwitcher||{})){labels[code]=copy.labels;extraGames[code]=copy.extraGames;classicGames[code]=copy.classicGames;}
 
 function currentSlug(){
  const explicit=document.body.dataset.game;

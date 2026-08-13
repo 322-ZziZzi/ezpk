@@ -1,0 +1,134 @@
+{
+  "artifact": "EZPK v416 pre-package validation",
+  "version": "4.1.6",
+  "date": "2026-08-13",
+  "baseline": {
+    "file": "EZPK-v415-deploy-ready.zip",
+    "sha256": "f5f15678e55606a3b740e8703b74d8b6d02931ae415324c22a5dc991c996f867"
+  },
+  "languages": [
+    "en",
+    "fr",
+    "de",
+    "ko",
+    "th",
+    "ja",
+    "pt",
+    "es",
+    "tr",
+    "zh-tw",
+    "it",
+    "ar",
+    "vi",
+    "id"
+  ],
+  "allowed_fixed_terms": [
+    "EZPK",
+    "BGB",
+    "Discord",
+    "CP",
+    "Fighter",
+    "Shooter",
+    "Rider",
+    "Leader",
+    "Officer",
+    "Core",
+    "Support",
+    "Reserve",
+    "Member summary",
+    "REFINERY",
+    "MILITARY BASE",
+    "HOSPITAL",
+    "ALLOY FACTORY",
+    "TOP 30",
+    "322 EZPK WAR PORTAL"
+  ],
+  "predeploy": {
+    "command": "npm run predeploy",
+    "result": "PASS",
+    "guard": "scripts/v416-deploy-guard.mjs"
+  },
+  "js_mjs_syntax": {
+    "total": 63,
+    "pass": 63,
+    "fail": 0
+  },
+  "runtime_dom_matrix": {
+    "pages": 25,
+    "languages": 14,
+    "combinations": 350,
+    "clean_combinations": 336,
+    "harness_limited_combinations": 14,
+    "unexpected_error_combinations": 0,
+    "harness_limitation": "Tip uses history.replaceState; the about:blank inline audit origin is opaque and throws SecurityError before the page script can complete. Direct localhost navigation is blocked by this execution environment, so these 14 combinations remain environment-limited rather than product-failed.",
+    "non_english_fixed_close_aria_residuals": 0
+  },
+  "dynamic_runtime": {
+    "zombie_defense_14_languages": "PASS",
+    "hero_merge_no_fatal_reference_type_syntax_errors": "PASS",
+    "hero_merge_harness_note": "ResizeObserver loop notifications are browser audit-harness noise and were not classified as application failures."
+  },
+  "baseline_integrity": {
+    "baseline_files": 309,
+    "current_files_before_v416_reports": 311,
+    "logical_removed_paths": 0,
+    "added_paths_before_v416_reports": [
+      "mini-game-i18n-v416.js",
+      "scripts/v416-deploy-guard.mjs"
+    ],
+    "changed_existing_paths_before_v416_reports": [
+      "accounts/index.html",
+      "admin/index.html",
+      "alliance-layout/index.html",
+      "bgb/bgb.js",
+      "bgb/index.html",
+      "capital-war/capital-war.js",
+      "capital-war/index.html",
+      "drone-hunter/drone.js",
+      "drone-hunter/index.html",
+      "game/game.js",
+      "game/index.html",
+      "gateway/index.html",
+      "hero-merge/index.html",
+      "inactive/index.html",
+      "index.html",
+      "logo/index.html",
+      "members/index.html",
+      "migration/index.html",
+      "missile-defense/index.html",
+      "missile-defense/missile.js",
+      "my/index.html",
+      "new-game.js",
+      "package-lock.json",
+      "package.json",
+      "portal-escape/index.html",
+      "request/index.html",
+      "request/request.js",
+      "season5/index.html",
+      "season6/index.html",
+      "shared-header.js",
+      "signup/index.html",
+      "tank-battle/index.html",
+      "tank-battle/tank.js",
+      "tip/index.html",
+      "treasure-hunter/index.html",
+      "vote/index.html",
+      "zombie-defense/index.html"
+    ],
+    "migrations_total": 30,
+    "migrations_byte_exact": 30,
+    "migration_failures": [],
+    "historical_guards_byte_exact": {
+      "scripts/v414-deploy-guard.mjs": true,
+      "scripts/v415-deploy-guard.mjs": true
+    }
+  },
+  "wrangler_dry_run": {
+    "result": "NOT_EXECUTED",
+    "reason": "node_modules/.bin/wrangler is not installed in the validation workspace; no dependency installation was added to the deliverable."
+  },
+  "package_inventory": {
+    "files_excluding_checksum_manifest": 314,
+    "files_including_checksum_manifest": 315
+  }
+}

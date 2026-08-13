@@ -24,14 +24,15 @@
   window.__EZPK_SITE__=site;
 })();
 </script>
-  <link rel="stylesheet" href="../style.css?v=4030">
-  <link rel="stylesheet" href="season6.css?v=3400">
-  <link rel="stylesheet" href="../common-heading.css?v=4010">
-<link rel="stylesheet" href="/ezpk-theme.css?v=4070">
+  <link rel="stylesheet" href="../style.css?v=4150">
+  <link rel="stylesheet" href="season6.css?v=4150">
+  <link rel="stylesheet" href="../common-heading.css?v=4150">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4150">
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="seasonUpcoming"></header>
-<script src="../shared-header.js?v=4080"></script>
+  <script src="/i18n-v414.js?v=4160"></script>
+<script src="../shared-header.js?v=4160"></script>
 <main>
   <section id="season6Lock" class="member-gate-wrap" hidden>
   <div class="member-gate-card">
@@ -54,8 +55,10 @@
         <h2 id="latestInfoTitle">LATEST INFO</h2>
         <p id="latestInfoLead"></p>
       </div>
-      <div class="frame seasonframe"><div class="stage"><img id="season6Img" alt="Season 6 latest information"></div></div>
-      <div class="frame seasonframe latest-rules-frame"><div class="stage"><img id="season6RulesImg" alt="Season 6 rules guide"></div></div>
+      <div id="season6LatestImageFrame" class="frame seasonframe"><div class="stage"><img id="season6Img" alt="Season 6 latest information"></div></div>
+      <article id="season6LocalizedLatest" class="season6-localized-guide" hidden></article>
+      <div id="season6RulesImageFrame" class="frame seasonframe latest-rules-frame"><div class="stage"><img id="season6RulesImg" alt="Season 6 rules guide"></div></div>
+      <article id="season6LocalizedRules" class="season6-localized-guide" hidden></article>
       <p class="hint" data-k="pinch"></p>
     </section>
     <section id="buildingGuideView" class="season6-content-section building-guide-section">
@@ -63,7 +66,8 @@
         <h2 id="buildingGuideTitle">SEASON BUILDING GUIDE</h2>
         <p id="buildingGuideLead"></p>
       </div>
-      <div class="frame seasonframe"><div class="stage"><img id="seasonBuildingImg" alt="Season 6 building guide"></div></div>
+      <div id="season6BuildingImageFrame" class="frame seasonframe"><div class="stage"><img id="seasonBuildingImg" alt="Season 6 building guide"></div></div>
+      <article id="season6LocalizedBuildings" class="season6-localized-guide" hidden></article>
       <p class="hint" data-k="pinch"></p>
     </section>
     <section id="heroInfoView" class="season6-content-section hero-info-section">
@@ -149,7 +153,7 @@
   </section>
 </div>
 
-<script src="../data.js?v=1610"></script>
-  <script src="season6.js?v=3380"></script>
+<script src="../data.js?v=4150"></script>
+  <script src="season6.js?v=4150"></script>
 </body>
 </html>

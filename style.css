@@ -2369,3 +2369,7 @@ html[dir='rtl'] .ezpk-auth-dialog h2{margin-right:0;margin-left:34px}
   [data-shared-header]:not(.admin-auth-host) .lang>#langBtn{max-width:122px!important}
   [data-shared-header]:not(.admin-auth-host) .desktop-language-label{max-width:92px!important}
 }
+
+/* v413: 14-language selector sizing/overflow safety. */
+.site-header .lang #langMenu{width:200px;max-height:min(560px,calc(100vh - 90px));overflow:auto}
+@media(max-width:900px){.site-header .lang #langMenu{width:auto}}

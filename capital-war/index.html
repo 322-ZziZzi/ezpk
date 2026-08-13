@@ -24,14 +24,15 @@
   window.__EZPK_SITE__=site;
 })();
 </script>
-  <link rel="stylesheet" href="../style.css?v=4030">
-  <link rel="stylesheet" href="../common-heading.css?v=4010">
-  <link rel="stylesheet" href="capital-war.css?v=3160">
-<link rel="stylesheet" href="/ezpk-theme.css?v=4070">
+  <link rel="stylesheet" href="../style.css?v=4150">
+  <link rel="stylesheet" href="../common-heading.css?v=4150">
+  <link rel="stylesheet" href="capital-war.css?v=4150">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4150">
 </head>
 <body>
 <header class="site-header" data-shared-header data-base=".." data-home-href="../#home" data-active-menu="capitalWar"></header>
-<script src="../shared-header.js?v=4080"></script>
+  <script src="/i18n-v414.js?v=4160"></script>
+<script src="../shared-header.js?v=4160"></script>
 <main>
   <section id="capitalWarLock" class="member-gate-wrap" hidden>
     <div class="member-gate-card">
@@ -50,32 +51,32 @@
   <div id="capitalWarProtected" hidden aria-hidden="true">
     <section class="cw-page">
       <section class="cw-hero" aria-labelledby="cwHeroTitle">
-        <span class="cw-kicker">SERVER 322 · EZPK ALLIANCE</span>
+        <span id="cwHeroKicker" class="cw-kicker">SERVER 322 · EZPK ALLIANCE</span>
         <h1 id="cwHeroTitle">CAPITAL WAR</h1>
         <p id="cwVersus">SERVER 322 VS SERVER 320</p>
         <div class="cw-countdown"><span id="cwRemainingLabel">남은 시간</span><strong id="cwCountdown">--D --:--:--</strong></div>
-        <div class="cw-start"><span>START</span><strong id="cwStartTime">--/-- --:-- ST</strong></div>
+        <div class="cw-start"><span id="cwStartLabel">START</span><strong id="cwStartTime">--/-- --:-- ST</strong></div>
       </section>
 
       <section class="cw-section" aria-labelledby="cwTeamsTitle">
-        <div class="section-title-block"><span>TEAM ASSIGNMENT</span><h2 id="cwTeamsTitle"></h2><p id="cwTeamsLead"></p></div>
+        <div class="section-title-block"><span id="cwTeamsKicker">TEAM ASSIGNMENT</span><h2 id="cwTeamsTitle"></h2><p id="cwTeamsLead"></p></div>
         <div id="cwTeamAccordion" class="cw-team-accordion"></div>
       </section>
 
       <section class="cw-section" aria-labelledby="cwGoalTitle">
-        <div class="section-title-block"><span>STRATEGY</span><h2 id="cwGoalTitle"></h2><p id="cwGoalLead"></p></div>
+        <div class="section-title-block"><span id="cwGoalKicker">STRATEGY</span><h2 id="cwGoalTitle"></h2><p id="cwGoalLead"></p></div>
         <article class="cw-goal-card"><ul id="cwGoalList"></ul></article>
       </section>
 
       <section class="cw-section" aria-labelledby="cwStrategyTitle">
-        <div class="section-title-block"><span>TEAM STRATEGY</span><h2 id="cwStrategyTitle"></h2><p id="cwStrategyLead"></p></div>
+        <div class="section-title-block"><span id="cwStrategyKicker">TEAM STRATEGY</span><h2 id="cwStrategyTitle"></h2><p id="cwStrategyLead"></p></div>
         <div id="cwStrategyTabs" class="cw-strategy-tabs" role="tablist"></div>
         <div id="cwStrategyDesktop" class="cw-strategy-desktop"></div>
         <div id="cwStrategyMobile" class="cw-strategy-mobile"></div>
       </section>
 
       <section class="cw-section cw-common-section" aria-labelledby="cwCommonTitle">
-        <div class="section-title-block"><span>COMMON ORDERS</span><h2 id="cwCommonTitle"></h2><p id="cwCommonLead"></p></div>
+        <div class="section-title-block"><span id="cwCommonKicker">COMMON ORDERS</span><h2 id="cwCommonTitle"></h2><p id="cwCommonLead"></p></div>
         <article class="cw-common-card"><ul id="cwCommonList"></ul></article>
       </section>
     </section>
@@ -85,7 +86,7 @@
   <div class="cw-image-preview-backdrop" data-cw-preview-close></div>
   <section id="cwImagePreviewPanel" class="cw-image-preview-panel" role="dialog" aria-modal="true" aria-labelledby="cwPreviewTitle" data-team="capital">
     <header class="cw-image-preview-head">
-      <div><span>SERVER 322 · EZPK</span><h2 id="cwPreviewTitle"></h2></div>
+      <div><span id="cwPreviewBrand">SERVER 322 · EZPK</span><h2 id="cwPreviewTitle"></h2></div>
       <button id="cwPreviewCloseBtn" class="cw-preview-close" type="button" aria-label="Close">×</button>
     </header>
     <p id="cwPreviewGuide" class="cw-preview-guide"></p>
@@ -93,6 +94,6 @@
     <footer class="cw-preview-actions"><button id="cwPreviewDoneBtn" type="button"></button></footer>
   </section>
 </div>
-<script src="capital-war.js?v=3420"></script>
+<script src="capital-war.js?v=4150"></script>
 </body>
 </html>
