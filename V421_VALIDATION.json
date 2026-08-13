@@ -1,0 +1,95 @@
+{
+  "version": "4.2.1",
+  "release": "v421",
+  "base_artifact": "EZPK-v420-deploy-ready.zip",
+  "base_sha256": "8f39b4a8f9740a9cff392df5640284584d2ec3de62f1bc7a654cfc777b6e5c89",
+  "scope": "mobile/tablet hamburger Drawer alliance selector only; desktop selector preserved",
+  "checks": {
+    "npm_predeploy": "PASS",
+    "js_mjs_syntax": {
+      "status": "PASS",
+      "count": 72
+    },
+    "json_parse": {
+      "status": "PASS",
+      "count": 28
+    },
+    "shared_header_cache_v4210": {
+      "status": "PASS",
+      "pages": 23
+    },
+    "style_cache_v4210": {
+      "status": "PASS",
+      "pages": 24
+    },
+    "alliance_section_i18n": {
+      "status": "PASS",
+      "languages": 14
+    },
+    "db_migrations_byte_exact": {
+      "status": "PASS",
+      "count": 30
+    },
+    "historical_deploy_guards_byte_exact": {
+      "status": "PASS",
+      "count": 19
+    },
+    "base_paths_removed": {
+      "status": "PASS",
+      "count": 0
+    },
+    "dual_mode_only": "PASS",
+    "guest_selector_top": "PASS_STATIC",
+    "authenticated_selector_bottom": "PASS_STATIC",
+    "aria_pressed": "PASS_STATIC",
+    "min_touch_target_46px": "PASS_STATIC",
+    "theme_variable_contrast_contract": "PASS_STATIC",
+    "cross_alliance_sso_added": false,
+    "target_host_session_reresolution": "BY_NAVIGATION",
+    "dirty_form_confirmation": "PASS_STATIC",
+    "switch_lock": "PASS_STATIC",
+    "ezpk2_inactive_disabled": "PASS_STATIC",
+    "desktop_header_behavior": "PRESERVED_BY_SCOPE",
+    "fresh_browser_runtime_matrix": "NOT_EXECUTED_CHROMIUM_HEADLESS_DID_NOT_COMPLETE_IN_ENVIRONMENT"
+  },
+  "base_comparison": {
+    "base_files": 343,
+    "working_files_before_v421_reports": 344,
+    "changed_existing_paths": 29,
+    "added_paths_before_reports": [
+      "scripts/v421-deploy-guard.mjs"
+    ],
+    "removed_paths": [],
+    "changed_paths": [
+      "README.md",
+      "accounts/index.html",
+      "alliance-layout/index.html",
+      "bgb/index.html",
+      "capital-war/index.html",
+      "drone-hunter/index.html",
+      "game/index.html",
+      "gateway/index.html",
+      "hero-merge/index.html",
+      "index.html",
+      "logo/index.html",
+      "members/index.html",
+      "migration/index.html",
+      "missile-defense/index.html",
+      "my/index.html",
+      "package-lock.json",
+      "package.json",
+      "portal-escape/index.html",
+      "request/index.html",
+      "season5/index.html",
+      "season6/index.html",
+      "shared-header.js",
+      "signup/index.html",
+      "style.css",
+      "tank-battle/index.html",
+      "tip/index.html",
+      "treasure-hunter/index.html",
+      "vote/index.html",
+      "zombie-defense/index.html"
+    ]
+  }
+}

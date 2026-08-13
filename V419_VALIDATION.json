@@ -1,0 +1,52 @@
+{
+  "version": "4.1.9",
+  "baseline": "EZPK-v418-deploy-ready.zip",
+  "predeploy": "PASS",
+  "js_mjs_syntax": "PASS",
+  "json_parse": "PASS",
+  "header_fit": {
+    "dedicated_profile": true,
+    "safety_padding_px": 5,
+    "max_passes": 2,
+    "min_font_px": 9.5,
+    "body_header_double_registration_blocked": true,
+    "desktop_alliance_hidden_max_width_px": 1199,
+    "expected_vs_registered_runtime_gate": true,
+    "unresolved_overflow_runtime_gate": true,
+    "deterministic_label_width_stress_languages": 14,
+    "deterministic_label_width_stress": "PASS"
+  },
+  "files": {
+    "v418_count": 328,
+    "current_pre_manifest_count": 336,
+    "removed_existing": 0,
+    "added": 8,
+    "removed_paths": [],
+    "added_paths": [
+      "V419_DEPLOY_VALIDATION_RUNBOOK.md",
+      "V419_HEADER_COMPACT_FIT_REPORT.md",
+      "V419_HEADER_LABEL_WIDTH_STRESS.json",
+      "header-fit-v419.css",
+      "header-fit-v419.js",
+      "scripts/v419-deploy-guard.mjs",
+      "text-fit-v419.css",
+      "text-fit-v419.js"
+    ],
+    "current_before_checksum_manifest": 337,
+    "final_package_count_expected": 338
+  },
+  "migrations": {
+    "count": 30,
+    "byte_exact": true,
+    "mismatches": []
+  },
+  "historical_guards_byte_exact": {
+    "scripts/v414-deploy-guard.mjs": true,
+    "scripts/v415-deploy-guard.mjs": true,
+    "scripts/v416-deploy-guard.mjs": true,
+    "scripts/v417-deploy-guard.mjs": true,
+    "scripts/v418-deploy-guard.mjs": true
+  },
+  "runtime_browser_matrix": "NOT_EXECUTED_MANAGED_BROWSER_ENVIRONMENT",
+  "wrangler_dry_run": "NOT_EXECUTED_WRANGLER_BINARY_NOT_PRESENT"
+}

@@ -1,0 +1,82 @@
+/* v419 · multilingual responsive text-fit system
+   Policy: preserve all existing grids; allow natural wrapping first; only then use
+   group-level Normal -> Compact -> Tight typography. User-generated data remains
+   governed by existing ellipsis rules and is never opted in here. */
+
+[data-ezpk-text-fit]{
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  text-rendering:optimizeLegibility;
+}
+[data-ezpk-text-fit="tile"]{
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal;
+  hyphens:auto;
+  line-height:1.15!important;
+  text-align:center;
+}
+[data-ezpk-text-fit="compact"]{
+  white-space:nowrap!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  line-height:1.15!important;
+}
+[data-ezpk-text-fit][data-ezpk-fit-level="compact"]{
+  letter-spacing:-.01em!important;
+}
+[data-ezpk-text-fit][data-ezpk-fit-level="tight"]{
+  letter-spacing:-.02em!important;
+}
+/* Tile fit may use two lines; never clip or ellipsize translated UI labels. */
+[data-ezpk-text-fit="tile"]{
+  overflow:visible;
+  text-overflow:clip;
+}
+/* Compact fit remains one line but must not leak outside its allocated control. */
+[data-ezpk-text-fit="compact"]{
+  overflow:visible;
+  text-overflow:clip;
+}
+
+/* v418 root-cause repair: Home Quick Links are content navigation, not the shared header. */
+.home-quick-grid a{
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  hyphens:auto;
+}
+
+/* Shared-header labels are measured independently from lock/status icons. */
+[data-shared-header] .nav-label{
+  display:block;
+  min-width:0;
+  max-width:100%;
+}
+@media(max-width:900px){
+  [data-shared-header] #mobileDrawerItems .nav-label{
+    white-space:normal!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    hyphens:auto;
+    text-align:center;
+  }
+}
+
+/* Existing fixed-grid tabs/buttons keep their grid; only typography adapts. */
+.team-tabs button,
+.cw-strategy-tabs button,
+.strategy-tabs .strategy-tab,
+.vote-mobile-tabs button,
+.member-view-switch button,
+#resultOverlay .result-actions button,
+#postRankingOverlay #replayBtn{
+  min-width:0;
+}
+
+/* Native selects are intentionally excluded: browsers do not support reliable
+   multiline option rendering. Their existing single-line UI remains untouched. */
+
+/* v419: the body text-fit engine deliberately does not own the shared PC header. */
+[data-shared-header] [data-ezpk-text-fit]{font-size:inherit!important;letter-spacing:inherit!important}

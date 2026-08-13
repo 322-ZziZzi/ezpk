@@ -1,3 +1,26 @@
+> Current deploy-ready baseline: **v421 / 4.2.1** — mobile-only dual-alliance button selector in the hamburger Drawer.
+## v421 Mobile Alliance Context Selector
+
+- Replaces the mobile Drawer’s single `Alliance Select` link with a two-button Alliance context selector in DUAL mode.
+- Guest users see the selector at the top of the Drawer; authenticated users see it at the bottom.
+- Uses the current theme variables for selected/unselected contrast, preserves a minimum 46px touch target, and exposes `aria-pressed` selection state.
+- Switching Alliance navigates to the target Alliance host and lets that host re-resolve its own host-scoped session/permissions; no cross-alliance SSO is introduced.
+- If a local form appears modified, the switch requires confirmation; buttons lock during navigation.
+- SINGLE mode hides the selector and desktop Alliance selection remains unchanged.
+- Preserves v420 persistent hamburger discovery cue and the existing 30 D1 migrations.
+- See `V421_MOBILE_ALLIANCE_SELECTOR_REPORT.md` and `V421_DEPLOY_VALIDATION_RUNBOOK.md`.
+
+
+## v420 Persistent Hamburger Discovery Cue Restoration
+
+- Restores the original persistent mobile-menu discovery cue across the full responsive shared-header range (`<=1199px`).
+- Removes the accidental two-iteration cap so the subtle gold glow/shake repeats about every three seconds for all users.
+- Preserves the reduced-motion contract: motion disabled, static gold emphasis retained.
+- Leaves v419 header compact-fit, language state, navigation, account, alliance-selector, DB/API/Worker behavior unchanged.
+- Adds a v420 deployment guard for cue class presence, breakpoint alignment, infinite repetition, reduced-motion behavior, and stylesheet cache coherency.
+- See `V420_MENU_DISCOVERY_CUE_REPORT.md` and `V420_DEPLOY_VALIDATION_RUNBOOK.md`.
+
+
 ## v418 Multilingual Responsive Text-Fit
 
 - Preserves existing grids while preventing long 14-language UI translations from escaping buttons, tabs, cards, and menus.

@@ -1,0 +1,41 @@
+{
+  "version": "4.2.0",
+  "release": "v420",
+  "base": "EZPK-v419-deploy-ready.zip",
+  "scope": "persistent responsive hamburger discovery cue restoration",
+  "predeploy": "PASS",
+  "js_mjs_syntax": {
+    "passed": 71,
+    "failed": 0
+  },
+  "json_parse": {
+    "passed": 27,
+    "failed": 0
+  },
+  "migration_byte_exact": {
+    "passed": 30,
+    "total": 30
+  },
+  "historical_guard_byte_exact": [
+    "v414",
+    "v415",
+    "v416",
+    "v417",
+    "v418",
+    "v419"
+  ],
+  "responsive_contract": {
+    "cue_max_width": 1199,
+    "desktop_boundary": 1200,
+    "period_seconds": 3,
+    "iteration": "infinite",
+    "two_iteration_limiter_residual": 0
+  },
+  "reduced_motion": {
+    "motion_disabled": true,
+    "static_gold_emphasis_retained": true
+  },
+  "style_cache_token": "4200",
+  "style_cache_pages": 24,
+  "runtime_browser_matrix": "NOT_EXECUTED_MANAGED_ENVIRONMENT"
+}

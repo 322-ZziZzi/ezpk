@@ -193,23 +193,24 @@
   };
 
   const MENU_UI = {
-    ko:{more:'더보기',public:'공개',memberOnly:'연맹원 전용',activity:'연맹 활동',information:'정보·지원',other:'기타',comingSoon:'준비 중',locked:'로그인 필요',menu:'메뉴',closeMenu:'메뉴 닫기'},
-    en:{more:'MORE',public:'PUBLIC',memberOnly:'MEMBERS ONLY',activity:'ALLIANCE ACTIVITY',information:'INFO & SUPPORT',other:'OTHER',comingSoon:'COMING SOON',locked:'LOGIN REQUIRED',menu:'MENU',closeMenu:'CLOSE MENU'},
-    pt:{more:'MAIS',public:'PÚBLICO',memberOnly:'SÓ MEMBROS',activity:'ATIVIDADE DA ALIANÇA',information:'INFORMAÇÕES E SUPORTE',other:'OUTROS',comingSoon:'EM BREVE',locked:'LOGIN NECESSÁRIO',menu:'MENU',closeMenu:'FECHAR MENU'},
-    vi:{more:'THÊM',public:'CÔNG KHAI',memberOnly:'CHỈ THÀNH VIÊN',activity:'HOẠT ĐỘNG LIÊN MINH',information:'THÔNG TIN & HỖ TRỢ',other:'KHÁC',comingSoon:'SẮP RA MẮT',locked:'CẦN ĐĂNG NHẬP',menu:'MENU',closeMenu:'ĐÓNG MENU'},
-    ar:{more:'المزيد',public:'عام',memberOnly:'للأعضاء فقط',activity:'نشاط التحالف',information:'المعلومات والدعم',other:'أخرى',comingSoon:'قريبًا',locked:'يتطلب تسجيل الدخول',menu:'القائمة',closeMenu:'إغلاق القائمة'},
-    ja:{more:'その他',public:'公開',memberOnly:'メンバー限定',activity:'同盟活動',information:'情報・サポート',other:'その他',comingSoon:'準備中',locked:'ログインが必要',menu:'メニュー',closeMenu:'メニューを閉じる'},
-    th:{more:'เพิ่มเติม',public:'สาธารณะ',memberOnly:'เฉพาะสมาชิก',activity:'กิจกรรมพันธมิตร',information:'ข้อมูลและการสนับสนุน',other:'อื่น ๆ',comingSoon:'เร็ว ๆ นี้',locked:'ต้องเข้าสู่ระบบ',menu:'เมนู',closeMenu:'ปิดเมนู'},
-    'zh-tw':{more:'更多',public:'公開',memberOnly:'成員專用',activity:'聯盟活動',information:'資訊與支援',other:'其他',comingSoon:'準備中',locked:'需要登入',menu:'選單',closeMenu:'關閉選單'},
-    fr:{more:'PLUS',public:'PUBLIC',memberOnly:'MEMBRES UNIQUEMENT',activity:'ACTIVITÉ DE L’ALLIANCE',information:'INFOS & SUPPORT',other:'AUTRE',comingSoon:'BIENTÔT',locked:'CONNEXION REQUISE',menu:'MENU',closeMenu:'FERMER LE MENU'},
-    de:{more:'MEHR',public:'ÖFFENTLICH',memberOnly:'NUR MITGLIEDER',activity:'ALLIANZ-AKTIVITÄT',information:'INFO & SUPPORT',other:'SONSTIGES',comingSoon:'BALD',locked:'ANMELDUNG ERFORDERLICH',menu:'MENÜ',closeMenu:'MENÜ SCHLIESSEN'},
-    es:{more:'MÁS',public:'PÚBLICO',memberOnly:'SOLO MIEMBROS',activity:'ACTIVIDAD DE ALIANZA',information:'INFO Y SOPORTE',other:'OTROS',comingSoon:'PRÓXIMAMENTE',locked:'INICIO DE SESIÓN REQUERIDO',menu:'MENÚ',closeMenu:'CERRAR MENÚ'},
-    tr:{more:'DAHA FAZLA',public:'HERKESE AÇIK',memberOnly:'SADECE ÜYELER',activity:'İTTİFAK ETKİNLİĞİ',information:'BİLGİ & DESTEK',other:'DİĞER',comingSoon:'YAKINDA',locked:'GİRİŞ GEREKLİ',menu:'MENÜ',closeMenu:'MENÜYÜ KAPAT'},
-    it:{more:'ALTRO',public:'PUBBLICO',memberOnly:'SOLO MEMBRI',activity:'ATTIVITÀ ALLEANZA',information:'INFO & SUPPORTO',other:'ALTRO',comingSoon:'PROSSIMAMENTE',locked:'ACCESSO RICHIESTO',menu:'MENU',closeMenu:'CHIUDI MENU'},
-    id:{more:'LAINNYA',public:'PUBLIK',memberOnly:'KHUSUS ANGGOTA',activity:'AKTIVITAS ALIANSI',information:'INFO & DUKUNGAN',other:'LAINNYA',comingSoon:'SEGERA',locked:'PERLU LOGIN',menu:'MENU',closeMenu:'TUTUP MENU'}
+    ko:{more:'더보기',alliance:'연맹',public:'공개',memberOnly:'연맹원 전용',activity:'연맹 활동',information:'정보·지원',other:'기타',comingSoon:'준비 중',locked:'로그인 필요',menu:'메뉴',closeMenu:'메뉴 닫기'},
+    en:{more:'MORE',alliance:'ALLIANCE',public:'PUBLIC',memberOnly:'MEMBERS ONLY',activity:'ALLIANCE ACTIVITY',information:'INFO & SUPPORT',other:'OTHER',comingSoon:'COMING SOON',locked:'LOGIN REQUIRED',menu:'MENU',closeMenu:'CLOSE MENU'},
+    pt:{more:'MAIS',alliance:'ALIANÇA',public:'PÚBLICO',memberOnly:'SÓ MEMBROS',activity:'ATIVIDADE DA ALIANÇA',information:'INFORMAÇÕES E SUPORTE',other:'OUTROS',comingSoon:'EM BREVE',locked:'LOGIN NECESSÁRIO',menu:'MENU',closeMenu:'FECHAR MENU'},
+    vi:{more:'THÊM',alliance:'LIÊN MINH',public:'CÔNG KHAI',memberOnly:'CHỈ THÀNH VIÊN',activity:'HOẠT ĐỘNG LIÊN MINH',information:'THÔNG TIN & HỖ TRỢ',other:'KHÁC',comingSoon:'SẮP RA MẮT',locked:'CẦN ĐĂNG NHẬP',menu:'MENU',closeMenu:'ĐÓNG MENU'},
+    ar:{more:'المزيد',alliance:'التحالف',public:'عام',memberOnly:'للأعضاء فقط',activity:'نشاط التحالف',information:'المعلومات والدعم',other:'أخرى',comingSoon:'قريبًا',locked:'يتطلب تسجيل الدخول',menu:'القائمة',closeMenu:'إغلاق القائمة'},
+    ja:{more:'その他',alliance:'同盟',public:'公開',memberOnly:'メンバー限定',activity:'同盟活動',information:'情報・サポート',other:'その他',comingSoon:'準備中',locked:'ログインが必要',menu:'メニュー',closeMenu:'メニューを閉じる'},
+    th:{more:'เพิ่มเติม',alliance:'พันธมิตร',public:'สาธารณะ',memberOnly:'เฉพาะสมาชิก',activity:'กิจกรรมพันธมิตร',information:'ข้อมูลและการสนับสนุน',other:'อื่น ๆ',comingSoon:'เร็ว ๆ นี้',locked:'ต้องเข้าสู่ระบบ',menu:'เมนู',closeMenu:'ปิดเมนู'},
+    'zh-tw':{more:'更多',alliance:'聯盟',public:'公開',memberOnly:'成員專用',activity:'聯盟活動',information:'資訊與支援',other:'其他',comingSoon:'準備中',locked:'需要登入',menu:'選單',closeMenu:'關閉選單'},
+    fr:{more:'PLUS',alliance:'ALLIANCE',public:'PUBLIC',memberOnly:'MEMBRES UNIQUEMENT',activity:'ACTIVITÉ DE L’ALLIANCE',information:'INFOS & SUPPORT',other:'AUTRE',comingSoon:'BIENTÔT',locked:'CONNEXION REQUISE',menu:'MENU',closeMenu:'FERMER LE MENU'},
+    de:{more:'MEHR',alliance:'ALLIANZ',public:'ÖFFENTLICH',memberOnly:'NUR MITGLIEDER',activity:'ALLIANZ-AKTIVITÄT',information:'INFO & SUPPORT',other:'SONSTIGES',comingSoon:'BALD',locked:'ANMELDUNG ERFORDERLICH',menu:'MENÜ',closeMenu:'MENÜ SCHLIESSEN'},
+    es:{more:'MÁS',alliance:'ALIANZA',public:'PÚBLICO',memberOnly:'SOLO MIEMBROS',activity:'ACTIVIDAD DE ALIANZA',information:'INFO Y SOPORTE',other:'OTROS',comingSoon:'PRÓXIMAMENTE',locked:'INICIO DE SESIÓN REQUERIDO',menu:'MENÚ',closeMenu:'CERRAR MENÚ'},
+    tr:{more:'DAHA FAZLA',alliance:'İTTİFAK',public:'HERKESE AÇIK',memberOnly:'SADECE ÜYELER',activity:'İTTİFAK ETKİNLİĞİ',information:'BİLGİ & DESTEK',other:'DİĞER',comingSoon:'YAKINDA',locked:'GİRİŞ GEREKLİ',menu:'MENÜ',closeMenu:'MENÜYÜ KAPAT'},
+    it:{more:'ALTRO',alliance:'ALLEANZA',public:'PUBBLICO',memberOnly:'SOLO MEMBRI',activity:'ATTIVITÀ ALLEANZA',information:'INFO & SUPPORTO',other:'ALTRO',comingSoon:'PROSSIMAMENTE',locked:'ACCESSO RICHIESTO',menu:'MENU',closeMenu:'CHIUDI MENU'},
+    id:{more:'LAINNYA',alliance:'ALIANSI',public:'PUBLIK',memberOnly:'KHUSUS ANGGOTA',activity:'AKTIVITAS ALIANSI',information:'INFO & DUKUNGAN',other:'LAINNYA',comingSoon:'SEGERA',locked:'PERLU LOGIN',menu:'MENU',closeMenu:'TUTUP MENU'}
   };
 
   const ALLIANCE_SELECT_LABELS={ko:'연맹 선택',en:'ALLIANCE SELECT',fr:'CHOISIR L’ALLIANCE',de:'ALLIANZ WÄHLEN',pt:'ESCOLHER ALIANÇA',es:'ELEGIR ALIANZA',tr:'İTTİFAK SEÇ',vi:'CHỌN LIÊN MINH',it:'SCEGLI ALLEANZA',id:'PILIH ALIANSI',ar:'اختيار التحالف',ja:'同盟選択',th:'เลือกพันธมิตร','zh-tw':'選擇聯盟'};
+  const ALLIANCE_SWITCH_CONFIRM={ko:'작성 중인 내용이 사라질 수 있습니다. 연맹을 변경할까요?',en:'Unsaved changes may be lost. Switch alliance?',fr:'Les modifications non enregistrées peuvent être perdues. Changer d’alliance ?',de:'Nicht gespeicherte Änderungen können verloren gehen. Allianz wechseln?',pt:'Alterações não salvas podem ser perdidas. Trocar de aliança?',es:'Los cambios no guardados pueden perderse. ¿Cambiar de alianza?',tr:'Kaydedilmemiş değişiklikler kaybolabilir. İttifak değiştirilsin mi?',vi:'Các thay đổi chưa lưu có thể bị mất. Chuyển liên minh?',it:'Le modifiche non salvate potrebbero andare perse. Cambiare alleanza?',id:'Perubahan yang belum disimpan dapat hilang. Ganti aliansi?',ar:'قد تفقد التغييرات غير المحفوظة. هل تريد تبديل التحالف؟',ja:'未保存の内容が失われる可能性があります。同盟を切り替えますか？',th:'การเปลี่ยนแปลงที่ยังไม่ได้บันทึกอาจสูญหาย ต้องการเปลี่ยนพันธมิตรหรือไม่?','zh-tw':'未儲存的內容可能會遺失。要切換聯盟嗎？'};
 
   const ACCOUNT_LABELS = {
     ko: {
@@ -585,6 +586,26 @@
 
   function menuUi(lang=currentLanguage()) { return MENU_UI[lang] || MENU_UI.en; }
 
+  function allianceChoices() {
+    const currentName = String(siteContext?.displayName || allianceDisplayName || '').trim();
+    const choice1Name = siteContext?.siteId === 'ezpk1' && currentName ? currentName : 'EZPK1';
+    const choice2Name = siteContext?.siteId === 'ezpk2' && currentName ? currentName : 'EZPK2';
+    return [
+      { id:'ezpk1', name:choice1Name, url:String(siteContext?.ezpk1Url || 'https://ezpk1.ezpk322.com/') },
+      { id:'ezpk2', name:choice2Name, url:String(siteContext?.ezpk2Url || 'https://ezpk2.ezpk322.com/'), disabled:siteContext?.ezpk2Active === false }
+    ];
+  }
+
+  function mobileAllianceSelectorMarkup(lang=currentLanguage()) {
+    const ui = menuUi(lang);
+    const buttons = allianceChoices().map(function (choice) {
+      const active = choice.id === allianceSiteId;
+      const disabled = Boolean(choice.disabled);
+      return `<button type="button" class="mobile-alliance-choice${active?' is-active':''}" data-alliance-choice="${safeText(choice.id)}" data-alliance-url="${safeText(choice.url)}" aria-pressed="${active?'true':'false'}"${disabled?' disabled aria-disabled="true"':''}><span>${safeText(choice.name)}</span></button>`;
+    }).join('');
+    return `<section class="nav-menu-group mobile-alliance-selector-group" data-mobile-alliance-selector><h2>${safeText(ui.alliance || 'ALLIANCE')}</h2><div class="mobile-alliance-choice-grid">${buttons}</div></section>`;
+  }
+
   function syncAllianceSelectorControls(lang=currentLanguage()) {
     const enabled = siteContext?.mode === 'DUAL';
     const label = ALLIANCE_SELECT_LABELS[lang] || ALLIANCE_SELECT_LABELS.en;
@@ -593,7 +614,48 @@
     if (!mobileDrawerItems) return;
     mobileDrawerItems.querySelector('[data-mobile-alliance-selector]')?.remove();
     if (!enabled) return;
-    mobileDrawerItems.insertAdjacentHTML('afterbegin', `<section class="nav-menu-group mobile-alliance-selector-group" data-mobile-alliance-selector><div class="nav-menu-group-items"><a href="https://ezpk322.com/?select=1" class="mobile-alliance-selector-link"><span class="nav-label">${safeText(label)}</span></a></div></section>`);
+    const markup = mobileAllianceSelectorMarkup(lang);
+    const authenticatedAccount = Boolean(authLoaded && authState.authenticated);
+    if (authenticatedAccount) mobileDrawerItems.insertAdjacentHTML('beforeend', markup);
+    else mobileDrawerItems.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  function hasPotentialUnsavedFormChanges() {
+    return Array.from(document.forms || []).some(function (form) {
+      if (form.id === 'ezpkLoginForm' || form.hasAttribute('data-alliance-switch-safe')) return false;
+      return Array.from(form.elements || []).some(function (field) {
+        if (!field || field.disabled || !field.name && !field.id) return false;
+        const type = String(field.type || '').toLowerCase();
+        if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') return false;
+        if (type === 'checkbox' || type === 'radio') return Boolean(field.checked !== field.defaultChecked);
+        if (field.tagName === 'SELECT') return Array.from(field.options || []).some(option=>option.selected !== option.defaultSelected);
+        return String(field.value ?? '') !== String(field.defaultValue ?? '');
+      });
+    });
+  }
+
+  function switchAllianceFromMobile(button) {
+    if (!button || button.disabled || button.getAttribute('aria-pressed') === 'true') return;
+    const targetUrl = String(button.dataset.allianceUrl || '').trim();
+    if (!targetUrl) return;
+    if (hasPotentialUnsavedFormChanges()) {
+      const message = ALLIANCE_SWITCH_CONFIRM[currentLanguage()] || ALLIANCE_SWITCH_CONFIRM.en;
+      if (!window.confirm(message)) return;
+    }
+    const selector = button.closest('[data-mobile-alliance-selector]');
+    selector?.querySelectorAll('[data-alliance-choice]').forEach(function (item) {
+      item.disabled = true;
+      item.setAttribute('aria-busy','true');
+    });
+    // Cross-alliance authentication is host-scoped. Navigate to the target
+    // alliance home and let that host re-resolve its own session/permissions.
+    try { window.location.assign(targetUrl); }
+    catch (_) {
+      selector?.querySelectorAll('[data-alliance-choice]').forEach(function (item) {
+        item.disabled = item.getAttribute('aria-disabled') === 'true';
+        item.removeAttribute('aria-busy');
+      });
+    }
   }
 
   function navLinkMarkup(key, options={}, lang=currentLanguage()) {
@@ -693,6 +755,14 @@
       if (signedIn) drawerScroll.insertBefore(mobileAccount,mobileDrawerItems);
       else drawerScroll.appendChild(mobileAccount);
     }
+    notifyHeaderLayoutChange('navigation');
+  }
+
+  function notifyHeaderLayoutChange(reason) {
+    requestAnimationFrame(function () {
+      window.dispatchEvent(new CustomEvent('ezpk-header-layout-change',{detail:{reason:reason||'refresh'}}));
+      if (window.EZPKHeaderFit?.schedule) window.EZPKHeaderFit.schedule();
+    });
   }
 
   function closeMoreMenu() {
@@ -704,7 +774,15 @@
   function updateResponsiveNavigation() {
     if (!responsiveNav || !navMore) return;
     navMore.hidden = Boolean(isAdminContext || !navigationReady || window.innerWidth <= 1199);
+    notifyHeaderLayoutChange('responsive-navigation');
   }
+
+  mobileDrawerItems?.addEventListener('click', function (event) {
+    const button = event.target.closest('[data-alliance-choice]');
+    if (!button || !mobileDrawerItems.contains(button)) return;
+    event.preventDefault();
+    switchAllianceFromMobile(button);
+  });
 
   navMoreButton?.addEventListener('click', function(event) {
     event.stopPropagation();
@@ -742,6 +820,7 @@
     renderAccount();
     syncAllianceSelectorControls();
     updateAuthModalLabels();
+    notifyHeaderLayoutChange('language');
     if (emit) window.dispatchEvent(new CustomEvent('ezpk-language-change',{detail:{lang,source:'shared-header'}}));
   }
 
@@ -1006,6 +1085,7 @@
     applyStrategyMenuVisibility();
     syncMobileMenuDiscoveryCue();
     if (mobileDrawer && mobileDrawer.classList.contains('open')) resetMobileDrawerScroll();
+    notifyHeaderLayoutChange('account');
   }
 
   window.EZPKMemberAuth = {

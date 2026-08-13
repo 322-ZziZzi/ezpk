@@ -1,0 +1,342 @@
+{
+  "font": "/usr/share/fonts/truetype/croscore/Arimo-Bold.ttf",
+  "note": "deterministic static width stress; runtime gate still required",
+  "rows": [
+    {
+      "lang": "en",
+      "values": {
+        "alliance": "ALLIANCE SELECT",
+        "language": "English",
+        "home": "HOME",
+        "login": "LOGIN",
+        "signup": "SIGN UP"
+      },
+      "widths": {
+        "alliance": 102,
+        "language": 40,
+        "home": 33,
+        "login": 35,
+        "signup": 45
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "fr",
+      "values": {
+        "alliance": "CHOISIR L’ALLIANCE",
+        "language": "Français",
+        "home": "ACCUEIL",
+        "login": "CONNEXION",
+        "signup": "INSCRIPTION"
+      },
+      "widths": {
+        "alliance": 114,
+        "language": 45,
+        "home": 49,
+        "login": 67,
+        "signup": 71
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "de",
+      "values": {
+        "alliance": "ALLIANZ WÄHLEN",
+        "language": "Deutsch",
+        "home": "START",
+        "login": "ANMELDEN",
+        "signup": "REGISTRIEREN"
+      },
+      "widths": {
+        "alliance": 98,
+        "language": 44,
+        "home": 36,
+        "login": 62,
+        "signup": 83
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "ko",
+      "values": {
+        "alliance": "연맹 선택",
+        "language": "한국어",
+        "home": "홈",
+        "login": "로그인",
+        "signup": "회원가입"
+      },
+      "widths": {
+        "alliance": 36,
+        "language": 25,
+        "home": 8,
+        "login": 25,
+        "signup": 33
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "th",
+      "values": {
+        "alliance": "เลือกพันธมิตร",
+        "language": "ไทย",
+        "home": "หน้าแรก",
+        "login": "เข้าสู่ระบบ",
+        "signup": "สมัครสมาชิก"
+      },
+      "widths": {
+        "alliance": 107,
+        "language": 25,
+        "home": 58,
+        "login": 91,
+        "signup": 91
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "ja",
+      "values": {
+        "alliance": "同盟選択",
+        "language": "日本語",
+        "home": "ホーム",
+        "login": "ログイン",
+        "signup": "新規登録"
+      },
+      "widths": {
+        "alliance": 33,
+        "language": 25,
+        "home": 25,
+        "login": 33,
+        "signup": 33
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "pt",
+      "values": {
+        "alliance": "ESCOLHER ALIANÇA",
+        "language": "Português",
+        "home": "INÍCIO",
+        "login": "ENTRAR",
+        "signup": "CADASTRAR"
+      },
+      "widths": {
+        "alliance": 113,
+        "language": 54,
+        "home": 34,
+        "login": 46,
+        "signup": 70
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "es",
+      "values": {
+        "alliance": "ELEGIR ALIANZA",
+        "language": "Español",
+        "home": "INICIO",
+        "login": "INICIAR SESIÓN",
+        "signup": "REGISTRARSE"
+      },
+      "widths": {
+        "alliance": 92,
+        "language": 43,
+        "home": 34,
+        "login": 86,
+        "signup": 79
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "tr",
+      "values": {
+        "alliance": "İTTİFAK SEÇ",
+        "language": "Türkçe",
+        "home": "ANA SAYFA",
+        "login": "GİRİŞ",
+        "signup": "KAYIT OL"
+      },
+      "widths": {
+        "alliance": 67,
+        "language": 36,
+        "home": 62,
+        "login": 30,
+        "signup": 51
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "zh-tw",
+      "values": {
+        "alliance": "選擇聯盟",
+        "language": "繁體中文",
+        "home": "首頁",
+        "login": "登入",
+        "signup": "註冊"
+      },
+      "widths": {
+        "alliance": 33,
+        "language": 33,
+        "home": 17,
+        "login": 17,
+        "signup": 17
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "it",
+      "values": {
+        "alliance": "SCEGLI ALLEANZA",
+        "language": "Italiano",
+        "home": "HOME",
+        "login": "ACCEDI",
+        "signup": "REGISTRATI"
+      },
+      "widths": {
+        "alliance": 103,
+        "language": 39,
+        "home": 33,
+        "login": 42,
+        "signup": 66
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "ar",
+      "values": {
+        "alliance": "اختيار التحالف",
+        "language": "العربية",
+        "home": "الرئيسية",
+        "login": "تسجيل الدخول",
+        "signup": "إنشاء حساب"
+      },
+      "widths": {
+        "alliance": 110,
+        "language": 58,
+        "home": 66,
+        "login": 94,
+        "signup": 77
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "vi",
+      "values": {
+        "alliance": "CHỌN LIÊN MINH",
+        "language": "Tiếng Việt",
+        "home": "TRANG CHỦ",
+        "login": "ĐĂNG NHẬP",
+        "signup": "ĐĂNG KÝ"
+      },
+      "widths": {
+        "alliance": 92,
+        "language": 53,
+        "home": 66,
+        "login": 67,
+        "signup": 51
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    },
+    {
+      "lang": "id",
+      "values": {
+        "alliance": "PILIH ALIANSI",
+        "language": "Bahasa Indonesia",
+        "home": "BERANDA",
+        "login": "MASUK",
+        "signup": "DAFTAR"
+      },
+      "widths": {
+        "alliance": 75,
+        "language": 94,
+        "home": 55,
+        "login": 40,
+        "signup": 44
+      },
+      "normal_fit_1200_1380": {
+        "alliance": true,
+        "language": true,
+        "home": true,
+        "login": true,
+        "signup": true
+      }
+    }
+  ]
+}

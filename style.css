@@ -1442,8 +1442,9 @@ html[dir="rtl"] .event-badges{justify-content:flex-start}
 }
 
 
-/* v248: persistent mobile menu discovery cue for all users */
-@media (max-width:900px){
+/* v420: restore persistent mobile/tablet menu discovery cue for the full responsive-header range.
+   Keeps the original v248 all-user infinite cue policy and aligns it with the <=1199px drawer breakpoint. */
+@media (max-width:1199px){
   .site-header #menuBtn.ezpk-menu-discovery-cue{
     position:relative;
     isolation:isolate;
@@ -1790,10 +1791,6 @@ footer span{display:block;line-height:1.55}
 .home-auth-member .brand-hero{padding-top:54px;padding-bottom:28px}
 .home-auth-guest .home-account-actions{padding-bottom:48px}
 
-@media(max-width:900px){
-  .site-header #menuBtn.ezpk-menu-discovery-cue,
-  .site-header #menuBtn.ezpk-menu-discovery-cue::after{animation-iteration-count:2}
-}
 
 @media(max-width:760px){
   .home-main .brand-hero{padding-top:48px;padding-bottom:24px}
@@ -2373,3 +2370,70 @@ html[dir='rtl'] .ezpk-auth-dialog h2{margin-right:0;margin-left:34px}
 /* v413: 14-language selector sizing/overflow safety. */
 .site-header .lang #langMenu{width:200px;max-height:min(560px,calc(100vh - 90px));overflow:auto}
 @media(max-width:900px){.site-header .lang #langMenu{width:auto}}
+
+/* v419: desktop Alliance Select is owned by the PC header only; mobile/tablet uses the drawer selector. */
+@media(max-width:1199px){[data-shared-header]:not(.admin-auth-host) .alliance-selector-link{display:none!important}}
+
+/* v421 — Mobile-only alliance context selector. Desktop selector remains unchanged. */
+@media(max-width:1199px){
+  .ezpk-mobile-drawer .mobile-alliance-selector-group{
+    padding:14px!important;
+    border:1px solid var(--ezpk-accent-border,rgba(245,197,71,.52))!important;
+    border-radius:16px!important;
+    background:var(--ezpk-accent-soft,rgba(245,197,71,.10))!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-selector-group>h2{
+    margin:0 2px 10px!important;
+    color:var(--ezpk-accent-text,#f5c547)!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-choice-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-choice{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:46px!important;
+    padding:9px 10px!important;
+    border:1px solid var(--ezpk-accent-border,rgba(245,197,71,.52))!important;
+    border-radius:12px!important;
+    background:var(--ezpk-surface,#111823)!important;
+    color:var(--ezpk-accent-text,#f5c547)!important;
+    font:inherit!important;
+    font-size:13px!important;
+    font-weight:900!important;
+    line-height:1.2!important;
+    text-align:center!important;
+    overflow:hidden!important;
+    cursor:pointer!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-choice>span{
+    display:block!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-choice.is-active{
+    border-color:var(--ezpk-accent,#f5c547)!important;
+    background:var(--ezpk-accent,#f5c547)!important;
+    color:var(--ezpk-page-bg,#05070b)!important;
+  }
+  html[data-site="ezpk2"] .ezpk-mobile-drawer .mobile-alliance-choice.is-active{
+    color:var(--ezpk-cta-primary-text,#1c1400)!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-choice:disabled{
+    cursor:default!important;
+    opacity:.58!important;
+  }
+  .ezpk-mobile-drawer .mobile-alliance-choice[aria-busy="true"]{pointer-events:none!important}
+  .ezpk-mobile-drawer .mobile-alliance-selector-group:first-child{margin-top:0!important}
+  .ezpk-mobile-drawer .nav-menu-group+.mobile-alliance-selector-group{
+    margin-top:22px!important;
+    padding-top:14px!important;
+  }
+}
