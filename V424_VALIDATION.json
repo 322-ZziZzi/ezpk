@@ -1,0 +1,106 @@
+{
+  "version": "4.2.4",
+  "baseline": {
+    "file": "EZPK-v423-deploy-ready.zip",
+    "sha256": "ddc18563c7e0ab011ebbf14f4150d713c2ff1530d4b41b78d4bf050a49e657dd",
+    "files": 363
+  },
+  "path_preservation": {
+    "v423_paths_preserved": 363,
+    "v423_total_paths": 363,
+    "deleted_paths": [],
+    "changed_existing_paths_count": 26,
+    "changed_existing_paths": [
+      "README.md",
+      "accounts/index.html",
+      "alliance-layout/index.html",
+      "bgb/index.html",
+      "capital-war/index.html",
+      "drone-hunter/index.html",
+      "game/index.html",
+      "hero-merge/index.html",
+      "index.html",
+      "logo/index.html",
+      "members/index.html",
+      "migration/index.html",
+      "missile-defense/index.html",
+      "my/index.html",
+      "package-lock.json",
+      "package.json",
+      "portal-escape/index.html",
+      "request/index.html",
+      "season5/index.html",
+      "season6/index.html",
+      "signup/index.html",
+      "tank-battle/index.html",
+      "tip/index.html",
+      "treasure-hunter/index.html",
+      "vote/index.html",
+      "zombie-defense/index.html"
+    ]
+  },
+  "scope": {
+    "active_shared_user_pages": 23,
+    "header_fit_v424_js_refs": 23,
+    "header_fit_v424_css_refs": 23,
+    "legacy_active_fitter_refs": 0,
+    "style_v421_pages": 24
+  },
+  "policy": {
+    "normal_primary_font_px": 15,
+    "compact_primary_font_px": 14.5,
+    "tight_primary_font_px": 14,
+    "absolute_primary_font_floor_px": 14,
+    "minimum_accessible_primary": 4,
+    "promotion_margin_px": 24,
+    "retention_margin_px": 8,
+    "active_item_priority": true,
+    "more_hidden_when_empty": true,
+    "signed_in_promotion_priority": [
+      "seasonUpcoming",
+      "tip",
+      "request"
+    ],
+    "guest_promotion_priority": [
+      "game",
+      "accounts"
+    ]
+  },
+  "immutability": {
+    "d1_migrations_exact": "30/30",
+    "historical_deploy_guards_exact": "22/22",
+    "key_files": {
+      "shared-header.js": {
+        "sha256": "c097aea2d1fd15e6c3f595afc42cd2a0dc4862c6abb28c8c6b06f769d46961bc",
+        "byte_exact_vs_v423": true
+      },
+      "style.css": {
+        "sha256": "c5c7677e8fcbe65e919b594017a6607078c846fc524ced524dd72820901ff227",
+        "byte_exact_vs_v423": true
+      },
+      "worker.js": {
+        "sha256": "d1931d566671ce279d3b5a7225fc6b5bd9c8d903783459e37fedbfa6377ca58b",
+        "byte_exact_vs_v423": true
+      },
+      "wrangler.jsonc": {
+        "sha256": "90a9278187aaf5e20455b5ae14b549377b9cccd43db94b2a6b7176db2dc64181",
+        "byte_exact_vs_v423": true
+      }
+    }
+  },
+  "static_validation": {
+    "npm_predeploy": "PASS",
+    "js_mjs_syntax_expected": "78/78 PASS",
+    "json_parse_expected_after_this_file": "34/34 PASS",
+    "zip_crc": "PASS (verified on final package)",
+    "checksum_manifest": "370/370 PASS (manifest excludes itself; verified on final package)"
+  },
+  "browser_validation": {
+    "managed_chromium_attempted": true,
+    "timeout_seconds": 20,
+    "exit_code": 124,
+    "usable_dom_output_bytes": 0,
+    "result": "NOT_EXECUTED_NO_PASS_CLAIM",
+    "final_gate": "live-host 14 languages x Guest/Member/Admin-capable x viewport/zoom matrix"
+  }
+}

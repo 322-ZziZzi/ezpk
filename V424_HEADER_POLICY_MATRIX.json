@@ -1,0 +1,69 @@
+{
+  "version": "v424 / 4.2.4",
+  "scope": "PC shared Header only; mobile/tablet behavior is preserved from v421/v420",
+  "pc_breakpoint": {
+    "mobile_tablet_max_px": 1199,
+    "pc_min_px": 1200
+  },
+  "primary_typography_px": {
+    "normal": 15,
+    "compact": 14.5,
+    "tight": 14,
+    "absolute_floor": 14
+  },
+  "primary_visibility": {
+    "minimum_accessible_primary_items": 4,
+    "active_item_priority": true,
+    "more_hidden_when_empty": true
+  },
+  "promotion": {
+    "signed_in_priority": ["seasonUpcoming", "tip", "request"],
+    "guest_priority": ["game", "accounts"],
+    "new_promotion_min_edge_margin_px": 24,
+    "existing_promotion_retention_min_edge_margin_px": 8,
+    "canonical_order_restore_before_measure": true
+  },
+  "space_recovery_order": [
+    "header_and_nav_gap",
+    "alliance_selector_width_and_padding",
+    "account_padding_and_member_nickname_width",
+    "language_width_and_padding",
+    "compact_primary_typography",
+    "tight_primary_typography",
+    "More relocation while preserving minimum visible Primary"
+  ],
+  "alliance_selector": {
+    "1200_1439": "translated short ALLIANCE label",
+    "1440_plus": "full translated Alliance Select label",
+    "full_accessible_name_retained": true
+  },
+  "account": {
+    "nickname_only_ellipsis": true,
+    "rank_and_dropdown_controls_flex_shrink": false
+  },
+  "recalculation": {
+    "resize": "retain hysteresis state",
+    "language_change": "hard reset and canonical recalculation",
+    "auth_change": "hard reset and canonical recalculation",
+    "navigation_rebuild": "hard reset and canonical recalculation",
+    "pageshow_and_fonts_ready": "hard reset and recalculation"
+  },
+  "live_visual_gate": {
+    "languages": ["en", "fr", "de", "ko", "th", "ja", "pt", "es", "tr", "zh-tw", "it", "ar", "vi", "id"],
+    "states": ["Guest", "Member", "Admin-capable member"],
+    "viewport_widths_px": [1199, 1200, 1201, 1280, 1366, 1440, 1600, 1920],
+    "browser_zoom_percent": [100, 125, 150],
+    "required": [
+      "Primary font >= 14px on PC",
+      "accessible Primary count >= 4 when at least four accessible destinations exist",
+      "active page stays Primary whenever geometry permits",
+      "Primary vs action collision = 0",
+      "Header out-of-bounds = 0",
+      "Primary nav overflow = 0",
+      "duplicate nav keys = 0",
+      "More is not shown empty",
+      "no stale fit state after language/auth/resize"
+    ],
+    "status": "REQUIRES_LIVE_HOST_VISUAL_VERIFICATION"
+  }
+}

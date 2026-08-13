@@ -1,4 +1,19 @@
-> Current deploy-ready baseline: **v423 / 4.2.3** — readable PC Header fit with a hard Primary Navigation font floor and geometry-based overflow handling.
+> Current deploy-ready baseline: **v424 / 4.2.4** — adaptive PC Header expansion with 15px Primary Navigation, active-item priority, stable More promotion, and a 14px hard floor.
+
+## v424 PC Header Adaptive Expansion / Readability Finalization
+
+- Raises PC Primary Navigation to 15px Normal, 14.5px Compact, and 14px Tight with a hard 14px floor; `More` follows the same typography.
+- Treats the full grid track between Brand and Alliance/Account/Language actions as the Navigation allocation instead of leaving wide-screen space unused.
+- Keeps Normal typography whenever it fits; Compact/Tight are entered only after real rendered geometry reports a collision/overflow.
+- Dynamically promotes useful `More` items into Primary Navigation when real spare space exists: signed-in priority Season 6 → Tips → Request Board; guest priority Mini Games → Account Market.
+- Keeps the current active page in Primary Navigation whenever possible, demoting the lowest-priority non-active item instead while preserving at least four visible Primary items.
+- Uses 24px promotion / 8px retention hysteresis so items do not flap between Primary and More around resize boundaries.
+- Rebuilds from canonical DOM order on each measurement and hard-resets promotion hysteresis on language/auth/navigation rebuilds.
+- Hides `More` when it contains no links and keeps its active state synchronized when the active page remains inside More.
+- Keeps member nickname ellipsis isolated to the nickname while preserving Rank and dropdown controls.
+- Preserves v421 mobile Alliance selector, v420 hamburger discovery cue, v417 language authority, all 30 D1 migrations, and Worker/API contracts.
+- Managed local Chromium still cannot complete headless rendering in this environment; live-host visual checks remain the final gate.
+- See `V424_PC_HEADER_ADAPTIVE_EXPANSION_REPORT.md` and `V424_DEPLOY_VALIDATION_RUNBOOK.md`.
 
 ## v423 PC Header Readability / Fit Remediation
 
