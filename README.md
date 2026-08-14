@@ -1,6 +1,6 @@
-> Current deploy-ready baseline: **v425 / 4.2.5** — multilingual flow-safe Mini Games cards across PC, tablet, and mobile, with CTA/content overlap structurally eliminated.
+> Current deploy-ready baseline: **v426 / 4.2.6** — multilingual flow-safe Mini Games cards across PC, tablet, and mobile, with CTA/content overlap structurally eliminated.
 
-## v425 Mini Games Multilingual Flow-Safe Card Remediation
+## v426 Mini Games Multilingual Flow-Safe Card Remediation
 
 - Replaces fixed-height / absolute-positioned Mini Games card actions with a shared CSS Grid contract whose height is content-driven.
 - Moves `PLAY` and `CURRENT GAME` into the normal-flow final action row, making text/action overlap structurally impossible across responsive layouts.
@@ -8,10 +8,10 @@
 - Keeps descriptions visible on mobile instead of hiding translated copy to mask overflow.
 - Allows status, title, description, and action labels to wrap safely; long title words use targeted `overflow-wrap:anywhere` without global `word-break:break-all`.
 - Gives action controls a 44px minimum target, prevents horizontal overflow, keeps current-game state as non-link status content, and preserves visible focus rings.
-- Removes Mini Games cards from the generic v419 Text-Fit ownership using `text-fit-v425.js`; card typography is no longer shrunk to solve translation overflow.
+- Removes Mini Games cards from the generic v419 Text-Fit ownership using `text-fit-v426.js`; card typography is no longer shrunk to solve translation overflow.
 - Uses logical Grid alignment with no CTA left/right positioning, so Arabic RTL follows document direction naturally.
 - Preserves v424 PC Header, v421 mobile Alliance selector, v420 discovery cue, all 30 D1 migrations, and Worker/API contracts.
-- Adds v425 static policy gates for normal-flow CTA, no fixed card height, mobile description visibility, one-column narrow-mobile behavior, Text-Fit exclusion, 14-language coverage, and pseudo-long-copy resilience assumptions.
+- Adds v426 static policy gates for normal-flow CTA, no fixed card height, mobile description visibility, one-column narrow-mobile behavior, Text-Fit exclusion, 14-language coverage, and pseudo-long-copy resilience assumptions.
 - Fresh live-host geometry checks remain the final gate for browser zoom/font-rendering combinations.
 - See `V425_MINI_GAME_CARD_FLOW_REMEDIATION_REPORT.md` and `V425_DEPLOY_VALIDATION_RUNBOOK.md`.
 

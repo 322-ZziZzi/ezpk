@@ -1,0 +1,61 @@
+{
+  "version": "4.2.6",
+  "baseline": "v425",
+  "baseline_paths_preserved": 378,
+  "baseline_path_count": 378,
+  "deleted_paths": [],
+  "added_paths": [
+    "V426_ADMIN_AUTH_MOBILE_DRAWER_HOTFIX_REPORT.md",
+    "V426_DEPLOY_VALIDATION_RUNBOOK.md",
+    "scripts/v426-deploy-guard.mjs"
+  ],
+  "changed_existing_paths": [
+    "README.md",
+    "admin/admin.css",
+    "admin/admin.js",
+    "admin/index.html",
+    "package-lock.json",
+    "package.json"
+  ],
+  "migrations_total": 30,
+  "migrations_byte_exact": 30,
+  "historical_deploy_guards_total": 24,
+  "historical_deploy_guards_byte_exact": 24,
+  "admin_critical_cache_token": "4260",
+  "admin_auth_bootstrap_before_xlsx": true,
+  "xlsx_async_optional": true,
+  "admin_auth_immediate_bootstrap": true,
+  "admin_mobile_menu_explicit_css": true,
+  "browser_authenticated_runtime": "NOT_EXECUTED_NO_PRODUCTION_SESSION",
+  "final_zip_file_count": 383,
+  "v425_path_count": 378,
+  "v425_paths_preserved": 378,
+  "added_paths_count": 5,
+  "deleted_paths_count": 0,
+  "changed_existing_paths_count": 6,
+  "added_paths_final": [
+    "V426_ADMIN_AUTH_MOBILE_DRAWER_HOTFIX_REPORT.md",
+    "V426_DEPLOY_VALIDATION_RUNBOOK.md",
+    "V426_FILE_CHECKSUMS.sha256",
+    "V426_VALIDATION.json",
+    "scripts/v426-deploy-guard.mjs"
+  ],
+  "changed_existing_paths_final": [
+    "README.md",
+    "admin/admin.css",
+    "admin/admin.js",
+    "admin/index.html",
+    "package-lock.json",
+    "package.json"
+  ],
+  "js_mjs_syntax_total": 81,
+  "js_mjs_syntax_pass": 81,
+  "json_total": 37,
+  "json_parse_pass": 37,
+  "predeploy": "PASS",
+  "final_reextract_predeploy": "PASS",
+  "checksum_manifest_entries": 382,
+  "checksum_manifest_pass": 382,
+  "zip_crc": "PASS",
+  "duplicate_unsafe_casefold": "PASS"
+}

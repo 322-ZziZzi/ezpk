@@ -24,16 +24,16 @@
   window.__EZPK_SITE__=site;
 })();
 </script>
-  <link rel="stylesheet" href="../style.css?v=4150">
-  <link rel="stylesheet" href="admin.css?v=4150">
-  <link rel="stylesheet" href="member-manager-v188.css?v=4150">
-  <link rel="stylesheet" href="vote-manager.css?v=4150">
-  <link rel="stylesheet" href="capital-war-manager.css?v=4150">
-  <link rel="stylesheet" href="admin-ui-v228.css?v=4150">
-  <link rel="stylesheet" href="../common-heading.css?v=4150">
-  <link rel="stylesheet" href="alliance-layout-manager.css?v=4150">
-  <link rel="stylesheet" href="migration-manager.css?v=4150">
-<link rel="stylesheet" href="/ezpk-theme.css?v=4150">
+  <link rel="stylesheet" href="../style.css?v=4260">
+  <link rel="stylesheet" href="admin.css?v=4260">
+  <link rel="stylesheet" href="member-manager-v188.css?v=4260">
+  <link rel="stylesheet" href="vote-manager.css?v=4260">
+  <link rel="stylesheet" href="capital-war-manager.css?v=4260">
+  <link rel="stylesheet" href="admin-ui-v228.css?v=4260">
+  <link rel="stylesheet" href="../common-heading.css?v=4260">
+  <link rel="stylesheet" href="alliance-layout-manager.css?v=4260">
+  <link rel="stylesheet" href="migration-manager.css?v=4260">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4260">
 </head>
 <body>
 <header class="site-header admin-auth-host" data-shared-header data-base=".." data-home-href="../" data-active-menu="" data-admin-context="true"></header>
@@ -474,15 +474,21 @@
   </section>
 </main>
 </div>
-  <script src="/i18n-v414.js?v=4160"></script>
-<script src="../shared-header.js?v=4160"></script>
-<script src="../vehicle-power.js?v=4150"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-<script src="../supabase-config.js?v=4150"></script><script src="../request/request-admin.js?v=4150"></script><script src="admin.js?v=4150"></script><script src="season6-manager.js?v=4150"></script><script src="accounts-manager.js?v=4150"></script>
-<script src="capital-war-manager.js?v=4150"></script>
-<script src="member-manager-v188.js?v=4150"></script>
-<script src="vote-manager.js?v=4150"></script>
-<script src="alliance-layout-manager.js?v=4150"></script>
-<script src="migration-manager.js?v=4150"></script>
+  <script src="/i18n-v414.js?v=4260"></script>
+<script src="../shared-header.js?v=4260"></script>
+<script src="../vehicle-power.js?v=4260"></script>
+<!-- v426: critical administrator auth/bootstrap must execute before optional manager/CDN assets. -->
+<script src="admin.js?v=4260"></script>
+<script src="../supabase-config.js?v=4260"></script>
+<script src="../request/request-admin.js?v=4260"></script>
+<script src="season6-manager.js?v=4260"></script>
+<script src="accounts-manager.js?v=4260"></script>
+<script src="capital-war-manager.js?v=4260"></script>
+<script src="member-manager-v188.js?v=4260"></script>
+<script src="vote-manager.js?v=4260"></script>
+<script src="alliance-layout-manager.js?v=4260"></script>
+<script src="migration-manager.js?v=4260"></script>
+<!-- XLSX is an optional export/import dependency; async means it can never block admin authentication. -->
+<script async id="ezpkXlsxLibrary" src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </body>
 </html>

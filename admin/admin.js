@@ -4,6 +4,8 @@ const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s),esc=s=>S
 // This keeps login functional even if a later manager feature raises an error.
 window.EZPK_ADMIN_PASSWORD='';
 let adminSessionLoading=false;
+let adminLoginGateInitialized=false;
+let adminNavigationInitialized=false;
 let adminSessionReady=false;
 let adminSessionPendingState=null;
 let verifiedAdminMember=null;
@@ -53,6 +55,39 @@ function applyAdminMenuAccess(){
   }
 }
 
+function setAdminAuthPhase(phase){
+  const value=String(phase||'checking');
+  document.documentElement.dataset.ezpkAdminAuth=value;
+  document.body?.setAttribute('data-ezpk-admin-auth',value);
+}
+function waitAdmin(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
+async function fetchAdminAuthState(attempts=3){
+  const total=Math.max(1,Number(attempts)||1);
+  let lastError=null;
+  for(let attempt=0;attempt<total;attempt+=1){
+    const controller=typeof AbortController==='function'?new AbortController():null;
+    const timeoutId=controller?setTimeout(()=>controller.abort(),7000):null;
+    try{
+      const response=await fetch('/api/auth/me?admin_verify='+Date.now()+'&attempt='+(attempt+1),{
+        method:'GET',credentials:'include',headers:{accept:'application/json'},cache:'no-store',signal:controller?.signal
+      });
+      const payload=await response.json().catch(()=>null);
+      if(response.ok&&payload?.ok){
+        if(payload?.data?.authenticated&&payload?.data?.member)return {authenticated:true,member:payload.data.member};
+        if(attempt===total-1)return {authenticated:false,member:null};
+      }else{
+        lastError=new Error(payload?.code||payload?.error||('AUTH_HTTP_'+response.status));
+      }
+    }catch(error){lastError=error;}
+    finally{if(timeoutId)clearTimeout(timeoutId);}
+    if(attempt<total-1)await waitAdmin(250*(attempt+1));
+  }
+  const shared=window.EZPKSharedHeader?.getAuthState?.();
+  if(shared?.authenticated&&shared?.member)return shared;
+  if(lastError)throw lastError;
+  return {authenticated:false,member:null};
+}
+
 async function verifyAdminSession(event){
   const incomingState=event?.detail||null;
   if(adminSessionLoading){
@@ -65,20 +100,9 @@ async function verifyAdminSession(event){
     // v290: The administrator gate verifies the server session directly.
     // It no longer waits for the shared-header bootstrap, because header
     // navigation/language rendering is optional UI and must not block admin.
-    let state=null;
-    const controller=typeof AbortController==='function'?new AbortController():null;
-    const timeoutId=controller?setTimeout(()=>controller.abort(),7000):null;
-    try{
-      const response=await fetch('/api/auth/me?admin_verify='+Date.now(),{
-        method:'GET',credentials:'include',headers:{accept:'application/json'},
-        cache:'no-store',signal:controller?.signal
-      });
-      const payload=await response.json().catch(()=>null);
-      state={
-        authenticated:Boolean(response.ok&&payload?.ok&&payload?.data?.authenticated),
-        member:payload?.data?.member||null
-      };
-    }finally{if(timeoutId)clearTimeout(timeoutId);}
+    setAdminAuthPhase('checking');
+    if(status)status.textContent='관리자 세션을 확인하고 있습니다.';
+    let state=await fetchAdminAuthState(3);
 
     // An already delivered header state can only supplement a failed direct
     // response; it is never required for administrator access.
@@ -95,10 +119,13 @@ async function verifyAdminSession(event){
 
     if(isAdmin){
       verifiedAdminMember=member;
+      setAdminAuthPhase('authorizing');
+      if(status)status.textContent='관리자 인증이 완료되었습니다. 권한을 불러오는 중입니다.';
       await loadCurrentAdminAccess();
       document.getElementById('adminLogin').hidden=true;
       document.getElementById('adminApp').hidden=false;
       document.body.classList.add('admin-unlocked');
+      setAdminAuthPhase('verified');
       if(status)status.textContent='';
 
       // v296: Refresh the shared account header only when its current state
@@ -113,17 +140,25 @@ async function verifyAdminSession(event){
 
       if(!adminSessionReady){
         adminSessionReady=true;
-        window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
-        Promise.resolve().then(async()=>{
-          try{await loadLocal();}
-          catch(dataError){
-            console.error('[EZPK Admin] data load failed',dataError);
-            const message='관리자 로그인은 완료되었지만 운영 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
-            if(window.showGlobalToast)window.showGlobalToast(message);
-            else if(status)status.textContent=message;
-            window.dispatchEvent(new CustomEvent('ezpk-admin-data-error',{detail:{error:dataError}}));
-          }
-        });
+        const startAdminManagers=()=>{
+          if(!adminSessionReady||verifiedAdminMember!==member)return;
+          window.dispatchEvent(new CustomEvent('ezpk-admin-ready',{detail:{member}}));
+          Promise.resolve().then(async()=>{
+            try{await loadLocal();}
+            catch(dataError){
+              console.error('[EZPK Admin] data load failed',dataError);
+              const message='관리자 인증은 완료되었지만 운영 데이터를 불러오지 못했습니다. 페이지를 새로고침해 주세요.';
+              if(window.showGlobalToast)window.showGlobalToast(message);
+              else if(status)status.textContent=message;
+              window.dispatchEvent(new CustomEvent('ezpk-admin-data-error',{detail:{error:dataError}}));
+            }
+          });
+        };
+        // Manager scripts appear after this critical bootstrap in admin/index.html.
+        // Wait only for the local DOM/parser chain before announcing admin-ready;
+        // the optional async XLSX dependency never participates in this gate.
+        if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startAdminManagers,{once:true});
+        else queueMicrotask(startAdminManagers);
       }
       return true;
     }
@@ -134,6 +169,7 @@ async function verifyAdminSession(event){
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
+    setAdminAuthPhase(state?.authenticated?'forbidden':'signed-out');
     if(status){
       status.textContent=state?.authenticated
         ?'이 계정은 활성 관리자 권한이 없습니다.'
@@ -146,6 +182,7 @@ async function verifyAdminSession(event){
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
+    setAdminAuthPhase('error');
     if(status)status.textContent=error?.name==='AbortError'
       ?'관리자 세션 확인 시간이 초과되었습니다. 페이지를 새로고침해 주세요.'
       :'관리자 세션을 확인하지 못했습니다. 다시 로그인해 주세요.';
@@ -160,6 +197,9 @@ async function verifyAdminSession(event){
   }
 }
 function initAdminLoginGate(){
+  if(adminLoginGateInitialized)return;
+  adminLoginGateInitialized=true;
+  setAdminAuthPhase('checking');
   document.getElementById('adminLoginButton')?.addEventListener('click',()=>{
     if(window.EZPKSharedHeader?.openLogin)window.EZPKSharedHeader.openLogin();
     else window.location.href='../';
@@ -176,13 +216,23 @@ function initAdminLoginGate(){
   });
   setTimeout(()=>verifyAdminSession(),0);
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
+// v426: this script is intentionally placed after the admin DOM. Start the critical
+// auth gate immediately so no later manager script or third-party CDN can block it.
+if(document.getElementById('adminLogin'))initAdminLoginGate();
+else if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
+window.EZPKAdminBootstrap={
+  version:'426',
+  verify:()=>verifyAdminSession(),
+  getState:()=>({loading:adminSessionLoading,ready:adminSessionReady,member:verifiedAdminMember,access:currentAdminAccess,phase:document.documentElement.dataset.ezpkAdminAuth||''})
+};
 
 // v295: desktop card navigation and mobile header-drawer accordion.
 function initAdminCardNavigation(){
+  if(adminNavigationInitialized)return;
   const navigation=document.querySelector('.admin-card-navigation');
   if(!navigation)return;
+  adminNavigationInitialized=true;
   const desktopHome=navigation.parentElement;
   const placeholder=document.createComment('admin-navigation-home');
   desktopHome.insertBefore(placeholder,navigation);
@@ -235,7 +285,8 @@ function initAdminCardNavigation(){
   window.addEventListener('resize',placeNavigation);
   placeNavigation();
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminCardNavigation,{once:true});
+if(document.querySelector('.admin-card-navigation'))initAdminCardNavigation();
+else if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminCardNavigation,{once:true});
 else initAdminCardNavigation();
 
 

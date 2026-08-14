@@ -909,7 +909,11 @@ body.admin-unlocked{overflow:auto}
     position:relative!important;
     min-width:0!important;
   }
-  .admin-auth-host #menuBtn{grid-column:3!important;grid-row:1!important}
+  .admin-auth-host #menuBtn{
+    display:grid!important;place-items:center!important;grid-column:3!important;grid-row:1!important;
+    width:42px!important;height:42px!important;padding:0!important;font-size:24px!important;line-height:1!important;
+  }
+  body.admin-unlocked .ezpk-mobile-drawer{display:block!important}
   .admin-auth-host .account-member-trigger{
     min-width:76px!important;
     height:42px!important;
