@@ -1,0 +1,86 @@
+{
+  "version": "4.2.7",
+  "baseline": "v426",
+  "status": "STATIC_PACKAGE_PASS_LIVE_ADMIN_GATE_PENDING",
+  "paths_before_reports": {
+    "v426_files": 383,
+    "v427_files": 386,
+    "deleted": 0,
+    "added": 3,
+    "changed_existing": 31
+  },
+  "deleted_paths": [],
+  "added_paths_before_validation": [
+    "V427_ADMIN_AUTHORITY_HEADER_SHELL_HOTFIX_REPORT.md",
+    "V427_DEPLOY_VALIDATION_RUNBOOK.md",
+    "scripts/v427-deploy-guard.mjs"
+  ],
+  "changed_existing_paths": [
+    "README.md",
+    "accounts/index.html",
+    "admin/admin.css",
+    "admin/admin.js",
+    "admin/index.html",
+    "alliance-layout/index.html",
+    "bgb/index.html",
+    "capital-war/index.html",
+    "drone-hunter/index.html",
+    "game/index.html",
+    "hero-merge/index.html",
+    "index.html",
+    "logo/index.html",
+    "members/index.html",
+    "migration/index.html",
+    "missile-defense/index.html",
+    "my/index.html",
+    "package-lock.json",
+    "package.json",
+    "portal-escape/index.html",
+    "request/index.html",
+    "season5/index.html",
+    "season6/index.html",
+    "shared-header.js",
+    "signup/index.html",
+    "tank-battle/index.html",
+    "tip/index.html",
+    "treasure-hunter/index.html",
+    "vote/index.html",
+    "worker.js",
+    "zombie-defense/index.html"
+  ],
+  "d1_migrations": {
+    "v426": 30,
+    "v427": 30,
+    "byte_exact": 30,
+    "same_set": true
+  },
+  "historical_guards": {
+    "v401_v426_count": 25,
+    "byte_exact": 25,
+    "same_set": true
+  },
+  "protected_files": {
+    "game-switcher.css": true,
+    "text-fit-v425.js": true,
+    "header-fit-v424.js": true,
+    "header-fit-v424.css": true,
+    "style.css": true,
+    "wrangler.jsonc": true
+  },
+  "shared_header_cache": {
+    "user_pages": 23,
+    "v4270": 23,
+    "admin_v4270": true
+  },
+  "admin_contract": {
+    "canonical_endpoint": "/api/admin/my-permissions",
+    "worker_returns_member": true,
+    "admin_public_auth_me_verify_removed": true,
+    "public_startup_auth_skipped_for_admin": true,
+    "admin_drawer_independent_binding": true,
+    "capture_stop_immediate": true
+  },
+  "browser_runtime": "NOT_EXECUTED_NO_PRODUCTION_ADMIN_SESSION",
+  "final_package_files_expected": 388,
+  "checksum_manifest_entries_expected": 387
+}

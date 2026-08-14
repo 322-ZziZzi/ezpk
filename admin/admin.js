@@ -61,31 +61,40 @@ function setAdminAuthPhase(phase){
   document.body?.setAttribute('data-ezpk-admin-auth',value);
 }
 function waitAdmin(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
-async function fetchAdminAuthState(attempts=3){
+async function fetchAdminAuthority(attempts=3){
   const total=Math.max(1,Number(attempts)||1);
   let lastError=null;
   for(let attempt=0;attempt<total;attempt+=1){
     const controller=typeof AbortController==='function'?new AbortController():null;
     const timeoutId=controller?setTimeout(()=>controller.abort(),7000):null;
     try{
-      const response=await fetch('/api/auth/me?admin_verify='+Date.now()+'&attempt='+(attempt+1),{
+      const response=await fetch('/api/admin/my-permissions?admin_verify='+Date.now()+'&attempt='+(attempt+1),{
         method:'GET',credentials:'include',headers:{accept:'application/json'},cache:'no-store',signal:controller?.signal
       });
       const payload=await response.json().catch(()=>null);
-      if(response.ok&&payload?.ok){
-        if(payload?.data?.authenticated&&payload?.data?.member)return {authenticated:true,member:payload.data.member};
-        if(attempt===total-1)return {authenticated:false,member:null};
-      }else{
-        lastError=new Error(payload?.code||payload?.error||('AUTH_HTTP_'+response.status));
+      if(response.ok&&payload?.ok&&payload?.data?.member){
+        return {
+          authenticated:true,
+          member:payload.data.member,
+          access:{
+            adminLevel:payload.data.adminLevel||payload.data.member.adminLevel||'sub',
+            permissions:payload.data.permissions||{},
+            loaded:true
+          }
+        };
       }
-    }catch(error){lastError=error;}
-    finally{if(timeoutId)clearTimeout(timeoutId);}
+      const error=new Error(payload?.code||payload?.error||('ADMIN_AUTH_HTTP_'+response.status));
+      error.status=response.status;
+      if(response.status===401||response.status===403)throw error;
+      lastError=error;
+    }catch(error){
+      lastError=error;
+      if(error?.status===401||error?.status===403)throw error;
+    }finally{if(timeoutId)clearTimeout(timeoutId);}
     if(attempt<total-1)await waitAdmin(250*(attempt+1));
   }
-  const shared=window.EZPKSharedHeader?.getAuthState?.();
-  if(shared?.authenticated&&shared?.member)return shared;
   if(lastError)throw lastError;
-  return {authenticated:false,member:null};
+  throw new Error('ADMIN_AUTHORITY_UNAVAILABLE');
 }
 
 async function verifyAdminSession(event){
@@ -102,41 +111,21 @@ async function verifyAdminSession(event){
     // navigation/language rendering is optional UI and must not block admin.
     setAdminAuthPhase('checking');
     if(status)status.textContent='관리자 세션을 확인하고 있습니다.';
-    let state=await fetchAdminAuthState(3);
+    const authority=await fetchAdminAuthority(3);
+    const member=authority.member;
 
-    // An already delivered header state can only supplement a failed direct
-    // response; it is never required for administrator access.
-    if((!state?.authenticated||!state?.member)&&incomingState?.authenticated&&incomingState?.member){
-      state=incomingState;
-    }
-
-    const member=state?.member;
-    const role=String(member?.role||'').trim().toLowerCase();
-    const rank=String(member?.memberRank||member?.member_rank||'').trim().toUpperCase();
-    const adminLevel=String(member?.adminLevel||member?.admin_level||(role==='admin'?'super':'')).trim().toLowerCase();
-    const statusValue=String(member?.status||'').trim().toLowerCase();
-    const isAdmin=state?.authenticated&&role==='admin'&&['super','sub'].includes(adminLevel)&&statusValue==='active';
-
-    if(isAdmin){
+    if(authority.authenticated&&member){
       verifiedAdminMember=member;
+      currentAdminAccess=authority.access;
       setAdminAuthPhase('authorizing');
-      if(status)status.textContent='관리자 인증이 완료되었습니다. 권한을 불러오는 중입니다.';
-      await loadCurrentAdminAccess();
+      if(status)status.textContent='관리자 인증이 완료되었습니다. 권한을 적용하는 중입니다.';
+      applyAdminMenuAccess();
       document.getElementById('adminLogin').hidden=true;
       document.getElementById('adminApp').hidden=false;
       document.body.classList.add('admin-unlocked');
       setAdminAuthPhase('verified');
       if(status)status.textContent='';
-
-      // v296: Refresh the shared account header only when its current state
-      // does not already match the verified administrator. Re-rendering an
-      // already-correct header can close a profile menu the user just opened.
-      const sharedState=window.EZPKSharedHeader?.getAuthState?.();
-      const sharedLoginId=String(sharedState?.member?.loginId||'').trim().toLowerCase();
-      const verifiedLoginId=String(member?.loginId||'').trim().toLowerCase();
-      const headerNeedsRefresh=!sharedState?.authenticated||!sharedState?.member
-        ||(verifiedLoginId&&sharedLoginId!==verifiedLoginId);
-      if(headerNeedsRefresh)window.dispatchEvent(new CustomEvent('ezpk-auth-refresh'));
+      window.EZPKAdminHeaderShell?.setVerified?.(member);
 
       if(!adminSessionReady){
         adminSessionReady=true;
@@ -169,12 +158,9 @@ async function verifyAdminSession(event){
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
-    setAdminAuthPhase(state?.authenticated?'forbidden':'signed-out');
-    if(status){
-      status.textContent=state?.authenticated
-        ?'이 계정은 활성 관리자 권한이 없습니다.'
-        :'로그인 세션을 확인하지 못했습니다. 홈페이지에서 다시 로그인해 주세요.';
-    }
+    setAdminAuthPhase('signed-out');
+    window.EZPKAdminHeaderShell?.setSignedOut?.();
+    if(status)status.textContent='로그인 세션을 확인하지 못했습니다. 홈페이지에서 다시 로그인해 주세요.';
     return false;
   }catch(error){
     console.error('[EZPK Admin] session verification failed',error);
@@ -182,10 +168,17 @@ async function verifyAdminSession(event){
     document.getElementById('adminLogin').hidden=false;
     document.getElementById('adminApp').hidden=true;
     document.body.classList.remove('admin-unlocked');
-    setAdminAuthPhase('error');
-    if(status)status.textContent=error?.name==='AbortError'
-      ?'관리자 세션 확인 시간이 초과되었습니다. 페이지를 새로고침해 주세요.'
-      :'관리자 세션을 확인하지 못했습니다. 다시 로그인해 주세요.';
+    const denied=Number(error?.status)===403;
+    const signedOut=Number(error?.status)===401;
+    setAdminAuthPhase(denied?'forbidden':signedOut?'signed-out':'error');
+    window.EZPKAdminHeaderShell?.setSignedOut?.();
+    if(status)status.textContent=denied
+      ?'이 계정은 활성 관리자 권한이 없습니다.'
+      :signedOut
+        ?'로그인 세션을 확인하지 못했습니다. 홈페이지에서 다시 로그인해 주세요.'
+        :error?.name==='AbortError'
+          ?'관리자 세션 확인 시간이 초과되었습니다. 페이지를 새로고침해 주세요.'
+          :'관리자 권한 확인에 실패했습니다. 페이지를 새로고침해 주세요.';
     return false;
   }finally{
     adminSessionLoading=false;
@@ -208,7 +201,6 @@ function initAdminLoginGate(){
     await fetch('/api/auth/logout',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'}).catch(()=>{});
     location.reload();
   });
-  window.addEventListener('ezpk-auth-ready',verifyAdminSession);
   window.addEventListener('ezpk-auth-change',verifyAdminSession);
   window.addEventListener('pageshow',()=>verifyAdminSession());
   document.addEventListener('visibilitychange',()=>{
@@ -222,7 +214,7 @@ if(document.getElementById('adminLogin'))initAdminLoginGate();
 else if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAdminLoginGate,{once:true});
 else initAdminLoginGate();
 window.EZPKAdminBootstrap={
-  version:'426',
+  version:'427',
   verify:()=>verifyAdminSession(),
   getState:()=>({loading:adminSessionLoading,ready:adminSessionReady,member:verifiedAdminMember,access:currentAdminAccess,phase:document.documentElement.dataset.ezpkAdminAuth||''})
 };

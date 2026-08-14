@@ -426,6 +426,97 @@
     <div class="ezpk-global-toast" id="ezpkGlobalToast" role="status" aria-live="polite" hidden></div>
   `);
 
+  // v427: Administrator Header Shell is independent from the public-account
+  // bootstrap. Admin authority is resolved by /api/admin/my-permissions in
+  // admin/admin.js; this shell only renders that verified result and owns the
+  // mobile administrator drawer button so a public-header failure can never
+  // strand the admin page on "확인 중" or disable the hamburger.
+  if (isAdminContext) {
+    const adminAccountHost = header.querySelector('#desktopAccount');
+    const adminMenuButton = header.querySelector('#menuBtn');
+    const adminDrawer = document.querySelector('#ezpkMobileDrawer');
+    if (adminAccountHost) adminAccountHost.innerHTML = '';
+
+    const closeAdminDrawer = function () {
+      if (!adminDrawer) return;
+      adminDrawer.classList.remove('open');
+      adminDrawer.setAttribute('aria-hidden','true');
+      document.body.classList.remove('ezpk-mobile-menu-open');
+      if (adminMenuButton) {
+        adminMenuButton.textContent='☰';
+        adminMenuButton.setAttribute('aria-expanded','false');
+        adminMenuButton.setAttribute('aria-label','관리자 메뉴');
+      }
+    };
+    const openAdminDrawer = function () {
+      if (!adminDrawer) return;
+      adminDrawer.classList.add('open');
+      adminDrawer.setAttribute('aria-hidden','false');
+      document.body.classList.add('ezpk-mobile-menu-open');
+      if (adminMenuButton) {
+        adminMenuButton.textContent='×';
+        adminMenuButton.setAttribute('aria-expanded','true');
+        adminMenuButton.setAttribute('aria-label','관리자 메뉴 닫기');
+      }
+      const rect=header.getBoundingClientRect();
+      document.documentElement.style.setProperty('--ezpk-mobile-header-height',`${Math.max(0,Math.round(rect.bottom))}px`);
+      requestAnimationFrame(()=>adminDrawer.querySelector('button:not([disabled]),a[href]')?.focus());
+    };
+    if (adminMenuButton) {
+      adminMenuButton.dataset.ezpkAdminDrawerBound='true';
+      adminMenuButton.setAttribute('aria-label','관리자 메뉴');
+      adminMenuButton.addEventListener('click',function(event){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!document.body.classList.contains('admin-unlocked')) return;
+        adminDrawer?.classList.contains('open') ? closeAdminDrawer() : openAdminDrawer();
+      },true);
+    }
+    adminDrawer?.addEventListener('click',function(event){
+      if(event.target.closest('[data-panel],a[href]')) closeAdminDrawer();
+    });
+    document.addEventListener('keydown',function(event){
+      if(event.key==='Escape'&&adminDrawer?.classList.contains('open'))closeAdminDrawer();
+    });
+    window.addEventListener('resize',function(){
+      if(window.innerWidth>900&&adminDrawer?.classList.contains('open'))closeAdminDrawer();
+    },{passive:true});
+
+    const escapeAdminText = value => String(value ?? '').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+    const bindAdminAccount = function () {
+      if (!adminAccountHost) return;
+      const trigger=adminAccountHost.querySelector('.account-member-trigger');
+      const menu=adminAccountHost.querySelector('.account-menu');
+      trigger?.addEventListener('click',function(event){
+        event.stopPropagation();
+        if(!menu)return;
+        menu.hidden=!menu.hidden;
+        trigger.setAttribute('aria-expanded',String(!menu.hidden));
+      });
+      adminAccountHost.querySelector('[data-admin-shell-home]')?.addEventListener('click',()=>{window.location.href=header.dataset.homeHref||'../';});
+      adminAccountHost.querySelector('[data-admin-shell-mypage]')?.addEventListener('click',()=>{window.location.href=`${base}/my/`;});
+      adminAccountHost.querySelector('[data-admin-shell-logout]')?.addEventListener('click',async()=>{
+        await fetch('/api/auth/logout',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'}).catch(()=>{});
+        window.location.href=header.dataset.homeHref||'../';
+      });
+    };
+    window.EZPKAdminHeaderShell = {
+      version:'427',
+      open:openAdminDrawer,
+      close:closeAdminDrawer,
+      setSignedOut:function(){if(adminAccountHost)adminAccountHost.innerHTML='';closeAdminDrawer();},
+      setVerified:function(member){
+        if(!adminAccountHost||!member)return;
+        const level=String(member.adminLevel||member.admin_level||'super').toLowerCase();
+        const roleLabel=level==='sub'?'부관리자':'최고관리자';
+        const nickname=escapeAdminText(member.nickname||member.loginId||'ADMIN');
+        const rank=escapeAdminText(member.memberRank||member.member_rank||'R5');
+        adminAccountHost.innerHTML=`<div class="account-member"><button type="button" class="account-member-trigger" aria-expanded="false"><span class="account-member-name">내 계정</span><span class="account-rank rank-r5">${rank}</span><span aria-hidden="true">▾</span></button><div class="account-menu" hidden><div class="account-menu-profile"><strong>${nickname}</strong><span class="rank-r5">${rank} · ${roleLabel}</span></div><button type="button" data-admin-shell-home>홈</button><button type="button" data-admin-shell-mypage>마이페이지</button><button type="button" data-admin-shell-logout>로그아웃</button></div></div>`;
+        bindAdminAccount();
+      }
+    };
+  }
+
   const META = {
     en:['🇺🇸','English'], fr:['🇫🇷','Français'], de:['🇩🇪','Deutsch'], ko:['🇰🇷','한국어'], th:['🇹🇭','ไทย'], ja:['🇯🇵','日本語'],
     pt:['🇧🇷','Português'], es:['🇪🇸','Español'], tr:['🇹🇷','Türkçe'], 'zh-tw':['🇹🇼','繁體中文'], it:['🇮🇹','Italiano'], ar:['🇸🇦','العربية'], vi:['🇻🇳','Tiếng Việt'], id:['🇮🇩','Bahasa Indonesia']
@@ -823,7 +914,7 @@
     document.documentElement.lang=lang==='zh-tw'?'zh-Hant':lang;
     document.documentElement.dir=lang==='ar'?'rtl':'ltr';
     document.body.classList.toggle('rtl',lang==='ar');
-    renderAccount();
+    if (!isAdminContext) renderAccount();
     syncAllianceSelectorControls();
     updateAuthModalLabels();
     notifyHeaderLayoutChange('language');
@@ -1182,7 +1273,7 @@
   // The administrator account area must not remain on "확인 중" when a
   // later, non-authentication UI initializer fails.
   loadSiteContext();
-  loadAuth();
+  if (!isAdminContext) loadAuth();
 
   function closeMenus() {
     const langMenu = header.querySelector('#langMenu');
@@ -1391,7 +1482,7 @@
 
   const menuBtn=header.querySelector('#menuBtn');
   const nav=header.querySelector('#nav');
-  menuBtn.addEventListener('click',function(e){
+  if (!isAdminContext) menuBtn.addEventListener('click',function(e){
     e.stopPropagation();
     const willOpen = !mobileDrawer.classList.contains('open');
     closeMenus();
@@ -1446,5 +1537,5 @@
   };
 
   loadStrategyAccess();
-  window.addEventListener('ezpk-auth-refresh', loadAuth);
+  if (!isAdminContext) window.addEventListener('ezpk-auth-refresh', loadAuth);
 })();

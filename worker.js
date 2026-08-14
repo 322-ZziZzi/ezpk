@@ -2914,7 +2914,7 @@ async function handleAdminMyPermissionsGet(request,env){
   const admin=await requireAdmin(request,env.DB);
   if(admin instanceof Response)return admin;
   const permissions=await loadAdminMenuPermissions(env.DB,admin);
-  return json({ok:true,data:{adminLevel:admin.admin_level,permissions}});
+  return json({ok:true,data:{adminLevel:admin.admin_level,permissions,member:publicAuthenticatedMember(admin)}});
 }
 
 async function handleAdminMenuPermissionsGet(request,env){
