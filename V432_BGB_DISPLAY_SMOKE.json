@@ -1,0 +1,53 @@
+{
+  "version": "v432",
+  "formatter": "EZPKVehiclePower.formatMember(member,1)",
+  "options": {
+    "empty": "-",
+    "maximumFractionDigits": 2,
+    "mMaximumFractionDigits": 2
+  },
+  "cases": [
+    {
+      "name": "G preserves two decimals",
+      "member": {
+        "vehicle1PowerValue": 3.17,
+        "vehicle1PowerUnit": "G",
+        "power": 999999999
+      },
+      "expected": "3.17G",
+      "actual": "3.17G",
+      "pass": true
+    },
+    {
+      "name": "M preserves useful decimal",
+      "member": {
+        "vehicle1PowerValue": 987.5,
+        "vehicle1PowerUnit": "M",
+        "power": 999999999
+      },
+      "expected": "987.5M",
+      "actual": "987.5M",
+      "pass": true
+    },
+    {
+      "name": "normalized fallback",
+      "member": {
+        "vehicle1PowerNormalized": 1250,
+        "power": 999999999
+      },
+      "expected": "1.25G",
+      "actual": "1.25G",
+      "pass": true
+    },
+    {
+      "name": "missing vehicle never falls back to total CP",
+      "member": {
+        "power": 999999999
+      },
+      "expected": "-",
+      "actual": "-",
+      "pass": true
+    }
+  ],
+  "overall": "PASS"
+}

@@ -387,7 +387,7 @@ const LOCATIONS=[['R1','REFINERY 1'],['R2','REFINERY 2'],['R3','REFINERY 3'],['R
 const TEAM_KEYS=['A','B'];
 let membersData={lastUpdated:'',members:[]},bgbData=blankBgb(),eventsData=blankEvents(),memberSha='',bgbSha='',eventsSha='',selectedTeam='A',selectedLocation='R1';
 function blankLocations(){return Object.fromEntries(LOCATIONS.map(([c])=>[c,[]]))}
-function blankBgb(){return{lastUpdated:'',teams:{A:{members:[],locations:blankLocations()},B:{members:[],locations:blankLocations()}}}}
+function blankBgb(){return{lastUpdated:'',publishedAt:'',publishedLastUpdated:'',teams:{A:{members:[],locations:blankLocations()},B:{members:[],locations:blankLocations()}}}}
 function blankEvents(){return{lastUpdated:'',timezone:'UTC-02:00',timezoneLabel:'ST',events:Array.from({length:9},()=>({title:'',start:'',end:'',enabled:false,important:false}))}}
 function normalizeEvents(d){const out=blankEvents();out.lastUpdated=String(d?.lastUpdated||'');const list=Array.isArray(d?.events)?d.events:[];for(let i=0;i<9;i++){const e=list[i]||{};out.events[i]={title:String(e.title||'').slice(0,60),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled),important:Boolean(e.important)}}return out}
 function parseEventDate(value){if(!value)return null;const hasZone=/(?:Z|[+-]\d{2}:\d{2})$/.test(value);const normalized=hasZone?value:`${value.length===16?value+':00':value}-02:00`;const d=new Date(normalized);return Number.isNaN(d.getTime())?null:d}
@@ -452,7 +452,7 @@ window.hasAdminDirty=hasAdminDirty;
 function normalizeMember(m){return{id:Number(m.id||0),rank:String(m.memberRank||m.rank||m.Rank||'R1').toUpperCase(),nickname:String(m.nickname||m.Nickname||'').trim(),ind:Number(String(m.industryLevel||m.ind||m.IND||m['Shelter Level']||0).replace(/^I/i,'')),power:Number(String(m.power??m['Combat Power']??0).replaceAll(',','')),vehicle1PowerNormalized:Number(m.vehicle1PowerNormalized||0),vehicle1PowerValue:m.vehicle1PowerValue??null,vehicle1PowerUnit:m.vehicle1PowerUnit||'',vehicle2PowerNormalized:Number(m.vehicle2PowerNormalized||0),vehicle2PowerValue:m.vehicle2PowerValue??null,vehicle2PowerUnit:m.vehicle2PowerUnit||'',status:m.status||'active',raw:m}}
 function compareVehiclePriority(a,b){const first=window.EZPKVehiclePower?.compareMembers(b,a,1)||0;if(first)return first;const second=window.EZPKVehiclePower?.compareMembers(b,a,2)||0;if(second)return second;return b.power-a.power||b.ind-a.ind||a.nickname.localeCompare(b.nickname)}
 function uniqKnown(list){const known=new Set(membersData.members.map(m=>m.nickname));return [...new Set((Array.isArray(list)?list:[]).map(String))].filter(n=>known.has(n))}
-function normalizeBgb(d){const out=blankBgb();out.lastUpdated=String(d?.lastUpdated||'');if(d?.teams){TEAM_KEYS.forEach(t=>{out.teams[t].members=uniqKnown(d.teams?.[t]?.members);LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=uniqKnown(d.teams?.[t]?.locations?.[c]).filter(n=>out.teams[t].members.includes(n)))})}else if(d?.locations){out.teams.A.members=uniqKnown(Object.values(d.locations).flat());LOCATIONS.forEach(([c])=>out.teams.A.locations[c]=uniqKnown(d.locations[c]))}return out}
+function normalizeBgb(d){const out=blankBgb(),draft=d?.draft&&typeof d.draft==='object'?d.draft:d,published=d?.published&&typeof d.published==='object'?d.published:null;out.lastUpdated=String(draft?.lastUpdated||d?.lastUpdated||'');out.publishedAt=String(published?.publishedAt||'');out.publishedLastUpdated=String(published?.lastUpdated||d?.lastUpdated||'');const source=draft?.teams?draft:(draft?.locations?draft:null);if(source?.teams){TEAM_KEYS.forEach(t=>{out.teams[t].members=uniqKnown(source.teams?.[t]?.members);LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=uniqKnown(source.teams?.[t]?.locations?.[c]).filter(n=>out.teams[t].members.includes(n)))})}else if(source?.locations){out.teams.A.members=uniqKnown(Object.values(source.locations).flat());LOCATIONS.forEach(([c])=>out.teams.A.locations[c]=uniqKnown(source.locations[c]))}return out}
 async function fetchAllAdminMembers(){
   let page=1,totalPages=1,items=[];
   do{
@@ -486,7 +486,7 @@ async function loadLocal(){
   renderAll();
   window.dispatchEvent(new CustomEvent('ezpk-admin-members-updated',{detail:{members:adminMembers}}));
 }
-function syncInputs(){$('#lastUpdated').value=membersData.lastUpdated||'';$('#bgbLastUpdated').value=bgbData.lastUpdated||'';$('#eventsLastUpdated').value=eventsData.lastUpdated||''}
+function syncInputs(){$('#lastUpdated').value=membersData.lastUpdated||'';$('#eventsLastUpdated').value=eventsData.lastUpdated||'';renderBgbPublishStatus()}
 function filteredMembers(){const q=$('#search').value.trim().toLowerCase(),rank=$('#rank').value;return membersData.members.map((m,i)=>({...m,_i:i})).filter(m=>(rank==='ALL'||m.rank===rank)&&m.nickname.toLowerCase().includes(q))}
 function replaceNicknameEverywhere(oldName,newName){TEAM_KEYS.forEach(t=>{const team=bgbData.teams[t];team.members=team.members.map(n=>n===oldName?newName:n);for(const c in team.locations)team.locations[c]=team.locations[c].map(n=>n===oldName?newName:n)})}
 function removeNicknameEverywhere(name){TEAM_KEYS.forEach(t=>{const team=bgbData.teams[t];team.members=team.members.filter(n=>n!==name);for(const c in team.locations)team.locations[c]=team.locations[c].filter(n=>n!==name)})}
@@ -498,13 +498,14 @@ function lineupVisibleMembers(){const q=$('#lineupSearch').value.trim().toLowerC
 function selectedLineupMembers(){return currentTeam().members.map(n=>membersData.members.find(m=>m.nickname===n)).filter(Boolean).sort(compareVehiclePriority)}
 function hasGeneratedAssignments(team=currentTeam()){return LOCATIONS.some(([code])=>(team.locations[code]||[]).length>0)}
 function clearAssignmentsForCurrentTeam(){currentTeam().locations=blankLocations();$('#autoSummary').innerHTML=''}
-function renderFinalPreview(){const list=selectedLineupMembers();$('#previewCount').textContent=`${list.length} / 20`;$('#previewCount').classList.toggle('complete',list.length===20);$('#finalLineupPreview').innerHTML=list.length?list.map((m,i)=>`<article class="preview-member"><span class="preview-no">${String(i+1).padStart(2,'0')}</span><span><strong>${esc(m.nickname)}</strong><small>${m.rank} · <b class="spec-value">${specIndustry(m.ind)}</b> · CP <b class="spec-value">${specCP(m.power)}</b></small></span></article>`).join(''):'<div class="preview-empty">FINAL LINEUP에 사용할 멤버를 선택하세요. 선택된 멤버는 아직 어떤 위치에도 배정되지 않습니다.</div>'}
+function renderFinalPreview(){const list=selectedLineupMembers();$('#previewCount').textContent=`${list.length} / 20`;$('#previewCount').classList.toggle('complete',list.length===20);$('#finalLineupPreview').innerHTML=list.length?list.map((m,i)=>`<article class="preview-member"><span class="preview-no">${String(i+1).padStart(2,'0')}</span><span><strong>${esc(m.nickname)}</strong><small>${m.rank} · Industry Lv. <b class="spec-value">${specIndustry(m.ind)}</b> · #1 <b class="spec-value">${specVehicle1(m)}</b></small></span></article>`).join(''):'<div class="preview-empty">FINAL LINEUP에 사용할 멤버를 선택하세요. 선택된 멤버는 아직 어떤 위치에도 배정되지 않습니다.</div>'}
 function renderTeamTabs(){$$('#bgbTeamTabs button').forEach(b=>b.classList.toggle('active',b.dataset.team===selectedTeam));$('#activeTeamChip').textContent=`${selectedTeam} TEAM`}
-function renderLineup(){const team=currentTeam(),other=otherTeam(),list=lineupVisibleMembers();$('#lineupCount').textContent=`${team.members.length} / 20`;$('#lineupCount').classList.toggle('complete',team.members.length===20);$('#lineupMembers').innerHTML=list.map(m=>{const checked=team.members.includes(m.nickname),locked=other.members.includes(m.nickname)&&!checked;return `<label class="lineup-check ${locked?'locked':''}"><input type="checkbox" value="${esc(m.nickname)}" ${checked?'checked':''} ${locked?'disabled':''}><span><strong>${esc(m.nickname)}</strong><small>${m.rank} · <b class="spec-value">${specIndustry(m.ind)}</b> · CP <b class="spec-value">${specCP(m.power)}</b></small></span>${locked?`<em>${selectedTeam==='A'?'B':'A'} TEAM</em>`:''}</label>`}).join('');$$('#lineupMembers input').forEach(cb=>cb.onchange=()=>{const team=currentTeam();if(cb.checked&&team.members.length>=20){cb.checked=false;alert('최종 참전 멤버는 20명까지만 선택할 수 있습니다.');return}if(cb.checked)team.members.push(cb.value);else team.members=team.members.filter(n=>n!==cb.value);team.members=[...new Set(team.members)];clearAssignmentsForCurrentTeam();renderBgbAll()})}
+function renderLineup(){const team=currentTeam(),other=otherTeam(),list=lineupVisibleMembers();$('#lineupCount').textContent=`${team.members.length} / 20`;$('#lineupCount').classList.toggle('complete',team.members.length===20);$('#lineupMembers').innerHTML=list.map(m=>{const checked=team.members.includes(m.nickname),locked=other.members.includes(m.nickname)&&!checked;return `<label class="lineup-check ${locked?'locked':''}"><input type="checkbox" value="${esc(m.nickname)}" ${checked?'checked':''} ${locked?'disabled':''}><span><strong>${esc(m.nickname)}</strong><small>${m.rank} · Industry Lv. <b class="spec-value">${specIndustry(m.ind)}</b> · #1 <b class="spec-value">${specVehicle1(m)}</b></small></span>${locked?`<em>${selectedTeam==='A'?'B':'A'} TEAM</em>`:''}</label>`}).join('');$$('#lineupMembers input').forEach(cb=>cb.onchange=()=>{const team=currentTeam();if(cb.checked&&team.members.length>=20){cb.checked=false;alert('최종 참전 멤버는 20명까지만 선택할 수 있습니다.');return}if(cb.checked)team.members.push(cb.value);else team.members=team.members.filter(n=>n!==cb.value);team.members=[...new Set(team.members)];clearAssignmentsForCurrentTeam();renderBgbAll()})}
 function renderLocationButtons(){const team=currentTeam();$('#locationButtons').innerHTML=LOCATIONS.map(([code,name])=>`<button data-code="${code}" class="${code===selectedLocation?'active':''}"><span><b>${code}</b><small>${name}</small></span><em>${(team.locations[code]||[]).length}</em></button>`).join('');$$('#locationButtons button').forEach(b=>b.onclick=()=>{if(!hasGeneratedAssignments()){return}selectedLocation=b.dataset.code;renderLocationButtons();renderAssignments()})}
 function assignmentVisibleMembers(){const q=$('#assignmentSearch').value.trim().toLowerCase();return currentTeam().members.map(n=>membersData.members.find(m=>m.nickname===n)).filter(Boolean).filter(m=>m.nickname.toLowerCase().includes(q)).sort(compareVehiclePriority)}
-function renderAssignments(){const [,name]=LOCATIONS.find(x=>x[0]===selectedLocation)||['R1','REFINERY 1'];$('#selectedLocation').textContent=selectedLocation;$('#selectedLocationName').textContent=name;const team=currentTeam(),assigned=team.locations[selectedLocation]||[];const generated=hasGeneratedAssignments(team);$('#assignmentCount').textContent=`${assigned.length}명 배정`;const section=document.querySelector('.location-manager-section');section?.classList.toggle('locked',!generated);if(team.members.length!==20){$('#assignmentMembers').innerHTML='<div class="empty-admin">먼저 FINAL LINEUP에서 최종 참전 멤버 20명을 선택하세요.</div>';return}if(!generated){$('#assignmentMembers').innerHTML='<div class="empty-admin">FINAL LINEUP PREVIEW를 확인한 뒤 자동 배정을 실행하세요. 자동 배정 전에는 어떤 멤버도 R1~CENTER에 표시되지 않습니다.</div>';return}const list=assignmentVisibleMembers();$('#assignmentMembers').innerHTML=list.map(m=>`<label class="member-check"><input type="checkbox" value="${esc(m.nickname)}" ${assigned.includes(m.nickname)?'checked':''}><span><strong>${esc(m.nickname)}</strong><small>${m.rank} · <b class="spec-value">${specIndustry(m.ind)}</b> · CP <b class="spec-value">${specCP(m.power)}</b></small></span></label>`).join('');$$('#assignmentMembers input').forEach(cb=>cb.onchange=()=>{const set=new Set(currentTeam().locations[selectedLocation]||[]);cb.checked?set.add(cb.value):set.delete(cb.value);currentTeam().locations[selectedLocation]=[...set];renderLocationButtons();$('#assignmentCount').textContent=`${set.size}명 배정`})}
+function renderAssignments(){const [,name]=LOCATIONS.find(x=>x[0]===selectedLocation)||['R1','REFINERY 1'];$('#selectedLocation').textContent=selectedLocation;$('#selectedLocationName').textContent=name;const team=currentTeam(),assigned=team.locations[selectedLocation]||[];const generated=hasGeneratedAssignments(team);$('#assignmentCount').textContent=`${assigned.length}명 배정`;const section=document.querySelector('.location-manager-section');section?.classList.toggle('locked',!generated);if(team.members.length!==20){$('#assignmentMembers').innerHTML='<div class="empty-admin">먼저 FINAL LINEUP에서 최종 참전 멤버 20명을 선택하세요.</div>';return}if(!generated){$('#assignmentMembers').innerHTML='<div class="empty-admin">FINAL LINEUP PREVIEW를 확인한 뒤 자동 배정을 실행하세요. 자동 배정 전에는 어떤 멤버도 R1~CENTER에 표시되지 않습니다.</div>';return}const list=assignmentVisibleMembers();$('#assignmentMembers').innerHTML=list.map(m=>`<label class="member-check"><input type="checkbox" value="${esc(m.nickname)}" ${assigned.includes(m.nickname)?'checked':''}><span><strong>${esc(m.nickname)}</strong><small>${m.rank} · Industry Lv. <b class="spec-value">${specIndustry(m.ind)}</b> · #1 <b class="spec-value">${specVehicle1(m)}</b></small></span></label>`).join('');$$('#assignmentMembers input').forEach(cb=>cb.onchange=()=>{const set=new Set(currentTeam().locations[selectedLocation]||[]);cb.checked?set.add(cb.value):set.delete(cb.value);currentTeam().locations[selectedLocation]=[...set];renderLocationButtons();$('#assignmentCount').textContent=`${set.size}명 배정`})}
 function specIndustry(value){return window.EZPKVehiclePower?.formatIndustryLevel(value)||'-'}
+function specVehicle1(member){return window.EZPKVehiclePower?.formatMember(member,1,{empty:'-',maximumFractionDigits:2,mMaximumFractionDigits:2})||'-'}
 function specCP(value){return window.EZPKVehiclePower?.formatCombatPower(value)||'-'}
 function powerOf(name){return membersData.members.find(m=>m.nickname===name)?.power||0}
 function assignRefineries(sorted){const codes=['R1','R2','R3','R4','R5','R6'],caps=[4,4,3,3,3,3],groups=codes.map((code,i)=>({code,cap:caps[i],names:[],total:0}));for(const m of sorted){const choices=groups.filter(g=>g.names.length<g.cap).sort((a,b)=>a.total-b.total||a.names.length-b.names.length||codes.indexOf(a.code)-codes.indexOf(b.code));choices[0].names.push(m.nickname);choices[0].total+=m.power}return Object.fromEntries(groups.map(g=>[g.code,g.names]))}
@@ -563,19 +564,22 @@ function renderEvents(){
 }
 function renderAll(){renderMembers();renderBgbAll();renderEvents()}
 function membersPayload(){return{lastUpdated:$('#lastUpdated').value.trim(),members:membersData.members.map(normalizeMember)}}
-function bgbPayload(){const out=blankBgb();out.lastUpdated=$('#bgbLastUpdated').value.trim();TEAM_KEYS.forEach(t=>{out.teams[t].members=[...bgbData.teams[t].members];LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=[...bgbData.teams[t].locations[c]])});return out}
+function bgbPayload(){const out={teams:{A:{members:[],locations:blankLocations()},B:{members:[],locations:blankLocations()}}};TEAM_KEYS.forEach(t=>{out.teams[t].members=[...bgbData.teams[t].members];LOCATIONS.forEach(([c])=>out.teams[t].locations[c]=[...bgbData.teams[t].locations[c]])});return out}
 function eventsPayload(){syncEventsFromForm();const out=blankEvents();out.lastUpdated=$('#eventsLastUpdated').value.trim();out.events=eventsData.events.slice(0,9).map(e=>({title:String(e.title||'').trim(),start:String(e.start||''),end:String(e.end||''),enabled:Boolean(e.enabled),important:Boolean(e.important)}));return out}
 function todayKst(){const d=new Date(Date.now()-2*60*60*1000),p=n=>String(n).padStart(2,'0');return `${d.getUTCFullYear()}.${p(d.getUTCMonth()+1)}.${p(d.getUTCDate())}`}
+function formatBgbPublishedAt(iso,fallback=''){if(iso){const d=new Date(iso);if(Number.isFinite(d.getTime())){const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(d).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));return `${parts.year}.${parts.month}.${parts.day} ${parts.hour}:${parts.minute}`}}return String(fallback||'')}
+function renderBgbPublishStatus(){const el=$('#bgbPublishStatus');if(!el)return;const stamp=formatBgbPublishedAt(bgbData.publishedAt,bgbData.publishedLastUpdated);el.textContent=stamp?`마지막 노출: ${stamp}`:'아직 노출되지 않았습니다.'}
 async function adminContentRequest(path,options={}){
   const method=options.method||'GET';
   const url=method==='GET'?`/api/admin/content?path=${encodeURIComponent(path)}`:'/api/admin/content';
-  const response=await fetch(url,{method,credentials:'include',cache:'no-store',headers:{accept:'application/json',...(method==='PUT'?{'content-type':'application/json'}:{})},body:method==='PUT'?JSON.stringify({path,content:options.content,message:options.message}):undefined});
+  const response=await fetch(url,{method,credentials:'include',cache:'no-store',headers:{accept:'application/json',...(method==='PUT'?{'content-type':'application/json'}:{})},body:method==='PUT'?JSON.stringify({path,content:options.content,message:options.message,operation:options.operation}):undefined});
   const payload=await response.json().catch(()=>null);
   if(!response.ok||!payload?.ok)throw new Error(payload?.code||'WORKER_API_FAILED');
   return payload.data||{};
 }
 async function githubGetFile(path){const data=await adminContentRequest(path);return{sha:data.sha||'',data:data.content}}
 async function githubPutFile(path,payload,sha,message){const data=await adminContentRequest(path,{method:'PUT',content:payload,message});return data.sha||sha||''}
+async function bgbPutContent(payload,operation){return adminContentRequest('data/bgb.json',{method:'PUT',content:payload,operation,message:`${operation==='publish'?'Publish':'Save'} EZPK BGB`})}
 async function eventApiRequest(options={}){
   const method=options.method||'GET';
   const response=await fetch('/api/admin/events',{method,credentials:'include',cache:'no-store',headers:{accept:'application/json',...(method==='PUT'?{'content-type':'application/json'}:{})},body:method==='PUT'?JSON.stringify(options.payload):undefined});
@@ -604,9 +608,11 @@ async function loadEventsData(){
   renderEvents();
   clearAdminDirty('events');
 }
-function validateBgbPayload(bp){
+function validateBgbPayload(bp,{publish=false}={}){
   TEAM_KEYS.forEach(t=>{
-    if(bp.teams[t].members.length!==0&&bp.teams[t].members.length!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 저장할 수 있습니다.`);
+    const count=bp.teams[t].members.length;
+    if(count>20)throw new Error(`${t} TEAM은 최대 20명까지 선택할 수 있습니다.`);
+    if(publish&&count!==0&&count!==20)throw new Error(`${t} TEAM은 정확히 20명이어야 노출할 수 있습니다.`);
   });
 }
 function validateEventsPayload(ep){
@@ -618,13 +624,12 @@ function validateEventsPayload(ep){
     if(endDate<=startDate)throw new Error(`EVENT ${i+1}: 종료시간은 시작시간보다 늦어야 합니다.`);
   });
 }
-async function saveBgbData(){
-  if(!bgbSha){const b=await githubGetFile('data/bgb.json');bgbSha=b.sha}
+async function saveBgbData({publish=false}={}){
   const bp=bgbPayload();
-  if(!bp.lastUpdated)bp.lastUpdated=todayKst();
-  validateBgbPayload(bp);
-  bgbSha=await githubPutFile('data/bgb.json',bp,bgbSha,`Update EZPK BGB teams ${bp.lastUpdated}`);
-  bgbData=normalizeBgb(bp);
+  validateBgbPayload(bp,{publish});
+  const saved=await bgbPutContent(bp,publish?'publish':'draft');
+  if(saved?.content)bgbData=normalizeBgb(saved.content);
+  else{const b=await githubGetFile('data/bgb.json');bgbSha=b.sha;bgbData=normalizeBgb(b.data)}
   syncInputs();
   renderBgbAll();
   clearAdminDirty('bgb');
@@ -646,7 +651,7 @@ $$('#bgbTeamTabs button').forEach(btn=>btn.onclick=()=>{selectedTeam=btn.dataset
 $('#search')&&($('#search').oninput=renderMembers);$('#rank')&&($('#rank').onchange=renderMembers);$('#lineupSearch').oninput=renderLineup;$('#lineupRank').onchange=renderLineup;$('#lineupSort').onchange=renderLineup;$('#assignmentSearch').oninput=renderAssignments;
 $('#addMember')&&($('#addMember').onclick=()=>{});
 $('#exportExcel')&&($('#exportExcel').onclick=exportExcel);
-$('#downloadJson')&&($('#downloadJson').onclick=()=>{});$('#downloadBgbJson').onclick=()=>downloadJson(bgbPayload(),'bgb.json');
+$('#downloadJson')&&($('#downloadJson').onclick=()=>{});
 $('#autoAssign').onclick=()=>{if(currentTeam().members.length===20){autoAssign();markAdminDirty('bgb')}else autoAssign()};$('#clearTeam').onclick=()=>{if(confirm(`${selectedTeam} TEAM 명단과 모든 위치 배정을 초기화할까요?`)){currentTeam().members=[];currentTeam().locations=blankLocations();$('#autoSummary').innerHTML='';renderBgbAll();markAdminDirty('bgb')}};
 $('#selectAllVisible').onclick=()=>{if(!hasGeneratedAssignments())return;const set=new Set(currentTeam().locations[selectedLocation]);assignmentVisibleMembers().forEach(m=>set.add(m.nickname));currentTeam().locations[selectedLocation]=[...set];renderLocationButtons();renderAssignments();markAdminDirty('bgb')};
 $('#clearLocation').onclick=()=>{if(!hasGeneratedAssignments())return;currentTeam().locations[selectedLocation]=[];renderLocationButtons();renderAssignments();markAdminDirty('bgb')};
@@ -656,14 +661,21 @@ $('#refreshBgb').onclick=async()=>{
   const button=$('#refreshBgb');
   if(hasAdminDirty('bgb')&&!confirm('저장하지 않은 BGB 변경사항이 있습니다. 새로고침할까요?'))return;
   await withAdminButton(button,'불러오는 중...',async()=>{
-    try{await loadBgbData({refreshMembers:true});showAdminToast('BGB 새로고침 완료 ✓')}
+    try{await loadBgbData({refreshMembers:true});showAdminToast('새로고침되었습니다.')}
     catch(e){showAdminToast(adminErrorMessage(e),'error')}
   });
 };
 $('#saveBgb').onclick=async()=>{
   const button=$('#saveBgb');
   await withAdminButton(button,'저장 중...',async()=>{
-    try{await saveBgbData();showAdminToast('BGB 저장 완료 ✓')}
+    try{await saveBgbData({publish:false});showAdminToast('저장되었습니다.')}
+    catch(e){showAdminToast(adminErrorMessage(e),'error')}
+  });
+};
+$('#publishBgb').onclick=async()=>{
+  const button=$('#publishBgb');
+  await withAdminButton(button,'노출 중...',async()=>{
+    try{await saveBgbData({publish:true});showAdminToast('노출되었습니다.')}
     catch(e){showAdminToast(adminErrorMessage(e),'error')}
   });
 };

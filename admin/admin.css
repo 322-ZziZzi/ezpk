@@ -425,12 +425,6 @@ body.admin-unlocked{overflow:auto}
 
 @media(min-width:761px){.auto-actions button{width:150px;flex:0 0 150px}}
 
-
-/* v205: mobile BGB backup button hidden */
-@media(max-width:760px){
-  .bgb-backup-actions{display:none!important}
-}
-
 /* v213: Account Manager mobile pagination - one row below the account list */
 @media (max-width: 900px) {
   .account-admin-pagination {
@@ -1135,3 +1129,11 @@ body.admin-unlocked{max-width:100%;overflow-x:hidden}
   body.admin-unlocked #adminApp,body.admin-unlocked .admin-main,body.admin-unlocked .manager-card,body.admin-unlocked .admin-panel{max-width:100vw!important;min-width:0!important;overflow-x:clip}
   body.admin-unlocked .ezpk-mobile-drawer{max-width:100vw!important}
 }
+
+
+/* v433: BGB draft/publish footer — last exposure + equal 1:1:1 actions */
+.bgb-publish-footer{margin-top:18px;padding-top:16px;border-top:1px solid #ffffff14}
+.bgb-publish-status{display:block;margin-bottom:10px;color:#8e9bad;font-size:13px;font-weight:800}
+.bgb-manager-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:0}
+.bgb-manager-actions button{width:100%;min-width:0;min-height:46px}
+@media(max-width:620px){.bgb-manager-actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bgb-manager-actions .primary{grid-column:auto}.bgb-manager-actions button{min-height:48px;padding:10px 6px;white-space:normal}}

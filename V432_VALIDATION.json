@@ -1,0 +1,136 @@
+{
+  "version": "4.3.2",
+  "build": "v432",
+  "predecessor": "EZPK-v431-deploy-ready.zip",
+  "predecessor_path_count": 412,
+  "predecessor_paths_preserved": 412,
+  "deleted_paths": [],
+  "changed_existing_paths": [
+    "README.md",
+    "admin/admin.js",
+    "admin/index.html",
+    "package-lock.json",
+    "package.json"
+  ],
+  "expected_changed_existing_paths": [
+    "README.md",
+    "admin/admin.js",
+    "admin/index.html",
+    "package-lock.json",
+    "package.json"
+  ],
+  "new_paths_before_validation_and_checksum": [
+    "V432_BGB_DISPLAY_SMOKE.json",
+    "V432_BGB_MEMBER_STAT_DISPLAY_REPORT.md",
+    "V432_DEPLOY_VALIDATION_RUNBOOK.md",
+    "scripts/v432-deploy-guard.mjs"
+  ],
+  "final_expected_file_count": 418,
+  "migrations": {
+    "count": 30,
+    "byte_exact": 30
+  },
+  "historical_deploy_guards": {
+    "count": 30,
+    "byte_exact": 30
+  },
+  "protected_v431_assets_byte_exact": {
+    "worker.js": true,
+    "wrangler.jsonc": true,
+    "shared-header.js": true,
+    "style.css": true,
+    "header-fit-v424.js": true,
+    "header-fit-v424.css": true,
+    "vehicle-power.js": true,
+    "admin/admin.css": true,
+    "admin/member-manager-v188.js": true,
+    "request/request-admin.js": true,
+    "migration/migration.js": true,
+    "data/bgb.json": true
+  },
+  "bgb_display_contract": {
+    "surfaces": [
+      "FINAL LINEUP selection list",
+      "FINAL LINEUP PREVIEW",
+      "location assignment member list"
+    ],
+    "display": "<Rank> · Industry Lv. <industry> · #1 <vehicle-1-power>",
+    "vehicle_1_authority": "Alliance Member vehicle1PowerValue/vehicle1PowerUnit/vehicle1PowerNormalized",
+    "formatter": "EZPKVehiclePower.formatMember(member, 1)",
+    "missing_vehicle_1": "-",
+    "total_cp_fallback": false,
+    "existing_sort_logic_changed": false,
+    "bgb_assignment_or_balancing_changed": false,
+    "db_or_api_changed": false
+  },
+  "bgb_display_smoke": {
+    "version": "v432",
+    "formatter": "EZPKVehiclePower.formatMember(member,1)",
+    "options": {
+      "empty": "-",
+      "maximumFractionDigits": 2,
+      "mMaximumFractionDigits": 2
+    },
+    "cases": [
+      {
+        "name": "G preserves two decimals",
+        "member": {
+          "vehicle1PowerValue": 3.17,
+          "vehicle1PowerUnit": "G",
+          "power": 999999999
+        },
+        "expected": "3.17G",
+        "actual": "3.17G",
+        "pass": true
+      },
+      {
+        "name": "M preserves useful decimal",
+        "member": {
+          "vehicle1PowerValue": 987.5,
+          "vehicle1PowerUnit": "M",
+          "power": 999999999
+        },
+        "expected": "987.5M",
+        "actual": "987.5M",
+        "pass": true
+      },
+      {
+        "name": "normalized fallback",
+        "member": {
+          "vehicle1PowerNormalized": 1250,
+          "power": 999999999
+        },
+        "expected": "1.25G",
+        "actual": "1.25G",
+        "pass": true
+      },
+      {
+        "name": "missing vehicle never falls back to total CP",
+        "member": {
+          "power": 999999999
+        },
+        "expected": "-",
+        "actual": "-",
+        "pass": true
+      }
+    ],
+    "overall": "PASS"
+  },
+  "static_predeploy": "PASS",
+  "js_mjs_syntax_expected_final": {
+    "count": 87,
+    "pass": 87
+  },
+  "json_parse_expected_final": {
+    "count": 50,
+    "pass": 50
+  },
+  "browser_authenticated_runtime": "NOT_EXECUTED_IN_BUILD_ENVIRONMENT",
+  "live_gate": [
+    "Admin → BGB lineup shows Industry Lv. + #1",
+    "Final preview shows same stats",
+    "Assignment list shows same stats",
+    "missing Vehicle #1 displays -",
+    "existing sorting/auto-assignment/save behavior unchanged"
+  ]
+}

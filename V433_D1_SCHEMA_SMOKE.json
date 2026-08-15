@@ -1,0 +1,17 @@
+{
+  "version": "v433",
+  "pass": true,
+  "migrations_applied": 30,
+  "strategy_content_columns": [
+    "content_json",
+    "content_key",
+    "updated_at"
+  ],
+  "strategy_content_history_columns": [
+    "content_json",
+    "content_key",
+    "created_at",
+    "id"
+  ],
+  "note": "v433 requires no new D1 migration; draft/published state is stored inside existing strategy_content.content_json and prior snapshots remain in strategy_content_history."
+}

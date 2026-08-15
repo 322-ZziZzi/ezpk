@@ -1,0 +1,13 @@
+{
+  "v401_primary": "EXPECTED_SCHEMA_FALLBACK:no such column: deleted_at",
+  "v401_hard_delete_changes": 1,
+  "v401_inquiry_remaining": 0,
+  "v401_replies_remaining": 0,
+  "v405_soft_delete_changes": 1,
+  "v405_row_preserved": true,
+  "v405_status": "closed",
+  "v405_deleted_at_set": true,
+  "v405_deleted_by": 1,
+  "v405_replies_preserved": 1,
+  "overall": "PASS"
+}

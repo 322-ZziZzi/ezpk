@@ -1,0 +1,44 @@
+{
+  "version": "v433",
+  "pass": true,
+  "checks": [
+    {
+      "name": "draft keeps legacy public A",
+      "ok": true
+    },
+    {
+      "name": "draft keeps legacy public B",
+      "ok": true
+    },
+    {
+      "name": "draft stores partial editor A",
+      "ok": true
+    },
+    {
+      "name": "draft keeps public lastUpdated",
+      "ok": true
+    },
+    {
+      "name": "publish promotes current A",
+      "ok": true
+    },
+    {
+      "name": "publish promotes current B",
+      "ok": true
+    },
+    {
+      "name": "publish syncs draft",
+      "ok": true
+    },
+    {
+      "name": "publish stamps ISO time",
+      "ok": true
+    },
+    {
+      "name": "publish stamps KST date",
+      "ok": true
+    }
+  ],
+  "publishedAt": "2026-08-15T15:06:58.280Z",
+  "lastUpdated": "2026.08.16"
+}

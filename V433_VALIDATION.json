@@ -1,0 +1,98 @@
+{
+  "version": "4.3.3",
+  "build": "v433",
+  "baseline": {
+    "file": "EZPK-v432-deploy-ready.zip",
+    "sha256": "fed6ff323626599fb2677eb0dc18eaea21dfe8429947d4e7386f7bb7cc9a2cca"
+  },
+  "result": "PASS",
+  "scope": "BGB Draft/Published operations, last exposure footer, equal Refresh/Save/Publish controls, manual BGB JSON backup removal",
+  "baseline_paths": 418,
+  "baseline_paths_preserved": 418,
+  "deleted_paths": [],
+  "existing_changed_count": 9,
+  "existing_changed_paths": [
+    "README.md",
+    "admin/admin.css",
+    "admin/admin.js",
+    "admin/index.html",
+    "bgb/bgb.js",
+    "bgb/index.html",
+    "package-lock.json",
+    "package.json",
+    "worker.js"
+  ],
+  "new_paths_before_validation_and_manifest": [
+    "V433_BGB_DRAFT_PUBLISH_OPERATIONS_REPORT.md",
+    "V433_BGB_DRAFT_PUBLISH_SMOKE.json",
+    "V433_D1_SCHEMA_SMOKE.json",
+    "V433_DEPLOY_VALIDATION_RUNBOOK.md",
+    "scripts/v433-bgb-draft-publish-smoke.mjs",
+    "scripts/v433-deploy-guard.mjs"
+  ],
+  "d1_migrations": {
+    "count": 30,
+    "byte_exact_unchanged": 30
+  },
+  "historical_deploy_guards": {
+    "count": 31,
+    "byte_exact_unchanged": 31
+  },
+  "protected_paths": {
+    "shared-header.js": true,
+    "style.css": true,
+    "header-fit-v424.js": true,
+    "header-fit-v424.css": true,
+    "vehicle-power.js": true,
+    "admin/member-manager-v188.js": true,
+    "request/request-admin.js": true,
+    "migration/migration.js": true,
+    "wrangler.jsonc": true,
+    "data/bgb.json": true,
+    "admin/capital-war-manager.js": true,
+    "admin/season6-manager.js": true
+  },
+  "predeploy": "PASS",
+  "bgb_draft_publish_smoke": "PASS",
+  "d1_schema_smoke": "PASS",
+  "js_mjs_syntax": {
+    "count": 89,
+    "pass": 89
+  },
+  "json_parse_pre_validation": {
+    "count": 52,
+    "pass": 52
+  },
+  "contracts": {
+    "manual_bgb_update_date_removed": true,
+    "manual_bgb_json_backup_removed": true,
+    "actions_equal_1_1_1": true,
+    "draft_save_does_not_publish": true,
+    "publish_saves_current_draft_and_promotes": true,
+    "publish_timestamp_server_authoritative": true,
+    "legacy_v432_public_state_preserved_on_first_draft_save": true,
+    "strategy_content_history_retained": true,
+    "new_d1_migration_required": false,
+    "v432_industry_level_vehicle1_display_preserved": true,
+    "bgb_sort_assignment_logic_preserved": true
+  },
+  "live_host_gate": "PENDING real authenticated admin/browser validation",
+  "final_package_file_count_expected": 426,
+  "checksum_manifest_entries_expected": 425,
+  "js_mjs_syntax_final": {
+    "count": 89,
+    "pass": 89
+  },
+  "json_parse_final": {
+    "count": 53,
+    "pass": 53
+  },
+  "zip_reextract_predeploy": "PASS",
+  "zip_reextract_js_mjs": "89/89 PASS",
+  "zip_reextract_json": "53/53 PASS",
+  "zip_reextract_checksum": "425/425 PASS",
+  "zip_crc": "PASS",
+  "zip_path_safety": "PASS (unsafe=0, duplicate=0, case-fold collision=0)",
+  "final_package_file_count": 426,
+  "checksum_manifest_entries": 425
+}

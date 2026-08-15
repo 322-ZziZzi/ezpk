@@ -597,3 +597,26 @@ The shared PC Header no longer moves primary navigation links into `More` to mak
 - A missing `migration_inquiries.deleted_at` column no longer makes Request Board fall back to the alliance-member login gate.
 - UID status keeps `migration_applications` as the core authority; inquiry session issuance is retried and a transient failure no longer clears an existing applicant cookie.
 - Admin inquiry reply/close/reopen also uses the compatibility lookup helpers; soft-delete still requires the v405 schema and fails explicitly rather than silently hard-deleting.
+
+## v431 Migration inquiry delete compatibility hotfix
+
+- Fixes administrator deletion failing with `MIGRATION_INQUIRY_SOFT_DELETE_SCHEMA_PENDING` when production D1 still uses the v401 inquiry schema without `deleted_at`.
+- Current v405+ schema keeps the existing auditable soft-delete behavior.
+- On the older v401 schema only, a verified super-admin delete falls back to a compatibility hard delete after deleting the inquiry replies; the admin audit log retains the deleted inquiry metadata and records `deleteMode=hard-delete-compat`.
+- The delete statement binds both internal inquiry ID and public ID and requires exactly one affected inquiry row, preventing a stale/mismatched target from being deleted.
+
+## v432 Admin BGB member stat display
+
+- Changes only the Admin → BGB member-list stat presentation from total combat power to Vehicle #1 power.
+- BGB lineup, final preview, and assignment member rows now show `Industry Lv. <level> · #1 <vehicle-1-power>`.
+- Vehicle #1 values come from the Alliance Member record through the existing `EZPKVehiclePower.formatMember(..., 1)` formatter; missing values render as `-` and never fall back to total combat power.
+- Existing BGB sorting, auto-assignment, combat-power balancing/totals, scoring, participation records, wins/losses, DB schema, Worker/API contracts, and migration data are unchanged.
+
+
+
+## v433 — BGB Draft / Publish Operations
+- Admin BGB manual update-date field removed.
+- Bottom status shows the last published timestamp.
+- Equal-width Refresh / Save / Publish controls.
+- Save writes D1 draft only; Publish atomically saves the current draft and promotes it to the public published snapshot with a server timestamp.
+- Manual BGB JSON backup control removed; D1 strategy history remains server-side.

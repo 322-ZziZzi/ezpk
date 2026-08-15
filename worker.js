@@ -1057,6 +1057,56 @@ async function writeStrategyContentD1(env, path, content) {
   return { sha: "d1", storage: "d1" };
 }
 
+const BGB_LOCATION_CODES = Object.freeze(["R1","R2","R3","R4","R5","R6","M1","M2","H1","H2","CENTER"]);
+function bgbBlankTeams() {
+  const team=()=>({members:[],locations:Object.fromEntries(BGB_LOCATION_CODES.map(code=>[code,[]]))});
+  return {A:team(),B:team()};
+}
+function bgbCleanNames(value) {
+  return [...new Set((Array.isArray(value)?value:[]).map(v=>cleanString(v,80)).filter(Boolean))];
+}
+function normalizeBgbTeams(value) {
+  const out=bgbBlankTeams();
+  for (const key of ["A","B"]) {
+    const source=value?.[key]||{};
+    out[key].members=bgbCleanNames(source.members).slice(0,20);
+    const allowed=new Set(out[key].members);
+    for (const code of BGB_LOCATION_CODES) out[key].locations[code]=bgbCleanNames(source.locations?.[code]).filter(name=>allowed.has(name));
+  }
+  return out;
+}
+function bgbKstDate(date=new Date()) {
+  const parts=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(date).filter(p=>p.type!=="literal").map(p=>[p.type,p.value]));
+  return `${parts.year}.${parts.month}.${parts.day}`;
+}
+function normalizeBgbStorageContent(current,incomingTeams,operation) {
+  const now=new Date(),nowIso=now.toISOString();
+  const legacyPublishedTeams=normalizeBgbTeams(current?.published?.teams||current?.teams||{});
+  const legacyLastUpdated=cleanString(current?.published?.lastUpdated||current?.lastUpdated,32);
+  const legacyPublishedAt=cleanString(current?.published?.publishedAt,64);
+  const draftTeams=normalizeBgbTeams(incomingTeams||current?.draft?.teams||current?.teams||{});
+  const publish=operation==="publish";
+  const publishedTeams=publish?draftTeams:legacyPublishedTeams;
+  const publishedAt=publish?nowIso:legacyPublishedAt;
+  const publishedLastUpdated=publish?bgbKstDate(now):legacyLastUpdated;
+  return {
+    schemaVersion:2,
+    lastUpdated:publishedLastUpdated,
+    teams:publishedTeams,
+    draft:{savedAt:nowIso,teams:draftTeams},
+    published:{publishedAt,lastUpdated:publishedLastUpdated,teams:publishedTeams},
+  };
+}
+async function writeBgbAdminContentD1(env,origin,incoming,operation) {
+  const mode=operation==="draft"?"draft":"publish";
+  const teams=normalizeBgbTeams(incoming?.teams||incoming?.draft?.teams||{});
+  if(mode==="publish") for(const key of ["A","B"]){const count=teams[key].members.length;if(count!==0&&count!==20)throw new HttpError(400,"BGB_TEAM_REQUIRES_20_MEMBERS");}
+  const current=(await readStrategyContentD1(env,origin,"data/bgb.json")).content||{};
+  const content=normalizeBgbStorageContent(current,teams,mode);
+  await writeStrategyContentD1(env,"data/bgb.json",content);
+  return {sha:"d1",storage:"d1",operation:mode,content,publishedAt:content.published.publishedAt,lastUpdated:content.published.lastUpdated};
+}
+
 async function readStrategyAsset(env, origin, path) {
   return (await readStrategyContentD1(env, origin, path)).content;
 }
@@ -2356,10 +2406,12 @@ async function handleAdminContentPut(request, env) {
   if (admin instanceof Response) return admin;
   if (body.content === undefined || body.content === null) return jsonError("VALIDATION_ERROR", 400);
   let saved;
-  if (strategyContentKey(path)) saved=await writeStrategyContentD1(env,path,body.content);
+  if (path==="data/bgb.json") saved=await writeBgbAdminContentD1(env,new URL(request.url).origin,body.content,body.operation);
+  else if (strategyContentKey(path)) saved=await writeStrategyContentD1(env,path,body.content);
   else saved=await writeGithubJson(env,path,body.content,body.message);
   const category=path.includes("bgb")?"bgb":path.includes("capital-war")?"capital_war":path.includes("season")?"season":path.includes("account")?"account":"content";
-  await writeAdminLog(env,request,{actor:admin,category,action:"content_saved",targetType:"content",targetId:path,targetName:path,after:{path}});
+  const action=path==="data/bgb.json"?(saved.operation==="publish"?"bgb_published":"bgb_draft_saved"):"content_saved";
+  await writeAdminLog(env,request,{actor:admin,category,action,targetType:"content",targetId:path,targetName:path,after:{path,...(path==="data/bgb.json"?{operation:saved.operation,publishedAt:saved.publishedAt}: {})}});
   return json({ok:true,data:saved});
 }
 
@@ -3530,25 +3582,38 @@ async function handleAdminMigrationInquiryDelete(request, publicId, env) {
   const admin = await requireSuperAdmin(request, env.DB);
   if (admin instanceof Response) return admin;
   const inquiry = await activeMigrationInquiryByPublicId(env.DB, publicId);
-  if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
+  if (!inquiry || inquiry.public_id !== publicId) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
+
+  let deleteMode = "soft-delete";
   try {
-    await env.DB.prepare(`UPDATE migration_inquiries
+    const result = await env.DB.prepare(`UPDATE migration_inquiries
       SET deleted_at=CURRENT_TIMESTAMP,deleted_by_member_id=?,status='closed',
           closed_at=COALESCE(closed_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP
-      WHERE id=? AND deleted_at IS NULL`).bind(admin.id,inquiry.id).run();
+      WHERE id=? AND public_id=? AND deleted_at IS NULL`).bind(admin.id,inquiry.id,publicId).run();
+    if (Number(result?.meta?.changes||0) !== 1) return jsonError("MIGRATION_INQUIRY_DELETE_STATE_CHANGED",409);
   } catch (error) {
-    if (isMissingMigrationInquiryDeletedAt(error)) {
-      return jsonError("MIGRATION_INQUIRY_SOFT_DELETE_SCHEMA_PENDING",409);
-    }
-    throw error;
+    if (!isMissingMigrationInquiryDeletedAt(error)) throw error;
+
+    // v431 compatibility: older v401 production schemas have no soft-delete
+    // columns. Super-admin delete must still complete instead of exposing a
+    // schema error to the operator. Remove replies first so the fallback is
+    // safe even when foreign-key cascade enforcement differs by environment.
+    const results = await env.DB.batch([
+      env.DB.prepare("DELETE FROM migration_inquiry_replies WHERE inquiry_id=?").bind(inquiry.id),
+      env.DB.prepare("DELETE FROM migration_inquiries WHERE id=? AND public_id=?").bind(inquiry.id,publicId),
+    ]);
+    const inquiryDelete = results?.[1];
+    if (Number(inquiryDelete?.meta?.changes||0) !== 1) return jsonError("MIGRATION_INQUIRY_DELETE_STATE_CHANGED",409);
+    deleteMode = "hard-delete-compat";
   }
+
   await writeAdminLog(env,request,{
     actor:admin,category:"request",action:"migration_inquiry_deleted",
     targetType:"migration_inquiry",targetId:inquiry.id,targetName:inquiry.title,
     before:{publicId:inquiry.public_id,status:inquiry.status,requesterName:inquiry.requester_name_snapshot},
-    after:{publicId:inquiry.public_id,deleted:true}
+    after:{publicId:inquiry.public_id,deleted:true,deleteMode}
   });
-  return json({ok:true,data:{publicId,deleted:true}});
+  return json({ok:true,data:{publicId,deleted:true,deleteMode}});
 }
 
 async function handleMigrationApplicationCreate(request, env) {

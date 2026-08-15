@@ -25,7 +25,7 @@
 })();
 </script>
   <link rel="stylesheet" href="../style.css?v=4270">
-  <link rel="stylesheet" href="admin.css?v=4270">
+  <link rel="stylesheet" href="admin.css?v=4330">
   <link rel="stylesheet" href="member-manager-v188.css?v=4270">
   <link rel="stylesheet" href="vote-manager.css?v=4270">
   <link rel="stylesheet" href="capital-war-manager.css?v=4270">
@@ -281,7 +281,7 @@
     </div>
 
     <div id="bgbPanel" class="admin-panel">
-      <div class="admin-page-header bgb-manager-head"><div class="admin-page-heading"><h2>BGB 관리</h2><p>BGB 팀 편성과 참가 정보를 관리합니다.</p></div><label class="admin-page-meta">BGB 업데이트<input id="bgbLastUpdated" type="text" placeholder="2026.07.17"></label></div>
+      <div class="admin-page-header bgb-manager-head"><div class="admin-page-heading"><h2>BGB 관리</h2><p>BGB 팀 편성과 참가 정보를 관리합니다.</p></div></div>
 
       <div id="bgbTeamTabs" class="bgb-team-tabs"><button data-team="A" class="active">A팀</button><button data-team="B">B팀</button></div>
 
@@ -317,10 +317,13 @@
           </div>
         </div>
       </section>
-      <div class="bgb-manager-actions">
-        <button id="refreshBgb" class="secondary" type="button">↻ 새로고침</button>
-        <button id="downloadBgbJson" class="secondary" type="button">↓ BGB JSON 백업</button>
-        <button id="saveBgb" class="primary" type="button">BGB 저장</button>
+      <div class="bgb-publish-footer">
+        <span id="bgbPublishStatus" class="bgb-publish-status" role="status" aria-live="polite">아직 노출되지 않았습니다.</span>
+        <div class="bgb-manager-actions">
+          <button id="refreshBgb" class="secondary" type="button">새로고침</button>
+          <button id="saveBgb" class="secondary" type="button">저장</button>
+          <button id="publishBgb" class="primary" type="button">노출</button>
+        </div>
       </div>
     </div>
 
@@ -478,7 +481,7 @@
 <script src="../shared-header.js?v=4270"></script>
 <script src="../vehicle-power.js?v=4270"></script>
 <!-- v427: administrator authority/bootstrap must execute before optional manager/CDN assets. -->
-<script src="admin.js?v=4270"></script>
+<script src="admin.js?v=4330"></script>
 <script src="../supabase-config.js?v=4270"></script>
 <script src="../request/request-admin.js?v=4280"></script>
 <script src="season6-manager.js?v=4270"></script>
