@@ -573,3 +573,18 @@ The shared PC Header no longer moves primary navigation links into `More` to mak
 - The administrator Header no longer performs a second public `/api/auth/me` bootstrap.
 - Mobile admin hamburger/drawer binding is owned by an early administrator shell and is independent from public Header authentication.
 - Admin mobile viewport containment prevents horizontal overflow from pushing the hamburger off-screen.
+
+## v428 Admin Request Board isolation hotfix
+
+- Keeps ordinary member request-board data available even if optional migration-inquiry schema/data is unavailable or partially migrated.
+- Adds compatibility fallback when `migration_inquiries.deleted_at` is not yet present in production.
+- Loads the Request panel after `ezpk-admin-ready` when active, adds a short retry path, and exposes `window.EZPKRequestAdmin` diagnostics.
+- Admin request-manager cache token is `v=4280`.
+
+
+## v429 Migration UID Status isolation hotfix
+
+- Restores UID application-status lookup as an independent `migration_applications` read.
+- Migration inquiry session/thread enrichment is optional and can no longer turn a valid UID status lookup into a 500 response.
+- Supports production databases with no inquiry tables or with v401 inquiry tables that do not yet have the later `deleted_at` column.
+- Hides the inquiry CTA when an inquiry session could not be established, while preserving the core application status result.

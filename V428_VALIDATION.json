@@ -1,0 +1,39 @@
+{
+  "version": "4.2.8",
+  "baseline": "v427",
+  "status": "PASS_STATIC_SQL_COMPAT",
+  "base_paths": 388,
+  "current_paths_before_manifest": 391,
+  "base_paths_missing": [],
+  "new_paths": [
+    "V428_ADMIN_REQUEST_BOARD_ISOLATION_HOTFIX_REPORT.md",
+    "V428_DEPLOY_VALIDATION_RUNBOOK.md",
+    "scripts/v428-deploy-guard.mjs"
+  ],
+  "changed_existing_paths": [
+    "README.md",
+    "admin/index.html",
+    "package-lock.json",
+    "package.json",
+    "request/request-admin.js",
+    "worker.js"
+  ],
+  "d1_migrations_count": 30,
+  "d1_migrations_byte_exact": true,
+  "historical_deploy_guards_count": 26,
+  "historical_deploy_guards_byte_exact": true,
+  "sql_compatibility": {
+    "full_schema_member_query": "PASS",
+    "full_schema_migration_query": "PASS",
+    "v401_missing_deleted_at_fallback": "PASS"
+  },
+  "request_board_contract": {
+    "member_requests_isolated_from_migration_merge": true,
+    "migration_deleted_at_compat_fallback": true,
+    "migration_merge_nonfatal_warning": true,
+    "admin_ready_autoload_if_active": true,
+    "request_load_retries": 2,
+    "diagnostics": "window.EZPKRequestAdmin"
+  },
+  "live_authenticated_runtime": "PENDING_PRODUCTION_GATE"
+}

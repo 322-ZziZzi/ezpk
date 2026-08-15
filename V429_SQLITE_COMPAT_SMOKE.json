@@ -1,0 +1,17 @@
+{
+  "core_only": {
+    "core_status": true,
+    "session": "OPTIONAL_FAIL:no such table: migration_inquiry_sessions",
+    "summary": "OPTIONAL_TABLE_ABSENT"
+  },
+  "v401_inquiry": {
+    "core_status": true,
+    "session": "PASS",
+    "summary": "PASS_DELETED_AT_FALLBACK"
+  },
+  "full": {
+    "core_status": true,
+    "session": "PASS",
+    "summary": "PASS_FULL_SCHEMA"
+  }
+}

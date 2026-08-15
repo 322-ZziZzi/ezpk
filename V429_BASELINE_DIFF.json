@@ -1,0 +1,29 @@
+{
+  "base_files": 393,
+  "work_files_before_v429_docs": 395,
+  "base_paths_preserved": 393,
+  "base_paths_missing": [],
+  "new_paths_before_docs": [
+    "V429_SQLITE_COMPAT_SMOKE.json",
+    "scripts/v429-deploy-guard.mjs"
+  ],
+  "changed_paths": [
+    "README.md",
+    "migration/index.html",
+    "migration/migration.js",
+    "package-lock.json",
+    "package.json",
+    "worker.js"
+  ],
+  "migration_exact": "30/30",
+  "historical_guard_exact": "27/27",
+  "protected_exact": {
+    "shared-header.js": true,
+    "style.css": true,
+    "header-fit-v424.js": true,
+    "header-fit-v424.css": true,
+    "admin/admin.js": true,
+    "request/request-admin.js": true,
+    "wrangler.jsonc": true
+  }
+}

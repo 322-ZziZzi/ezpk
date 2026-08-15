@@ -1821,14 +1821,39 @@ async function handleAdminRequestsList(request, url, env) {
     ...requestRow(r,admin.id,true), requesterType:"MEMBER", status:r.admin_answer?"answered":"open",
   }));
 
+  // v428: member request-board data is authoritative for this endpoint and must
+  // never become unavailable just because the optional migration-inquiry schema
+  // is missing, partially migrated, or temporarily unreadable. Keep the merge
+  // isolated and report a non-fatal warning instead of failing the whole list.
   let migrationItems=[];
+  let migrationMergeWarning=null;
   try {
-    const migrationRows=await env.DB.prepare(`SELECT i.*,a.game_uid,a.application_status
-      FROM migration_inquiries i JOIN migration_applications a ON a.id=i.application_id
-      WHERE i.deleted_at IS NULL
-      ORDER BY datetime(i.created_at) DESC,i.id DESC`).all();
+    let migrationRows;
+    try {
+      migrationRows=await env.DB.prepare(`SELECT i.*,a.game_uid,a.application_status
+        FROM migration_inquiries i JOIN migration_applications a ON a.id=i.application_id
+        WHERE i.deleted_at IS NULL
+        ORDER BY datetime(i.created_at) DESC,i.id DESC`).all();
+    } catch (schemaError) {
+      const schemaMessage=String(schemaError||"").toLowerCase();
+      if(schemaMessage.includes("no such column")&&schemaMessage.includes("deleted_at")){
+        // Compatibility path for a production DB that has v401 inquiry tables
+        // but has not yet received the later soft-delete column.
+        migrationRows=await env.DB.prepare(`SELECT i.*,a.game_uid,a.application_status
+          FROM migration_inquiries i JOIN migration_applications a ON a.id=i.application_id
+          ORDER BY datetime(i.created_at) DESC,i.id DESC`).all();
+        migrationMergeWarning="MIGRATION_INQUIRY_SOFT_DELETE_SCHEMA_PENDING";
+      }else{
+        throw schemaError;
+      }
+    }
     for (const row of migrationRows.results||[]) {
-      const replies=await migrationInquiryThread(env.DB,row.id);
+      let replies=[];
+      try{replies=await migrationInquiryThread(env.DB,row.id)}
+      catch(threadError){
+        console.error('[ADMIN_REQUESTS_MIGRATION_THREAD_FAILED]',row.id,threadError);
+        migrationMergeWarning=migrationMergeWarning||"MIGRATION_INQUIRY_THREAD_PARTIAL";
+      }
       const latestAdmin=[...replies].reverse().find((reply)=>reply.authorType==="admin");
       migrationItems.push({
         id:row.public_id,
@@ -1853,10 +1878,13 @@ async function handleAdminRequestsList(request, url, env) {
       });
     }
   } catch (error) {
-    // During a staged rollout the additive v401 table may not exist yet.
-    // Member requests must remain available; deployment verification will flag
-    // the missing migration before promotion.
-    if (!String(error||"").toLowerCase().includes("no such table")) throw error;
+    const message=String(error||"").toLowerCase();
+    if(message.includes("no such table"))migrationMergeWarning="MIGRATION_INQUIRY_SCHEMA_PENDING";
+    else {
+      console.error('[ADMIN_REQUESTS_MIGRATION_MERGE_FAILED]',error);
+      migrationMergeWarning="MIGRATION_INQUIRY_MERGE_UNAVAILABLE";
+    }
+    migrationItems=[];
   }
 
   const allItems=[...memberItems,...migrationItems].sort((a,b)=>{
@@ -1866,7 +1894,7 @@ async function handleAdminRequestsList(request, url, env) {
   });
   const total=allItems.length;
   const items=allItems.slice((page-1)*limit,page*limit);
-  return json({ok:true,data:{items,pagination:{page,limit,total,totalPages:total?Math.ceil(total/limit):0}}});
+  return json({ok:true,data:{items,pagination:{page,limit,total,totalPages:total?Math.ceil(total/limit):0},partial:Boolean(migrationMergeWarning),warnings:migrationMergeWarning?[migrationMergeWarning]:[]}});
 }
 
 async function handleAdminRequestAnswer(request, requestId, env) {
@@ -3244,17 +3272,59 @@ async function migrationInquiryDto(db, row, includeThread = true) {
 }
 
 async function latestMigrationInquirySummary(db, applicationId) {
-  const row = await db.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? AND deleted_at IS NULL ORDER BY created_at DESC,id DESC LIMIT 1`).bind(applicationId).first();
+  // v429: inquiry metadata is an optional enhancement to UID status lookup.
+  // A partial/older production inquiry schema must never make the authoritative
+  // migration application status unavailable.
+  let row;
+  try {
+    row = await db.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? AND deleted_at IS NULL ORDER BY created_at DESC,id DESC LIMIT 1`).bind(applicationId).first();
+  } catch (error) {
+    const message = String(error || "").toLowerCase();
+    if (message.includes("no such column") && message.includes("deleted_at")) {
+      row = await db.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? ORDER BY created_at DESC,id DESC LIMIT 1`).bind(applicationId).first();
+    } else if (message.includes("no such table")) {
+      return null;
+    } else {
+      throw error;
+    }
+  }
   if (!row) return null;
-  const countRow = await db.prepare("SELECT COUNT(*) AS total FROM migration_inquiry_replies WHERE inquiry_id=?").bind(row.id).first();
-  const adminRow = await db.prepare("SELECT id FROM migration_inquiry_replies WHERE inquiry_id=? AND author_type='admin' LIMIT 1").bind(row.id).first();
+  let replyCount = 0;
+  let hasAdminReply = false;
+  try {
+    const countRow = await db.prepare("SELECT COUNT(*) AS total FROM migration_inquiry_replies WHERE inquiry_id=?").bind(row.id).first();
+    replyCount = Number(countRow?.total || 0);
+    const adminRow = await db.prepare("SELECT id FROM migration_inquiry_replies WHERE inquiry_id=? AND author_type='admin' LIMIT 1").bind(row.id).first();
+    hasAdminReply = Boolean(adminRow);
+  } catch (error) {
+    console.error('[MIGRATION_STATUS_INQUIRY_REPLY_SUMMARY_UNAVAILABLE]', applicationId, error);
+  }
   return {
     publicId: row.public_id,
     status: row.status,
     updatedAt: row.updated_at,
-    replyCount: Number(countRow?.total || 0),
-    hasAdminReply: Boolean(adminRow),
+    replyCount,
+    hasAdminReply,
   };
+}
+
+async function optionalMigrationInquiryStatusEnhancement(request, application, env) {
+  let session = null;
+  let inquiry = null;
+  const warnings = [];
+  try {
+    session = await issueMigrationInquirySession(request, application, env);
+  } catch (error) {
+    console.error('[MIGRATION_STATUS_INQUIRY_SESSION_UNAVAILABLE]', application.id, error);
+    warnings.push('MIGRATION_INQUIRY_SESSION_UNAVAILABLE');
+  }
+  try {
+    inquiry = await latestMigrationInquirySummary(env.DB, application.id);
+  } catch (error) {
+    console.error('[MIGRATION_STATUS_INQUIRY_SUMMARY_UNAVAILABLE]', application.id, error);
+    warnings.push('MIGRATION_INQUIRY_SUMMARY_UNAVAILABLE');
+  }
+  return { session, inquiry, warnings };
 }
 
 async function handleMigrationStatusLookup(request, url, env) {
@@ -3264,20 +3334,29 @@ async function handleMigrationStatusLookup(request, url, env) {
   if (!/^\d{16}$/.test(uid)) return jsonError("VALIDATION_ERROR", 400);
   const rateLimited = await enforceMigrationStatusRateLimit(request, uid, env);
   if (rateLimited) return rateLimited;
+
+  // v429: migration_applications is the sole authority for UID status lookup.
+  // Inquiry sessions/threads are optional and are added only after the core
+  // status has already been resolved successfully.
   const row = await env.DB.prepare(`SELECT id,player_name,game_uid,application_status,updated_at FROM migration_applications
     WHERE game_uid=? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1`).bind(uid).first();
   if (!row) {
     return json({ok:true,data:{found:false}}, 200, {"set-cookie": clearMigrationInquiryCookie()});
   }
-  const session = await issueMigrationInquirySession(request, row, env);
-  const inquiry = await latestMigrationInquirySummary(env.DB, row.id);
+
+  const enhancement = await optionalMigrationInquiryStatusEnhancement(request, row, env);
+  const headers = {"set-cookie": enhancement.session
+    ? buildMigrationInquiryCookie(enhancement.session.token, MIGRATION_INQUIRY_TTL_SECONDS)
+    : clearMigrationInquiryCookie()};
   return json({ok:true,data:{
     found:true,
     playerName:row.player_name,
     applicationStatus:row.application_status,
     updatedAt:row.updated_at,
-    inquiry,
-  }}, 200, {"set-cookie": buildMigrationInquiryCookie(session.token, MIGRATION_INQUIRY_TTL_SECONDS)});
+    inquiry:enhancement.inquiry,
+    inquiryAvailable:Boolean(enhancement.session),
+    ...(enhancement.warnings.length?{partial:true,warnings:enhancement.warnings}:{}),
+  }}, 200, headers);
 }
 
 async function handleMigrationInquiriesList(request, env) {

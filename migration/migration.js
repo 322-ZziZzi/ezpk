@@ -158,7 +158,7 @@
   let eligibilityData=null;
   let migrationIntakeEnabled=currentSiteId!=='ezpk2';
   let step=0, errors={}, submitting=false;
-  const statusLookup={uid:'',phase:'idle',applicationStatus:'',updatedAt:'',playerName:'',inquiry:null};
+  const statusLookup={uid:'',phase:'idle',applicationStatus:'',updatedAt:'',playerName:'',inquiry:null,inquiryAvailable:true};
   const state={playerName:'',gameUid:'',discord:'',currentState:'',currentAlliance:'',vehicle1PowerValue:'',vehicle1PowerUnit:'',vehicle2PowerValue:'',vehicle2PowerUnit:'',industryLevel:null,spendingLevel:null,migrationTier:'',migrationReason:'',additionalNotes:'',migrationGroup:'',referrer:''};
 
   const esc=(value)=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -233,7 +233,7 @@
       const extra=t();
       const inquiry=statusLookup.inquiry;
       const inquiryLabel=inquiry?(inquiry.status==='answered'?extra.inquiryAnswered:inquiry.status==='closed'?extra.inquiryClosed:extra.inquiryOpen):'';
-      result=`<div class="migration-status-result status-${esc(statusLookup.applicationStatus)}" role="status"><span class="migration-status-badge">${esc(info[0])}</span>${statusLookup.playerName?`<strong class="migration-status-player">${esc(extra.playerLabel)} · ${esc(statusLookup.playerName)}</strong>`:''}<p>${esc(info[1])}</p>${date?`<small>${esc(fill(tx.updated,{date}))}</small>`:''}${inquiryLabel?`<span class="migration-inquiry-state">${esc(inquiryLabel)}</span>`:''}<div class="migration-inquiry-callout"><h4>${esc(extra.inquiryTitle)}</h4><p>${esc(extra.inquiryBody)}</p><a class="migration-button migration-button-secondary" href="../request/">${esc(extra.inquiryButton)}</a></div></div>`;
+      result=`<div class="migration-status-result status-${esc(statusLookup.applicationStatus)}" role="status"><span class="migration-status-badge">${esc(info[0])}</span>${statusLookup.playerName?`<strong class="migration-status-player">${esc(extra.playerLabel)} · ${esc(statusLookup.playerName)}</strong>`:''}<p>${esc(info[1])}</p>${date?`<small>${esc(fill(tx.updated,{date}))}</small>`:''}${inquiryLabel?`<span class="migration-inquiry-state">${esc(inquiryLabel)}</span>`:''}${statusLookup.inquiryAvailable?`<div class="migration-inquiry-callout"><h4>${esc(extra.inquiryTitle)}</h4><p>${esc(extra.inquiryBody)}</p><a class="migration-button migration-button-secondary" href="../request/">${esc(extra.inquiryButton)}</a></div>`:''}</div>`;
     }
     return `<section class="migration-status-lookup" aria-labelledby="migration-status-title"><div class="migration-status-copy"><h3 id="migration-status-title">${esc(tx.title)}</h3><p>${esc(tx.help)}</p></div><div class="migration-status-controls"><div class="migration-status-input-wrap"><input id="migrationStatusUid" data-status-uid type="text" inputmode="numeric" autocomplete="off" maxlength="32" value="${esc(statusLookup.uid)}" placeholder="${esc(tx.placeholder)}" aria-label="${esc(tx.placeholder)}"${inlineError?' aria-invalid="true"':''}>${inlineError?`<div class="migration-error" data-status-error role="alert">${esc(inlineError)}</div>`:''}</div><button type="button" class="migration-button migration-button-secondary migration-status-button" data-status-check ${statusLookup.phase==='loading'?'disabled':''}>${esc(statusLookup.phase==='loading'?tx.checking:tx.button)}</button></div>${result}</section>`;
   }
@@ -275,7 +275,7 @@
   prev.addEventListener('click',()=>{if(submitting)return;collectStep();errors={};step=Math.max(0,step-1);renderStep();});
   next.addEventListener('click',async()=>{if(submitting)return;collectStep();if(step<6){if(!validate(step)){renderStep();return;}if(step===0&&await blockDuplicateUidAtStepOne())return;errors={};step++;renderStep();return;}await submit();});
   form.addEventListener('submit',event=>event.preventDefault());
-  app?.addEventListener('input',event=>{const input=event.target.closest('[data-status-uid]');if(!input)return;const digits=input.value.replace(/\D/g,'');if(input.value!==digits)input.value=digits;statusLookup.uid=input.value;statusLookup.applicationStatus='';statusLookup.updatedAt='';statusLookup.playerName='';statusLookup.inquiry=null;if(statusLookup.phase!=='loading')statusLookup.phase=input.value.length>16?'invalid-too-long':'idle';updateStatusInlineError(input,input.value.length>16?statusT().tooLong:'');input.closest('.migration-status-lookup')?.querySelectorAll('.migration-status-message,.migration-status-result').forEach(node=>node.remove());});
+  app?.addEventListener('input',event=>{const input=event.target.closest('[data-status-uid]');if(!input)return;const digits=input.value.replace(/\D/g,'');if(input.value!==digits)input.value=digits;statusLookup.uid=input.value;statusLookup.applicationStatus='';statusLookup.updatedAt='';statusLookup.playerName='';statusLookup.inquiry=null;statusLookup.inquiryAvailable=true;if(statusLookup.phase!=='loading')statusLookup.phase=input.value.length>16?'invalid-too-long':'idle';updateStatusInlineError(input,input.value.length>16?statusT().tooLong:'');input.closest('.migration-status-lookup')?.querySelectorAll('.migration-status-message,.migration-status-result').forEach(node=>node.remove());});
   app?.addEventListener('click',async event=>{if(event.target.closest('[data-status-check]'))await checkMigrationStatus();});
   app?.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.closest('[data-status-uid]')){event.preventDefault();checkMigrationStatus();}});
 
@@ -290,6 +290,7 @@
       statusLookup.updatedAt=String(payload.data.updatedAt||'');
       statusLookup.playerName=String(payload.data.playerName||'');
       statusLookup.inquiry=payload.data.inquiry||null;
+      statusLookup.inquiryAvailable=payload.data.inquiryAvailable!==false;
       statusLookup.phase=STATUS_TEXT.en.statuses[statusLookup.applicationStatus]?'found':'idle';
       renderStep();
       return true;
@@ -314,6 +315,7 @@
       statusLookup.updatedAt=String(payload.data.updatedAt||'');
       statusLookup.playerName=String(payload.data.playerName||'');
       statusLookup.inquiry=payload.data.inquiry||null;
+      statusLookup.inquiryAvailable=payload.data.inquiryAvailable!==false;
       statusLookup.phase=STATUS_TEXT.en.statuses[statusLookup.applicationStatus]?'found':'error';
       renderStatusState();
     }catch(_){statusLookup.phase='error';renderStatusState();}

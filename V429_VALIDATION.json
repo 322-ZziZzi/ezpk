@@ -1,0 +1,49 @@
+{
+  "version": "4.2.9",
+  "artifact": "EZPK-v429-deploy-ready.zip",
+  "baseline_v428_files": 393,
+  "baseline_paths_preserved": 393,
+  "baseline_paths_missing": [],
+  "changed_existing_paths": [
+    "README.md",
+    "migration/index.html",
+    "migration/migration.js",
+    "package-lock.json",
+    "package.json",
+    "worker.js"
+  ],
+  "d1_migrations_byte_exact": "30/30",
+  "historical_deploy_guards_byte_exact": "27/27",
+  "protected_exact": {
+    "shared-header.js": true,
+    "style.css": true,
+    "header-fit-v424.js": true,
+    "header-fit-v424.css": true,
+    "admin/admin.js": true,
+    "request/request-admin.js": true,
+    "wrangler.jsonc": true
+  },
+  "sqlite_compat_smoke": {
+    "core_only": {
+      "core_status": true,
+      "session": "OPTIONAL_FAIL:no such table: migration_inquiry_sessions",
+      "summary": "OPTIONAL_TABLE_ABSENT"
+    },
+    "v401_inquiry": {
+      "core_status": true,
+      "session": "PASS",
+      "summary": "PASS_DELETED_AT_FALLBACK"
+    },
+    "full": {
+      "core_status": true,
+      "session": "PASS",
+      "summary": "PASS_FULL_SCHEMA"
+    }
+  },
+  "js_mjs_syntax": "84/84",
+  "js_mjs_failures": [],
+  "json_parse": "41/41",
+  "json_failures": [],
+  "predeploy": "PASS",
+  "live_authenticated_or_production_browser": "PENDING_LIVE_GATE"
+}
