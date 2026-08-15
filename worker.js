@@ -3308,12 +3308,75 @@ async function latestMigrationInquirySummary(db, applicationId) {
   };
 }
 
+function isMissingMigrationInquiryDeletedAt(error) {
+  const message = String(error || "").toLowerCase();
+  return message.includes("no such column") && message.includes("deleted_at");
+}
+
+async function activeMigrationInquiryRows(db, applicationId) {
+  try {
+    return await db.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? AND deleted_at IS NULL ORDER BY created_at DESC,id DESC`).bind(applicationId).all();
+  } catch (error) {
+    if (!isMissingMigrationInquiryDeletedAt(error)) throw error;
+    return db.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? ORDER BY created_at DESC,id DESC`).bind(applicationId).all();
+  }
+}
+
+async function openMigrationInquiryForApplication(db, applicationId) {
+  try {
+    return await db.prepare("SELECT public_id FROM migration_inquiries WHERE application_id=? AND deleted_at IS NULL AND status IN ('open','answered') LIMIT 1").bind(applicationId).first();
+  } catch (error) {
+    if (!isMissingMigrationInquiryDeletedAt(error)) throw error;
+    return db.prepare("SELECT public_id FROM migration_inquiries WHERE application_id=? AND status IN ('open','answered') LIMIT 1").bind(applicationId).first();
+  }
+}
+
+async function activeOwnedMigrationInquiry(db, publicId, applicationId) {
+  try {
+    return await db.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND application_id=? AND deleted_at IS NULL LIMIT 1").bind(publicId,applicationId).first();
+  } catch (error) {
+    if (!isMissingMigrationInquiryDeletedAt(error)) throw error;
+    return db.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND application_id=? LIMIT 1").bind(publicId,applicationId).first();
+  }
+}
+
+async function activeMigrationInquiryByPublicId(db, publicId) {
+  try {
+    return await db.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND deleted_at IS NULL LIMIT 1").bind(publicId).first();
+  } catch (error) {
+    if (!isMissingMigrationInquiryDeletedAt(error)) throw error;
+    return db.prepare("SELECT * FROM migration_inquiries WHERE public_id=? LIMIT 1").bind(publicId).first();
+  }
+}
+
+async function otherOpenMigrationInquiry(db, applicationId, inquiryId) {
+  try {
+    return await db.prepare("SELECT id FROM migration_inquiries WHERE application_id=? AND id<>? AND deleted_at IS NULL AND status IN ('open','answered') LIMIT 1").bind(applicationId,inquiryId).first();
+  } catch (error) {
+    if (!isMissingMigrationInquiryDeletedAt(error)) throw error;
+    return db.prepare("SELECT id FROM migration_inquiries WHERE application_id=? AND id<>? AND status IN ('open','answered') LIMIT 1").bind(applicationId,inquiryId).first();
+  }
+}
+
+async function issueMigrationInquirySessionWithRetry(request, application, env, attempts = 2) {
+  let lastError = null;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await issueMigrationInquirySession(request, application, env);
+    } catch (error) {
+      lastError = error;
+      console.error('[MIGRATION_INQUIRY_SESSION_ISSUE_FAILED]', { applicationId: application.id, attempt }, error);
+    }
+  }
+  throw lastError || new Error('MIGRATION_INQUIRY_SESSION_UNAVAILABLE');
+}
+
 async function optionalMigrationInquiryStatusEnhancement(request, application, env) {
   let session = null;
   let inquiry = null;
   const warnings = [];
   try {
-    session = await issueMigrationInquirySession(request, application, env);
+    session = await issueMigrationInquirySessionWithRetry(request, application, env, 2);
   } catch (error) {
     console.error('[MIGRATION_STATUS_INQUIRY_SESSION_UNAVAILABLE]', application.id, error);
     warnings.push('MIGRATION_INQUIRY_SESSION_UNAVAILABLE');
@@ -3345,9 +3408,12 @@ async function handleMigrationStatusLookup(request, url, env) {
   }
 
   const enhancement = await optionalMigrationInquiryStatusEnhancement(request, row, env);
-  const headers = {"set-cookie": enhancement.session
-    ? buildMigrationInquiryCookie(enhancement.session.token, MIGRATION_INQUIRY_TTL_SECONDS)
-    : clearMigrationInquiryCookie()};
+  // v430: a transient inquiry-session write failure must not destroy a previously
+  // valid applicant-access cookie. Only a newly issued session replaces it; an
+  // explicit not-found lookup remains the authority for clearing it.
+  const headers = enhancement.session
+    ? {"set-cookie": buildMigrationInquiryCookie(enhancement.session.token, MIGRATION_INQUIRY_TTL_SECONDS)}
+    : {};
   return json({ok:true,data:{
     found:true,
     playerName:row.player_name,
@@ -3364,7 +3430,7 @@ async function handleMigrationInquiriesList(request, env) {
   if (member) return jsonError("MIGRATION_INQUIRY_MEMBER_SESSION_NOT_ALLOWED", 403);
   const auth = await requireMigrationInquiry(request, env);
   if (auth.response) return auth.response;
-  const rows = await env.DB.prepare(`SELECT * FROM migration_inquiries WHERE application_id=? AND deleted_at IS NULL ORDER BY created_at DESC,id DESC`).bind(auth.application.id).all();
+  const rows = await activeMigrationInquiryRows(env.DB, auth.application.id);
   const inquiries = [];
   for (const row of rows.results || []) inquiries.push(await migrationInquiryDto(env.DB, row, true));
   return json({ok:true,data:{
@@ -3380,7 +3446,7 @@ async function handleMigrationInquiryCreate(request, env) {
   if (member) return jsonError("MIGRATION_INQUIRY_MEMBER_SESSION_NOT_ALLOWED", 403);
   const auth = await requireMigrationInquiry(request, env);
   if (auth.response) return auth.response;
-  const existing = await env.DB.prepare("SELECT public_id FROM migration_inquiries WHERE application_id=? AND deleted_at IS NULL AND status IN ('open','answered') LIMIT 1").bind(auth.application.id).first();
+  const existing = await openMigrationInquiryForApplication(env.DB, auth.application.id);
   if (existing) return jsonError("MIGRATION_INQUIRY_OPEN_EXISTS", 409, {publicId:existing.public_id});
   const body = await readJson(request);
   const title = cleanString(body.title, 120);
@@ -3394,7 +3460,7 @@ async function handleMigrationInquiryCreate(request, env) {
 }
 
 async function findOwnedMigrationInquiry(publicId, applicationId, db) {
-  return db.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND application_id=? AND deleted_at IS NULL LIMIT 1").bind(publicId,applicationId).first();
+  return activeOwnedMigrationInquiry(db, publicId, applicationId);
 }
 
 async function handleMigrationInquiryReply(request, publicId, env) {
@@ -3427,7 +3493,7 @@ async function handleMigrationInquiryClose(request, publicId, env) {
 async function handleAdminMigrationInquiryReply(request, publicId, env) {
   const admin = await requireAdminMenuPermission(request,env.DB,"requests");
   if (admin instanceof Response) return admin;
-  const inquiry = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND deleted_at IS NULL LIMIT 1").bind(publicId).first();
+  const inquiry = await activeMigrationInquiryByPublicId(env.DB, publicId);
   if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
   if (inquiry.status === "closed") return jsonError("MIGRATION_INQUIRY_CLOSED",409);
   const body = await readJson(request);
@@ -3446,13 +3512,13 @@ async function handleAdminMigrationInquiryReply(request, publicId, env) {
 async function handleAdminMigrationInquiryStatus(request, publicId, status, env) {
   const admin = await requireAdminMenuPermission(request,env.DB,"requests");
   if (admin instanceof Response) return admin;
-  const inquiry = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND deleted_at IS NULL LIMIT 1").bind(publicId).first();
+  const inquiry = await activeMigrationInquiryByPublicId(env.DB, publicId);
   if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
   if (status === "closed") {
     await env.DB.prepare("UPDATE migration_inquiries SET status='closed',closed_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id).run();
   } else {
     // Re-open only when there is not another open thread for this application.
-    const other = await env.DB.prepare("SELECT id FROM migration_inquiries WHERE application_id=? AND id<>? AND deleted_at IS NULL AND status IN ('open','answered') LIMIT 1").bind(inquiry.application_id,inquiry.id).first();
+    const other = await otherOpenMigrationInquiry(env.DB, inquiry.application_id, inquiry.id);
     if (other) return jsonError("MIGRATION_INQUIRY_OPEN_EXISTS",409);
     await env.DB.prepare("UPDATE migration_inquiries SET status='open',closed_at=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(inquiry.id).run();
   }
@@ -3463,12 +3529,19 @@ async function handleAdminMigrationInquiryStatus(request, publicId, status, env)
 async function handleAdminMigrationInquiryDelete(request, publicId, env) {
   const admin = await requireSuperAdmin(request, env.DB);
   if (admin instanceof Response) return admin;
-  const inquiry = await env.DB.prepare("SELECT * FROM migration_inquiries WHERE public_id=? AND deleted_at IS NULL LIMIT 1").bind(publicId).first();
+  const inquiry = await activeMigrationInquiryByPublicId(env.DB, publicId);
   if (!inquiry) return jsonError("MIGRATION_INQUIRY_NOT_FOUND",404);
-  await env.DB.prepare(`UPDATE migration_inquiries
-    SET deleted_at=CURRENT_TIMESTAMP,deleted_by_member_id=?,status='closed',
-        closed_at=COALESCE(closed_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP
-    WHERE id=? AND deleted_at IS NULL`).bind(admin.id,inquiry.id).run();
+  try {
+    await env.DB.prepare(`UPDATE migration_inquiries
+      SET deleted_at=CURRENT_TIMESTAMP,deleted_by_member_id=?,status='closed',
+          closed_at=COALESCE(closed_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP
+      WHERE id=? AND deleted_at IS NULL`).bind(admin.id,inquiry.id).run();
+  } catch (error) {
+    if (isMissingMigrationInquiryDeletedAt(error)) {
+      return jsonError("MIGRATION_INQUIRY_SOFT_DELETE_SCHEMA_PENDING",409);
+    }
+    throw error;
+  }
   await writeAdminLog(env,request,{
     actor:admin,category:"request",action:"migration_inquiry_deleted",
     targetType:"migration_inquiry",targetId:inquiry.id,targetName:inquiry.title,

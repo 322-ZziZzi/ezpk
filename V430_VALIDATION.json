@@ -1,0 +1,79 @@
+{
+  "version": "4.3.0",
+  "baseline": "v429",
+  "base_paths": 400,
+  "current_paths_before_reports_manifest": 402,
+  "base_paths_preserved": 399,
+  "deleted_paths": [
+    "admin/EZPK_Γê₧┬ÑΓöñ╬┤┬╗Γò¥Γê₧├»├íΓê₧Γûô┬í_Γê₧├╣├á╬┤├¡┬ú╬┤├┤┬úΓê₧├╗├ªΓê₧├»┬Ñ_v1.xlsx"
+  ],
+  "added_paths": [
+    "V430_SQLITE_COMPAT_SMOKE.json",
+    "admin/EZPK_∞¥┤δ»╝∞ïá∞▓¡_∞ùàδí£δô£∞ûæ∞ï¥_v1.xlsx",
+    "scripts/v430-deploy-guard.mjs"
+  ],
+  "changed_existing_paths": [
+    "README.md",
+    "package-lock.json",
+    "package.json",
+    "worker.js"
+  ],
+  "migrations_exact": "30/30",
+  "historical_deploy_guards_exact": "28/28",
+  "js_mjs_syntax": "85/85",
+  "js_failures": [],
+  "json_parse": "43/43",
+  "json_failures": [],
+  "sqlite_compat_smoke": {
+    "core_only": {
+      "applied_last": "0029_v394_migration_excel_import.sql",
+      "core_status": "PASS",
+      "session_issue": "UNAVAILABLE_EXPECTED",
+      "request_access_flow": "UNAVAILABLE_EXPECTED"
+    },
+    "v401_inquiry": {
+      "applied_last": "0030_v401_multi_alliance_migration_inquiries.sql",
+      "core_status": "PASS",
+      "session_issue": "PASS",
+      "list_primary": "SCHEMA_FALLBACK:no such column: deleted_at",
+      "list_fallback": "PASS",
+      "open_primary": "SCHEMA_FALLBACK:no such column: deleted_at",
+      "open_fallback": "PASS",
+      "owned_primary": "SCHEMA_FALLBACK:no such column: deleted_at",
+      "owned_fallback": "PASS",
+      "reply": "PASS",
+      "close": "PASS",
+      "request_access_flow": "PASS"
+    },
+    "full": {
+      "applied_last": "0031_v405_migration_inquiry_soft_delete.sql",
+      "core_status": "PASS",
+      "session_issue": "PASS",
+      "list_primary": "PASS",
+      "open_primary": "PASS",
+      "owned_primary": "PASS",
+      "reply": "PASS",
+      "close": "PASS",
+      "request_access_flow": "PASS"
+    }
+  },
+  "current_paths_before_manifest": 405,
+  "base_paths_preserved_raw": "400/400",
+  "deleted_paths_raw": [],
+  "added_paths_raw": [
+    "V430_DEPLOY_VALIDATION_RUNBOOK.md",
+    "V430_MIGRATION_APPLICANT_REQUEST_ACCESS_RESTORATION_REPORT.md",
+    "V430_SQLITE_COMPAT_SMOKE.json",
+    "V430_VALIDATION.json",
+    "scripts/v430-deploy-guard.mjs"
+  ],
+  "changed_existing_paths_confirmed": [
+    "README.md",
+    "package-lock.json",
+    "package.json",
+    "worker.js"
+  ],
+  "notes": [
+    "Raw ZIP path-byte comparison confirms the pre-existing XLSX path is preserved; Python zipfile filename decoding of that legacy entry is not used as a deletion signal."
+  ]
+}

@@ -588,3 +588,12 @@ The shared PC Header no longer moves primary navigation links into `More` to mak
 - Migration inquiry session/thread enrichment is optional and can no longer turn a valid UID status lookup into a 500 response.
 - Supports production databases with no inquiry tables or with v401 inquiry tables that do not yet have the later `deleted_at` column.
 - Hides the inquiry CTA when an inquiry session could not be established, while preserving the core application status result.
+
+
+## v430 Migration applicant Request Board access restoration
+
+- Restores the confirmed signed-out flow: UID status lookup -> migration-applicant access cookie -> Request Board inquiry access.
+- Public migration inquiry list/create/reply/close now supports both v401 inquiry schema and v405 soft-delete schema.
+- A missing `migration_inquiries.deleted_at` column no longer makes Request Board fall back to the alliance-member login gate.
+- UID status keeps `migration_applications` as the core authority; inquiry session issuance is retried and a transient failure no longer clears an existing applicant cookie.
+- Admin inquiry reply/close/reopen also uses the compatibility lookup helpers; soft-delete still requires the v405 schema and fails explicitly rather than silently hard-deleting.

@@ -1,0 +1,33 @@
+{
+  "core_only": {
+    "applied_last": "0029_v394_migration_excel_import.sql",
+    "core_status": "PASS",
+    "session_issue": "UNAVAILABLE_EXPECTED",
+    "request_access_flow": "UNAVAILABLE_EXPECTED"
+  },
+  "v401_inquiry": {
+    "applied_last": "0030_v401_multi_alliance_migration_inquiries.sql",
+    "core_status": "PASS",
+    "session_issue": "PASS",
+    "list_primary": "SCHEMA_FALLBACK:no such column: deleted_at",
+    "list_fallback": "PASS",
+    "open_primary": "SCHEMA_FALLBACK:no such column: deleted_at",
+    "open_fallback": "PASS",
+    "owned_primary": "SCHEMA_FALLBACK:no such column: deleted_at",
+    "owned_fallback": "PASS",
+    "reply": "PASS",
+    "close": "PASS",
+    "request_access_flow": "PASS"
+  },
+  "full": {
+    "applied_last": "0031_v405_migration_inquiry_soft_delete.sql",
+    "core_status": "PASS",
+    "session_issue": "PASS",
+    "list_primary": "PASS",
+    "open_primary": "PASS",
+    "owned_primary": "PASS",
+    "reply": "PASS",
+    "close": "PASS",
+    "request_access_flow": "PASS"
+  }
+}
