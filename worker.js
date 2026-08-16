@@ -387,6 +387,8 @@ export default {
           return handleAdminMembers(request, url, env);
         case "GET /api/admin/promotion-candidates":
           return handleAdminPromotionCandidates(request, env);
+        case "GET /api/admin/new-member-protection":
+          return handleAdminNewMemberProtection(request, env);
         case "GET /api/admin/demotion-candidates":
           return handleAdminDemotionCandidates(request, env);
         case "GET /api/admin/rank-change-history":
@@ -2278,9 +2280,10 @@ async function rankMaintenanceState(db,row,includePrivate=false){
     state=await rankReviewStateRow(db,row.id);
   }else await db.prepare(`UPDATE member_rank_review_states SET last_evaluated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(row.id).run();
   const cycle=status==='REVIEWABLE'?{day:RANK_REVIEW_MAINTENANCE_DAYS,totalDays:RANK_REVIEW_MAINTENANCE_DAYS,startedOn:startOn,dueOn:dateAddDays(startOn,RANK_REVIEW_MAINTENANCE_DAYS-1),status}:{...rankReviewCycleProgress(startOn,RANK_REVIEW_MAINTENANCE_DAYS,today),status};
+  const reviewActivity=status==='REVIEWABLE'&&startOn&&cycle.dueOn?await memberActivityStatusBetween(db,row.id,startOn,cycle.dueOn,includePrivate):currentActivity;
   const active=row.status==='active'&&(row.approval_status||'approved')==='approved',effectiveProtection=newProtection||legacyProtection,protection=(includePrivate?newProtection:null)||legacyProtection;
   const canDemote=['R2','R3'].includes(row.member_rank);
-  return {currentRank:row.member_rank,targetRank:row.member_rank==='R3'?'R2':row.member_rank==='R2'?'R1':null,activity:currentActivity,maintained:currentActivity.eligible,cycle,protection,legacyProtection,exclusion,watching:canDemote&&active&&!currentActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,reviewEligible:canDemote&&active&&status==='REVIEWABLE'&&!currentActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,promotionUnlocked:!Number(state.promotion_unlock_after_maintenance||0)};
+  return {currentRank:row.member_rank,targetRank:row.member_rank==='R3'?'R2':row.member_rank==='R2'?'R1':null,activity:currentActivity,reviewActivity,maintained:currentActivity.eligible,cycle,protection,legacyProtection,exclusion,watching:canDemote&&active&&!currentActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,reviewEligible:canDemote&&active&&status==='REVIEWABLE'&&!currentActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,promotionUnlocked:!Number(state.promotion_unlock_after_maintenance||0)};
 }
 async function promotionReviewState(db,row,rules,includePrivate=false){
   const currentActivity=await memberActivityStatus(db,row.id,includePrivate,RANK_REVIEW_PROMOTION_DAYS),base=promotionState(row,rules,currentActivity);if(!base)return null;
@@ -2322,7 +2325,12 @@ async function promotionReviewState(db,row,rules,includePrivate=false){
     }
   }
   const cycle=status==='REVIEWABLE'?{...rankReviewCycleProgress(startedOn,RANK_REVIEW_PROMOTION_DAYS,today),status}:{...rankReviewCycleProgress(startedOn,RANK_REVIEW_PROMOTION_DAYS,today),status:status||'WAIT_MAINTENANCE'};
-  return {...base,specEligible:true,currentSpecEligible:base.specEligible,activity:currentActivity,cycleActivity,eligible:status==='REVIEWABLE',review:{...cycle,specQualifiedAt:state.spec_qualified_at,activityQualifiedAt:qualifiedAt,holdStartedAt:holdAt}};
+  if(!cycleActivity&&startedOn&&cycle.dueOn&&(status==='REVIEWABLE'||status==='HOLD')){
+    const qualifiedOn=status==='REVIEWABLE'&&qualifiedAt?kstDate(qualifiedAt):cycle.dueOn;
+    const endOn=qualifiedOn&&qualifiedOn<cycle.dueOn?qualifiedOn:cycle.dueOn;
+    cycleActivity=await memberActivityStatusBetween(db,row.id,startedOn,endOn,includePrivate);
+  }
+  return {...base,specEligible:true,currentSpecEligible:base.specEligible,activity:currentActivity,cycleActivity,reviewActivity:cycleActivity||currentActivity,eligible:status==='REVIEWABLE',review:{...cycle,specQualifiedAt:state.spec_qualified_at,activityQualifiedAt:qualifiedAt,holdStartedAt:holdAt}};
 }
 async function refreshRankReviewAfterSpecChange(db,memberId){
   const row=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
@@ -2699,6 +2707,12 @@ function adminMemberRow(row) {
     telegram: row.telegram,
     adminMemo: row.admin_memo || "",
     memoUpdatedAt: row.memo_updated_at,
+    newMemberProtection: row.new_member_protection_active ? {
+      active: true,
+      day: Math.max(1, Math.min(RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS, Number(row.new_member_protection_day || 1))),
+      totalDays: RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS,
+      until: row.new_member_protection_until || null,
+    } : null,
   };
 }
 
@@ -2741,7 +2755,8 @@ async function handleAdminMembers(request, url, env) {
     SELECT COUNT(*) AS total,
       SUM(CASE WHEN status='active' THEN 1 ELSE 0 END) AS active,
       SUM(CASE WHEN status='suspended' THEN 1 ELSE 0 END) AS suspended,
-      SUM(CASE WHEN status='left' THEN 1 ELSE 0 END) AS left_count
+      SUM(CASE WHEN status='left' THEN 1 ELSE 0 END) AS left_count,
+      SUM(CASE WHEN status='active' AND COALESCE(approval_status,'approved')='approved' AND member_rank IN ('R1','R2','R3') AND date(created_at,'+9 hours')>=date('now','+9 hours','-${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days') THEN 1 ELSE 0 END) AS new_protection
     FROM members m
     WHERE ${nonSystemAccountSql("m")}
   `).bind(...systemAccountBinds()).first();
@@ -2751,10 +2766,14 @@ async function handleAdminMembers(request, url, env) {
       s.vehicle1_power_normalized, s.vehicle2_class, s.vehicle2_power_value,
       s.vehicle2_power_unit, s.vehicle2_power_normalized, s.season_war_available,
       s.bgb_available_hour, s.discord, s.telegram,
-      am.memo AS admin_memo, am.updated_at AS memo_updated_at
+      am.memo AS admin_memo, am.updated_at AS memo_updated_at,
+      COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) AS new_member_protection_until,
+      CASE WHEN m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R1','R2','R3') AND date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) THEN 1 ELSE 0 END AS new_member_protection_active,
+      CASE WHEN date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) THEN CAST(julianday(date('now','+9 hours'))-julianday(date(m.created_at,'+9 hours'))+1 AS INTEGER) ELSE NULL END AS new_member_protection_day
     FROM members m
     LEFT JOIN member_specs s ON s.member_id=m.id
     LEFT JOIN member_admin_memos am ON am.member_id=m.id
+    LEFT JOIN member_rank_review_states rr ON rr.member_id=m.id
     ${whereSql}
     ORDER BY ${orderBy}
     LIMIT ? OFFSET ?
@@ -2762,14 +2781,30 @@ async function handleAdminMembers(request, url, env) {
 
   return json({ok:true,data:{
     items:(rows.results||[]).map(adminMemberRow),
-    stats:{total:Number(stats?.total||0),active:Number(stats?.active||0),suspended:Number(stats?.suspended||0),left:Number(stats?.left_count||0)},
+    stats:{total:Number(stats?.total||0),active:Number(stats?.active||0),suspended:Number(stats?.suspended||0),left:Number(stats?.left_count||0),newProtection:Number(stats?.new_protection||0)},
     pagination:{page,limit,total:Number(countRow?.total||0),totalPages:Math.ceil(Number(countRow?.total||0)/limit)}
   }});
 }
 
+async function handleAdminNewMemberProtection(request,env){
+  const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
+  const rows=await env.DB.prepare(`SELECT m.*,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,
+    COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) AS new_member_protection_until,
+    1 AS new_member_protection_active,
+    CAST(julianday(date('now','+9 hours'))-julianday(date(m.created_at,'+9 hours'))+1 AS INTEGER) AS new_member_protection_day
+    FROM members m
+    LEFT JOIN member_specs s ON s.member_id=m.id
+    LEFT JOIN member_rank_review_states rr ON rr.member_id=m.id
+    WHERE ${nonSystemAccountSql('m')} AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R1','R2','R3')
+      AND date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days'))
+    ORDER BY date(m.created_at,'+9 hours') ASC,m.nickname COLLATE NOCASE ASC`).bind(...systemAccountBinds()).all();
+  const items=(rows.results||[]).map(adminMemberRow);
+  return json({ok:true,data:{items,counts:{total:items.length}}});
+}
+
 async function promotionCandidateRows(db){
   const rules=await getPromotionRules(db);
-  const rows=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND m.member_rank IN ('R1','R2') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
+  const rows=await db.prepare(`SELECT m.*,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND m.member_rank IN ('R1','R2') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
   const evaluated=[];
   for(const row of rows.results||[]){const state=await promotionReviewState(db,row,rules,true);if(state?.specEligible)evaluated.push({row,state})}
   const orderStatus={REVIEWABLE:0,IN_PROGRESS:1,WAIT_MAINTENANCE:2,HOLD:3};
@@ -2782,7 +2817,7 @@ async function handleAdminPromotionCandidates(request,env){
   return json({ok:true,data:{items:data.items,counts:{total:data.items.length,reviewable,R2:data.items.filter(x=>x.promotion.targetRank==='R2').length,R3:data.items.filter(x=>x.promotion.targetRank==='R3').length}}});
 }
 async function demotionCandidateRows(db){
-  const rows=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND m.member_rank IN ('R2','R3') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
+  const rows=await db.prepare(`SELECT m.*,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND (m.member_rank IN ('R2','R3') OR (m.member_rank='R1' AND date(m.created_at,'+9 hours')>=date('now','+9 hours','-${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days'))) AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
   const evaluated=[];for(const row of rows.results||[])evaluated.push({row,state:await rankMaintenanceState(db,row,true)});
   const order=(a,b)=>Number(Boolean(b.state.reviewEligible))-Number(Boolean(a.state.reviewEligible))||(b.state.cycle?.day||0)-(a.state.cycle?.day||0)||String(a.row.nickname).localeCompare(String(b.row.nickname),'ko');
   const review=evaluated.filter(x=>x.state.reviewEligible||x.state.watching).filter(x=>!x.state.protection?.active&&!x.state.exclusion?.active).sort(order);
@@ -2956,10 +2991,14 @@ async function handleAdminMemberDetail(request, memberId, env) {
       s.vehicle1_power_normalized, s.vehicle2_class, s.vehicle2_power_value,
       s.vehicle2_power_unit, s.vehicle2_power_normalized, s.season_war_available,
       s.bgb_available_hour, s.discord, s.telegram,
-      am.memo AS admin_memo, am.updated_at AS memo_updated_at
+      am.memo AS admin_memo, am.updated_at AS memo_updated_at,
+      COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) AS new_member_protection_until,
+      CASE WHEN m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R1','R2','R3') AND date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) THEN 1 ELSE 0 END AS new_member_protection_active,
+      CASE WHEN date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')) THEN CAST(julianday(date('now','+9 hours'))-julianday(date(m.created_at,'+9 hours'))+1 AS INTEGER) ELSE NULL END AS new_member_protection_day
     FROM members m
     LEFT JOIN member_specs s ON s.member_id=m.id
     LEFT JOIN member_admin_memos am ON am.member_id=m.id
+    LEFT JOIN member_rank_review_states rr ON rr.member_id=m.id
     WHERE m.id=? LIMIT 1
   `).bind(memberId).first();
   if (!row) return jsonError("MEMBER_NOT_FOUND",404);

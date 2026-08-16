@@ -1,4 +1,18 @@
-> Current deploy-ready baseline: **v435 / 4.3.5** — Member rank management now uses persisted 14-day promotion opportunities, 30-day maintenance/demotion review cycles, and 10-day new-member demotion protection while preserving v434 M/G promotion requirements and semantic Admin colors.
+> Current deploy-ready baseline: **v436 / 4.3.6** — Member Management now renders the member list immediately, lazy-loads promotion/demotion review calculations, exposes new-member protection rosters, and shows achieved/missing review evidence while preserving alliance-specific EZPK1/EZPK2 Admin UX/UI.
+
+## v436 Member Management UX / Performance Remediation
+
+- Renders `/api/admin/members` results immediately instead of blocking the 85-member list on promotion and demotion review evaluation.
+- Promotion and demotion review data are lazy-loaded only when their respective review panels are opened; search, sort, pagination, and page-size changes no longer trigger those heavy calculations.
+- Adds a lightweight new-member-protection endpoint and fixes the R1 omission so protected R1/R2/R3 members are all discoverable.
+- Shows `신규 보호 x/10` in the normal member list and provides a dedicated protection roster with rank and protection end date.
+- Promotion review details distinguish permanent upper-rank spec qualification from current reference specs and show each activity condition as achieved/missing with current/required values, completed/required counts, and a plain-language decision reason.
+- Demotion review details show each recent-30-day maintenance condition, `x/30` progress, due date, missing requirements, protection/exclusion context, and decision reason.
+- Admin activity confirmation details can expose checked login/event/alliance evidence, confirmer, timestamp, and memo without an extra API call when the review card is expanded.
+- Uses progressive disclosure: compact summary cards by default, expandable evidence using already-fetched review responses.
+- Preserves EZPK1's existing Admin visual language and separately preserves EZPK2's existing light semantic Admin design; EZPK1 styling is not forced onto EZPK2.
+- No new D1 migration is introduced. `0032_v435_rank_review_cycles.sql` remains the latest migration and must already exist on both alliance databases.
+- See `V436_MEMBER_MANAGEMENT_UX_PERFORMANCE_REPORT.md` and `V436_DEPLOY_VALIDATION_RUNBOOK.md`.
 
 ## v435 Rank Review Cycles
 

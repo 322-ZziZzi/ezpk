@@ -1,0 +1,117 @@
+{
+  "version": "v436",
+  "packageVersion": "4.3.6",
+  "status": "PASS",
+  "base": {
+    "name": "EZPK-v435-deploy-ready(1).zip",
+    "fileCount": 445
+  },
+  "pathPreservation": {
+    "predecessorPathsPreserved": 445,
+    "predecessorPathCount": 445,
+    "deletedCount": 0,
+    "deleted": [],
+    "changedExistingCount": 8,
+    "changedExisting": [
+      "README.md",
+      "admin/index.html",
+      "admin/member-manager-v188.css",
+      "admin/member-manager-v188.js",
+      "ezpk-theme.css",
+      "package-lock.json",
+      "package.json",
+      "worker.js"
+    ],
+    "addedBeforeManifestCount": 4,
+    "addedBeforeManifest": [
+      "V436_DEPLOY_VALIDATION_RUNBOOK.md",
+      "V436_MEMBER_MANAGEMENT_UX_PERFORMANCE_REPORT.md",
+      "V436_VALIDATION.json",
+      "scripts/v436-deploy-guard.mjs"
+    ]
+  },
+  "migrations": {
+    "count": 31,
+    "latest": "migrations/0032_v435_rank_review_cycles.sql",
+    "newInV436": 0,
+    "schemaChange": false
+  },
+  "historicalDeployGuards": {
+    "predecessorExact": 34,
+    "predecessorCount": 34,
+    "byteExactPass": true,
+    "newGuard": "scripts/v436-deploy-guard.mjs"
+  },
+  "protectedFiles": {
+    "bgb/bgb.js": true,
+    "bgb/index.html": true,
+    "request/request.js": true,
+    "request/index.html": true,
+    "migration/migration.js": true,
+    "migration/index.html": true,
+    "shared-header.js": true,
+    "admin/admin.js": true
+  },
+  "memberManagement": {
+    "baseListIndependentOfPromotionDemotion": true,
+    "promotionLazyLoad": true,
+    "demotionLazyLoad": true,
+    "newProtectionLazyLoad": true,
+    "protectedRanks": [
+      "R1",
+      "R2",
+      "R3"
+    ],
+    "progress": [
+      "x/10",
+      "x/14",
+      "x/30"
+    ],
+    "expandedEvidenceNoAdditionalDetailApi": true,
+    "promotionPermanentQualificationSeparatedFromCurrentReferenceSpec": true,
+    "demotionReviewWindowEvidence": true,
+    "ezpk1ExistingAdminVisualLanguagePreserved": true,
+    "ezpk2ExistingLightSemanticAdminVisualLanguagePreserved": true
+  },
+  "predeploy": {
+    "status": "PASS",
+    "command": "npm run predeploy"
+  },
+  "syntax": {
+    "jsMjsCount": 95,
+    "jsMjsPass": true,
+    "jsonCountAfterValidation": 61,
+    "jsonPass": true,
+    "cssCount": 43,
+    "cssBracePass": true
+  },
+  "npmCi": {
+    "status": "NOT_RUN",
+    "reason": "Package-install execution is blocked in the artifact container; package lock/version consistency and predeploy were validated directly."
+  },
+  "wranglerDryRun": {
+    "status": "NOT_RUN",
+    "reason": "Wrangler is not installed in the packaged workspace; run npm ci and npm run deploy:dry-run on deployment host."
+  },
+  "liveGate": [
+    "85-member Member Management list renders immediately after /api/admin/members without waiting for review APIs",
+    "Search/sort/page/limit changes do not trigger promotion/demotion full review evaluation",
+    "Promotion and demotion panels lazy-load and show achieved/missing evidence and decision reason",
+    "R1/R2/R3 new-member protection roster and x/10 badges are correct",
+    "EZPK1 retains its Admin visual language and EZPK2 retains its light semantic Admin visual language on desktop/mobile"
+  ],
+  "finalPackageExpectedFiles": 450,
+  "cleanReextract": {
+    "status": "PASS",
+    "fileCount": 450,
+    "predeploy": "PASS",
+    "jsMjs": "95/95 PASS",
+    "json": "61/61 PASS",
+    "css": "43/43 PASS",
+    "checksumManifest": "449/449 PASS",
+    "zipCrc": "PASS",
+    "unsafePaths": 0,
+    "duplicatePaths": 0,
+    "caseFoldCollisions": 0
+  }
+}
