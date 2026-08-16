@@ -26,14 +26,14 @@
 </script>
   <link rel="stylesheet" href="../style.css?v=4270">
   <link rel="stylesheet" href="admin.css?v=4340">
-  <link rel="stylesheet" href="member-manager-v188.css?v=4340">
+  <link rel="stylesheet" href="member-manager-v188.css?v=4350">
   <link rel="stylesheet" href="vote-manager.css?v=4270">
   <link rel="stylesheet" href="capital-war-manager.css?v=4270">
   <link rel="stylesheet" href="admin-ui-v228.css?v=4270">
   <link rel="stylesheet" href="../common-heading.css?v=4270">
   <link rel="stylesheet" href="alliance-layout-manager.css?v=4270">
   <link rel="stylesheet" href="migration-manager.css?v=4270">
-<link rel="stylesheet" href="/ezpk-theme.css?v=4340">
+<link rel="stylesheet" href="/ezpk-theme.css?v=4350">
 </head>
 <body>
 <header class="site-header admin-auth-host" data-shared-header data-base=".." data-home-href="../" data-active-menu="" data-admin-context="true"></header>
@@ -184,7 +184,7 @@
     </details>
     <details class="v188-create-card promotion-settings-card" id="promotionSettingsV367">
       <summary>⚙ 승급 조건 설정</summary>
-      <div class="v188-create-body"><p>조건을 변경해도 기존 등급은 유지되며 승급 예정자와 마이페이지 달성 상태만 다시 계산됩니다.</p>
+      <div class="v188-create-body"><p>조건을 변경해도 기존 등급은 유지되며 승급 검토 대상과 마이페이지 달성 상태만 다시 계산됩니다.</p>
         <div class="promotion-rule-grid">
           <fieldset><legend>R2 승급 조건</legend><label>산업 레벨<select id="promotionR2IndustryV367"></select></label><label class="promotion-power-rule">1번 차량<span class="promotion-power-rule-control"><input id="promotionR2VehicleV367" type="number" min="0.01" step="0.01" inputmode="decimal" aria-label="R2 1번 차량 필요 전투력"><select id="promotionR2VehicleUnitV434" aria-label="R2 1번 차량 전투력 단위"><option value="M">M</option><option value="G">G</option></select></span></label><small class="promotion-rule-preview" id="promotionR2PreviewV434">연맹원 표시: 필요 -</small></fieldset>
           <fieldset><legend>R3 승급 조건</legend><label>산업 레벨<select id="promotionR3IndustryV367"></select></label><label class="promotion-power-rule">1번 차량<span class="promotion-power-rule-control"><input id="promotionR3VehicleV367" type="number" min="0.01" step="0.01" inputmode="decimal" aria-label="R3 1번 차량 필요 전투력"><select id="promotionR3VehicleUnitV434" aria-label="R3 1번 차량 전투력 단위"><option value="M">M</option><option value="G">G</option></select></span></label><small class="promotion-rule-preview" id="promotionR3PreviewV434">연맹원 표시: 필요 -</small></fieldset>
@@ -197,10 +197,11 @@
       <article><span>활성 연맹원</span><strong data-stat="active">0</strong></article>
       <article><span>정지 연맹원</span><strong data-stat="suspended">0</strong></article>
       <article><span>탈퇴 연맹원</span><strong data-stat="left">0</strong></article>
-      <article class="promotion-stat" id="promotionCandidatesOpenV367"><span>승급 예정</span><strong data-stat="promotion">0</strong></article>
+      <article class="promotion-stat protection-stat"><span>신규 보호</span><strong data-stat="newProtection">0</strong></article>
+      <article class="promotion-stat" id="promotionCandidatesOpenV367"><span>승급 검토</span><strong data-stat="promotion">0</strong></article>
       <article class="promotion-stat demotion-stat" id="demotionCandidatesOpenV371"><span>강등 검토</span><strong data-stat="demotion">0</strong></article>
     </div>
-    <section id="promotionCandidatesV367" class="promotion-candidates" hidden><div class="promotion-candidates-head"><div><h3>승급 예정자</h3><p id="promotionCandidateSummaryV367">전체 0명</p></div><div><button id="promotionCandidatesRefreshV367" class="secondary" type="button">↻ 새로고침</button><button id="promotionCandidatesBackV367" class="secondary" type="button">전체 연맹원으로 돌아가기</button></div></div><div id="promotionCandidateListV367"></div></section>
+    <section id="promotionCandidatesV367" class="promotion-candidates" hidden><div class="promotion-candidates-head"><div><h3>승급 검토</h3><p id="promotionCandidateSummaryV367">전체 0명</p></div><div><button id="promotionCandidatesRefreshV367" class="secondary" type="button">↻ 새로고침</button><button id="promotionCandidatesBackV367" class="secondary" type="button">전체 연맹원으로 돌아가기</button></div></div><div id="promotionCandidateListV367"></div></section>
     <section id="demotionCandidatesV371" class="promotion-candidates" hidden><div class="promotion-candidates-head"><div><h3>강등 검토 대상</h3><p id="demotionCandidateSummaryV371">전체 0명</p></div><div><button id="demotionCandidatesRefreshV371" class="secondary" type="button">↻ 새로고침</button><button id="demotionCandidatesBackV371" class="secondary" type="button">전체 연맹원으로 돌아가기</button></div></div><div id="demotionCandidateListV371"></div><details class="demotion-deferred"><summary>보호·제외 중인 연맹원 <span id="demotionDeferredCountV371">0</span>명</summary><div id="demotionDeferredListV371"></div></details><details class="rank-change-history"><summary>승급·강등 처리 이력</summary><div id="rankChangeHistoryV371"></div></details></section>
     <dialog id="activityConfirmDialogV369" class="activity-confirm-dialog"><form id="activityConfirmFormV369" class="activity-confirm-modal"><header><div><h3>활동 확인</h3><strong id="activityConfirmMemberV369"></strong><p>실제 게임 활동을 확인한 항목을 선택하세요.</p></div><button id="activityConfirmCloseV370" class="dialog-close" type="button" aria-label="닫기">×</button></header><div class="activity-confirm-options"><label><input id="activityCheckedLoginV369" type="checkbox"><span><strong>최근 게임 접속 확인</strong><small>게임 내 접속 상태를 확인했습니다.</small></span></label><label><input id="activityCheckedEventV369" type="checkbox"><span><strong>이벤트 참여 확인</strong><small>이벤트 또는 집결 참여를 확인했습니다.</small></span></label><label><input id="activityCheckedAllianceV369" type="checkbox"><span><strong>기본 연맹 활동 확인</strong><small>연맹 운영에 필요한 활동을 확인했습니다.</small></span></label></div><label class="activity-confirm-memo"><span><strong>확인 메모 · 선택사항</strong><small id="activityConfirmCountV370">0 / 100</small></span><textarea id="activityConfirmMemoV369" rows="3" maxlength="100" placeholder="예: 수도전 참여 및 연맹 집결 확인"></textarea></label><p class="activity-confirm-notice">ⓘ 승급 조건에는 14일, 등급 유지 조건에는 30일간 유효하며<br>각 기준에서 활동 조건 1개로 계산됩니다.</p><div id="activityConfirmStatusV369" class="mini-status"></div><footer><button id="activityConfirmCancelV369" type="button" class="secondary">취소</button><button id="activityConfirmSubmitV370" type="submit" class="primary" disabled>활동 확인 완료</button></footer></form></dialog>
     <dialog id="demotionConfirmDialogV371" class="activity-confirm-dialog"><form id="demotionConfirmFormV371" class="activity-confirm-modal"><header><div><h3>등급 강등 확인</h3><strong id="demotionConfirmMemberV371"></strong><p id="demotionConfirmRouteV371"></p></div><button id="demotionConfirmCloseV371" class="dialog-close" type="button" aria-label="닫기">×</button></header><div id="demotionConfirmActivityV371" class="demotion-confirm-activity"></div><label class="activity-confirm-memo"><span><strong>강등 사유 · 필수</strong><small id="demotionReasonCountV371">0 / 100</small></span><textarea id="demotionReasonV371" rows="3" maxlength="100" placeholder="강등 사유를 입력하세요."></textarea></label><p class="activity-confirm-notice">ⓘ 처리 즉시 D1 등급에 반영됩니다.</p><div id="demotionConfirmStatusV371" class="mini-status"></div><footer><button id="demotionConfirmCancelV371" type="button" class="secondary">취소</button><button id="demotionConfirmSubmitV371" type="submit" class="primary" disabled>강등 확정</button></footer></form></dialog>
@@ -487,7 +488,7 @@
 <script src="season6-manager.js?v=4270"></script>
 <script src="accounts-manager.js?v=4270"></script>
 <script src="capital-war-manager.js?v=4270"></script>
-<script src="member-manager-v188.js?v=4340"></script>
+<script src="member-manager-v188.js?v=4350"></script>
 <script src="vote-manager.js?v=4270"></script>
 <script src="alliance-layout-manager.js?v=4270"></script>
 <script src="migration-manager.js?v=4270"></script>

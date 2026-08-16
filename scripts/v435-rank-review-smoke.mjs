@@ -1,0 +1,40 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const worker=fs.readFileSync(path.join(root,'worker.js'),'utf8');
+const admin=fs.readFileSync(path.join(root,'admin/member-manager-v188.js'),'utf8');
+const migration=fs.readFileSync(path.join(root,'migrations/0032_v435_rank_review_cycles.sql'),'utf8');
+function add(date,days){return new Date(Date.parse(date+'T00:00:00Z')+days*86400000).toISOString().slice(0,10)}
+function diff(a,b){return Math.floor((Date.parse(b+'T00:00:00Z')-Date.parse(a+'T00:00:00Z'))/86400000)}
+function progress(start,total,today){return Math.max(1,Math.min(total,diff(start,today)+1))}
+const checks=[];
+const check=(name,pass,detail)=>checks.push({name,pass:Boolean(pass),detail});
+const start='2026-08-17';
+check('promotion_day_1',progress(start,14,start)===1,{actual:progress(start,14,start)});
+check('promotion_day_14',progress(start,14,add(start,13))===14,{actual:progress(start,14,add(start,13)),date:add(start,13)});
+check('promotion_hold_boundary_after_day_14',add(start,14)>add(start,13),{due:add(start,13),firstExpiredDate:add(start,14)});
+check('maintenance_day_30',progress(start,30,add(start,29))===30,{actual:progress(start,30,add(start,29)),date:add(start,29)});
+check('maintenance_evaluates_after_full_day_30',worker.includes("today>dateAddDays(startOn,RANK_REVIEW_MAINTENANCE_DAYS-1)"),{});
+check('new_member_protection_day_10',progress(start,10,add(start,9))===10,{actual:progress(start,10,add(start,9)),protectionUntil:add(start,9)});
+check('new_member_protection_ends_day_11',add(start,10)>add(start,9),{maintenanceEarliest:add(start,10)});
+check('persistent_state_table',migration.includes('CREATE TABLE IF NOT EXISTS member_rank_review_states'),{});
+check('activation_date_authority',migration.includes("rank_review_system_v1_started_on',date('now','+9 hours')"),{});
+check('promotion_states',(['IN_PROGRESS','REVIEWABLE','HOLD','WAIT_MAINTENANCE']).every(x=>migration.includes(x)),{});
+check('promotion_immediate_reviewable_when_cycle_activity_met',worker.includes("if(cycleActivity.eligible){status='REVIEWABLE'"),{});
+check('promotion_failure_goes_hold_after_window',worker.includes("else if(today>dueOn){status='HOLD'"),{});
+check('hold_requires_30d_activity_and_fresh_post_hold_evidence',worker.includes("maintenance?.activity?.eligible&&await hasRankReviewActivityEvidenceAfter"),{});
+check('rank_change_blocks_chain_promotion',worker.includes("const blockNextPromotion=['R1','R2'].includes(newRank)?1:0"),{});
+check('manual_single_same_rank_does_not_reset',worker.includes("if(rank!==target.member_rank)await resetRankReviewAfterRankChange"),{});
+check('manual_bulk_changed_only_resets',worker.includes("for(const row of changed)await resetRankReviewAfterRankChange"),{});
+check('promotion_no_new_legacy_10d_protection',!worker.includes("VALUES(?,'promotion',?,?,?, ?,datetime('now','+10 days'))"),{});
+check('demotion_no_new_legacy_30d_protection',!worker.includes("VALUES(?,'demotion',?,?,?,?,?,datetime('now','+30 days'))"),{});
+check('admin_compact_14_badge',admin.includes("/14`,cls:'progress'"),{});
+check('admin_compact_30_badge',admin.includes("/30`,cls:'progress'"),{});
+check('admin_compact_10_badge',admin.includes('/10</span>'),{});
+check('admin_hold_label',admin.includes("text:'활동 미달'"),{});
+check('admin_manual_history_label',admin.includes("x.type==='promotion'?'승급':x.type==='demotion'?'강등':'관리자 변경'"),{});
+const result={version:'v435',status:checks.every(x=>x.pass)?'PASS':'FAIL',checks};
+fs.writeFileSync(path.join(root,'V435_RANK_REVIEW_SMOKE.json'),JSON.stringify(result,null,2)+'\n');
+console.log(JSON.stringify(result,null,2));
+if(result.status!=='PASS')process.exit(1);

@@ -1,0 +1,98 @@
+{
+  "version": "v435",
+  "packageVersion": "4.3.5",
+  "status": "PASS",
+  "base": {
+    "name": "EZPK-v434-deploy-ready.zip",
+    "fileCount": 436
+  },
+  "pathPreservation": {
+    "predecessorPathsPreserved": 436,
+    "predecessorPathCount": 436,
+    "deletedCount": 0,
+    "deleted": [],
+    "changedExistingCount": 8,
+    "changedExisting": [
+      "README.md",
+      "admin/index.html",
+      "admin/member-manager-v188.css",
+      "admin/member-manager-v188.js",
+      "ezpk-theme.css",
+      "package-lock.json",
+      "package.json",
+      "worker.js"
+    ],
+    "addedBeforeManifestCount": 8,
+    "addedBeforeManifest": [
+      "V435_D1_SCHEMA_SMOKE.json",
+      "V435_DEPLOY_VALIDATION_RUNBOOK.md",
+      "V435_RANK_REVIEW_CYCLE_REPORT.md",
+      "V435_RANK_REVIEW_SMOKE.json",
+      "V435_VALIDATION.json",
+      "migrations/0032_v435_rank_review_cycles.sql",
+      "scripts/v435-deploy-guard.mjs",
+      "scripts/v435-rank-review-smoke.mjs"
+    ]
+  },
+  "migrations": {
+    "count": 31,
+    "latest": "migrations/0032_v435_rank_review_cycles.sql",
+    "predecessorExact": 30,
+    "predecessorCount": 30,
+    "predecessorByteExactPass": true,
+    "schemaSmoke": "PASS"
+  },
+  "historicalDeployGuards": {
+    "exact": 33,
+    "count": 33,
+    "byteExactPass": true
+  },
+  "protectedFiles": {
+    "bgb/bgb.js": true,
+    "bgb/index.html": true,
+    "request/request.js": true,
+    "request/index.html": true,
+    "migration/migration.js": true,
+    "migration/index.html": true,
+    "shared-header.js": true,
+    "admin/admin.js": true
+  },
+  "rankReviewSmoke": "PASS",
+  "predeploy": {
+    "status": "PASS"
+  },
+  "syntax": {
+    "jsMjsCount": 94,
+    "jsMjsPass": true,
+    "jsonCount": 60,
+    "jsonPass": true,
+    "cssCount": 43,
+    "cssBracePass": true
+  },
+  "wranglerDryRun": {
+    "status": "NOT_RUN",
+    "reason": "Wrangler executable is not installed in the packaged workspace; run after npm ci on deployment host."
+  },
+  "liveGate": [
+    "Apply migration 0032 to both EZPK1 and EZPK2 D1 before Worker deploy",
+    "Admin desktop/mobile x/14, x/30, x/10 visual check",
+    "Promotion HOLD/recovery live workflow",
+    "Backend promotion/demotion gate live workflow",
+    "Manual single/bulk rank override audit/reset",
+    "v434 M/G + semantic color + BGB regression checks"
+  ],
+  "cleanReextract": {
+    "status": "PASS",
+    "fileCount": 445,
+    "predeploy": "PASS",
+    "jsMjs": "94/94 PASS",
+    "json": "60/60 PASS",
+    "css": "43/43 PASS",
+    "checksumManifest": "444/444 PASS",
+    "zipCrc": "PASS",
+    "unsafePaths": 0,
+    "duplicatePaths": 0,
+    "caseFoldCollisions": 0
+  },
+  "finalPackageExpectedFiles": 445
+}

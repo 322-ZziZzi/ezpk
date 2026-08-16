@@ -1,4 +1,19 @@
-> Current deploy-ready baseline: **v434 / 4.3.4** — EZPK2 promotion requirements support administrator-selected M/G units with preserved member-facing display units, and the EZPK2 Admin light theme uses a high-contrast semantic color system.
+> Current deploy-ready baseline: **v435 / 4.3.5** — Member rank management now uses persisted 14-day promotion opportunities, 30-day maintenance/demotion review cycles, and 10-day new-member demotion protection while preserving v434 M/G promotion requirements and semantic Admin colors.
+
+## v435 Rank Review Cycles
+
+- Records upper-rank spec qualification and starts a 14-day promotion opportunity instead of showing an unqualified timeless candidate list.
+- The `1/14`–`14/14` value is the promotion opportunity day, not a requirement to satisfy every condition continuously for 14 days.
+- Meeting the promotion activity requirement during the opportunity makes the member reviewable immediately; missing it through the end of the opportunity moves the member to `HOLD` instead of automatically restarting another 14-day window.
+- A held promotion can reopen only after the member has fresh post-HOLD activity and the recent 30-day maintenance activity requirement is satisfied.
+- Tracks the current rank in 30-day maintenance review cycles. A completed failing cycle becomes demotion-reviewable; a passing cycle rolls into the next 30-day cycle.
+- New alliance members receive 10 calendar days of demotion protection before their first maintenance cycle begins. This protection does not block promotion.
+- Completing a promotion/demotion or changing rank manually ends the previous cycle state and starts the new rank lifecycle. A new R1/R2 rank must verify maintenance before the next higher-rank promotion opportunity can open, preventing immediate chain promotion.
+- Admin single/bulk rank changes are recorded as manual rank changes; saving the same rank does not reset the cycle.
+- Existing members are not assigned guessed historical progress. `0032_v435_rank_review_cycles.sql` records the v435 activation date and initializes official cycle dates from that authority.
+- Admin Member Management keeps the review list compact with `x/14`, `x/30`, `검토 가능`, `활동 미달`, `유지 확인 중`, and new-member `x/10` badges; detailed activity remains available through the existing detail/confirmation flows.
+- Adds D1 migration `0032_v435_rank_review_cycles.sql`; apply it to both EZPK1 and EZPK2 D1 databases before deploying the v435 Worker.
+- Preserves v434 promotion M/G units, EZPK2 semantic Admin colors, v433 BGB Draft/Published behavior, and all earlier Request/Migration/Admin fixes.
 
 ## v434 Promotion M/G + Admin Semantic Light Theme
 

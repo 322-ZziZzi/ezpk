@@ -267,3 +267,12 @@
 .promotion-power-rule-control input,.promotion-power-rule-control select{width:100%;min-width:0}
 .promotion-rule-preview{display:block;margin-top:2px;color:#8e9aae;font-size:12px;font-weight:800;text-align:right}
 @media(max-width:700px){.promotion-power-rule{align-items:stretch!important;flex-direction:column}.promotion-power-rule-control{width:100%;min-width:0;grid-template-columns:minmax(0,1fr) 72px}.promotion-rule-preview{text-align:left}}
+
+/* v435: compact rank-review cycle status. Keep the list operationally simple: member, route, cycle/state, actions. */
+.review-cycle-badge{display:inline-flex;align-items:center;justify-content:center;min-width:76px;min-height:34px;padding:6px 10px;border:1px solid #334155;border-radius:999px;background:#111927;color:#dbe6f3;font-weight:900;font-size:13px;line-height:1;white-space:nowrap}
+.review-cycle-badge.progress{color:#67a7ff;border-color:#315f9d;background:#0b1b31}
+.review-cycle-badge.reviewable{color:#72d99a;border-color:#2e7d4f;background:#0d2418}
+.review-cycle-badge.hold,.review-cycle-badge.demotion-reviewable{color:#f6ad55;border-color:#9a5a24;background:#2a190d}
+.review-cycle-badge.waiting,.review-cycle-badge.protected{color:#f5c547;border-color:#8c7020;background:#261f0d}
+.protection-stat strong{color:#f5c547}
+@media(max-width:700px){.review-cycle-badge{align-self:flex-start}.promotion-candidate-actions{width:100%}.promotion-candidate-actions button{flex:1 1 130px}}

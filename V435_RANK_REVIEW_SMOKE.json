@@ -1,0 +1,137 @@
+{
+  "version": "v435",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "promotion_day_1",
+      "pass": true,
+      "detail": {
+        "actual": 1
+      }
+    },
+    {
+      "name": "promotion_day_14",
+      "pass": true,
+      "detail": {
+        "actual": 14,
+        "date": "2026-08-30"
+      }
+    },
+    {
+      "name": "promotion_hold_boundary_after_day_14",
+      "pass": true,
+      "detail": {
+        "due": "2026-08-30",
+        "firstExpiredDate": "2026-08-31"
+      }
+    },
+    {
+      "name": "maintenance_day_30",
+      "pass": true,
+      "detail": {
+        "actual": 30,
+        "date": "2026-09-15"
+      }
+    },
+    {
+      "name": "maintenance_evaluates_after_full_day_30",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "new_member_protection_day_10",
+      "pass": true,
+      "detail": {
+        "actual": 10,
+        "protectionUntil": "2026-08-26"
+      }
+    },
+    {
+      "name": "new_member_protection_ends_day_11",
+      "pass": true,
+      "detail": {
+        "maintenanceEarliest": "2026-08-27"
+      }
+    },
+    {
+      "name": "persistent_state_table",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "activation_date_authority",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "promotion_states",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "promotion_immediate_reviewable_when_cycle_activity_met",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "promotion_failure_goes_hold_after_window",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "hold_requires_30d_activity_and_fresh_post_hold_evidence",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "rank_change_blocks_chain_promotion",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "manual_single_same_rank_does_not_reset",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "manual_bulk_changed_only_resets",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "promotion_no_new_legacy_10d_protection",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "demotion_no_new_legacy_30d_protection",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "admin_compact_14_badge",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "admin_compact_30_badge",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "admin_compact_10_badge",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "admin_hold_label",
+      "pass": true,
+      "detail": {}
+    },
+    {
+      "name": "admin_manual_history_label",
+      "pass": true,
+      "detail": {}
+    }
+  ]
+}

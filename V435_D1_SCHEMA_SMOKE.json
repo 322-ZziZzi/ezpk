@@ -1,0 +1,32 @@
+{
+  "version": "v435",
+  "status": "PASS",
+  "migrationCount": 31,
+  "rankReviewColumns": [
+    "member_id",
+    "rank_snapshot",
+    "promotion_target_rank",
+    "spec_qualified_at",
+    "promotion_cycle_started_on",
+    "promotion_activity_qualified_at",
+    "promotion_status",
+    "promotion_hold_started_at",
+    "promotion_rule_fingerprint",
+    "maintenance_cycle_started_on",
+    "maintenance_status",
+    "maintenance_reviewable_at",
+    "maintenance_last_completed_on",
+    "maintenance_verified_at",
+    "new_member_protection_until",
+    "promotion_unlock_after_maintenance",
+    "last_evaluated_at",
+    "updated_at"
+  ],
+  "settings": {
+    "member_db_schema_version": "5.4-v435",
+    "rank_review_system_v1_started_on": "2026-08-17"
+  },
+  "expectedColumnsPresent": true,
+  "schemaVersionPass": true,
+  "activationDatePresent": true
+}

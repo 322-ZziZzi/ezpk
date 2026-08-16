@@ -1917,3 +1917,13 @@ html[data-site="ezpk2"] #adminApp .request-source-badge.migration{background:var
 /* Admin login follows the same semantic action system without affecting public pages. */
 html[data-site="ezpk2"] .admin-login-screen .primary{background:var(--v434-primary)!important;color:#fff!important;border-color:#1E40AF!important}
 html[data-site="ezpk2"] .admin-login-screen .secondary{background:#fff!important;color:var(--v434-admin-text-secondary)!important;border-color:var(--v434-admin-border-strong)!important}
+
+/* v435: EZPK2 Admin rank-review cycle semantic status. */
+html[data-site="ezpk2"] #adminApp .review-cycle-badge{background:#fff!important;border-color:var(--v434-admin-border-strong)!important;color:var(--v434-admin-text-secondary)!important}
+html[data-site="ezpk2"] #adminApp .review-cycle-badge.progress{background:var(--v434-primary-bg)!important;border-color:var(--v434-primary)!important;color:var(--v434-primary)!important}
+html[data-site="ezpk2"] #adminApp .review-cycle-badge.reviewable{background:var(--v434-success-bg)!important;border-color:var(--v434-success)!important;color:var(--v434-success)!important}
+html[data-site="ezpk2"] #adminApp .review-cycle-badge.hold,
+html[data-site="ezpk2"] #adminApp .review-cycle-badge.demotion-reviewable{background:var(--v434-missing-bg)!important;border-color:var(--v434-missing)!important;color:var(--v434-missing)!important}
+html[data-site="ezpk2"] #adminApp .review-cycle-badge.waiting,
+html[data-site="ezpk2"] #adminApp .review-cycle-badge.protected{background:var(--v434-goal-bg)!important;border-color:var(--v434-pending)!important;color:var(--v434-pending)!important}
+html[data-site="ezpk2"] #adminApp .protection-stat strong{color:var(--v434-pending)!important}
