@@ -507,6 +507,8 @@ async function handleMigrationEligibility(request, env) {
       siteId: "ezpk1",
       industryLevel: Number(r2.industryLevel || 0),
       vehicle1PowerNormalized: Number(r2.vehicle1PowerNormalized || 0),
+      vehicle1PowerValue: Number(r2.vehicle1PowerValue || 0),
+      vehicle1PowerUnit: String(r2.vehicle1PowerUnit || "G"),
       vehicle1PowerG: Number(r2.vehicle1PowerNormalized || 0) / 1000,
       ezpk2Active: isEzpk2Active(env),
       ezpk2MigrationUrl: publicAllianceUrl("ezpk2", "/migration/"),
@@ -2057,21 +2059,45 @@ async function getSetting(db, key) {
 }
 
 const DEFAULT_PROMOTION_RULES = Object.freeze({
-  R2:{industryLevel:7,vehicle1PowerNormalized:1000},
-  R3:{industryLevel:8,vehicle1PowerNormalized:1300},
+  R2:{industryLevel:7,vehicle1PowerNormalized:1000,vehicle1PowerValue:1,vehicle1PowerUnit:"G"},
+  R3:{industryLevel:8,vehicle1PowerNormalized:1300,vehicle1PowerValue:1.3,vehicle1PowerUnit:"G"},
 });
+function canonicalPromotionRule(rule,fallback){
+  const industryLevel=Number(rule?.industryLevel??fallback.industryLevel);
+  const vehicle1PowerNormalized=Number(rule?.vehicle1PowerNormalized??fallback.vehicle1PowerNormalized);
+  const rawUnit=String(rule?.vehicle1PowerUnit||"").trim().toUpperCase();
+  const rawValue=Number(rule?.vehicle1PowerValue);
+  const hasStoredDisplay=(rawUnit==="M"||rawUnit==="G")&&Number.isFinite(rawValue)&&rawValue>0;
+  const expected=hasStoredDisplay?rawValue*(rawUnit==="G"?1000:1):NaN;
+  const displayMatches=hasStoredDisplay&&Number.isFinite(vehicle1PowerNormalized)&&Math.abs(expected-vehicle1PowerNormalized)<1e-6;
+  const vehicle1PowerUnit=displayMatches?rawUnit:"G";
+  const vehicle1PowerValue=displayMatches?rawValue:vehicle1PowerNormalized/1000;
+  return {industryLevel,vehicle1PowerNormalized,vehicle1PowerValue,vehicle1PowerUnit};
+}
+function promotionRuleInput(raw){
+  const industryLevel=Number(raw?.industryLevel);
+  const displayUnit=String(raw?.vehicle1PowerUnit||"").trim().toUpperCase();
+  const displayValue=Number(raw?.vehicle1PowerValue);
+  if((displayUnit==="M"||displayUnit==="G")&&Number.isFinite(displayValue)&&displayValue>0){
+    return {industryLevel,vehicle1PowerValue:displayValue,vehicle1PowerUnit:displayUnit,vehicle1PowerNormalized:displayValue*(displayUnit==="G"?1000:1)};
+  }
+  const vehicle1PowerNormalized=Number(raw?.vehicle1PowerNormalized);
+  return {industryLevel,vehicle1PowerNormalized,vehicle1PowerValue:vehicle1PowerNormalized/1000,vehicle1PowerUnit:"G"};
+}
 async function getPromotionRules(db){
   try{
     const raw=await getSetting(db,"promotion_rules_v1"), parsed=raw?JSON.parse(raw):{};
-    const rules={R2:{...DEFAULT_PROMOTION_RULES.R2,...parsed.R2},R3:{...DEFAULT_PROMOTION_RULES.R3,...parsed.R3}};
+    const rules={R2:canonicalPromotionRule({...DEFAULT_PROMOTION_RULES.R2,...parsed.R2},DEFAULT_PROMOTION_RULES.R2),R3:canonicalPromotionRule({...DEFAULT_PROMOTION_RULES.R3,...parsed.R3},DEFAULT_PROMOTION_RULES.R3)};
     return validatePromotionRules(rules)?rules:structuredClone(DEFAULT_PROMOTION_RULES);
   }catch(_){return structuredClone(DEFAULT_PROMOTION_RULES)}
 }
 function validatePromotionRules(rules){
   const r2=rules?.R2,r3=rules?.R3;
-  return [r2?.industryLevel,r3?.industryLevel,r2?.vehicle1PowerNormalized,r3?.vehicle1PowerNormalized].every(Number.isFinite)
+  return [r2?.industryLevel,r3?.industryLevel,r2?.vehicle1PowerNormalized,r3?.vehicle1PowerNormalized,r2?.vehicle1PowerValue,r3?.vehicle1PowerValue].every(Number.isFinite)
+    &&[r2?.vehicle1PowerUnit,r3?.vehicle1PowerUnit].every(x=>x==="M"||x==="G")
     &&r2.industryLevel>=1&&r3.industryLevel<=10&&r3.industryLevel>=r2.industryLevel
-    &&r2.vehicle1PowerNormalized>0&&r3.vehicle1PowerNormalized>=r2.vehicle1PowerNormalized;
+    &&r2.vehicle1PowerNormalized>0&&r3.vehicle1PowerNormalized>=r2.vehicle1PowerNormalized
+    &&r2.vehicle1PowerValue>0&&r3.vehicle1PowerValue>0;
 }
 function industryNumber(v){const n=Number(String(v||"").toUpperCase().replace("I",""));return Number.isFinite(n)?n:0}
 function promotionState(row,rules,activity=null){
@@ -2080,7 +2106,7 @@ function promotionState(row,rules,activity=null){
   const active=row.status==="active"&&(row.approval_status||"approved")==="approved";
   const specEligible=active&&ind>=rule.industryLevel&&v1>=rule.vehicle1PowerNormalized;
   const activityEligible=Boolean(activity?.eligible);
-  return {currentRank:row.member_rank,targetRank:target,completed:Number(ind>=rule.industryLevel)+Number(v1>=rule.vehicle1PowerNormalized),specEligible,activityEligible,eligible:specEligible&&activityEligible,industry:{required:`I${rule.industryLevel}`,current:row.industry_level||null,passed:ind>=rule.industryLevel},vehicle1:{requiredNormalized:rule.vehicle1PowerNormalized,currentNormalized:row.vehicle1_power_normalized??null,passed:v1>=rule.vehicle1PowerNormalized},activity};
+  return {currentRank:row.member_rank,targetRank:target,completed:Number(ind>=rule.industryLevel)+Number(v1>=rule.vehicle1PowerNormalized),specEligible,activityEligible,eligible:specEligible&&activityEligible,industry:{required:`I${rule.industryLevel}`,current:row.industry_level||null,passed:ind>=rule.industryLevel},vehicle1:{requiredNormalized:rule.vehicle1PowerNormalized,requiredValue:rule.vehicle1PowerValue,requiredUnit:rule.vehicle1PowerUnit,currentNormalized:row.vehicle1_power_normalized??null,passed:v1>=rule.vehicle1PowerNormalized},activity};
 }
 
 async function memberActivityStatus(db,memberId,includePrivate=false,windowDays=14){
@@ -2651,7 +2677,7 @@ async function handleAdminPromotionRulesGet(request,env){
 }
 async function handleAdminPromotionRulesPut(request,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
-  const body=await readJson(request),rules={R2:{industryLevel:Number(body?.R2?.industryLevel),vehicle1PowerNormalized:Number(body?.R2?.vehicle1PowerNormalized)},R3:{industryLevel:Number(body?.R3?.industryLevel),vehicle1PowerNormalized:Number(body?.R3?.vehicle1PowerNormalized)}};
+  const body=await readJson(request),rules={R2:promotionRuleInput(body?.R2),R3:promotionRuleInput(body?.R3)};
   if(!validatePromotionRules(rules))return jsonError("INVALID_PROMOTION_RULES",400);
   const before=await getPromotionRules(env.DB);
   await env.DB.prepare(`INSERT INTO settings(key,value,updated_at,updated_by) VALUES('promotion_rules_v1',?,CURRENT_TIMESTAMP,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP,updated_by=excluded.updated_by`).bind(JSON.stringify(rules),admin.login_id).run();

@@ -1,0 +1,127 @@
+{
+  "version": "v434",
+  "pass": true,
+  "applied": 30,
+  "rows": [
+    {
+      "file": "0001_core_tables.sql",
+      "pass": true
+    },
+    {
+      "file": "0002_system_tables_and_defaults.sql",
+      "pass": true
+    },
+    {
+      "file": "0003_triggers.sql",
+      "pass": true
+    },
+    {
+      "file": "0004_indexes.sql",
+      "pass": true
+    },
+    {
+      "file": "0005_views.sql",
+      "pass": true
+    },
+    {
+      "file": "0007_v181_admin_r5.sql",
+      "pass": true
+    },
+    {
+      "file": "0008_v182_first_nickname_change_free.sql",
+      "pass": true
+    },
+    {
+      "file": "0009_v183_admin_r5_profile_lock.sql",
+      "pass": true
+    },
+    {
+      "file": "0010_v188_admin_member_manager.sql",
+      "pass": true
+    },
+    {
+      "file": "0011_v190_request_member_ownership.sql",
+      "pass": true
+    },
+    {
+      "file": "0012_v216_vote_system.sql",
+      "pass": true
+    },
+    {
+      "file": "0013_v223_profile_specs_registration.sql",
+      "pass": true
+    },
+    {
+      "file": "0014_v226_nullable_profile_fields.sql",
+      "pass": true
+    },
+    {
+      "file": "0015_v233_events_d1.sql",
+      "pass": true
+    },
+    {
+      "file": "0016_v244_strategy_content_d1.sql",
+      "pass": true
+    },
+    {
+      "file": "0017_v299_subadmin_activity_logs.sql",
+      "pass": true
+    },
+    {
+      "file": "0018_v310_subadmin_menu_permissions.sql",
+      "pass": true
+    },
+    {
+      "file": "0019_v349_strategy_content_history.sql",
+      "pass": true
+    },
+    {
+      "file": "0020_v351_alliance_layouts.sql",
+      "pass": true
+    },
+    {
+      "file": "0021_v366_rolling_sessions.sql",
+      "pass": true
+    },
+    {
+      "file": "0022_v367_promotion_system.sql",
+      "pass": true
+    },
+    {
+      "file": "0023_v369_promotion_activity.sql",
+      "pass": true
+    },
+    {
+      "file": "0024_v371_rank_maintenance.sql",
+      "pass": true
+    },
+    {
+      "file": "0025_v374_rank_change_notice_dismiss.sql",
+      "pass": true
+    },
+    {
+      "file": "0026_v387_migration_applications.sql",
+      "pass": true
+    },
+    {
+      "file": "0027_v390_migration_tier_power_ranges.sql",
+      "pass": true
+    },
+    {
+      "file": "0028_v392_migration_uid_duplicate_guard.sql",
+      "pass": true
+    },
+    {
+      "file": "0029_v394_migration_excel_import.sql",
+      "pass": true
+    },
+    {
+      "file": "0030_v401_multi_alliance_migration_inquiries.sql",
+      "pass": true
+    },
+    {
+      "file": "0031_v405_migration_inquiry_soft_delete.sql",
+      "pass": true
+    }
+  ]
+}

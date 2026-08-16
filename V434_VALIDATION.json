@@ -1,0 +1,133 @@
+{
+  "version": "4.3.4",
+  "release": "v434",
+  "baseline": "v433 / 4.3.3",
+  "scope": "EZPK2 promotion-condition M/G + high-contrast promotion semantics + Admin light-theme semantic color system",
+  "predeploy": "PASS",
+  "promotionUnitSmoke": "PASS",
+  "colorContrastSmoke": "PASS",
+  "d1SchemaSmoke": "PASS",
+  "baselinePathsPreserved": {
+    "passed": 426,
+    "total": 426
+  },
+  "finalFileCount": 436,
+  "existingChangedCount": 10,
+  "existingChangedPaths": [
+    "README.md",
+    "admin/index.html",
+    "admin/member-manager-v188.css",
+    "admin/member-manager-v188.js",
+    "ezpk-theme.css",
+    "my/index.html",
+    "my/my.js",
+    "package-lock.json",
+    "package.json",
+    "worker.js"
+  ],
+  "newPathCount": 10,
+  "newPaths": [
+    "V434_COLOR_CONTRAST_SMOKE.json",
+    "V434_D1_SCHEMA_SMOKE.json",
+    "V434_DEPLOY_VALIDATION_RUNBOOK.md",
+    "V434_FILE_CHECKSUMS.sha256",
+    "V434_PROMOTION_MG_ADMIN_SEMANTIC_COLOR_REPORT.md",
+    "V434_PROMOTION_UNIT_SMOKE.json",
+    "V434_VALIDATION.json",
+    "scripts/v434-color-contrast-smoke.mjs",
+    "scripts/v434-deploy-guard.mjs",
+    "scripts/v434-promotion-unit-smoke.mjs"
+  ],
+  "deletedPaths": [],
+  "d1MigrationsByteExact": {
+    "passed": 30,
+    "total": 30
+  },
+  "historicalDeployGuardsByteExact": {
+    "passed": 32,
+    "total": 32
+  },
+  "protectedFiles": [
+    {
+      "path": "admin/admin.js",
+      "byteExact": true
+    },
+    {
+      "path": "admin/admin.css",
+      "byteExact": true
+    },
+    {
+      "path": "bgb/bgb.js",
+      "byteExact": true
+    },
+    {
+      "path": "bgb/index.html",
+      "byteExact": true
+    },
+    {
+      "path": "shared-header.js",
+      "byteExact": true
+    },
+    {
+      "path": "style.css",
+      "byteExact": true
+    },
+    {
+      "path": "header-fit-v424.js",
+      "byteExact": true
+    },
+    {
+      "path": "header-fit-v424.css",
+      "byteExact": true
+    },
+    {
+      "path": "vehicle-power.js",
+      "byteExact": true
+    },
+    {
+      "path": "request/request-admin.js",
+      "byteExact": true
+    },
+    {
+      "path": "migration/migration.js",
+      "byteExact": true
+    },
+    {
+      "path": "wrangler.jsonc",
+      "byteExact": true
+    },
+    {
+      "path": "data/bgb.json",
+      "byteExact": true
+    }
+  ],
+  "jsMjsSyntax": {
+    "passed": 92,
+    "total": 92
+  },
+  "jsonParse": {
+    "passed": 57,
+    "total": 57
+  },
+  "cssBraceBalance": {
+    "passed": 43,
+    "total": 43
+  },
+  "checksumManifest": {
+    "passed": 435,
+    "total": 435
+  },
+  "zipCRC": "PASS",
+  "cleanReextractPredeploy": "PASS",
+  "cleanReextractSyntaxJsonChecksum": "PASS",
+  "unsafePaths": 0,
+  "duplicatePaths": 0,
+  "caseFoldCollisions": 0,
+  "liveBrowserGate": "PENDING_PRODUCTION_EZPK2_SESSION",
+  "notes": [
+    "No new D1 migration is required; promotion display value/unit are stored inside the existing promotion_rules_v1 settings JSON.",
+    "500M and 0.5G normalize to the same comparison value while the administrator-selected display unit is preserved for member-facing required text.",
+    "The EZPK2 Admin semantic palette is scoped to Admin surfaces as far as practical; public non-promotion light-theme structure remains unchanged.",
+    "v433 BGB Draft/Published behavior and all prior protected admin/request/migration functionality remain guarded."
+  ]
+}

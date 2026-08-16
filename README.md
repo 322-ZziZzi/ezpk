@@ -1,4 +1,18 @@
-> Current deploy-ready baseline: **v426 / 4.2.6** — multilingual flow-safe Mini Games cards across PC, tablet, and mobile, with CTA/content overlap structurally eliminated.
+> Current deploy-ready baseline: **v434 / 4.3.4** — EZPK2 promotion requirements support administrator-selected M/G units with preserved member-facing display units, and the EZPK2 Admin light theme uses a high-contrast semantic color system.
+
+## v434 Promotion M/G + Admin Semantic Light Theme
+
+- Keeps the existing promotion-condition layout and copy, but applies high-contrast semantic colors on EZPK2: success `#15803D`, missing `#C2410C`, goal `#A16207`, progress `#1D4ED8`, and pending `#B45309`.
+- Extends Admin → Member Management → Promotion Conditions from G-only Vehicle #1 requirements to an explicit value + M/G selector.
+- Stores the administrator-selected display value/unit alongside the normalized comparison value, so `500M` and `0.5G` compare identically while member-facing requirements preserve the selected unit.
+- Keeps old normalized-only/G promotion settings backward compatible.
+- Adds an inline admin preview such as `연맹원 표시: 필요 500M`.
+- Introduces an EZPK2 Admin-only semantic light-theme palette: Primary `#1D4ED8`, Success `#15803D`, Goal `#A16207`, Missing/Error `#C2410C`, Pending `#B45309`, Danger `#B91C1C`, Support `#7E22CE`, System `#0F766E`.
+- Keeps the existing neutral foundation: page `#F1F4F8`, surface `#FFFFFF`, subtle `#F8FAFC`, primary text `#0B1220`, secondary text `#344054`, muted text `#5D6978`, border `#CBD5E1`, strong border `#94A3B8`.
+- Admin menu groups now use high-contrast semantic identities: Operations/Member `#1D4ED8`, Teams/BGB/War `#A16207`, Support/Request `#7E22CE`, System `#0F766E`.
+- Default Save/Primary actions use Blue, Publish/Activate/Promotion confirmations use Green, secondary actions use White/Slate, destructive actions use Red. Success/error/info toasts are visually distinct.
+- Changes are scoped to EZPK2 Admin and the EZPK2 promotion card; public user-facing page colors outside the promotion card are not globally recolored.
+- Preserves v433 BGB Draft/Published behavior, v432 Industry Lv. + #1 display, all 30 D1 migrations, and prior authentication/Request/Migration fixes.
 
 ## v426 Mini Games Multilingual Flow-Safe Card Remediation
 

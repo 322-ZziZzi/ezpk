@@ -1,0 +1,90 @@
+{
+  "version": "v434",
+  "pass": true,
+  "checks": [
+    {
+      "name": "500M normalized",
+      "pass": true,
+      "actual": {
+        "value": 500,
+        "unit": "M",
+        "normalized": 500
+      },
+      "expected": {
+        "value": 500,
+        "unit": "M",
+        "normalized": 500
+      }
+    },
+    {
+      "name": "0.5G normalized",
+      "pass": true,
+      "actual": {
+        "value": 0.5,
+        "unit": "G",
+        "normalized": 500
+      },
+      "expected": {
+        "value": 0.5,
+        "unit": "G",
+        "normalized": 500
+      }
+    },
+    {
+      "name": "legacy normalized-only rule stays backward compatible",
+      "pass": true,
+      "actual": {
+        "value": 0.5,
+        "unit": "G",
+        "normalized": 500
+      },
+      "expected": {
+        "value": 0.5,
+        "unit": "G",
+        "normalized": 500
+      }
+    },
+    {
+      "name": "stored M display preserved",
+      "pass": true,
+      "actual": {
+        "value": 500,
+        "unit": "M",
+        "normalized": 500
+      },
+      "expected": {
+        "value": 500,
+        "unit": "M",
+        "normalized": 500
+      }
+    },
+    {
+      "name": "promotion state preserves required display",
+      "pass": true,
+      "actual": {
+        "requiredValue": 500,
+        "requiredUnit": "M",
+        "requiredNormalized": 500,
+        "passed": true
+      },
+      "expected": {
+        "requiredValue": 500,
+        "requiredUnit": "M",
+        "requiredNormalized": 500,
+        "passed": true
+      }
+    },
+    {
+      "name": "member-facing M display",
+      "pass": true,
+      "actual": "500M",
+      "expected": "500M"
+    },
+    {
+      "name": "member-facing G display",
+      "pass": true,
+      "actual": "0.5G",
+      "expected": "0.5G"
+    }
+  ]
+}

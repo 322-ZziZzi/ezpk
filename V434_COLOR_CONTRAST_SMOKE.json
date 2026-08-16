@@ -1,0 +1,84 @@
+{
+  "version": "v434",
+  "pass": true,
+  "minimumRequired": 4.5,
+  "rows": [
+    {
+      "name": "primary",
+      "color": "#1D4ED8",
+      "background": "#FFFFFF",
+      "contrast": 6.7,
+      "aaNormalText": true
+    },
+    {
+      "name": "success",
+      "color": "#15803D",
+      "background": "#FFFFFF",
+      "contrast": 5.02,
+      "aaNormalText": true
+    },
+    {
+      "name": "goal",
+      "color": "#A16207",
+      "background": "#FFFFFF",
+      "contrast": 4.92,
+      "aaNormalText": true
+    },
+    {
+      "name": "missing",
+      "color": "#C2410C",
+      "background": "#FFFFFF",
+      "contrast": 5.18,
+      "aaNormalText": true
+    },
+    {
+      "name": "pending",
+      "color": "#B45309",
+      "background": "#FFFFFF",
+      "contrast": 5.02,
+      "aaNormalText": true
+    },
+    {
+      "name": "danger",
+      "color": "#B91C1C",
+      "background": "#FFFFFF",
+      "contrast": 6.47,
+      "aaNormalText": true
+    },
+    {
+      "name": "support",
+      "color": "#7E22CE",
+      "background": "#FFFFFF",
+      "contrast": 6.98,
+      "aaNormalText": true
+    },
+    {
+      "name": "system",
+      "color": "#0F766E",
+      "background": "#FFFFFF",
+      "contrast": 5.47,
+      "aaNormalText": true
+    },
+    {
+      "name": "admin-text",
+      "color": "#0B1220",
+      "background": "#FFFFFF",
+      "contrast": 18.72,
+      "aaNormalText": true
+    },
+    {
+      "name": "admin-text-secondary",
+      "color": "#344054",
+      "background": "#FFFFFF",
+      "contrast": 10.46,
+      "aaNormalText": true
+    },
+    {
+      "name": "admin-text-muted",
+      "color": "#5D6978",
+      "background": "#FFFFFF",
+      "contrast": 5.59,
+      "aaNormalText": true
+    }
+  ]
+}

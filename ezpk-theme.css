@@ -1798,3 +1798,122 @@ html[data-site="ezpk2"] #adminApp :is(button,input,select,textarea):disabled,htm
 /* Disabled controls stay readable instead of disappearing through opacity. */
 html[data-site="ezpk2"] :is(button,input,select,textarea):disabled{opacity:1!important;background:var(--ezpk-surface-muted)!important;border-color:var(--ezpk-border)!important;color:var(--ezpk-text-disabled)!important;cursor:not-allowed!important;box-shadow:none!important}
 html[data-site="ezpk2"] :is(button,input,select,textarea):disabled :is(svg,i){color:inherit!important}
+
+/* v434: EZPK2 promotion-condition high-contrast semantic colors.
+   Layout/copy stay unchanged; only semantic color and state emphasis are upgraded. */
+html[data-site="ezpk2"]{
+  --v434-primary:#1D4ED8;
+  --v434-primary-bg:#DBEAFE;
+  --v434-success:#15803D;
+  --v434-success-bg:#DCFCE7;
+  --v434-goal:#A16207;
+  --v434-goal-bg:#FEF3C7;
+  --v434-missing:#C2410C;
+  --v434-missing-bg:#FFEDD5;
+  --v434-pending:#B45309;
+  --v434-danger:#B91C1C;
+  --v434-danger-bg:#FEE2E2;
+  --v434-support:#7E22CE;
+  --v434-support-bg:#F3E8FF;
+  --v434-system:#0F766E;
+  --v434-system-bg:#CCFBF1;
+  --v434-admin-page:#F1F4F8;
+  --v434-admin-surface:#FFFFFF;
+  --v434-admin-subtle:#F8FAFC;
+  --v434-admin-text:#0B1220;
+  --v434-admin-text-secondary:#344054;
+  --v434-admin-text-muted:#5D6978;
+  --v434-admin-border:#CBD5E1;
+  --v434-admin-border-strong:#94A3B8;
+}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition{background:#fff!important;transition:border-color .16s ease,box-shadow .16s ease}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition.is-complete{border-color:var(--v434-success)!important;box-shadow:inset 3px 0 0 var(--v434-success)}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition.is-progress{border-color:var(--v434-primary)!important;box-shadow:inset 3px 0 0 var(--v434-primary)}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition.is-missing{border-color:var(--v434-missing)!important;box-shadow:inset 3px 0 0 var(--v434-missing)}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition-values strong.passed,
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-values strong.passed,
+html[data-site="ezpk2"] #promotionCardV367 #activityAdminV369.passed{color:var(--v434-success)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition-values strong.failed,
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-values strong.failed{color:var(--v434-missing)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition-values strong.progress,
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-values strong.progress{color:var(--v434-primary)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-condition-values strong.required-value,
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-values strong.required-value{color:var(--v434-goal)!important}
+html[data-site="ezpk2"] #promotionCardV367 #activityAdminV369.pending{color:var(--v434-pending)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-item.is-complete{border-bottom-color:var(--v434-success)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-item.is-progress{border-bottom-color:var(--v434-primary)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-item.is-missing{border-bottom-color:var(--v434-missing)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-activity-item.is-pending{border-bottom-color:var(--v434-pending)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-progress span{background:var(--v434-primary)!important}
+html[data-site="ezpk2"] #promotionCardV367 .promotion-card-head>strong,
+html[data-site="ezpk2"] #promotionCardV367 .promotion-section-head>span{color:var(--v434-admin-text)!important;border-color:var(--v434-admin-border-strong)!important;background:#fff}
+
+/* v434: EZPK2 Admin semantic light-theme system. Admin-only selectors prevent public-page recoloring. */
+html[data-site="ezpk2"] #adminApp{color:var(--v434-admin-text)!important}
+html[data-site="ezpk2"] #adminApp :is(.manager-card,.admin-panel,.system-info-card,.system-permission-card,.system-log-shell,.v188-list-pane,.v188-detail-pane,.promotion-candidates){color:var(--v434-admin-text)!important}
+html[data-site="ezpk2"] #adminApp :is(.help,.status,.system-card-description,.admin-log-date-field,.promotion-rule-preview){color:var(--v434-admin-text-muted)!important}
+html[data-site="ezpk2"] #adminApp :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){background:#fff!important;color:var(--v434-admin-text)!important;border-color:var(--v434-admin-border-strong)!important}
+html[data-site="ezpk2"] #adminApp :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea):focus{border-color:var(--v434-primary)!important;box-shadow:0 0 0 3px rgba(29,78,216,.16)!important;outline:none!important}
+html[data-site="ezpk2"] #adminApp :is(input[type="checkbox"],input[type="radio"]){accent-color:var(--v434-primary)!important}
+html[data-site="ezpk2"] #adminApp :is(button.primary,a.primary,.primary){background:var(--v434-primary)!important;border-color:#1E40AF!important;color:#fff!important;box-shadow:none!important}
+html[data-site="ezpk2"] #adminApp :is(button.primary,a.primary,.primary):hover{background:#1E40AF!important;color:#fff!important}
+html[data-site="ezpk2"] #adminApp :is(button.secondary,a.secondary,.secondary){background:#fff!important;border-color:var(--v434-admin-border-strong)!important;color:var(--v434-admin-text-secondary)!important;box-shadow:none!important}
+html[data-site="ezpk2"] #adminApp :is(button.secondary,a.secondary,.secondary):hover{background:var(--v434-admin-subtle)!important;border-color:#64748B!important;color:var(--v434-admin-text)!important}
+html[data-site="ezpk2"] #adminApp :is(button.danger,.danger,.remove){background:var(--v434-danger)!important;border-color:#991B1B!important;color:#fff!important;box-shadow:none!important}
+html[data-site="ezpk2"] #adminApp :is(button.danger,.danger,.remove):hover{background:#991B1B!important;color:#fff!important}
+html[data-site="ezpk2"] #adminApp :is(#publishBgb,#cwPublish,#alPublish,.promote-member,.activity-confirm){background:var(--v434-success)!important;border-color:#166534!important;color:#fff!important}
+html[data-site="ezpk2"] #adminApp :is(#publishBgb,#cwPublish,#alPublish,.promote-member,.activity-confirm):hover{background:#166534!important;color:#fff!important}
+html[data-site="ezpk2"] #adminApp :is(#saveBgb,#alSaveDraft){background:var(--v434-primary)!important;border-color:#1E40AF!important;color:#fff!important}
+html[data-site="ezpk2"] #adminApp button:disabled{opacity:.52!important;cursor:not-allowed!important;filter:saturate(.55)}
+html[data-site="ezpk2"] #adminApp .admin-main .spec-value{color:var(--v434-goal)!important}
+html[data-site="ezpk2"] #adminApp .mini-status,
+html[data-site="ezpk2"] #adminApp .status.ok,
+html[data-site="ezpk2"] #adminApp .system-save-status{color:var(--v434-success)!important}
+html[data-site="ezpk2"] #adminApp .status.error{color:var(--v434-danger)!important}
+
+/* Admin navigation group identity: high-contrast but same structure. */
+html[data-site="ezpk2"] #adminApp .admin-nav-card[data-admin-group="operations"],
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card[data-admin-group="operations"]{--group-accent:#1D4ED8!important;--group-accent-rgb:29,78,216!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card[data-admin-group="teams"],
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card[data-admin-group="teams"]{--group-accent:#A16207!important;--group-accent-rgb:161,98,7!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card[data-admin-group="support"],
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card[data-admin-group="support"]{--group-accent:#7E22CE!important;--group-accent-rgb:126,34,206!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card[data-admin-group="system"],
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card[data-admin-group="system"]{--group-accent:#0F766E!important;--group-accent-rgb:15,118,110!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card,
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card{background:linear-gradient(180deg,#fff,var(--v434-admin-subtle))!important;border-color:var(--v434-admin-border)!important;color:var(--v434-admin-text)!important}
+html[data-site="ezpk2"] #adminApp .admin-card-navigation .admin-nav-card>.admin-nav-card-toggle,
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card-toggle{color:var(--group-accent)!important;background:linear-gradient(100deg,rgba(var(--group-accent-rgb),.16),rgba(var(--group-accent-rgb),.045))!important;border-color:rgba(var(--group-accent-rgb),.48)!important;text-shadow:none!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card-items button,
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card-items button{background:#fff!important;color:var(--v434-admin-text-secondary)!important;border-color:var(--v434-admin-border)!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card-items button:hover,
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card-items button:hover{background:rgba(var(--group-accent-rgb),.08)!important;color:var(--group-accent)!important;border-color:rgba(var(--group-accent-rgb),.44)!important}
+html[data-site="ezpk2"] #adminApp .admin-nav-card-items button.active,
+html[data-site="ezpk2"] .ezpk-mobile-drawer .admin-nav-card-items button.active{background:rgba(var(--group-accent-rgb),.13)!important;color:var(--group-accent)!important;border-color:rgba(var(--group-accent-rgb),.55)!important}
+
+/* Admin tables/cards/selection states. */
+html[data-site="ezpk2"] #adminApp th{background:#F8FAFC!important;color:var(--v434-admin-text-secondary)!important;border-color:var(--v434-admin-border)!important}
+html[data-site="ezpk2"] #adminApp td{color:var(--v434-admin-text)!important;border-color:var(--v434-admin-border)!important}
+html[data-site="ezpk2"] #adminApp tbody tr:hover{background:#F8FAFC!important}
+html[data-site="ezpk2"] #adminApp :is(tr.active,.v188-member-card.selected){background:#EFF6FF!important;border-color:var(--v434-primary)!important}
+html[data-site="ezpk2"] #adminApp .promotion-target{color:var(--v434-goal)!important}
+html[data-site="ezpk2"] #adminApp #promotionSettingsV367 fieldset{border-color:var(--v434-admin-border)!important;background:#fff!important}
+html[data-site="ezpk2"] #adminApp #promotionSettingsV367 legend{color:var(--v434-goal)!important}
+html[data-site="ezpk2"] #adminApp #promotionSettingsV367 :is(#promotionR2VehicleV367,#promotionR3VehicleV367){color:var(--v434-goal)!important;font-weight:900}
+html[data-site="ezpk2"] #adminApp #promotionSettingsV367 :is(#promotionR2VehicleUnitV434,#promotionR3VehicleUnitV434){color:var(--v434-primary)!important;font-weight:900;border-color:var(--v434-primary)!important;background:var(--v434-primary-bg)!important}
+html[data-site="ezpk2"] #adminApp #promotionSettingsV367 .promotion-rule-preview{color:var(--v434-goal)!important}
+
+/* Legacy Account Manager controls previously forced gold: restore semantic actions. */
+html[data-site="ezpk2"] #adminApp #accountsPanel :is(.account-page-link,.template-actions button,#downloadAccountsJson,.account-admin-actions button:not(.danger),.admin-account-image-modal article>.secondary){background:#fff!important;color:var(--v434-admin-text-secondary)!important;border-color:var(--v434-admin-border-strong)!important;box-shadow:none!important}
+html[data-site="ezpk2"] #adminApp #accountsPanel :is(#parseAccountTemplate,.account-form-actions .primary,#registerAccount,.primary){background:var(--v434-primary)!important;color:#fff!important;border-color:#1E40AF!important}
+html[data-site="ezpk2"] #adminApp #accountsPanel .danger{background:var(--v434-danger)!important;color:#fff!important;border-color:#991B1B!important}
+
+/* Toast/status feedback is semantically distinguishable in light mode. */
+html[data-site="ezpk2"] .admin-toast{background:var(--v434-success-bg)!important;color:#14532D!important;border-color:var(--v434-success)!important;box-shadow:0 12px 28px rgba(21,128,61,.16)!important}
+html[data-site="ezpk2"] .admin-toast.error{background:var(--v434-danger-bg)!important;color:#7F1D1D!important;border-color:var(--v434-danger)!important;box-shadow:0 12px 28px rgba(185,28,28,.14)!important}
+html[data-site="ezpk2"] .admin-toast.info{background:var(--v434-primary-bg)!important;color:#1E3A8A!important;border-color:var(--v434-primary)!important}
+html[data-site="ezpk2"] #adminApp .request-source-badge.migration{background:var(--v434-support-bg)!important;color:var(--v434-support)!important;border-color:var(--v434-support)!important}
+
+/* Admin login follows the same semantic action system without affecting public pages. */
+html[data-site="ezpk2"] .admin-login-screen .primary{background:var(--v434-primary)!important;color:#fff!important;border-color:#1E40AF!important}
+html[data-site="ezpk2"] .admin-login-screen .secondary{background:#fff!important;color:var(--v434-admin-text-secondary)!important;border-color:var(--v434-admin-border-strong)!important}
