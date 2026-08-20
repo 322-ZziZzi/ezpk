@@ -663,3 +663,15 @@ The shared PC Header no longer moves primary navigation links into `More` to mak
 - Equal-width Refresh / Save / Publish controls.
 - Save writes D1 draft only; Publish atomically saves the current draft and promotes it to the public published snapshot with a server timestamp.
 - Manual BGB JSON backup control removed; D1 strategy history remains server-side.
+
+
+## v4.3.7 / v437 — Single Alliance Restoration
+
+- `ezpk322.com` is now a compatibility entry point that redirects to the canonical EZPK1 site.
+- Gateway and alliance-selection UI are retired.
+- EZPK2 user pages redirect to EZPK1; EZPK2 API requests return `410 ALLIANCE_ARCHIVED`.
+- EZPK2 D1 is intentionally not bound by the v437 deployment configuration. Its existing Cloudflare D1 data should be retained as an archive.
+- EZPK1 migration application entry is restored on the home page.
+- Cross-alliance nickname checks become inactive because SINGLE mode provides no peer database.
+
+Do not delete the historical EZPK2 D1 database as part of v437 deployment.

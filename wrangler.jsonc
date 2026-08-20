@@ -4,8 +4,7 @@
   "main": "./worker.js",
   "compatibility_date": "2026-07-17",
 
-  // v410 multi-alliance production configuration with Worker-first host routing.
-  // EZPK2 database_id resolved from the operator-provided Cloudflare D1 UUID.
+  // v437 single-alliance production configuration. EZPK2 hostname remains routed only so the Worker can archive/redirect legacy traffic; the EZPK2 D1 database is intentionally not bound.
   "routes": [
     { "pattern": "ezpk322.com", "custom_domain": true },
     { "pattern": "ezpk1.ezpk322.com", "custom_domain": true },
@@ -13,8 +12,8 @@
   ],
 
   "vars": {
-    "SITE_MODE": "DUAL",
-    "EZPK2_STATUS": "ACTIVE",
+    "SITE_MODE": "SINGLE",
+    "EZPK2_STATUS": "ARCHIVED",
     "EZPK1_MIGRATION_INTAKE": "ENABLED",
     "EZPK2_MIGRATION_INTAKE": "DISABLED"
   },
@@ -30,12 +29,6 @@
       "binding": "DB",
       "database_name": "ezpk-members",
       "database_id": "aaa29a3a-a221-47e3-a30f-9b4c624dcb56",
-      "migrations_dir": "migrations"
-    },
-    {
-      "binding": "EZPK2_DB",
-      "database_name": "ezpk2-members",
-      "database_id": "7203fea0-0dd3-4332-9c11-44273355a4bb",
       "migrations_dir": "migrations"
     }
   ],

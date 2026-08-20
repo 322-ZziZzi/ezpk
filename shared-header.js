@@ -209,8 +209,6 @@
     id:{more:'LAINNYA',alliance:'ALIANSI',public:'PUBLIK',memberOnly:'KHUSUS ANGGOTA',activity:'AKTIVITAS ALIANSI',information:'INFO & DUKUNGAN',other:'LAINNYA',comingSoon:'SEGERA',locked:'PERLU LOGIN',menu:'MENU',closeMenu:'TUTUP MENU'}
   };
 
-  const ALLIANCE_SELECT_LABELS={ko:'연맹 선택',en:'ALLIANCE SELECT',fr:'CHOISIR L’ALLIANCE',de:'ALLIANZ WÄHLEN',pt:'ESCOLHER ALIANÇA',es:'ELEGIR ALIANZA',tr:'İTTİFAK SEÇ',vi:'CHỌN LIÊN MINH',it:'SCEGLI ALLEANZA',id:'PILIH ALIANSI',ar:'اختيار التحالف',ja:'同盟選択',th:'เลือกพันธมิตร','zh-tw':'選擇聯盟'};
-  const ALLIANCE_SWITCH_CONFIRM={ko:'작성 중인 내용이 사라질 수 있습니다. 연맹을 변경할까요?',en:'Unsaved changes may be lost. Switch alliance?',fr:'Les modifications non enregistrées peuvent être perdues. Changer d’alliance ?',de:'Nicht gespeicherte Änderungen können verloren gehen. Allianz wechseln?',pt:'Alterações não salvas podem ser perdidas. Trocar de aliança?',es:'Los cambios no guardados pueden perderse. ¿Cambiar de alianza?',tr:'Kaydedilmemiş değişiklikler kaybolabilir. İttifak değiştirilsin mi?',vi:'Các thay đổi chưa lưu có thể bị mất. Chuyển liên minh?',it:'Le modifiche non salvate potrebbero andare perse. Cambiare alleanza?',id:'Perubahan yang belum disimpan dapat hilang. Ganti aliansi?',ar:'قد تفقد التغييرات غير المحفوظة. هل تريد تبديل التحالف؟',ja:'未保存の内容が失われる可能性があります。同盟を切り替えますか？',th:'การเปลี่ยนแปลงที่ยังไม่ได้บันทึกอาจสูญหาย ต้องการเปลี่ยนพันธมิตรหรือไม่?','zh-tw':'未儲存的內容可能會遺失。要切換聯盟嗎？'};
 
   const ACCOUNT_LABELS = {
     ko: {
@@ -359,7 +357,6 @@
         <div id="navMoreMenu" hidden></div>
       </div>
     </nav>
-    <a id="allianceSelectorLink" class="alliance-selector-link" href="https://ezpk322.com/?select=1" hidden></a>
     <div class="header-account" id="desktopAccount" aria-live="polite">
       <span class="account-loading" data-account-label="loading"></span>
     </div>
@@ -677,82 +674,11 @@
 
   function menuUi(lang=currentLanguage()) { return MENU_UI[lang] || MENU_UI.en; }
 
-  function allianceChoices() {
-    const currentName = String(siteContext?.displayName || allianceDisplayName || '').trim();
-    const choice1Name = siteContext?.siteId === 'ezpk1' && currentName ? currentName : 'EZPK1';
-    const choice2Name = siteContext?.siteId === 'ezpk2' && currentName ? currentName : 'EZPK2';
-    return [
-      { id:'ezpk1', name:choice1Name, url:String(siteContext?.ezpk1Url || 'https://ezpk1.ezpk322.com/') },
-      { id:'ezpk2', name:choice2Name, url:String(siteContext?.ezpk2Url || 'https://ezpk2.ezpk322.com/'), disabled:siteContext?.ezpk2Active === false }
-    ];
-  }
-
-  function mobileAllianceSelectorMarkup(lang=currentLanguage()) {
-    const ui = menuUi(lang);
-    const buttons = allianceChoices().map(function (choice) {
-      const active = choice.id === allianceSiteId;
-      const disabled = Boolean(choice.disabled);
-      return `<button type="button" class="mobile-alliance-choice${active?' is-active':''}" data-alliance-choice="${safeText(choice.id)}" data-alliance-url="${safeText(choice.url)}" aria-pressed="${active?'true':'false'}"${disabled?' disabled aria-disabled="true"':''}><span>${safeText(choice.name)}</span></button>`;
-    }).join('');
-    return `<section class="nav-menu-group mobile-alliance-selector-group" data-mobile-alliance-selector><h2>${safeText(ui.alliance || 'ALLIANCE')}</h2><div class="mobile-alliance-choice-grid">${buttons}</div></section>`;
-  }
-
-  function syncAllianceSelectorControls(lang=currentLanguage()) {
-    const enabled = siteContext?.mode === 'DUAL';
-    const label = ALLIANCE_SELECT_LABELS[lang] || ALLIANCE_SELECT_LABELS.en;
-    const compactLabel = menuUi(lang).alliance || label;
-    const desktopLink = header.querySelector('#allianceSelectorLink');
-    if (desktopLink) {
-      desktopLink.hidden = !enabled;
-      desktopLink.setAttribute('aria-label', label);
-      desktopLink.setAttribute('title', label);
-      desktopLink.innerHTML = `<span class="desktop-alliance-label desktop-alliance-label-full">${safeText(label)}</span><span class="desktop-alliance-label desktop-alliance-label-short">${safeText(compactLabel)}</span>`;
-    }
-    if (!mobileDrawerItems) return;
-    mobileDrawerItems.querySelector('[data-mobile-alliance-selector]')?.remove();
-    if (!enabled) return;
-    const markup = mobileAllianceSelectorMarkup(lang);
-    const authenticatedAccount = Boolean(authLoaded && authState.authenticated);
-    if (authenticatedAccount) mobileDrawerItems.insertAdjacentHTML('beforeend', markup);
-    else mobileDrawerItems.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  function hasPotentialUnsavedFormChanges() {
-    return Array.from(document.forms || []).some(function (form) {
-      if (form.id === 'ezpkLoginForm' || form.hasAttribute('data-alliance-switch-safe')) return false;
-      return Array.from(form.elements || []).some(function (field) {
-        if (!field || field.disabled || !field.name && !field.id) return false;
-        const type = String(field.type || '').toLowerCase();
-        if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') return false;
-        if (type === 'checkbox' || type === 'radio') return Boolean(field.checked !== field.defaultChecked);
-        if (field.tagName === 'SELECT') return Array.from(field.options || []).some(option=>option.selected !== option.defaultSelected);
-        return String(field.value ?? '') !== String(field.defaultValue ?? '');
-      });
-    });
-  }
-
-  function switchAllianceFromMobile(button) {
-    if (!button || button.disabled || button.getAttribute('aria-pressed') === 'true') return;
-    const targetUrl = String(button.dataset.allianceUrl || '').trim();
-    if (!targetUrl) return;
-    if (hasPotentialUnsavedFormChanges()) {
-      const message = ALLIANCE_SWITCH_CONFIRM[currentLanguage()] || ALLIANCE_SWITCH_CONFIRM.en;
-      if (!window.confirm(message)) return;
-    }
-    const selector = button.closest('[data-mobile-alliance-selector]');
-    selector?.querySelectorAll('[data-alliance-choice]').forEach(function (item) {
-      item.disabled = true;
-      item.setAttribute('aria-busy','true');
-    });
-    // Cross-alliance authentication is host-scoped. Navigate to the target
-    // alliance home and let that host re-resolve its own session/permissions.
-    try { window.location.assign(targetUrl); }
-    catch (_) {
-      selector?.querySelectorAll('[data-alliance-choice]').forEach(function (item) {
-        item.disabled = item.getAttribute('aria-disabled') === 'true';
-        item.removeAttribute('aria-busy');
-      });
-    }
+  function syncAllianceSelectorControls() {
+    // v437 SINGLE: alliance selection is retired. Remove any stale selector
+    // that may survive a cached/mobile DOM and never create a replacement.
+    header.querySelector('#allianceSelectorLink')?.remove();
+    mobileDrawerItems?.querySelector('[data-mobile-alliance-selector]')?.remove();
   }
 
   function navLinkMarkup(key, options={}, lang=currentLanguage()) {
@@ -874,13 +800,6 @@
     notifyHeaderLayoutChange('responsive-navigation');
   }
 
-  mobileDrawerItems?.addEventListener('click', function (event) {
-    const button = event.target.closest('[data-alliance-choice]');
-    if (!button || !mobileDrawerItems.contains(button)) return;
-    event.preventDefault();
-    switchAllianceFromMobile(button);
-  });
-
   navMoreButton?.addEventListener('click', function(event) {
     event.stopPropagation();
     const willOpen = navMoreMenu.hidden;
@@ -889,7 +808,7 @@
   });
   window.addEventListener('resize', updateResponsiveNavigation);
 
-  let siteContext={ migrationIntakeEnabled: allianceSiteId !== 'ezpk2' };
+  let siteContext={ siteId:'ezpk1', displayName:'EZPK1', mode:'SINGLE', ezpk2Active:false, migrationIntakeEnabled:true, ezpk1Url:'https://ezpk1.ezpk322.com/', ezpk2Url:null };
   async function loadSiteContext(){
     try{const response=await fetch('/api/site-context',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});const payload=await response.json();if(response.ok&&payload?.ok)siteContext=payload.data||siteContext;}catch(_){}
     syncAllianceSelectorControls();
@@ -1256,7 +1175,7 @@
         const routeUrl=new URL(window.location.href);
         if(routeUrl.searchParams.get('route')==='1'){
           if(authState.authenticated){routeUrl.searchParams.delete('route');history.replaceState(null,'',routeUrl.pathname+routeUrl.search+routeUrl.hash);}
-          else{try{await fetch('/api/routing/clear',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'});}catch(_){}window.location.replace('https://ezpk322.com/?select=1');return;}
+          else{try{await fetch('/api/routing/clear',{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:'{}'});}catch(_){}window.location.replace('https://ezpk1.ezpk322.com/');return;}
         }
         if (loginIntentAfterAuth) {
           loginIntentAfterAuth = false;

@@ -7,23 +7,22 @@ const SYSTEM_ACCOUNT_LOGIN_IDS = new Set(["ezpk_koala"]);
 const EZPK_ROOT_HOST = "ezpk322.com";
 const EZPK1_HOST = "ezpk1.ezpk322.com";
 const EZPK2_HOST = "ezpk2.ezpk322.com";
-const DEFAULT_SITE_MODE = "DUAL";
-const DEFAULT_EZPK2_STATUS = "ACTIVE";
+const DEFAULT_SITE_MODE = "SINGLE";
+const DEFAULT_EZPK2_STATUS = "ARCHIVED";
 const DEFAULT_EZPK1_MIGRATION_INTAKE = true;
 const DEFAULT_EZPK2_MIGRATION_INTAKE = false;
 const MIGRATION_INQUIRY_TTL_SECONDS = 30 * 60;
 
-function normalizedSiteMode(env) {
-  return String(env.SITE_MODE || DEFAULT_SITE_MODE).trim().toUpperCase() === "SINGLE" ? "SINGLE" : "DUAL";
+function normalizedSiteMode() {
+  return "SINGLE";
 }
 
-function normalizedEzpk2Status(env) {
-  const value = String(env.EZPK2_STATUS || DEFAULT_EZPK2_STATUS).trim().toUpperCase();
-  return ["ACTIVE", "INACTIVE", "ARCHIVED", "DELETED"].includes(value) ? value : DEFAULT_EZPK2_STATUS;
+function normalizedEzpk2Status() {
+  return "ARCHIVED";
 }
 
-function isEzpk2Active(env) {
-  return normalizedSiteMode(env) === "DUAL" && normalizedEzpk2Status(env) === "ACTIVE";
+function isEzpk2Active() {
+  return false;
 }
 
 function normalizedBooleanFeature(value, fallback) {
@@ -47,16 +46,14 @@ function siteIdFromHost(hostname) {
 }
 
 function resolveAllianceContext(url, env) {
-  const siteId = siteIdFromHost(url.hostname);
-  const isEzpk2 = siteId === "ezpk2";
   return {
-    siteId,
-    displayName: isEzpk2 ? "EZPK2" : "EZPK1",
-    db: isEzpk2 ? env.EZPK2_DB : env.DB,
-    peerDb: isEzpk2 ? env.DB : env.EZPK2_DB,
-    active: isEzpk2 ? isEzpk2Active(env) : true,
-    mode: normalizedSiteMode(env),
-    ezpk2Status: normalizedEzpk2Status(env),
+    siteId: "ezpk1",
+    displayName: "EZPK1",
+    db: env.DB,
+    peerDb: null,
+    active: true,
+    mode: "SINGLE",
+    ezpk2Status: "ARCHIVED",
   };
 }
 
@@ -82,9 +79,6 @@ function publicAllianceUrl(siteId, path = "/") {
   return `https://${host}${safePath}`;
 }
 
-function gatewayUrl(select = false) {
-  return `https://${EZPK_ROOT_HOST}/${select ? "?select=1" : ""}`;
-}
 
 async function fetchAssetAt(request, env, pathname) {
   const target = new URL(request.url);
@@ -94,46 +88,35 @@ async function fetchAssetAt(request, env, pathname) {
 }
 
 async function handleAlliancePageRouting(request, env, url) {
-  if (!env.ASSETS || request.method !== "GET") return null;
-  const mode = normalizedSiteMode(env);
-  const ezpk2Active = isEzpk2Active(env);
+  if (!env.ASSETS || !["GET", "HEAD"].includes(request.method)) return null;
   const host = String(url.hostname || "").toLowerCase();
 
-  if (host === EZPK2_HOST && !ezpk2Active) {
-    if (url.pathname.startsWith("/inactive/")) return null;
-    return fetchAssetAt(request, env, "/inactive/index.html");
+  // v437: the public root is only a compatibility entry point. The canonical
+  // user-facing site is EZPK1. Root / and every legacy Gateway entry go home.
+  if (host === EZPK_ROOT_HOST) {
+    if (url.pathname.startsWith("/api/")) return null;
+    const targetPath = (url.pathname === "/" || url.pathname === "/gateway" || url.pathname.startsWith("/gateway/")) ? "/" : url.pathname;
+    const target = new URL(publicAllianceUrl("ezpk1", targetPath));
+    if (targetPath !== "/") target.search = url.search;
+    target.searchParams.delete("select");
+    return Response.redirect(target.toString(), 302);
   }
 
-  if (host === EZPK_ROOT_HOST && (url.pathname === "/gateway" || url.pathname === "/gateway/")) {
-    if (mode !== "DUAL") return Response.redirect(`https://${EZPK_ROOT_HOST}/`, 302);
-    return fetchAssetAt(request, env, "/gateway/index.html");
+  // EZPK2 is archived. Never serve its former pages; preserve the legacy host
+  // only as a safe redirect surface while its D1 data remains offline/archive.
+  if (host === EZPK2_HOST) {
+    if (url.pathname.startsWith("/api/")) return null;
+    return Response.redirect(publicAllianceUrl("ezpk1", "/"), 302);
   }
 
-  if (host !== EZPK_ROOT_HOST || url.pathname !== "/") return null;
-  if (mode !== "DUAL") return null;
-  if (url.searchParams.get("select") === "1") return fetchAssetAt(request, env, "/gateway/index.html");
-
-  const hint = String(getCookie(request, ROUTE_HINT_COOKIE) || "").toLowerCase();
-  if (hint === "ezpk2" && ezpk2Active) {
-    return Response.redirect(`${publicAllianceUrl("ezpk2", "/")}?route=1`, 302);
+  // The Gateway is retired even when somebody bookmarks it on EZPK1.
+  if (host === EZPK1_HOST && (url.pathname === "/gateway" || url.pathname.startsWith("/gateway/"))) {
+    return Response.redirect(publicAllianceUrl("ezpk1", "/"), 302);
   }
 
-  // Preserve the existing root-host EZPK1 session. It cannot be transferred to
-  // a subdomain because the member cookie intentionally remains __Host-scoped.
-  try {
-    const rootMember = await requireOptionalMember(request, env.DB);
-    if (rootMember && rootMember.status === "active") return null;
-  } catch (_) {}
-
-  if (hint === "ezpk1") {
-    return Response.redirect(`${publicAllianceUrl("ezpk1", "/")}?route=1`, 302);
-  }
-  return fetchAssetAt(request, env, "/gateway/index.html");
+  return null;
 }
 
-function inactiveWriteAllowed(pathname) {
-  return pathname === "/api/routing/clear" || pathname === "/api/auth/logout";
-}
 
 function isSystemAccount(memberOrLoginId) {
   const loginId = typeof memberOrLoginId === "string"
@@ -162,6 +145,12 @@ export default {
       const pageRoutingResponse = await handleAlliancePageRouting(request, env, url);
       if (pageRoutingResponse) return pageRoutingResponse;
 
+      // v437: never redirect archived EZPK2 API traffic into EZPK1. In
+      // particular, unsafe POST/PUT/DELETE requests must not cross databases.
+      if (String(url.hostname || "").toLowerCase() === EZPK2_HOST && url.pathname.startsWith("/api/")) {
+        return jsonError("ALLIANCE_ARCHIVED", 410, { alliance: "EZPK2", canonicalUrl: publicAllianceUrl("ezpk1", "/") });
+      }
+
       const allianceContext = resolveAllianceContext(url, env);
       if (!allianceContext.db) {
         return jsonError(allianceContext.siteId === "ezpk2" ? "EZPK2_DATABASE_NOT_BOUND" : "DATABASE_NOT_BOUND", 503);
@@ -169,11 +158,6 @@ export default {
       const rawEnv = env;
       env = scopeAllianceEnv(rawEnv, allianceContext);
 
-      if (allianceContext.siteId === "ezpk2" && !allianceContext.active
-          && !["GET", "HEAD", "OPTIONS"].includes(request.method)
-          && !inactiveWriteAllowed(url.pathname)) {
-        return jsonError("ALLIANCE_INACTIVE", 503, { alliance: "EZPK2" });
-      }
       if (!url.pathname.startsWith("/api/")) {
         if (request.method === "GET" && url.pathname === "/data/accounts.json") {
           return handlePublicPersistentAsset(url, env);
@@ -481,9 +465,9 @@ async function handleSiteContext(request, env, url) {
       ezpk2Status: env.EZPK2_STATUS_RESOLVED || normalizedEzpk2Status(env),
       ezpk2Active: isEzpk2Active(env),
       migrationIntakeEnabled: migrationIntakeEnabled(env, siteId),
-      gatewayUrl: `https://${EZPK_ROOT_HOST}/?select=1`,
+      gatewayUrl: publicAllianceUrl("ezpk1", "/"),
       ezpk1Url: publicAllianceUrl("ezpk1", "/"),
-      ezpk2Url: publicAllianceUrl("ezpk2", "/"),
+      ezpk2Url: null,
     },
   });
 }
@@ -513,7 +497,7 @@ async function handleMigrationEligibility(request, env) {
       vehicle1PowerUnit: String(r2.vehicle1PowerUnit || "G"),
       vehicle1PowerG: Number(r2.vehicle1PowerNormalized || 0) / 1000,
       ezpk2Active: isEzpk2Active(env),
-      ezpk2MigrationUrl: publicAllianceUrl("ezpk2", "/migration/"),
+      ezpk2MigrationUrl: null,
     },
   });
 }
@@ -713,22 +697,6 @@ async function handleSetupAdmin(request, env, url) {
   );
 }
 
-async function peerNicknameDuplicate(env, nickname) {
-  if (!env.PEER_DB) return false;
-  try {
-    const row = await env.PEER_DB.prepare(
-      `SELECT id FROM members m WHERE TRIM(nickname)=TRIM(?) COLLATE NOCASE AND ${nonSystemAccountSql("m")} LIMIT 1`,
-    ).bind(nickname, ...systemAccountBinds()).first();
-    return Boolean(row);
-  } catch (error) {
-    const message = String(error || "").toLowerCase();
-    if (message.includes("no such table") || message.includes("not found")) {
-      throw new HttpError("PEER_DATABASE_NOT_READY", 503);
-    }
-    throw error;
-  }
-}
-
 async function handleSignup(request, env, url) {
   if (!env.PASSWORD_PEPPER) {
     return jsonError("PASSWORD_PEPPER_NOT_CONFIGURED", 503);
@@ -793,23 +761,6 @@ async function handleSignup(request, env, url) {
     return jsonError("NICKNAME_TAKEN", 409);
   }
 
-  // v401 Multi-Alliance: the same live game nickname cannot exist in both
-  // alliance member databases.  This is intentionally only a duplicate guard;
-  // member identities and history remain completely independent per alliance.
-  if (env.PEER_DB) {
-    try {
-      const peerNickname = await env.PEER_DB.prepare(
-        `SELECT id FROM members m WHERE TRIM(nickname)=TRIM(?) COLLATE NOCASE AND ${nonSystemAccountSql("m")} LIMIT 1`,
-      ).bind(nickname, ...systemAccountBinds()).first();
-      if (peerNickname) return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE", 409);
-    } catch (error) {
-      const message = String(error || "").toLowerCase();
-      if (message.includes("no such table") || message.includes("not found")) {
-        return jsonError("PEER_DATABASE_NOT_READY", 503);
-      }
-      throw error;
-    }
-  }
 
   const passwordData = await hashPassword(password, env.PASSWORD_PEPPER);
   const session = await createSessionData(env.DB);
@@ -1356,9 +1307,6 @@ async function handleNicknameUpdate(request, env) {
 
   if (duplicateNickname) {
     return jsonError("NICKNAME_TAKEN", 409);
-  }
-  if (await peerNicknameDuplicate(env, nickname)) {
-    return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE", 409);
   }
 
   const cooldownDays = Number(
@@ -2953,9 +2901,6 @@ async function handleAdminMembersCreateBulk(request, env) {
   if (existingLogin) return jsonError("LOGIN_ID_TAKEN", 409, { value: existingLogin.login_id });
   const existingNickname = await env.DB.prepare(`SELECT nickname FROM members WHERE nickname COLLATE NOCASE IN (${nicknamePlaceholders}) LIMIT 1`).bind(...accounts.map((item) => item.nickname)).first();
   if (existingNickname) return jsonError("NICKNAME_TAKEN", 409, { value: existingNickname.nickname });
-  for (const account of accounts) {
-    if (await peerNicknameDuplicate(env, account.nickname)) return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE", 409, { value: account.nickname });
-  }
 
   const statements = [];
   for (const account of accounts) {
@@ -3046,7 +2991,6 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   if(target.role!=="admin" && !["R1","R2","R3","R4","R5"].includes(rank)) return jsonError("VALIDATION_ERROR",400);
   const dupe=await env.DB.prepare("SELECT id FROM members WHERE nickname=? COLLATE NOCASE AND id<>?").bind(nickname,memberId).first();
   if(dupe) return jsonError("NICKNAME_TAKEN",409);
-  if(nickname!==target.nickname && await peerNicknameDuplicate(env,nickname)) return jsonError("NICKNAME_TAKEN_OTHER_ALLIANCE",409);
   const permissionChanged=hasAdminLevel&&requestedAdminLevel!==currentAdminLevel;
   const nextRole=permissionChanged?(requestedAdminLevel?"admin":"member"):target.role;
   const nextLevel=permissionChanged?requestedAdminLevel:target.admin_level;

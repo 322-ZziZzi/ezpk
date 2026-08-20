@@ -1,0 +1,41 @@
+{
+  "version": "4.3.7",
+  "release": "v437",
+  "base": {
+    "artifact": "EZPK-v436-deploy-ready.zip",
+    "sha256": "72f5437ddcd8136973507c67ccd3fc17cc0211272abd115d7287730ad0cbf5dc",
+    "size_bytes": 26773979,
+    "packaged_files": 450
+  },
+  "policy": {
+    "site_mode": "SINGLE",
+    "canonical_site": "https://ezpk1.ezpk322.com/",
+    "root_redirect": true,
+    "gateway_retired": true,
+    "alliance_selector_retired": true,
+    "ezpk2_status": "ARCHIVED",
+    "ezpk2_page_behavior": "302_TO_EZPK1_HOME",
+    "ezpk2_api_behavior": "410_ALLIANCE_ARCHIVED",
+    "ezpk2_d1_bound_in_v437": false,
+    "ezpk2_external_d1_delete_requested": false,
+    "cross_alliance_nickname_check": false,
+    "ezpk1_migration_home_entry": true,
+    "new_d1_migration": false
+  },
+  "validation": {
+    "predeploy_guard": "PASS",
+    "js_mjs_syntax": {
+      "pass": 96,
+      "fail": 0
+    },
+    "route_smoke": "PASS",
+    "migration_count": 31,
+    "latest_migration": "0032_v435_rank_review_cycles.sql",
+    "wrangler_dry_run": "NOT_RUN_LOCAL_WRANGLER_BINARY_NOT_PACKAGED",
+    "json_parse": {
+      "pass": 62,
+      "fail": 0
+    }
+  },
+  "status": "PASS"
+}
