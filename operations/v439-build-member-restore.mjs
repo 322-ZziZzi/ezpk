@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { DatabaseSync } from 'node:sqlite';
 
 function arg(name, fallback=null){
   const i=process.argv.indexOf(`--${name}`);
@@ -12,164 +14,172 @@ if(!fs.existsSync(backup)) throw new Error(`Backup not found: ${backup}`);
 fs.mkdirSync(outDir,{recursive:true});
 
 const TARGETS = new Map([[64,'Batman'],[99,'EAGLE']]);
-const TARGET_IDS = new Set([...TARGETS.keys()]);
+const TARGET_IDS = [...TARGETS.keys()];
+const SKIP_TABLES = new Set(['sessions']); // never restore stale auth sessions
 
-function splitSqlValues(s){
-  const out=[]; let buf=''; let inQuote=false;
-  for(let i=0;i<s.length;i++){
-    const ch=s[i];
-    if(ch==="'"){
-      buf+=ch;
-      if(inQuote && s[i+1]==="'") { buf+=s[++i]; continue; }
-      inQuote=!inQuote; continue;
-    }
-    if(ch===',' && !inQuote){ out.push(buf.trim()); buf=''; continue; }
-    buf+=ch;
+function qident(s){ return `"${String(s).replace(/"/g,'""')}"`; }
+function sqlLiteral(v){
+  if(v === null || v === undefined) return 'NULL';
+  if(typeof v === 'bigint') return v.toString();
+  if(typeof v === 'number') {
+    if(!Number.isFinite(v)) throw new Error(`Non-finite numeric value: ${v}`);
+    return String(v);
   }
-  if(buf.length || s.endsWith(',')) out.push(buf.trim());
-  return out;
+  if(typeof v === 'boolean') return v ? '1' : '0';
+  if(v instanceof Uint8Array || Buffer.isBuffer(v)) return `X'${Buffer.from(v).toString('hex')}'`;
+  return `'${String(v).replace(/'/g,"''")}'`;
 }
-function decodeSqlString(raw){
-  raw=raw.trim();
-  if(/^NULL$/i.test(raw)) return null;
-  if(raw.startsWith("'") && raw.endsWith("'")) return raw.slice(1,-1).replace(/''/g,"'");
-  return raw;
-}
-function intVal(raw){
-  if(raw==null) return null;
-  const t=String(raw).trim();
-  return /^-?\d+$/.test(t) ? Number(t) : null;
-}
+function objectKey(obj, cols){ return cols.map(c=>`${c}=${typeof obj[c]==='bigint'?obj[c].toString():String(obj[c])}`).join('|'); }
 
-const text=fs.readFileSync(backup,'utf8');
-const lines=text.split(/\r?\n/);
-const rows=[];
-for(const line of lines){
-  if(!line.startsWith('INSERT INTO ')) continue;
-  const m=line.match(/^INSERT INTO\s+"([^"]+)"\s*\((.*?)\)\s*VALUES\((.*)\);\s*$/);
-  if(!m) continue;
-  const table=m[1];
-  const columns=[...m[2].matchAll(/"([^"]+)"/g)].map(x=>x[1]);
-  const values=splitSqlValues(m[3]);
-  if(columns.length!==values.length) throw new Error(`Column/value mismatch in table ${table}`);
-  const by={}; columns.forEach((c,i)=>by[c]=values[i]);
-  rows.push({table,columns,values,by,line});
-}
+const tempDb = path.join(outDir, `source_backup_${process.pid}_${Date.now()}.sqlite`);
+try { fs.rmSync(tempDb,{force:true}); } catch {}
+const db = new DatabaseSync(tempDb);
+try {
+  db.exec('PRAGMA foreign_keys=OFF;');
+  let sql=fs.readFileSync(backup,'utf8');
+  // A D1 export can carry an FK-enable pragma. Keep FK checks disabled while loading
+  // the immutable backup snapshot so statement order cannot block the local analysis DB.
+  sql=sql.replace(/PRAGMA\s+foreign_keys\s*=\s*ON\s*;/gi,'PRAGMA foreign_keys=OFF;');
+  db.exec(sql);
 
-const members=rows.filter(r=>r.table==='members' && TARGET_IDS.has(intVal(r.by.id)));
-if(members.length!==2) throw new Error(`Expected 2 member rows, found ${members.length}`);
-const meta=[];
-for(const r of members){
-  const id=intVal(r.by.id), nick=decodeSqlString(r.by.nickname), login=decodeSqlString(r.by.login_id);
-  const expected=TARGETS.get(id);
-  if(String(nick).toLowerCase()!==expected.toLowerCase()) throw new Error(`ID ${id} nickname mismatch: expected ${expected}, backup has ${nick}`);
-  meta.push({id,nickname:nick,login_id:login});
-}
-meta.sort((a,b)=>a.id-b.id);
+  const tables=db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name").all().map(r=>String(r.name));
+  const tableSet=new Set(tables);
+  if(!tableSet.has('members')) throw new Error('Backup did not load a members table.');
 
-const subjectTables = new Map([
-  ['members','id'],
-  ['member_specs','member_id'],
-  ['member_nickname_history','member_id'],
-  ['member_admin_memos','member_id'],
-  ['vote_responses','member_id'],
-  ['vote_member_states','member_id'],
-  ['vote_member_exclusions','member_id'],
-  ['vote_eligible_members','member_id'],
-  ['subadmin_menu_permissions','member_id'],
-  ['alliance_layout_positions','member_id'],
-  ['member_daily_visits','member_id'],
-  ['member_activity_logs','member_id'],
-  ['member_activity_confirmations','member_id'],
-  ['member_rank_changes','member_id'],
-  ['member_demotion_exclusions','member_id'],
-  ['member_rank_review_states','member_id'],
-]);
-const selected=new Map();
-for(const [table,col] of subjectTables){
-  const rs=rows.filter(r=>r.table===table && TARGET_IDS.has(intVal(r.by[col])));
-  selected.set(table,rs);
-}
+  const info=new Map();
+  for(const table of tables){
+    const cols=db.prepare(`PRAGMA table_info(${qident(table)})`).all();
+    const fks=db.prepare(`PRAGMA foreign_key_list(${qident(table)})`).all();
+    const pkCols=cols.filter(c=>Number(c.pk)>0).sort((a,b)=>Number(a.pk)-Number(b.pk)).map(c=>String(c.name));
+    info.set(table,{cols:cols.map(c=>String(c.name)),pkCols,fks});
+  }
 
-// Indirect cascade: vote_response_options is deleted through vote_responses.
-const voteResponseIds=new Set((selected.get('vote_responses')||[]).map(r=>intVal(r.by.id)).filter(Number.isInteger));
-selected.set('vote_response_options', rows.filter(r=>r.table==='vote_response_options' && voteResponseIds.has(intVal(r.by.response_id))));
+  const members=db.prepare('SELECT * FROM members WHERE id IN (?,?) ORDER BY id').all(...TARGET_IDS);
+  if(members.length!==2) throw new Error(`Expected 2 member rows in backup, found ${members.length}.`);
+  const meta=members.map(r=>({id:Number(r.id),nickname:String(r.nickname),login_id:String(r.login_id)})).sort((a,b)=>a.id-b.id);
+  for(const m of meta){
+    const expected=TARGETS.get(m.id);
+    if(!expected || m.nickname.toLowerCase()!==expected.toLowerCase()) throw new Error(`ID ${m.id} nickname mismatch: expected ${expected}, backup has ${m.nickname}`);
+  }
 
-const order=[
-  'members','member_specs','member_nickname_history','member_admin_memos',
-  'vote_responses','vote_response_options','vote_member_states','vote_member_exclusions','vote_eligible_members',
-  'subadmin_menu_permissions','alliance_layout_positions','member_daily_visits','member_activity_logs',
-  'member_activity_confirmations','member_rank_changes','member_demotion_exclusions','member_rank_review_states'
-];
+  // selected: table -> { rows: Map<stableKey,row>, depth }
+  const selected=new Map();
+  function addRows(table, rows, depth){
+    if(!rows.length) return false;
+    const ti=info.get(table); if(!ti) return false;
+    let bucket=selected.get(table);
+    if(!bucket){ bucket={rows:new Map(),depth}; selected.set(table,bucket); }
+    bucket.depth=Math.min(bucket.depth,depth);
+    let changed=false;
+    for(const r of rows){
+      const keyCols=ti.pkCols.length?ti.pkCols:ti.cols;
+      const key=objectKey(r,keyCols);
+      if(!bucket.rows.has(key)){ bucket.rows.set(key,r); changed=true; }
+    }
+    return changed;
+  }
+  addRows('members',members,0);
 
-// Reference-only rows survive member deletion but their FK columns may become NULL (SET NULL).
-// Repair only when the current value is still NULL, so post-delete edits are never overwritten.
-const repairSpecs=[
-  ['member_nickname_history','id',['changed_by_member_id']],
-  ['member_admin_memos','member_id',['updated_by_member_id']],
-  ['member_requests','id',['member_id','answered_by_member_id']],
-  ['admin_logs','id',['admin_member_id','target_member_id']],
-  ['alliance_layout_versions','id',['created_by_member_id','updated_by_member_id','published_by_member_id']],
-  ['migration_applications','id',['deleted_by_member_id']],
-  ['migration_inquiry_replies','id',['admin_member_id']],
-  ['migration_inquiries','id',['deleted_by_member_id']],
-];
-const repairs=[];
-for(const [table,pk,cols] of repairSpecs){
-  for(const r of rows.filter(x=>x.table===table)){
-    const pkRaw=r.by[pk]; if(pkRaw==null) continue;
-    for(const col of cols){
-      const n=intVal(r.by[col]);
-      if(!TARGET_IDS.has(n)) continue;
-      // Rows restored from cascade are handled by INSERT and do not need repair.
-      if(table==='member_nickname_history' && TARGET_IDS.has(intVal(r.by.member_id))) continue;
-      if(table==='member_admin_memos' && TARGET_IDS.has(intVal(r.by.member_id))) continue;
-      repairs.push(`UPDATE "${table}" SET "${col}"=${n} WHERE "${pk}"=${pkRaw} AND "${col}" IS NULL;`);
+  // Reconstruct every row that would have been removed through an ON DELETE CASCADE
+  // path starting at members(64,99). This avoids a brittle hard-coded table list.
+  let progress=true;
+  while(progress){
+    progress=false;
+    for(const table of tables){
+      if(SKIP_TABLES.has(table)) continue;
+      const ti=info.get(table);
+      for(const fk of ti.fks){
+        if(String(fk.on_delete).toUpperCase()!=='CASCADE') continue;
+        const parent=String(fk.table);
+        const parentBucket=selected.get(parent);
+        if(!parentBucket) continue;
+        const from=String(fk.from), to=String(fk.to);
+        if(!from || !to) continue;
+        const parentVals=[...new Set([...parentBucket.rows.values()].map(r=>r[to]).filter(v=>v!==null && v!==undefined))];
+        if(!parentVals.length) continue;
+        const placeholders=parentVals.map(()=>'?').join(',');
+        const stmt=db.prepare(`SELECT * FROM ${qident(table)} WHERE ${qident(from)} IN (${placeholders})`);
+        const rows=stmt.all(...parentVals);
+        if(addRows(table,rows,parentBucket.depth+1)) progress=true;
+      }
     }
   }
-}
+  selected.delete('sessions');
 
-const restore=[];
-restore.push('-- EZPK v439 selective member restore: Batman(64) + EAGLE(99)');
-restore.push('-- Generated from full pre-reset backup. Sessions are intentionally NOT restored.');
-restore.push('PRAGMA foreign_keys=ON;');
-for(const table of order){
-  const rs=selected.get(table)||[];
-  if(rs.length){
-    restore.push(`\n-- ${table}: ${rs.length} row(s)`);
-    for(const r of rs) restore.push(r.line);
+  // Repair ON DELETE SET NULL references for rows that survive deletion. Only update
+  // current rows when the FK column is still NULL, preserving any post-delete edits.
+  const repairs=[];
+  for(const table of tables){
+    if(SKIP_TABLES.has(table)) continue;
+    const ti=info.get(table);
+    if(!ti.pkCols.length) continue;
+    for(const fk of ti.fks){
+      if(String(fk.table)!=='members' || String(fk.on_delete).toUpperCase()!=='SET NULL') continue;
+      const from=String(fk.from), to=String(fk.to);
+      if(to!=='id') continue;
+      const rows=db.prepare(`SELECT * FROM ${qident(table)} WHERE ${qident(from)} IN (?,?)`).all(...TARGET_IDS);
+      for(const r of rows){
+        // If this exact source row is being reinserted after CASCADE, its original FK is already preserved.
+        const bucket=selected.get(table);
+        const key=objectKey(r,ti.pkCols);
+        if(bucket?.rows.has(key)) continue;
+        const wherePk=ti.pkCols.map(c=>`${qident(c)}=${sqlLiteral(r[c])}`).join(' AND ');
+        repairs.push({table,sql:`UPDATE ${qident(table)} SET ${qident(from)}=${sqlLiteral(r[from])} WHERE ${wherePk} AND ${qident(from)} IS NULL;`});
+      }
+    }
   }
+
+  const ordered=[...selected.entries()].sort((a,b)=>a[1].depth-b[1].depth || a[0].localeCompare(b[0]));
+  const restore=[];
+  restore.push('-- EZPK v439 selective member restore: Batman(64) + EAGLE(99)');
+  restore.push('-- Source: full pre-delete D1 backup, loaded through local SQLite for robust parsing.');
+  restore.push('-- Sessions are intentionally NOT restored.');
+  restore.push('PRAGMA foreign_keys=ON;');
+  for(const [table,bucket] of ordered){
+    const ti=info.get(table);
+    const rows=[...bucket.rows.values()];
+    if(!rows.length) continue;
+    restore.push(`\n-- ${table}: ${rows.length} row(s), cascade depth ${bucket.depth}`);
+    for(const r of rows){
+      const cols=ti.cols;
+      restore.push(`INSERT INTO ${qident(table)} (${cols.map(qident).join(',')}) VALUES(${cols.map(c=>sqlLiteral(r[c])).join(',')});`);
+    }
+  }
+  if(repairs.length){
+    restore.push('\n-- Safe SET NULL reference repairs (only when the current FK is still NULL)');
+    for(const r of repairs) restore.push(r.sql);
+  }
+  restore.push('\n-- Existing sessions are not restored; both users must obtain fresh login sessions.');
+
+  const restorePath=path.join(outDir,'restore_batman_eagle_64_99.sql');
+  fs.writeFileSync(restorePath,restore.join('\n')+'\n','utf8');
+
+  function sqlQuote(s){return `'${String(s).replace(/'/g,"''")}'`;}
+  const ids=meta.map(x=>x.id).join(',');
+  const logins=meta.map(x=>sqlQuote(x.login_id)).join(',');
+  const nicks=meta.map(x=>sqlQuote(x.nickname.toLowerCase())).join(',');
+  const preflight=`SELECT id,login_id,nickname,status FROM members WHERE id IN (${ids}) OR login_id IN (${logins}) OR lower(nickname) IN (${nicks}) ORDER BY id;`;
+  const verify=`SELECT id,login_id,nickname,power,industry_level,member_rank,role,status,approval_status,admin_level FROM members WHERE id IN (${ids}) ORDER BY id;`;
+  fs.writeFileSync(path.join(outDir,'preflight.sql.txt'),preflight+'\n','utf8');
+  fs.writeFileSync(path.join(outDir,'verify.sql.txt'),verify+'\n','utf8');
+  fs.writeFileSync(path.join(outDir,'member_meta.json'),JSON.stringify(meta,null,2)+'\n','utf8');
+
+  const counts={}; for(const [table,bucket] of ordered) counts[table]=bucket.rows.size;
+  counts.safe_set_null_repairs=repairs.length;
+  const summary=[
+    'EZPK v439 Batman + EAGLE selective restore build R002',
+    `Backup: ${backup}`,
+    ...meta.map(m=>`Member ${m.id}: ${m.nickname} (login_id retained privately in generated metadata)`),
+    '',
+    ...Object.entries(counts).map(([k,v])=>`${k}: ${v}`),
+    '',
+    `Restore SQL: ${restorePath}`,
+    'Sessions restored: 0 (intentional)',
+    'Parser: SQLite-backed (no comma/quote splitting)'
+  ].join('\n');
+  fs.writeFileSync(path.join(outDir,'summary.txt'),summary+'\n','utf8');
+  console.log(summary);
+} finally {
+  try { db.close(); } catch {}
+  try { fs.rmSync(tempDb,{force:true}); } catch {}
 }
-if(repairs.length){
-  restore.push('\n-- Safe SET NULL reference repairs (only when still NULL)');
-  restore.push(...repairs);
-}
-restore.push('\n-- Do not restore sessions. Existing users must create fresh login sessions.');
-
-const restorePath=path.join(outDir,'restore_batman_eagle_64_99.sql');
-fs.writeFileSync(restorePath,restore.join('\n')+'\n','utf8');
-
-function sqlQuote(s){return `'${String(s).replace(/'/g,"''")}'`;}
-const ids=meta.map(x=>x.id).join(',');
-const logins=meta.map(x=>sqlQuote(x.login_id)).join(',');
-const nicks=meta.map(x=>sqlQuote(x.nickname.toLowerCase())).join(',');
-const preflight=`SELECT id,login_id,nickname,status FROM members WHERE id IN (${ids}) OR login_id IN (${logins}) OR lower(nickname) IN (${nicks}) ORDER BY id;`;
-const verify=`SELECT id,login_id,nickname,power,industry_level,member_rank,role,status,approval_status,admin_level FROM members WHERE id IN (${ids}) ORDER BY id;`;
-fs.writeFileSync(path.join(outDir,'preflight.sql.txt'),preflight+'\n','utf8');
-fs.writeFileSync(path.join(outDir,'verify.sql.txt'),verify+'\n','utf8');
-fs.writeFileSync(path.join(outDir,'member_meta.json'),JSON.stringify(meta,null,2)+'\n','utf8');
-
-const counts={}; for(const table of order) counts[table]=(selected.get(table)||[]).length;
-counts.reference_repairs=repairs.length;
-const summary=[
-  'EZPK v439 Batman + EAGLE selective restore build',
-  `Backup: ${backup}`,
-  ...meta.map(m=>`Member ${m.id}: ${m.nickname} (login_id retained privately in generated metadata)`),
-  '',
-  ...Object.entries(counts).map(([k,v])=>`${k}: ${v}`),
-  '',
-  `Restore SQL: ${restorePath}`,
-  'Sessions restored: 0 (intentional)'
-].join('\n');
-fs.writeFileSync(path.join(outDir,'summary.txt'),summary+'\n','utf8');
-console.log(summary);
