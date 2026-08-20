@@ -169,6 +169,7 @@ window.EZPK_I18N_V414?.apply('home',HOME_TEXT);
     document.querySelectorAll('[data-home-member]').forEach(function (element) { element.hidden = !active; });
     document.querySelectorAll('[data-home-guest]').forEach(function (element) { element.hidden = active; });
     document.querySelectorAll('[data-home-anonymous]').forEach(function (element) { element.hidden = !anonymous; });
+    document.querySelectorAll('[data-home-migration]').forEach(function (element) { element.hidden = !anonymous; });
   }
 
   document.querySelectorAll('[data-home-action="login"]').forEach(function (button) {

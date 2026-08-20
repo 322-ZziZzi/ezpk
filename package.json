@@ -1,18 +1,20 @@
 {
   "name": "ezpk-war-portal",
   "private": true,
-  "version": "4.3.7",
+  "version": "4.3.9",
   "scripts": {
     "dev": "wrangler dev",
     "deploy:dry-run": "wrangler deploy --dry-run",
-    "predeploy": "node scripts/v437-deploy-guard.mjs",
+    "predeploy": "node scripts/v439-deploy-guard.mjs",
     "deploy": "wrangler deploy",
     "migrate:local": "wrangler d1 migrations apply DB --local",
     "migrate:remote": "wrangler d1 migrations apply DB --remote",
     "migrate:list": "wrangler d1 migrations list DB --remote",
     "migration:create": "wrangler d1 migrations create DB",
     "migrate:ezpk1:list": "wrangler d1 migrations list ezpk-members --remote",
-    "migrate:ezpk1:remote": "wrangler d1 migrations apply ezpk-members --remote"
+    "migrate:ezpk1:remote": "wrangler d1 migrations apply ezpk-members --remote",
+    "migration:cycle:verify": "wrangler d1 execute ezpk-members --remote --file=./operations/v438_migration_cycle_verify.sql",
+    "migration:cycle:reset": "wrangler d1 execute ezpk-members --remote --file=./operations/v438_migration_cycle_reset.sql"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"

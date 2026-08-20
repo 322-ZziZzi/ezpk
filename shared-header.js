@@ -808,7 +808,7 @@
   });
   window.addEventListener('resize', updateResponsiveNavigation);
 
-  let siteContext={ siteId:'ezpk1', displayName:'EZPK1', mode:'SINGLE', ezpk2Active:false, migrationIntakeEnabled:true, ezpk1Url:'https://ezpk1.ezpk322.com/', ezpk2Url:null };
+  let siteContext={ siteId:'ezpk1', displayName:'EZPK1', mode:'SINGLE', ezpk2Active:false, migrationIntakeEnabled:false, ezpk1Url:'https://ezpk1.ezpk322.com/', ezpk2Url:null };
   async function loadSiteContext(){
     try{const response=await fetch('/api/site-context',{credentials:'include',cache:'no-store',headers:{accept:'application/json'}});const payload=await response.json();if(response.ok&&payload?.ok)siteContext=payload.data||siteContext;}catch(_){}
     syncAllianceSelectorControls();

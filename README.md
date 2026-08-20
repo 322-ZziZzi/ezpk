@@ -1,4 +1,4 @@
-> Current deploy-ready baseline: **v436 / 4.3.6** — Member Management now renders the member list immediately, lazy-loads promotion/demotion review calculations, exposes new-member protection rosters, and shows achieved/missing review evidence while preserving alliance-specific EZPK1/EZPK2 Admin UX/UI.
+> Current deploy-ready baseline: **v439 / 4.3.9** — EZPK1 remains single-alliance; signed-out visitors see migration first, signed-in users do not see it, and migration intake stays open for advance applications even after a prior-cycle DB reset.
 
 ## v436 Member Management UX / Performance Remediation
 
@@ -675,3 +675,22 @@ The shared PC Header no longer moves primary navigation links into `More` to mak
 - Cross-alliance nickname checks become inactive because SINGLE mode provides no peer database.
 
 Do not delete the historical EZPK2 D1 database as part of v437 deployment.
+
+## v4.3.8 / v438 — Guest-First Migration Entry + Cycle Reset
+
+- Places the EZPK1 migration card as the first content block under the shared header for signed-out visitors.
+- Keeps the migration card hidden during auth resolution to prevent a signed-in flash, and hides it for every authenticated session after auth resolves.
+- Preserves the v437 single-alliance/Gateway retirement behavior and keeps EZPK2 archived.
+- Adds a guarded migration-cycle reset operation for `ezpk-members`: applications, applicant inquiry sessions/threads/replies, Excel import batches, rate-limit state, and migration-related admin logs.
+- Preserves `migration_tier_settings`, members/admin accounts, schema, and all 31 D1 migrations; no migration `0033` is introduced.
+- The provided PowerShell operator exports a full remote D1 backup before destructive reset and verifies row counts afterward.
+- Remote D1 reset still requires an authenticated Cloudflare/Wrangler session or connected Cloudflare tool; the deploy artifact itself never auto-deletes production data.
+
+## v4.3.9 / v439 — Pre-Application Intake Continuity
+
+- Keeps the v438 guest-first / signed-in-hidden migration home behavior.
+- Re-enables and defaults EZPK1 migration intake to OPEN so applications can be collected before the next migration period.
+- Restores the 14-language migration card to the open/recruiting copy.
+- Retains the guarded v438 previous-cycle reset tooling; reset and intake state are intentionally independent.
+- EZPK2 remains archived; no EZPK2 D1 binding is restored.
+- No new D1 migration.

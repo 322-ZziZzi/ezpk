@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "counts": {
+    "migration_applications": 0,
+    "migration_import_batches": 0,
+    "migration_rate_limits": 0,
+    "migration_inquiry_sessions": 0,
+    "migration_inquiries": 0,
+    "migration_inquiry_replies": 0,
+    "migration_related_admin_logs": 0,
+    "nonmigration_admin_logs_preserved": 1,
+    "migration_tier_settings_preserved": 4
+  },
+  "sqlite_sequence": {
+    "admin_activity_logs": 3
+  }
+}
