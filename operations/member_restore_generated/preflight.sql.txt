@@ -1,0 +1,1 @@
+SELECT id,login_id,nickname,status FROM members WHERE id IN (64,99) OR login_id IN ('batman','eagle') OR lower(nickname) IN ('batman','eagle') ORDER BY id;

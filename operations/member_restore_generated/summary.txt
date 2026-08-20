@@ -1,0 +1,22 @@
+EZPK v439 Batman + EAGLE selective restore build R003
+Backup: C:\Users\user\Documents\GitHub\ezpk\operations\backups\ezpk-members_before_v439_migration_reset_20260820_201503.sql
+Member 64: Batman -> Batman
+Member 99: Zeusgoeswild -> EAGLE (audit-confirmed same member_id)
+
+EAGLE audit: 2026-08-20 13:41:06 / log id 247
+members: 2
+alliance_layout_positions: 8
+member_activity_logs: 2
+member_daily_visits: 1
+member_nickname_history: 1
+member_rank_changes: 1
+member_rank_review_states: 2
+member_specs: 2
+vote_responses: 1
+vote_response_options: 1
+safe_set_null_repairs: 0
+
+Restore SQL: C:\Users\user\Documents\GitHub\ezpk\operations\member_restore_generated\restore_batman_eagle_64_99.sql
+Sessions restored: 0 (intentional)
+Parser: SQLite-backed
+EAGLE latest member fields patched from admin_activity_logs.before_data/after_data
