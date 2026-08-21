@@ -46,3 +46,7 @@ scripts/**
 V*_DEPLOY_READY_RUNBOOK.md
 
 V*_FILE_CHECKSUMS.sha256
+
+# Local operational evidence / production backups
+operations/backups/**
+operations/v442_post_migration_reports/**
