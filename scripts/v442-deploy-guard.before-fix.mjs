@@ -38,7 +38,7 @@ if(worker.includes('INSERT INTO member_rank_changes'))fail('legacy rank-change w
 for(const token of ['async function handleAdminRankChangeHistory','SELECT * FROM member_rank_history_events ORDER BY created_at DESC,id DESC LIMIT ?'])must(worker,token,'admin full history');
 
 const migrations=fs.readdirSync(path.join(root,'migrations')).filter(x=>x.endsWith('.sql')).sort();
-if(migrations.length!==34)fail(`migration count ${migrations.length}, expected 34`);
+if(migrations.length!==33)fail(`migration count ${migrations.length}, expected 33`);
 if(migrations.at(-1)!=='0034_v442_rank_notice_state.sql')fail(`latest migration ${migrations.at(-1)||'none'}`);
 const m33=read('migrations','0033_v440_rank_lifecycle_integrity.sql'),m34=read('migrations','0034_v442_rank_notice_state.sql');
 for(const token of ['CREATE TABLE IF NOT EXISTS member_rank_spec_qualifications','CREATE TABLE IF NOT EXISTS member_rank_history_events',"VALUES('member_db_schema_version','5.5-v440'"])must(m33,token,'v440 lineage');
@@ -55,7 +55,7 @@ for(const code of ['en','fr','de','ko','th','ja','pt','es','tr','zh-tw','it','ar
 for(const token of ['.profile-rank-overview-v442','.profile-rank-management-v442','.rank-management-subcard-v442','.rank-management-details-v442','.promotion-condition-values>span:first-child small{color:#93c5fd}','color:#4ade80','.promotion-condition-values>span:last-child .required-value{color:#fcd34d}'])must(css,token,'v442 My Page CSS');
 
 const adminHtml=read('admin','index.html'),admin=read('admin','member-manager-v188.js');
-for(const token of ['\uB4F1\uAE09 \uBCC0\uACBD \uC774\uB825','MANUAL_ADJUSTMENT','CORRECTION','RESTORE']){if(!(adminHtml+admin).includes(token))fail(`admin history regression: ${token}`)}
+for(const token of ['?깃툒 蹂寃??대젰','MANUAL_ADJUSTMENT','CORRECTION','RESTORE']){if(!(adminHtml+admin).includes(token))fail(`admin history regression: ${token}`)}
 
 if(failures.length){console.error(`EZPK v442 deployment preflight FAILED (${failures.length})`);for(const f of failures)console.error('- '+f);process.exit(1)}
 console.log('EZPK v442 deployment preflight PASS: Basic Profile rank management is consolidated, member full history is retired, immutable history notice-state is separated, v441 colors and v440 lifecycle rules are preserved.');
