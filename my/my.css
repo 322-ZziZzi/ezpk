@@ -245,3 +245,19 @@ legend{color:#f5c547}
 .rank-change-notice{display:grid;gap:6px;margin-top:16px;border-color:#d8b65c;background:rgba(216,182,92,.08)}.rank-change-notice[hidden]{display:none}.rank-change-notice p{margin:0}.rank-change-notice small{color:#aeb9c8}
 .rank-change-dismiss{justify-self:start;margin-top:10px;min-height:40px;border-color:#d8b65c;color:#f1d57c;background:rgba(216,182,92,.08)}.rank-change-dismiss:hover{background:rgba(216,182,92,.16)}
 @media(max-width:620px){.my-content-stack>*{min-width:0;max-width:100%;overflow-wrap:anywhere}.maintenance-card .promotion-activity-grid>div{grid-template-columns:minmax(0,1fr);gap:4px}.maintenance-card .promotion-activity-grid>div>strong{text-align:start}.maintenance-card .promotion-activity-grid small{overflow-wrap:anywhere}.rank-change-notice{overflow:hidden}.rank-change-notice p,.rank-change-notice strong,.rank-change-notice small{overflow-wrap:anywhere;word-break:normal}}
+
+/* v440 Rank Lifecycle Integrity & History */
+.rank-cycle-meta{margin:0;padding:10px 12px;border:1px solid #334155;border-radius:10px;color:#aeb9c8;background:rgba(15,23,42,.36);font-size:.88rem;line-height:1.5}
+.rank-qualification-banner{padding:13px 14px;border:1px solid rgba(104,211,145,.55);border-radius:11px;background:rgba(104,211,145,.08);display:grid;gap:5px}.rank-qualification-banner[hidden]{display:none}.rank-qualification-banner strong{color:#68d391}.rank-qualification-banner p{margin:0;color:#b8c5d6;line-height:1.45}
+.maintenance-recovery{padding:13px 14px;border:1px solid #334155;border-radius:11px;background:rgba(15,23,42,.42);display:grid;gap:5px}.maintenance-recovery[hidden]{display:none}.maintenance-recovery p{margin:0;color:#aeb9c8}
+.rank-history-card{margin-top:16px;display:grid;gap:14px}.rank-history-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.rank-history-head span{color:#8e9aae;font-size:.78rem;font-weight:800}.rank-history-head h2{margin:3px 0 0;font-size:1.55rem}.rank-history-head>strong{color:#d8b65c}.rank-history-latest{margin:0;color:#aeb9c8}.rank-history-list{display:grid;gap:9px}.rank-history-event{border:1px solid #334155;border-radius:11px;padding:12px 13px;display:grid;gap:6px;background:rgba(15,23,42,.28)}.rank-history-event-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.rank-history-event-head strong{font-size:.96rem}.rank-history-event-head span{font-size:.76rem;font-weight:800;color:#d8b65c}.rank-history-event>small{color:#8e9aae}.rank-history-event details{border-top:1px solid #263244;padding-top:7px}.rank-history-event summary{cursor:pointer;color:#aeb9c8;font-size:.82rem}.rank-history-detail{display:grid;gap:5px;margin-top:8px;color:#aeb9c8;font-size:.8rem}.rank-history-detail p{margin:0}.rank-history-partial{color:#f6ad55!important}.rank-history-more{justify-self:start;min-height:40px}.rank-history-all{padding-top:2px}
+@media(max-width:620px){.rank-history-head,.rank-history-event-head{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}.rank-history-event-head span{justify-self:start}.rank-cycle-meta{overflow-wrap:anywhere}}
+
+/* v441: promotion spec color clarity — current / required only */
+.promotion-condition-values>span:first-child small{color:#93c5fd}
+.promotion-condition-values>span:first-child strong.progress,
+.promotion-condition-values>span:first-child strong.failed{color:#93c5fd}
+.promotion-condition-values>span:first-child strong.passed,
+.promotion-condition.is-complete .promotion-condition-values>span:first-child small{color:#4ade80}
+.promotion-condition-values>span:last-child small,
+.promotion-condition-values>span:last-child .required-value{color:#fcd34d}

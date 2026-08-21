@@ -1,0 +1,42 @@
+{
+  "version": "4.4.0",
+  "release": "v440",
+  "status": "LOCAL_IMPLEMENTATION_VALIDATED",
+  "remote_migration_applied": false,
+  "remote_worker_deployed": false,
+  "production_readonly_preflight": {
+    "revision": "R006",
+    "completed_selects": "60/60",
+    "mutations_requested": "NONE",
+    "report_sha256": "9ac3fa4b4e557e2b22ef8ecdc0cfc639ec2f72f76e35f320802b8348655f4e29"
+  },
+  "local_validation": {
+    "worker_node_check": "PASS",
+    "my_page_node_check": "PASS",
+    "admin_node_check": "PASS",
+    "v440_rank_lifecycle_smoke": "PASS 32/32",
+    "v440_deploy_guard": "PASS",
+    "seeded_v435_to_0033_migration": "PASS",
+    "immutable_history_delete_survival": "PASS",
+    "sqlite_changes_guard": "PASS",
+    "html_duplicate_ids": "PASS",
+    "permanent_qualification_delete_survival_schema": "PASS"
+  },
+  "wrangler_deploy_dry_run": {
+    "status": "NOT_EXECUTED",
+    "reason": "Wrangler binary/node_modules not installed in build container; run via operator environment after npm install."
+  },
+  "preserved_policies": {
+    "site_mode": "SINGLE",
+    "ezpk1_migration_intake": "OPEN",
+    "ezpk2_status": "ARCHIVED",
+    "migration_applicant_reset": "NOT_RUN"
+  },
+  "candidate_revision": "R002",
+  "supersedes_candidate": "R001_PREPRODUCTION_ONLY",
+  "preproduction_corrections": {
+    "qualification_member_delete_cascade_removed": true,
+    "production_0033_applied_before_correction": false,
+    "post_migration_durability_sentinel_added": true
+  }
+}

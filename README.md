@@ -1,4 +1,28 @@
-> Current deploy-ready baseline: **v439 / 4.3.9** — EZPK1 remains single-alliance; signed-out visitors see migration first, signed-in users do not see it, and migration intake stays open for advance applications even after a prior-cycle DB reset.
+# v4.4.1 / v441 — Promotion Spec Color Clarity
+
+- UI-only update from official v440 / 4.4.0.
+- Promotion spec `현재` uses blue (`#93C5FD`) while below requirement and green (`#4ADE80`) once satisfied.
+- Promotion spec `필요` uses gold (`#FCD34D`).
+- No `부족` amount is added.
+- Activity criteria colors and rank lifecycle/data rules are unchanged.
+- No new D1 migration. Latest migration remains `0033_v440_rank_lifecycle_integrity.sql`.
+
+> **v440 deployment candidate R002:** supersedes the first v440 candidate before production deployment. Permanent rank-spec qualification no longer has a member delete cascade. See `V440_PREDEPLOY_CORRECTION_R002.md`.
+
+> Current deploy-ready baseline: **v440 / 4.4.0** — Rank Lifecycle Integrity & History. R1 has no maintenance/demotion lifecycle; target-rank spec qualification is permanent once recorded; R2/R3 maintenance uses fixed 30-day cycles with rolling-30 recovery safety; rank history is immutable and survives member deletion. EZPK1 remains single-alliance and migration intake remains open.
+
+## v4.4.0 / v440 — Rank Lifecycle Integrity & History
+
+- Adds `0033_v440_rank_lifecycle_integrity.sql`.
+- R1 maintenance is retired; R1 anti-bounce is a separate promotion re-entry gate.
+- Permanent `(member_id, target_rank)` spec qualification is stored in `member_rank_spec_qualifications`.
+- Promotion commit authority uses permanent qualification + persistent `REVIEWABLE` state, not current spec rechecks.
+- R2/R3 maintenance separates fixed-cycle activity from rolling-30 recovery activity.
+- Adds immutable `member_rank_history_events` with public/private snapshot separation and no member-delete cascade.
+- My Page shows exact promotion/maintenance cycle ranges, permanent qualification state, protection/recovery status, and recent/full rank history.
+- Admin Member Management uses the same lifecycle source and expanded history event types.
+- EZPK1 single-alliance routing and open migration intake are unchanged.
+
 
 ## v436 Member Management UX / Performance Remediation
 

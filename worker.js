@@ -325,6 +325,8 @@ export default {
 
         case "GET /api/member/me":
           return handleMemberMe(request, env);
+        case "GET /api/member/rank-history":
+          return handleMemberRankHistory(request, url, env);
 
         case "POST /api/member/rank-change-notice/dismiss":
           return handleRankChangeNoticeDismiss(request, env);
@@ -1215,7 +1217,6 @@ async function handleMemberMe(request, env) {
   const firstNicknameChangeFree = nicknameChangeCount === 0;
 
   const rules=await getPromotionRules(env.DB);
-  const activity=await memberActivityStatus(env.DB,member.id,false,14);
   const promotion=await promotionReviewState(env.DB,record,rules,false);
   if(promotion){
     const pending=await env.DB.prepare(`SELECT id FROM member_requests WHERE member_id=? AND request_type='promotion' AND promotion_target_rank=? AND (admin_answer IS NULL OR TRIM(admin_answer)='') ORDER BY id DESC LIMIT 1`).bind(member.id,promotion.targetRank).first();
@@ -1250,6 +1251,7 @@ async function handleMemberMe(request, env) {
       promotion,
       rankMaintenance:['R2','R3'].includes(record.member_rank)?await rankMaintenanceState(env.DB,record,false):null,
       rankChangeNotice:await memberRankChangeNotice(env.DB,member.id),
+      rankHistoryRecent:await memberRankHistoryList(env.DB,member.id,3),
     },
   });
 }
@@ -2062,24 +2064,18 @@ function promotionState(row,rules,activity=null){
 }
 
 async function memberActivityStatus(db,memberId,includePrivate=false,windowDays=14){
-  const days=Math.max(1,Math.min(90,Number(windowDays)||14)),dateOffset=`-${days-1} days`,timeOffset=`-${days} days`,expiryOffset=`+${days} days`;
-  const [votes,visits,specs,confirmation]=await Promise.all([
-    db.prepare(`SELECT COUNT(DISTINCT vr.vote_id) count,MAX(vr.updated_at) latest FROM vote_responses vr WHERE vr.member_id=? AND vr.updated_at>=datetime('now',?) AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id)`).bind(memberId,timeOffset).first(),
-    db.prepare(`SELECT COUNT(*) count,MAX(visit_date) latest FROM member_daily_visits WHERE member_id=? AND visit_date>=date('now','+9 hours',?)`).bind(memberId,dateOffset).first(),
-    db.prepare(`SELECT COUNT(*) count,MAX(created_at) latest FROM member_activity_logs WHERE member_id=? AND activity_type='specs_update' AND source='member' AND created_at>=datetime('now',?)`).bind(memberId,timeOffset).first(),
-    db.prepare(`SELECT c.id,c.confirmed_at,datetime(c.confirmed_at,?) expires_at,c.checked_login,c.checked_event,c.checked_alliance,c.memo,a.nickname confirmed_by FROM member_activity_confirmations c LEFT JOIN members a ON a.id=c.confirmed_by_member_id WHERE c.member_id=? AND c.revoked_at IS NULL AND c.confirmed_at>=datetime('now',?) ORDER BY c.confirmed_at DESC LIMIT 1`).bind(expiryOffset,memberId,timeOffset).first(),
-  ]);
-  const voteCount=Number(votes?.count||0),visitDays=Number(visits?.count||0),specUpdateCount=Number(specs?.count||0);
-  const adminConfirmation={passed:Boolean(confirmation),confirmedAt:confirmation?.confirmed_at||null,expiresAt:confirmation?.expires_at||null};
-  if(includePrivate&&confirmation)Object.assign(adminConfirmation,{confirmedBy:confirmation.confirmed_by||null,checkedLogin:Boolean(confirmation.checked_login),checkedEvent:Boolean(confirmation.checked_event),checkedAlliance:Boolean(confirmation.checked_alliance),memo:confirmation.memo||""});
-  const items={vote:{count:voteCount,required:1,passed:voteCount>=1,latestAt:votes?.latest||null},visit:{count:visitDays,required:2,passed:visitDays>=2,latestAt:visits?.latest||null},specUpdate:{count:specUpdateCount,required:1,passed:specUpdateCount>=1,latestAt:specs?.latest||null},adminConfirmation};
-  const completed=Object.values(items).filter(x=>x.passed).length;
-  return {windowDays:days,required:2,completed,eligible:completed>=2,items};
+  const days=Math.max(1,Math.min(90,Number(windowDays)||14));
+  const today=kstDate(),startOn=dateAddDays(today,-(days-1));
+  return memberActivityStatusBetween(db,memberId,startOn,today,includePrivate);
 }
 
-// v435: persistent rank-review cycles. 14 days is a promotion opportunity window,
-// 30 days is the current-rank maintenance review window, and new members have
-// a 10-day demotion protection window. Cycle progress is calendar-day based in KST.
+// v440: persistent rank lifecycle.
+// - Promotion opportunity window: 14 KST calendar days.
+// - Rank maintenance: R2/R3 only, 30 KST calendar days.
+// - R1 has no maintenance/demotion lifecycle.
+// - New-member protection remains a 10-day KST authority and becomes relevant
+//   immediately if the member enters R2/R3 while the original protection is active.
+// - Target-rank spec qualification is permanent once recorded.
 const RANK_REVIEW_PROMOTION_DAYS=14;
 const RANK_REVIEW_MAINTENANCE_DAYS=30;
 const RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS=10;
@@ -2110,6 +2106,27 @@ function rankReviewCycleProgress(startOn,totalDays,today=kstDate()){
   return {day,totalDays,startedOn:startOn,dueOn};
 }
 function rankReviewRuleFingerprint(rule,target){return JSON.stringify({target,industryLevel:Number(rule?.industryLevel||0),vehicle1PowerNormalized:Number(rule?.vehicle1PowerNormalized||0)})}
+function rankRuleSnapshot(target,rule){
+  return JSON.stringify({target,industryLevel:Number(rule?.industryLevel||0),vehicle1PowerValue:Number(rule?.vehicle1PowerValue||0),vehicle1PowerUnit:String(rule?.vehicle1PowerUnit||'G'),vehicle1PowerNormalized:Number(rule?.vehicle1PowerNormalized||0)});
+}
+function rankSpecSnapshot(row){
+  return JSON.stringify({industryLevel:row?.industry_level||null,vehicle1PowerValue:row?.vehicle1_power_value??null,vehicle1PowerUnit:row?.vehicle1_power_unit||null,vehicle1PowerNormalized:row?.vehicle1_power_normalized??null});
+}
+function parseJsonOrNull(value){if(value==null||value==='')return null;try{return JSON.parse(value)}catch{return null}}
+function publicActivityEvidence(activity){
+  if(!activity)return null;
+  const i=activity.items||{};
+  return {
+    windowDays:Number(activity.windowDays||0),required:Number(activity.required||2),completed:Number(activity.completed||0),eligible:Boolean(activity.eligible),
+    startOn:activity.startOn||null,endOn:activity.endOn||null,
+    items:{
+      vote:{count:Number(i.vote?.count||0),required:Number(i.vote?.required||1),passed:Boolean(i.vote?.passed),latestAt:i.vote?.latestAt||null},
+      visit:{count:Number(i.visit?.count||0),required:Number(i.visit?.required||2),passed:Boolean(i.visit?.passed),latestAt:i.visit?.latestAt||null},
+      specUpdate:{count:Number(i.specUpdate?.count||0),required:Number(i.specUpdate?.required||1),passed:Boolean(i.specUpdate?.passed),latestAt:i.specUpdate?.latestAt||null},
+      adminConfirmation:{passed:Boolean(i.adminConfirmation?.passed),confirmedAt:i.adminConfirmation?.confirmedAt||null}
+    }
+  };
+}
 async function rankReviewSystemStartOn(db){
   const raw=await getSetting(db,'rank_review_system_v1_started_on');
   return /^\d{4}-\d{2}-\d{2}$/.test(String(raw||''))?String(raw):kstDate();
@@ -2131,23 +2148,28 @@ async function memberActivityStatusBetween(db,memberId,startOn,endOn,includePriv
 async function hasRankReviewActivityEvidenceAfter(db,memberId,sqlTimestamp){
   if(!sqlTimestamp)return false;
   const [vote,visit,spec,confirm]=await Promise.all([
-    db.prepare(`SELECT 1 ok FROM vote_responses vr WHERE vr.member_id=? AND vr.updated_at>? AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id) LIMIT 1`).bind(memberId,sqlTimestamp).first(),
-    db.prepare(`SELECT 1 ok FROM member_daily_visits WHERE member_id=? AND first_seen_at>? LIMIT 1`).bind(memberId,sqlTimestamp).first(),
-    db.prepare(`SELECT 1 ok FROM member_activity_logs WHERE member_id=? AND activity_type='specs_update' AND source='member' AND created_at>? LIMIT 1`).bind(memberId,sqlTimestamp).first(),
-    db.prepare(`SELECT 1 ok FROM member_activity_confirmations WHERE member_id=? AND revoked_at IS NULL AND confirmed_at>? LIMIT 1`).bind(memberId,sqlTimestamp).first(),
+    db.prepare(`SELECT 1 ok FROM vote_responses vr WHERE vr.member_id=? AND datetime(vr.updated_at)>datetime(?) AND EXISTS(SELECT 1 FROM vote_response_options x WHERE x.response_id=vr.id) LIMIT 1`).bind(memberId,sqlTimestamp).first(),
+    db.prepare(`SELECT 1 ok FROM member_daily_visits WHERE member_id=? AND datetime(first_seen_at)>datetime(?) LIMIT 1`).bind(memberId,sqlTimestamp).first(),
+    db.prepare(`SELECT 1 ok FROM member_activity_logs WHERE member_id=? AND activity_type='specs_update' AND source='member' AND datetime(created_at)>datetime(?) LIMIT 1`).bind(memberId,sqlTimestamp).first(),
+    db.prepare(`SELECT 1 ok FROM member_activity_confirmations WHERE member_id=? AND revoked_at IS NULL AND datetime(confirmed_at)>datetime(?) LIMIT 1`).bind(memberId,sqlTimestamp).first(),
   ]);
   return Boolean(vote||visit||spec||confirm);
 }
 async function rankReviewStateRow(db,memberId){return db.prepare(`SELECT * FROM member_rank_review_states WHERE member_id=?`).bind(memberId).first()}
-function initialSpecQualifiedOn(row,systemStart,today){
-  const last=maxDate(kstDateFromSql(row?.updated_at),kstDateFromSql(row?.spec_updated_at));
-  return last&&last>systemStart&&last<=today?last:systemStart;
+async function rankSpecQualificationRow(db,memberId,targetRank){return db.prepare(`SELECT * FROM member_rank_spec_qualifications WHERE member_id=? AND target_rank=? LIMIT 1`).bind(memberId,targetRank).first()}
+async function ensureRankSpecQualification(db,row,targetRank,rule,currentSpecEligible){
+  let qualification=await rankSpecQualificationRow(db,row.id,targetRank);
+  if(qualification||!currentSpecEligible)return qualification;
+  const qualifiedAt=kstDate();
+  await db.prepare(`INSERT INTO member_rank_spec_qualifications(member_id,target_rank,qualified_at,rule_snapshot,spec_snapshot,qualification_source) VALUES(?,?,?,?,?,'LIVE_SPEC_QUALIFICATION') ON CONFLICT(member_id,target_rank) DO NOTHING`).bind(row.id,targetRank,qualifiedAt,rankRuleSnapshot(targetRank,rule),rankSpecSnapshot(row)).run();
+  return rankSpecQualificationRow(db,row.id,targetRank);
 }
 async function ensureRankReviewState(db,row){
   const today=kstDate(),systemStart=await rankReviewSystemStartOn(db),joined=kstDateFromSql(row?.created_at)||today;
   const protectionUntil=dateAddDays(joined,RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1);
   const protectionActive=today<=protectionUntil;
-  const maintenanceStart=protectionActive?null:maxDate(systemStart,dateAddDays(protectionUntil,1));
+  const trackMaintenance=['R2','R3'].includes(row.member_rank);
+  const maintenanceStart=trackMaintenance&&!protectionActive?maxDate(systemStart,dateAddDays(protectionUntil,1)):null;
   await db.prepare(`INSERT INTO member_rank_review_states(member_id,rank_snapshot,maintenance_cycle_started_on,new_member_protection_until,last_evaluated_at) VALUES(?,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(member_id) DO NOTHING`).bind(row.id,row.member_rank,maintenanceStart,protectionUntil).run();
   let state=await rankReviewStateRow(db,row.id);
   if(state&&state.rank_snapshot!==row.member_rank){
@@ -2156,40 +2178,68 @@ async function ensureRankReviewState(db,row){
   }
   return state;
 }
+function rankReviewResetPrepared(db,memberId,newRank,joinedOn,eventKey,options={}){
+  if(!['R1','R2','R3'].includes(newRank)){
+    return db.prepare(`DELETE FROM member_rank_review_states WHERE member_id=? AND EXISTS(SELECT 1 FROM member_rank_history_events WHERE event_key=?)`).bind(memberId,eventKey);
+  }
+  const today=kstDate(),joined=joinedOn||today,protectionUntil=dateAddDays(joined,RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1),protectedNow=today<=protectionUntil;
+  const maintenanceStart=['R2','R3'].includes(newRank)&&!protectedNow?today:null;
+  const maintenanceUnlock=newRank==='R2'?1:0;
+  const reentryRequired=newRank==='R1'?1:0;
+  const preserve=options.preserveNewMemberProtection===true?1:0;
+  return db.prepare(`INSERT INTO member_rank_review_states(member_id,rank_snapshot,maintenance_cycle_started_on,maintenance_status,new_member_protection_until,promotion_unlock_after_maintenance,promotion_reentry_required,promotion_reentry_started_on,last_evaluated_at,updated_at)
+    SELECT ?,?,?,'ACTIVE',?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP WHERE EXISTS(SELECT 1 FROM member_rank_history_events WHERE event_key=?)
+    ON CONFLICT(member_id) DO UPDATE SET rank_snapshot=excluded.rank_snapshot,promotion_target_rank=NULL,spec_qualified_at=NULL,promotion_cycle_started_on=NULL,promotion_activity_qualified_at=NULL,promotion_status=NULL,promotion_hold_started_at=NULL,promotion_rule_fingerprint=NULL,maintenance_cycle_started_on=excluded.maintenance_cycle_started_on,maintenance_status='ACTIVE',maintenance_reviewable_at=NULL,maintenance_last_completed_on=NULL,maintenance_verified_at=NULL,new_member_protection_until=CASE WHEN ? THEN member_rank_review_states.new_member_protection_until ELSE excluded.new_member_protection_until END,promotion_unlock_after_maintenance=excluded.promotion_unlock_after_maintenance,promotion_reentry_required=excluded.promotion_reentry_required,promotion_reentry_started_on=excluded.promotion_reentry_started_on,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP`).bind(memberId,newRank,maintenanceStart,protectionUntil,maintenanceUnlock,reentryRequired,reentryRequired?today:null,eventKey,preserve);
+}
 async function resetRankReviewAfterRankChange(db,memberId,newRank,options={}){
-  const today=kstDate(),target=await db.prepare(`SELECT created_at FROM members WHERE id=?`).bind(memberId).first();
-  const joined=kstDateFromSql(target?.created_at)||today,protectionUntil=dateAddDays(joined,RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1),protectedNow=today<=protectionUntil;
-  const trackMaintenance=['R1','R2','R3'].includes(newRank),maintenanceStart=trackMaintenance&&!protectedNow?today:null;
-  const blockNextPromotion=['R1','R2'].includes(newRank)?1:0;
-  await db.prepare(`INSERT INTO member_rank_review_states(member_id,rank_snapshot,maintenance_cycle_started_on,maintenance_status,new_member_protection_until,promotion_unlock_after_maintenance,last_evaluated_at,updated_at) VALUES(?,?,?,'ACTIVE',?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
-    ON CONFLICT(member_id) DO UPDATE SET rank_snapshot=excluded.rank_snapshot,promotion_target_rank=NULL,spec_qualified_at=NULL,promotion_cycle_started_on=NULL,promotion_activity_qualified_at=NULL,promotion_status=NULL,promotion_hold_started_at=NULL,promotion_rule_fingerprint=NULL,maintenance_cycle_started_on=excluded.maintenance_cycle_started_on,maintenance_status='ACTIVE',maintenance_reviewable_at=NULL,maintenance_last_completed_on=NULL,maintenance_verified_at=NULL,new_member_protection_until=CASE WHEN ? THEN member_rank_review_states.new_member_protection_until ELSE excluded.new_member_protection_until END,promotion_unlock_after_maintenance=excluded.promotion_unlock_after_maintenance,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP`).bind(memberId,newRank,maintenanceStart,protectionUntil,blockNextPromotion,options.preserveNewMemberProtection===true?1:0).run();
+  const target=await db.prepare(`SELECT created_at FROM members WHERE id=?`).bind(memberId).first();
+  const eventKey=options.eventKey||`compat-reset-${memberId}-${Date.now()}-${randomHex(4)}`;
+  if(!options.eventKey){
+    // Compatibility path for non-rank-change callers. It deliberately creates no
+    // history event and therefore cannot use the event-guarded prepared statement.
+    if(!['R1','R2','R3'].includes(newRank)){await db.prepare(`DELETE FROM member_rank_review_states WHERE member_id=?`).bind(memberId).run();return}
+    const today=kstDate(),joined=kstDateFromSql(target?.created_at)||today,protectionUntil=dateAddDays(joined,RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1),protectedNow=today<=protectionUntil;
+    const maintenanceStart=['R2','R3'].includes(newRank)&&!protectedNow?today:null,maintenanceUnlock=newRank==='R2'?1:0,reentryRequired=newRank==='R1'?1:0;
+    await db.prepare(`INSERT INTO member_rank_review_states(member_id,rank_snapshot,maintenance_cycle_started_on,maintenance_status,new_member_protection_until,promotion_unlock_after_maintenance,promotion_reentry_required,promotion_reentry_started_on,last_evaluated_at,updated_at) VALUES(?,?,?,'ACTIVE',?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)
+      ON CONFLICT(member_id) DO UPDATE SET rank_snapshot=excluded.rank_snapshot,promotion_target_rank=NULL,spec_qualified_at=NULL,promotion_cycle_started_on=NULL,promotion_activity_qualified_at=NULL,promotion_status=NULL,promotion_hold_started_at=NULL,promotion_rule_fingerprint=NULL,maintenance_cycle_started_on=excluded.maintenance_cycle_started_on,maintenance_status='ACTIVE',maintenance_reviewable_at=NULL,maintenance_last_completed_on=NULL,maintenance_verified_at=NULL,new_member_protection_until=CASE WHEN ? THEN member_rank_review_states.new_member_protection_until ELSE excluded.new_member_protection_until END,promotion_unlock_after_maintenance=excluded.promotion_unlock_after_maintenance,promotion_reentry_required=excluded.promotion_reentry_required,promotion_reentry_started_on=excluded.promotion_reentry_started_on,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP`).bind(memberId,newRank,maintenanceStart,protectionUntil,maintenanceUnlock,reentryRequired,reentryRequired?today:null,options.preserveNewMemberProtection===true?1:0).run();
+    return;
+  }
+  await rankReviewResetPrepared(db,memberId,newRank,kstDateFromSql(target?.created_at),eventKey,options).run();
 }
 
 async function rankProtectionState(db,memberId){
   const row=await db.prepare(`SELECT change_type,protection_until,created_at FROM member_rank_changes WHERE member_id=? AND protection_until IS NOT NULL AND protection_until>datetime('now') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
   return row?{active:true,type:row.change_type,until:row.protection_until,startedAt:row.created_at}:null;
 }
+function rankHistoryPublicEvent(row){
+  return {id:Number(row.id),type:String(row.event_type||''),fromRank:row.from_rank,toRank:row.to_rank,reasonCode:row.reason_code,publicNote:row.public_note||null,decisionSource:row.decision_source||null,ruleSnapshot:parseJsonOrNull(row.rule_snapshot),specSnapshot:parseJsonOrNull(row.spec_snapshot),cycleSnapshot:parseJsonOrNull(row.cycle_snapshot),activitySnapshot:parseJsonOrNull(row.public_activity_snapshot),snapshotQuality:row.snapshot_quality||'FULL',createdAt:row.created_at};
+}
+async function memberRankHistoryList(db,memberId,limit=3){
+  const safeLimit=Math.max(1,Math.min(100,Number(limit)||3));
+  const rows=await db.prepare(`SELECT id,event_type,from_rank,to_rank,reason_code,public_note,decision_source,rule_snapshot,spec_snapshot,cycle_snapshot,public_activity_snapshot,snapshot_quality,created_at FROM member_rank_history_events WHERE member_id=? ORDER BY created_at DESC,id DESC LIMIT ?`).bind(memberId,safeLimit).all();
+  return (rows.results||[]).map(rankHistoryPublicEvent);
+}
 async function memberRankChangeNotice(db,memberId){
   try{
-    const row=await db.prepare(`SELECT id,change_type,from_rank,to_rank,created_at FROM member_rank_changes WHERE member_id=? AND dismissed_at IS NULL AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
-    return row?{id:row.id,type:row.change_type,fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
+    const row=await db.prepare(`SELECT id,event_type,from_rank,to_rank,reason_code,created_at FROM member_rank_history_events WHERE member_id=? AND dismissed_at IS NULL AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC,id DESC LIMIT 1`).bind(memberId).first();
+    return row?{id:row.id,type:String(row.event_type||'').toLowerCase(),fromRank:row.from_rank,toRank:row.to_rank,reasonCode:row.reason_code,createdAt:row.created_at}:null;
   }catch(error){
-    // v376 compatibility guard: v374 added dismissed_at in a separate
-    // migration. A deployment can update the Worker before that migration is
-    // applied; the optional notice must never make /api/member/me look logged
-    // out while the member session itself is still valid.
     console.warn('[EZPK] rank-change notice unavailable',error?.message||error);
     return null;
   }
 }
-
+async function handleMemberRankHistory(request,url,env){
+  const member=await requireMember(request,env.DB);if(member instanceof Response)return member;
+  const limit=Math.max(1,Math.min(100,Number(url.searchParams.get('limit'))||100));
+  return json({ok:true,data:{items:await memberRankHistoryList(env.DB,member.id,limit)}});
+}
 async function handleRankChangeNoticeDismiss(request,env){
   const member=await requireMember(request,env.DB);
   if(member instanceof Response)return member;
   const body=await readJson(request),changeId=Number(body.changeId);
-  if(!Number.isInteger(changeId)||changeId<1)return jsonError("VALIDATION_ERROR",400);
-  const result=await env.DB.prepare(`UPDATE member_rank_changes SET dismissed_at=datetime('now') WHERE id=? AND member_id=? AND dismissed_at IS NULL`).bind(changeId,member.id).run();
-  if(!Number(result.meta?.changes||0))return jsonError("RANK_CHANGE_NOTICE_NOT_FOUND",404);
+  if(!Number.isInteger(changeId)||changeId<1)return jsonError('VALIDATION_ERROR',400);
+  const result=await env.DB.prepare(`UPDATE member_rank_history_events SET dismissed_at=datetime('now') WHERE id=? AND member_id=? AND dismissed_at IS NULL`).bind(changeId,member.id).run();
+  if(!Number(result.meta?.changes||0))return jsonError('RANK_CHANGE_NOTICE_NOT_FOUND',404);
   return json({ok:true,data:{dismissed:true}});
 }
 async function demotionExclusionState(db,memberId,includePrivate=false){
@@ -2200,20 +2250,20 @@ async function demotionExclusionState(db,memberId,includePrivate=false){
   return state;
 }
 async function rankMaintenanceState(db,row,includePrivate=false){
-  if(!['R1','R2','R3'].includes(row?.member_rank))return null;
+  if(!['R2','R3'].includes(row?.member_rank))return null;
   let state=await ensureRankReviewState(db,row),today=kstDate();
-  const currentActivity=await memberActivityStatus(db,row.id,includePrivate,RANK_REVIEW_MAINTENANCE_DAYS);
+  const recoveryActivity=await memberActivityStatus(db,row.id,includePrivate,RANK_REVIEW_MAINTENANCE_DAYS);
   const [legacyProtection,exclusion]=await Promise.all([rankProtectionState(db,row.id),demotionExclusionState(db,row.id,includePrivate)]);
   const joined=kstDateFromSql(row.created_at)||today,storedProtection=state?.new_member_protection_until||dateAddDays(joined,RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1);
   const newProtected=today<=storedProtection;
   const newProtection=newProtected?{active:true,type:'new_member',until:storedProtection,...rankReviewCycleProgress(joined,RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS,today)}:null;
   if(!state.maintenance_cycle_started_on&&!newProtected){
     const systemStart=await rankReviewSystemStartOn(db),start=maxDate(systemStart,dateAddDays(storedProtection,1));
-    await db.prepare(`UPDATE member_rank_review_states SET maintenance_cycle_started_on=?,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(start,row.id).run();
+    await db.prepare(`UPDATE member_rank_review_states SET maintenance_cycle_started_on=?,maintenance_status='ACTIVE',maintenance_reviewable_at=NULL,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(start,row.id).run();
     state=await rankReviewStateRow(db,row.id);
   }
   let startOn=state.maintenance_cycle_started_on,status=state.maintenance_status||'ACTIVE',reviewableAt=state.maintenance_reviewable_at,verifiedAt=state.maintenance_verified_at,lastCompleted=state.maintenance_last_completed_on,unlock=Number(state.promotion_unlock_after_maintenance||0);
-  if(!newProtected&&status==='REVIEWABLE'&&currentActivity.eligible){
+  if(!newProtected&&status==='REVIEWABLE'&&recoveryActivity.eligible){
     status='ACTIVE';reviewableAt=null;verifiedAt=new Date().toISOString();lastCompleted=today;startOn=today;unlock=0;
   }
   let guard=0;
@@ -2228,25 +2278,53 @@ async function rankMaintenanceState(db,row,includePrivate=false){
     state=await rankReviewStateRow(db,row.id);
   }else await db.prepare(`UPDATE member_rank_review_states SET last_evaluated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(row.id).run();
   const cycle=status==='REVIEWABLE'?{day:RANK_REVIEW_MAINTENANCE_DAYS,totalDays:RANK_REVIEW_MAINTENANCE_DAYS,startedOn:startOn,dueOn:dateAddDays(startOn,RANK_REVIEW_MAINTENANCE_DAYS-1),status}:{...rankReviewCycleProgress(startOn,RANK_REVIEW_MAINTENANCE_DAYS,today),status};
-  const reviewActivity=status==='REVIEWABLE'&&startOn&&cycle.dueOn?await memberActivityStatusBetween(db,row.id,startOn,cycle.dueOn,includePrivate):currentActivity;
-  const active=row.status==='active'&&(row.approval_status||'approved')==='approved',effectiveProtection=newProtection||legacyProtection,protection=(includePrivate?newProtection:null)||legacyProtection;
-  const canDemote=['R2','R3'].includes(row.member_rank);
-  return {currentRank:row.member_rank,targetRank:row.member_rank==='R3'?'R2':row.member_rank==='R2'?'R1':null,activity:currentActivity,reviewActivity,maintained:currentActivity.eligible,cycle,protection,legacyProtection,exclusion,watching:canDemote&&active&&!currentActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,reviewEligible:canDemote&&active&&status==='REVIEWABLE'&&!currentActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,promotionUnlocked:!Number(state.promotion_unlock_after_maintenance||0)};
+  let cycleActivity=null;
+  if(startOn&&cycle.dueOn){
+    const endOn=today<cycle.dueOn?today:cycle.dueOn;
+    cycleActivity=await memberActivityStatusBetween(db,row.id,startOn,endOn,includePrivate);
+  }
+  const failedCycleActivity=status==='REVIEWABLE'&&startOn&&cycle.dueOn?await memberActivityStatusBetween(db,row.id,startOn,cycle.dueOn,includePrivate):null;
+  const displayActivity=status==='REVIEWABLE'?(failedCycleActivity||cycleActivity||recoveryActivity):(cycleActivity||recoveryActivity);
+  const active=row.status==='active'&&(row.approval_status||'approved')==='approved',effectiveProtection=newProtection||legacyProtection,protection=newProtection||legacyProtection;
+  const cycleEligible=Boolean(cycleActivity?.eligible);
+  return {
+    currentRank:row.member_rank,targetRank:row.member_rank==='R3'?'R2':'R1',
+    activity:displayActivity,cycleActivity,failedCycleActivity,recoveryActivity,reviewActivity:failedCycleActivity||cycleActivity||recoveryActivity,
+    maintained:newProtected?true:cycleEligible,cycle,protection,legacyProtection,exclusion,
+    watching:active&&status==='ACTIVE'&&Boolean(startOn)&&!cycleEligible&&!effectiveProtection?.active&&!exclusion?.active,
+    reviewEligible:active&&status==='REVIEWABLE'&&!recoveryActivity.eligible&&!effectiveProtection?.active&&!exclusion?.active,
+    promotionUnlocked:!Number(state.promotion_unlock_after_maintenance||0)
+  };
 }
 async function promotionReviewState(db,row,rules,includePrivate=false){
   const currentActivity=await memberActivityStatus(db,row.id,includePrivate,RANK_REVIEW_PROMOTION_DAYS),base=promotionState(row,rules,currentActivity);if(!base)return null;
-  let state=await ensureRankReviewState(db,row),today=kstDate(),target=base.targetRank,ruleFingerprint=rankReviewRuleFingerprint(rules[target],target);
-  if(state.promotion_target_rank!==target||state.promotion_rule_fingerprint!==ruleFingerprint){
+  let state=await ensureRankReviewState(db,row),today=kstDate(),target=base.targetRank,rule=rules[target],ruleFingerprint=rankReviewRuleFingerprint(rule,target);
+  if(state.promotion_target_rank!==target){
     await db.prepare(`UPDATE member_rank_review_states SET promotion_target_rank=?,spec_qualified_at=NULL,promotion_cycle_started_on=NULL,promotion_activity_qualified_at=NULL,promotion_status=NULL,promotion_hold_started_at=NULL,promotion_rule_fingerprint=?,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(target,ruleFingerprint,row.id).run();
     state=await rankReviewStateRow(db,row.id);
-  }
-  if(!state.spec_qualified_at&&base.specEligible){
-    const systemStart=await rankReviewSystemStartOn(db),qualifiedOn=initialSpecQualifiedOn(row,systemStart,today);
-    await db.prepare(`UPDATE member_rank_review_states SET spec_qualified_at=?,promotion_status=CASE WHEN promotion_unlock_after_maintenance=1 THEN 'WAIT_MAINTENANCE' ELSE 'IN_PROGRESS' END,promotion_cycle_started_on=CASE WHEN promotion_unlock_after_maintenance=1 THEN NULL ELSE ? END,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(qualifiedOn,qualifiedOn,row.id).run();
+  }else if(state.promotion_rule_fingerprint!==ruleFingerprint){
+    // Rule changes affect only members who have not yet earned this target-rank qualification.
+    // Existing permanent qualification and in-flight cycle state are intentionally preserved.
+    await db.prepare(`UPDATE member_rank_review_states SET promotion_rule_fingerprint=?,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(ruleFingerprint,row.id).run();
     state=await rankReviewStateRow(db,row.id);
   }
-  const specQualified=Boolean(state.spec_qualified_at);
-  if(!specQualified)return {...base,specEligible:false,currentSpecEligible:base.specEligible,eligible:false,review:{status:'WAIT_SPEC',day:0,totalDays:RANK_REVIEW_PROMOTION_DAYS,startedOn:null,dueOn:null}};
+  let qualification=await ensureRankSpecQualification(db,row,target,rule,base.specEligible);
+  if(qualification&&state.spec_qualified_at!==qualification.qualified_at){
+    await db.prepare(`UPDATE member_rank_review_states SET spec_qualified_at=?,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(qualification.qualified_at,row.id).run();
+    state=await rankReviewStateRow(db,row.id);
+  }
+  const qualificationPublic=qualification?{targetRank:target,qualifiedAt:qualification.qualified_at,source:qualification.qualification_source,permanent:true,ruleSnapshot:parseJsonOrNull(qualification.rule_snapshot),specSnapshot:parseJsonOrNull(qualification.spec_snapshot)}:null;
+  const reentryRequired=row.member_rank==='R1'&&Number(state.promotion_reentry_required||0)===1;
+  if(reentryRequired){
+    const recoveryActivity=await memberActivityStatus(db,row.id,includePrivate,RANK_REVIEW_MAINTENANCE_DAYS),fresh=await hasRankReviewActivityEvidenceAfter(db,row.id,state.promotion_reentry_started_on);
+    if(recoveryActivity.eligible&&fresh){
+      await db.prepare(`UPDATE member_rank_review_states SET promotion_reentry_required=0,promotion_reentry_started_on=NULL,promotion_status=CASE WHEN spec_qualified_at IS NOT NULL THEN 'IN_PROGRESS' ELSE NULL END,promotion_cycle_started_on=CASE WHEN spec_qualified_at IS NOT NULL THEN ? ELSE NULL END,promotion_activity_qualified_at=NULL,promotion_hold_started_at=NULL,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(today,row.id).run();
+      state=await rankReviewStateRow(db,row.id);
+    }else{
+      return {...base,specEligible:Boolean(qualification),currentSpecEligible:base.specEligible,qualification:qualificationPublic,activity:currentActivity,cycleActivity:null,reviewActivity:currentActivity,eligible:false,reentry:{required:true,startedOn:state.promotion_reentry_started_on,recoveryActivity:publicActivityEvidence(recoveryActivity),freshActivity:fresh},review:{status:'WAIT_REENTRY',day:0,totalDays:RANK_REVIEW_PROMOTION_DAYS,startedOn:null,dueOn:null,specQualifiedAt:qualification?.qualified_at||null}};
+    }
+  }
+  if(!qualification)return {...base,specEligible:false,currentSpecEligible:base.specEligible,qualification:null,eligible:false,review:{status:'WAIT_SPEC',day:0,totalDays:RANK_REVIEW_PROMOTION_DAYS,startedOn:null,dueOn:null}};
   if(state.promotion_status==='WAIT_MAINTENANCE'){
     await rankMaintenanceState(db,row,includePrivate);state=await rankReviewStateRow(db,row.id);
     if(!Number(state.promotion_unlock_after_maintenance||0)){
@@ -2254,12 +2332,20 @@ async function promotionReviewState(db,row,rules,includePrivate=false){
       state=await rankReviewStateRow(db,row.id);
     }
   }
+  if(!state.promotion_status&&!Number(state.promotion_unlock_after_maintenance||0)){
+    await db.prepare(`UPDATE member_rank_review_states SET promotion_status='IN_PROGRESS',promotion_cycle_started_on=?,promotion_activity_qualified_at=NULL,promotion_hold_started_at=NULL,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(today,row.id).run();
+    state=await rankReviewStateRow(db,row.id);
+  }
+  let holdRecovery=null;
   if(state.promotion_status==='HOLD'){
-    const maintenance=await rankMaintenanceState(db,row,includePrivate),fresh=await rankReviewStateRow(db,row.id);
-    if(maintenance?.activity?.eligible&&await hasRankReviewActivityEvidenceAfter(db,row.id,fresh.promotion_hold_started_at)){
+    const recoveryActivity=await memberActivityStatus(db,row.id,includePrivate,RANK_REVIEW_MAINTENANCE_DAYS);
+    const fresh=await hasRankReviewActivityEvidenceAfter(db,row.id,state.promotion_hold_started_at);
+    holdRecovery={activity:publicActivityEvidence(recoveryActivity),freshActivity:fresh,startedAt:state.promotion_hold_started_at};
+    if(recoveryActivity.eligible&&fresh){
       await db.prepare(`UPDATE member_rank_review_states SET promotion_status='IN_PROGRESS',promotion_cycle_started_on=?,promotion_activity_qualified_at=NULL,promotion_hold_started_at=NULL,last_evaluated_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE member_id=?`).bind(today,row.id).run();
       state=await rankReviewStateRow(db,row.id);
-    }else state=fresh;
+      holdRecovery=null;
+    }
   }
   let cycleActivity=null,status=state.promotion_status,startedOn=state.promotion_cycle_started_on,qualifiedAt=state.promotion_activity_qualified_at,holdAt=state.promotion_hold_started_at;
   if(status==='IN_PROGRESS'&&startedOn){
@@ -2272,18 +2358,24 @@ async function promotionReviewState(db,row,rules,includePrivate=false){
       state=await rankReviewStateRow(db,row.id);
     }
   }
-  const cycle=status==='REVIEWABLE'?{...rankReviewCycleProgress(startedOn,RANK_REVIEW_PROMOTION_DAYS,today),status}:{...rankReviewCycleProgress(startedOn,RANK_REVIEW_PROMOTION_DAYS,today),status:status||'WAIT_MAINTENANCE'};
+  const cycle={...rankReviewCycleProgress(startedOn,RANK_REVIEW_PROMOTION_DAYS,today),status:status||'WAIT_MAINTENANCE'};
   if(!cycleActivity&&startedOn&&cycle.dueOn&&(status==='REVIEWABLE'||status==='HOLD')){
     const qualifiedOn=status==='REVIEWABLE'&&qualifiedAt?kstDate(qualifiedAt):cycle.dueOn;
     const endOn=qualifiedOn&&qualifiedOn<cycle.dueOn?qualifiedOn:cycle.dueOn;
     cycleActivity=await memberActivityStatusBetween(db,row.id,startedOn,endOn,includePrivate);
   }
-  return {...base,specEligible:true,currentSpecEligible:base.specEligible,activity:currentActivity,cycleActivity,reviewActivity:cycleActivity||currentActivity,eligible:status==='REVIEWABLE',review:{...cycle,specQualifiedAt:state.spec_qualified_at,activityQualifiedAt:qualifiedAt,holdStartedAt:holdAt}};
+  return {...base,specEligible:true,currentSpecEligible:base.specEligible,qualification:qualificationPublic,activity:currentActivity,cycleActivity,reviewActivity:cycleActivity||currentActivity,holdRecovery,eligible:status==='REVIEWABLE',review:{...cycle,specQualifiedAt:qualification.qualified_at,activityQualifiedAt:qualifiedAt,holdStartedAt:holdAt}};
 }
 async function refreshRankReviewAfterSpecChange(db,memberId){
-  const row=await db.prepare(`SELECT m.*,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
+  const row=await db.prepare(`SELECT m.*,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
   if(!row)return null;
   return promotionReviewState(db,row,await getPromotionRules(db),false);
+}
+
+function rankHistoryEventKey(prefix,memberId){return `v440-${prefix}-${memberId}-${Date.now()}-${randomHex(6)}`}
+function rankHistoryInsertPrepared(db,event,{memberId,memberLoginId,memberNickname,eventType,fromRank,toRank,reasonCode,publicNote=null,internalNote=null,decisionSource,ruleSnapshot=null,specSnapshot=null,cycleSnapshot=null,publicActivitySnapshot=null,privateAuditSnapshot=null,changedByMemberId=null,changedByNickname=null,snapshotQuality='FULL'}){
+  return db.prepare(`INSERT INTO member_rank_history_events(event_key,member_id,member_login_id_snapshot,member_nickname_snapshot,event_type,from_rank,to_rank,reason_code,public_note,internal_note,decision_source,rule_snapshot,spec_snapshot,cycle_snapshot,public_activity_snapshot,private_audit_snapshot,changed_by_member_id,changed_by_nickname_snapshot,snapshot_quality)
+    SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,? WHERE changes()=1`).bind(event,memberId,memberLoginId||null,memberNickname||`Member #${memberId}`,eventType,fromRank,toRank,reasonCode,publicNote,internalNote,decisionSource,ruleSnapshot,specSnapshot,cycleSnapshot,publicActivitySnapshot,privateAuditSnapshot,changedByMemberId,changedByNickname,snapshotQuality);
 }
 
 
@@ -2743,7 +2835,7 @@ async function handleAdminNewMemberProtection(request,env){
     FROM members m
     LEFT JOIN member_specs s ON s.member_id=m.id
     LEFT JOIN member_rank_review_states rr ON rr.member_id=m.id
-    WHERE ${nonSystemAccountSql('m')} AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R1','R2','R3')
+    WHERE ${nonSystemAccountSql('m')} AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R2','R3')
       AND date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days'))
     ORDER BY date(m.created_at,'+9 hours') ASC,m.nickname COLLATE NOCASE ASC`).bind(...systemAccountBinds()).all();
   const items=(rows.results||[]).map(adminMemberRow);
@@ -2755,7 +2847,7 @@ async function promotionCandidateRows(db){
   const rows=await db.prepare(`SELECT m.*,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND m.member_rank IN ('R1','R2') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
   const evaluated=[];
   for(const row of rows.results||[]){const state=await promotionReviewState(db,row,rules,true);if(state?.specEligible)evaluated.push({row,state})}
-  const orderStatus={REVIEWABLE:0,IN_PROGRESS:1,WAIT_MAINTENANCE:2,HOLD:3};
+  const orderStatus={REVIEWABLE:0,IN_PROGRESS:1,WAIT_REENTRY:2,WAIT_MAINTENANCE:3,HOLD:4};
   evaluated.sort((a,b)=>(orderStatus[a.state.review?.status]??9)-(orderStatus[b.state.review?.status]??9)||(b.state.review?.day||0)-(a.state.review?.day||0)||String(a.row.nickname).localeCompare(String(b.row.nickname),'ko'));
   return {rules,items:evaluated.map(({row,state})=>({...adminMemberRow(row),promotion:state}))};
 }
@@ -2765,13 +2857,13 @@ async function handleAdminPromotionCandidates(request,env){
   return json({ok:true,data:{items:data.items,counts:{total:data.items.length,reviewable,R2:data.items.filter(x=>x.promotion.targetRank==='R2').length,R3:data.items.filter(x=>x.promotion.targetRank==='R3').length}}});
 }
 async function demotionCandidateRows(db){
-  const rows=await db.prepare(`SELECT m.*,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND (m.member_rank IN ('R2','R3') OR (m.member_rank='R1' AND date(m.created_at,'+9 hours')>=date('now','+9 hours','-${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days'))) AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
-  const evaluated=[];for(const row of rows.results||[])evaluated.push({row,state:await rankMaintenanceState(db,row,true)});
+  const rows=await db.prepare(`SELECT m.*,s.vehicle1_class,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND m.member_rank IN ('R2','R3') AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved'`).bind(...systemAccountBinds()).all();
+  const evaluated=[];for(const row of rows.results||[]){const state=await rankMaintenanceState(db,row,true);if(state)evaluated.push({row,state})}
   const order=(a,b)=>Number(Boolean(b.state.reviewEligible))-Number(Boolean(a.state.reviewEligible))||(b.state.cycle?.day||0)-(a.state.cycle?.day||0)||String(a.row.nickname).localeCompare(String(b.row.nickname),'ko');
   const review=evaluated.filter(x=>x.state.reviewEligible||x.state.watching).filter(x=>!x.state.protection?.active&&!x.state.exclusion?.active).sort(order);
   const deferred=evaluated.filter(x=>x.state.protection?.active||x.state.exclusion?.active).sort(order);
   const map=({row,state})=>({...adminMemberRow(row),maintenance:state});
-  const protectedRow=await db.prepare(`SELECT COUNT(*) total FROM members m WHERE ${nonSystemAccountSql('m')} AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R1','R2','R3') AND date(m.created_at,'+9 hours')>=date('now','+9 hours','-${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days')`).bind(...systemAccountBinds()).first();
+  const protectedRow=await db.prepare(`SELECT COUNT(*) total FROM members m LEFT JOIN member_rank_review_states rr ON rr.member_id=m.id WHERE ${nonSystemAccountSql('m')} AND m.status='active' AND COALESCE(m.approval_status,'approved')='approved' AND m.member_rank IN ('R2','R3') AND date('now','+9 hours')<=COALESCE(rr.new_member_protection_until,date(m.created_at,'+9 hours','+${RANK_REVIEW_NEW_MEMBER_PROTECTION_DAYS-1} days'))`).bind(...systemAccountBinds()).first();
   return {items:review.map(map),deferred:deferred.map(map),newProtectionCount:Number(protectedRow?.total||0)};
 }
 async function handleAdminDemotionCandidates(request,env){
@@ -2783,17 +2875,27 @@ async function handleAdminMemberDemote(request,memberId,env){
   const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
   const body=await readJson(request),reason=cleanString(body.reason,100)||'';
   if(!reason)return jsonError('DEMOTION_REASON_REQUIRED',400);
-  const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
+  const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
   if(!row)return jsonError('MEMBER_NOT_FOUND',404);
   const state=await rankMaintenanceState(env.DB,row,true);
   if(!state?.reviewEligible){await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demotion_failed',targetType:'member',targetId:memberId,targetName:row.nickname,result:'failure',failureReason:'DEMOTION_NOT_ELIGIBLE'});return jsonError('DEMOTION_STATE_CHANGED',409)}
-  const result=await env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved'`).bind(state.targetRank,memberId,state.currentRank).run();
-  if(Number(result.meta?.changes||0)!==1)return jsonError('DEMOTION_STATE_CHANGED',409);
-  await env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,reason,activity_snapshot,changed_by_member_id,protection_until) VALUES(?,'demotion',?,?,?,?,?,NULL)`).bind(memberId,state.currentRank,state.targetRank,reason,JSON.stringify({activity:state.activity,cycle:state.cycle}),admin.id).run();
-  await resetRankReviewAfterRankChange(env.DB,memberId,state.targetRank);
-  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demoted',targetType:'member',targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank,activity:state.activity},after:{memberRank:state.targetRank,reason,maintenanceCycle:'1/30'}});
-  return json({ok:true,data:{memberId,memberRank:state.targetRank,maintenanceCycle:{day:1,totalDays:30}}});
+  const eventKey=rankHistoryEventKey('demotion',memberId);
+  const failedActivity=state.failedCycleActivity||state.reviewActivity;
+  const update=env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved' AND EXISTS(SELECT 1 FROM member_rank_review_states rr WHERE rr.member_id=members.id AND rr.maintenance_status='REVIEWABLE')`).bind(state.targetRank,memberId,state.currentRank);
+  const history=rankHistoryInsertPrepared(env.DB,eventKey,{
+    memberId,memberLoginId:row.login_id,memberNickname:row.nickname,eventType:'DEMOTION',fromRank:state.currentRank,toRank:state.targetRank,
+    reasonCode:'MAINTENANCE_ACTIVITY_FAILED',internalNote:reason,decisionSource:'admin_review',specSnapshot:rankSpecSnapshot(row),
+    cycleSnapshot:JSON.stringify({maintenance:state.cycle}),publicActivitySnapshot:JSON.stringify(publicActivityEvidence(failedActivity)),
+    privateAuditSnapshot:JSON.stringify({failedCycleActivity:failedActivity,recoveryActivity:state.recoveryActivity,cycle:state.cycle}),
+    changedByMemberId:admin.id,changedByNickname:admin.nickname||admin.login_id||null
+  });
+  const reset=rankReviewResetPrepared(env.DB,memberId,state.targetRank,kstDateFromSql(row.created_at),eventKey);
+  const results=await env.DB.batch([update,history,reset]);
+  if(Number(results?.[0]?.meta?.changes||0)!==1)return jsonError('DEMOTION_STATE_CHANGED',409);
+  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_demoted',targetType:'member',targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank,failedCycleActivity:publicActivityEvidence(failedActivity)},after:{memberRank:state.targetRank,reasonCode:'MAINTENANCE_ACTIVITY_FAILED'}});
+  return json({ok:true,data:{memberId,memberRank:state.targetRank,promotionReentryRequired:state.targetRank==='R1',maintenanceCycle:state.targetRank==='R2'?{day:1,totalDays:30}:null}});
 }
+
 async function handleAdminDemotionExclusion(request,memberId,env){
   const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
   const target=await env.DB.prepare(`SELECT id,nickname,member_rank FROM members WHERE id=?`).bind(memberId).first();if(!target)return jsonError('MEMBER_NOT_FOUND',404);
@@ -2819,8 +2921,16 @@ async function handleAdminDemotionExclusionRevoke(request,memberId,env){
 async function handleAdminRankChangeHistory(request,url,env){
   const admin=await requireAdminMenuPermission(request,env.DB,'members');if(admin instanceof Response)return admin;
   const limit=Math.max(1,Math.min(100,Number(url.searchParams.get('limit'))||30));
-  const rows=await env.DB.prepare(`SELECT h.*,m.nickname,a.nickname changed_by FROM member_rank_changes h JOIN members m ON m.id=h.member_id LEFT JOIN members a ON a.id=h.changed_by_member_id ORDER BY h.created_at DESC LIMIT ?`).bind(limit).all();
-  return json({ok:true,data:{items:(rows.results||[]).map(x=>({id:x.id,memberId:x.member_id,nickname:x.nickname,type:x.change_type,fromRank:x.from_rank,toRank:x.to_rank,reason:x.reason,changedBy:x.changed_by,protectionUntil:x.protection_until,createdAt:x.created_at}))}});
+  const rows=await env.DB.prepare(`SELECT * FROM member_rank_history_events ORDER BY created_at DESC,id DESC LIMIT ?`).bind(limit).all();
+  const items=(rows.results||[]).map(x=>({
+    id:x.id,memberId:x.member_id,nickname:x.member_nickname_snapshot,loginId:x.member_login_id_snapshot,
+    type:String(x.event_type||'').toLowerCase(),eventType:x.event_type,fromRank:x.from_rank,toRank:x.to_rank,
+    reasonCode:x.reason_code,publicNote:x.public_note||null,internalNote:x.internal_note||null,decisionSource:x.decision_source,
+    ruleSnapshot:parseJsonOrNull(x.rule_snapshot),specSnapshot:parseJsonOrNull(x.spec_snapshot),cycleSnapshot:parseJsonOrNull(x.cycle_snapshot),
+    publicActivitySnapshot:parseJsonOrNull(x.public_activity_snapshot),privateAuditSnapshot:parseJsonOrNull(x.private_audit_snapshot),
+    changedBy:x.changed_by_nickname_snapshot||null,changedByMemberId:x.changed_by_member_id||null,snapshotQuality:x.snapshot_quality,createdAt:x.created_at
+  }));
+  return json({ok:true,data:{items}});
 }
 async function handleAdminPromotionRulesGet(request,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
@@ -2837,15 +2947,25 @@ async function handleAdminPromotionRulesPut(request,env){
 }
 async function handleAdminMemberPromote(request,memberId,env){
   const admin=await requireAdminMenuPermission(request,env.DB,"members");if(admin instanceof Response)return admin;
-  const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
+  const row=await env.DB.prepare(`SELECT m.*,s.vehicle1_power_value,s.vehicle1_power_unit,s.vehicle1_power_normalized,s.updated_at spec_updated_at FROM members m LEFT JOIN member_specs s ON s.member_id=m.id WHERE m.id=?`).bind(memberId).first();
   if(!row)return jsonError("MEMBER_NOT_FOUND",404);
-  const state=await promotionReviewState(env.DB,row,await getPromotionRules(env.DB),true);
+  const rules=await getPromotionRules(env.DB),state=await promotionReviewState(env.DB,row,rules,true);
   if(!state?.eligible){await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promotion_failed",targetType:"member",targetId:memberId,targetName:row.nickname,result:"failure",failureReason:"PROMOTION_NOT_ELIGIBLE"});return jsonError("PROMOTION_NOT_ELIGIBLE",409)}
-  const result=await env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved' AND CAST(REPLACE(UPPER(COALESCE(industry_level,'')),'I','') AS INTEGER)>=? AND EXISTS(SELECT 1 FROM member_specs s WHERE s.member_id=members.id AND s.vehicle1_power_normalized>=?)`).bind(state.targetRank,memberId,state.currentRank,Number(state.industry.required.slice(1)),state.vehicle1.requiredNormalized).run();
-  if(Number(result.meta?.changes||0)!==1)return jsonError("PROMOTION_STATE_CHANGED",409);
-  await env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,activity_snapshot,changed_by_member_id,protection_until) VALUES(?,'promotion',?,?,?, ?,NULL)`).bind(memberId,state.currentRank,state.targetRank,JSON.stringify({activity:state.activity,review:state.review}),admin.id).run();
-  await resetRankReviewAfterRankChange(env.DB,memberId,state.targetRank);
-  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promoted",targetType:"member",targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank},after:{memberRank:state.targetRank}});
+  const qualification=await rankSpecQualificationRow(env.DB,memberId,state.targetRank);
+  if(!qualification)return jsonError('PROMOTION_STATE_CHANGED',409);
+  const eventKey=rankHistoryEventKey('promotion',memberId);
+  const update=env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=? AND status='active' AND COALESCE(approval_status,'approved')='approved' AND EXISTS(SELECT 1 FROM member_rank_spec_qualifications q WHERE q.member_id=members.id AND q.target_rank=?) AND EXISTS(SELECT 1 FROM member_rank_review_states rr WHERE rr.member_id=members.id AND rr.promotion_target_rank=? AND rr.promotion_status='REVIEWABLE')`).bind(state.targetRank,memberId,state.currentRank,state.targetRank,state.targetRank);
+  const history=rankHistoryInsertPrepared(env.DB,eventKey,{
+    memberId,memberLoginId:row.login_id,memberNickname:row.nickname,eventType:'PROMOTION',fromRank:state.currentRank,toRank:state.targetRank,
+    reasonCode:'PROMOTION_REQUIREMENTS_MET',decisionSource:'admin_review',ruleSnapshot:qualification.rule_snapshot,specSnapshot:qualification.spec_snapshot,
+    cycleSnapshot:JSON.stringify({promotion:state.review}),publicActivitySnapshot:JSON.stringify(publicActivityEvidence(state.reviewActivity)),
+    privateAuditSnapshot:JSON.stringify({reviewActivity:state.reviewActivity,currentActivity:state.activity,review:state.review,qualification:{qualifiedAt:qualification.qualified_at,source:qualification.qualification_source}}),
+    changedByMemberId:admin.id,changedByNickname:admin.nickname||admin.login_id||null
+  });
+  const reset=rankReviewResetPrepared(env.DB,memberId,state.targetRank,kstDateFromSql(row.created_at),eventKey);
+  const results=await env.DB.batch([update,history,reset]);
+  if(Number(results?.[0]?.meta?.changes||0)!==1)return jsonError("PROMOTION_STATE_CHANGED",409);
+  await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_promoted",targetType:"member",targetId:memberId,targetName:row.nickname,before:{memberRank:state.currentRank},after:{memberRank:state.targetRank,qualification:{qualifiedAt:qualification.qualified_at,source:qualification.qualification_source}}});
   return json({ok:true,data:{memberId,memberRank:state.targetRank}});
 }
 
@@ -2994,17 +3114,30 @@ async function handleAdminMemberUpdate(request, memberId, env) {
   const permissionChanged=hasAdminLevel&&requestedAdminLevel!==currentAdminLevel;
   const nextRole=permissionChanged?(requestedAdminLevel?"admin":"member"):target.role;
   const nextLevel=permissionChanged?requestedAdminLevel:target.admin_level;
-  const batch=[];
-  if(nickname!==target.nickname){
-    batch.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) VALUES(?,?,?,'admin',?)`).bind(memberId,target.nickname,nickname,admin.id));
+  const rankChanged=rank!==target.member_rank,nicknameChanged=nickname!==target.nickname;
+
+  if(rankChanged){
+    const eventKey=rankHistoryEventKey('manual',memberId);
+    const ops=[
+      env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=?,role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=?`).bind(nickname,rank,status,nextRole,nextLevel,memberId,target.member_rank),
+      rankHistoryInsertPrepared(env.DB,eventKey,{
+        memberId,memberLoginId:target.login_id,memberNickname:nickname,eventType:'MANUAL_ADJUSTMENT',fromRank:target.member_rank,toRank:rank,
+        reasonCode:'ADMIN_MANUAL_ADJUSTMENT',internalNote:'관리자 직접 변경',decisionSource:'admin_manual',
+        changedByMemberId:admin.id,changedByNickname:admin.nickname||admin.login_id||null
+      })
+    ];
+    if(nicknameChanged)ops.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) SELECT ?,?,?,'admin',? WHERE EXISTS(SELECT 1 FROM member_rank_history_events WHERE event_key=?)`).bind(memberId,target.nickname,nickname,admin.id,eventKey));
+    if(permissionChanged)ops.push(env.DB.prepare(`DELETE FROM sessions WHERE member_id=? AND EXISTS(SELECT 1 FROM member_rank_history_events WHERE event_key=?)`).bind(memberId,eventKey));
+    ops.push(rankReviewResetPrepared(env.DB,memberId,rank,kstDateFromSql(target.created_at),eventKey));
+    const results=await env.DB.batch(ops);
+    if(Number(results?.[0]?.meta?.changes||0)!==1)return jsonError('MEMBER_STATE_CHANGED',409);
+  }else{
+    const batch=[];
+    if(nicknameChanged)batch.push(env.DB.prepare(`INSERT INTO member_nickname_history(member_id,old_nickname,new_nickname,changed_by,changed_by_member_id) VALUES(?,?,?,'admin',?)`).bind(memberId,target.nickname,nickname,admin.id));
+    batch.push(env.DB.prepare(`UPDATE members SET nickname=?,status=?,role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(nickname,status,nextRole,nextLevel,memberId));
+    if(permissionChanged)batch.push(env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId));
+    await env.DB.batch(batch);
   }
-  if(rank!==target.member_rank){
-    batch.push(env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,reason,changed_by_member_id,protection_until) VALUES(?,'manual',?,?,'관리자 직접 변경',?,NULL)`).bind(memberId,target.member_rank,rank,admin.id));
-  }
-  batch.push(env.DB.prepare(`UPDATE members SET nickname=?,member_rank=?,status=?,role=?,admin_level=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(nickname,rank,status,nextRole,nextLevel,memberId));
-  if(permissionChanged) batch.push(env.DB.prepare("DELETE FROM sessions WHERE member_id=?").bind(memberId));
-  await env.DB.batch(batch);
-  if(rank!==target.member_rank)await resetRankReviewAfterRankChange(env.DB,memberId,rank);
   await writeAdminLog(env,request,{actor:admin,category:"member",action:"member_update",targetType:"member",targetId:memberId,targetName:nickname,before:{nickname:target.nickname,memberRank:target.member_rank,status:target.status,role:target.role,adminLevel:currentAdminLevel},after:{nickname,memberRank:rank,status,role:nextRole,adminLevel:nextLevel}});
   if(permissionChanged){
     await writeAdminLog(env,request,{actor:admin,category:"admin_permission",action:requestedAdminLevel?"admin_role_granted":"admin_role_revoked",targetType:"member",targetId:memberId,targetName:nickname,before:{role:target.role,adminLevel:currentAdminLevel},after:{role:nextRole,adminLevel:nextLevel}});
@@ -3088,17 +3221,27 @@ async function handleAdminMembersBulk(request, env) {
     await env.DB.prepare(`UPDATE members SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id IN (${placeholders})`).bind(value.toLowerCase(),...ids).run();
     return json({ok:true,data:{updated:ids.length}});
   }
-  const rows=await env.DB.prepare(`SELECT id,nickname,member_rank FROM members WHERE id IN (${placeholders})`).bind(...ids).all(),changed=(rows.results||[]).filter(x=>x.member_rank!==value);
-  for(let i=0;i<changed.length;i+=60){
-    const ops=[];for(const row of changed.slice(i,i+60)){
-      ops.push(env.DB.prepare(`INSERT INTO member_rank_changes(member_id,change_type,from_rank,to_rank,reason,changed_by_member_id,protection_until) VALUES(?,'manual',?,?,'관리자 일괄 변경',?,NULL)`).bind(row.id,row.member_rank,value,admin.id));
+  const rows=await env.DB.prepare(`SELECT id,login_id,nickname,member_rank,created_at FROM members WHERE id IN (${placeholders})`).bind(...ids).all(),changed=(rows.results||[]).filter(x=>x.member_rank!==value);
+  const applied=[];
+  for(let i=0;i<changed.length;i+=20){
+    const slice=changed.slice(i,i+20),ops=[],positions=[];
+    for(const row of slice){
+      const eventKey=rankHistoryEventKey('bulk-manual',row.id),updateIndex=ops.length;
       ops.push(env.DB.prepare(`UPDATE members SET member_rank=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND member_rank=?`).bind(value,row.id,row.member_rank));
+      ops.push(rankHistoryInsertPrepared(env.DB,eventKey,{
+        memberId:row.id,memberLoginId:row.login_id,memberNickname:row.nickname,eventType:'MANUAL_ADJUSTMENT',fromRank:row.member_rank,toRank:value,
+        reasonCode:'ADMIN_MANUAL_ADJUSTMENT',internalNote:'관리자 일괄 변경',decisionSource:'admin_bulk',
+        changedByMemberId:admin.id,changedByNickname:admin.nickname||admin.login_id||null
+      }));
+      ops.push(rankReviewResetPrepared(env.DB,row.id,value,kstDateFromSql(row.created_at),eventKey));
+      positions.push({row,index:updateIndex});
     }
-    if(ops.length)await env.DB.batch(ops);
+    if(!ops.length)continue;
+    const results=await env.DB.batch(ops);
+    for(const p of positions)if(Number(results?.[p.index]?.meta?.changes||0)===1)applied.push(p.row);
   }
-  for(const row of changed)await resetRankReviewAfterRankChange(env.DB,row.id,value);
-  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_rank_bulk_update',targetType:'member_batch',targetId:changed.map(x=>x.id).join(','),targetName:`${changed.length}명`,before:{ranks:changed.map(x=>({id:x.id,rank:x.member_rank}))},after:{memberRank:value,maintenanceCycle:'1/30'}});
-  return json({ok:true,data:{updated:changed.length}});
+  await writeAdminLog(env,request,{actor:admin,category:'member',action:'member_rank_bulk_update',targetType:'member_batch',targetId:applied.map(x=>x.id).join(','),targetName:`${applied.length}명`,before:{ranks:applied.map(x=>({id:x.id,rank:x.member_rank}))},after:{memberRank:value,lifecycle:value==='R1'?'PROMOTION_REENTRY':value==='R2'?'R2_MAINTENANCE':'NONE'}});
+  return json({ok:true,data:{updated:applied.length}});
 }
 
 async function handleAdminMemberResetPassword(request, memberId, env) {

@@ -26,7 +26,7 @@
 })();
 </script>
 <link href="../style.css?v=4210" rel="stylesheet"/>
-<link href="./my.css?v=4150" rel="stylesheet"/>
+<link href="./my.css?v=4410" rel="stylesheet"/>
 <link rel="stylesheet" href="/ezpk-theme.css?v=4340">
   <link rel="stylesheet" href="/text-fit-v419.css?v=4190">
   <link rel="stylesheet" href="/header-fit-v424.css?v=4240">
@@ -64,9 +64,18 @@
 </dl>
 </section>
 <section class="portal-card rank-change-notice" id="rankChangeNoticeV371" hidden><strong id="rankChangeNoticeTitleV371"></strong><p id="rankChangeNoticeBodyV371"></p><small id="rankChangeNoticeDateV371"></small><button class="portal-button rank-change-dismiss" id="rankChangeDismissV374" type="button"></button></section>
+<section class="portal-card rank-history-card" id="rankHistoryCardV440">
+<div class="rank-history-head"><div><span id="rankHistoryCurrentLabelV440">현재 등급</span><h2 id="rankHistoryCurrentRankV440">R1</h2></div><strong id="rankHistoryTitleV440">등급 이력</strong></div>
+<p id="rankHistoryLatestV440" class="rank-history-latest"></p>
+<div id="rankHistoryRecentV440" class="rank-history-list"></div>
+<button class="portal-button rank-history-more" id="rankHistoryMoreV440" type="button" aria-expanded="false">전체 이력 보기</button>
+<div id="rankHistoryAllV440" class="rank-history-list rank-history-all" hidden></div>
+</section>
 <section class="portal-card promotion-card" id="promotionCardV367" hidden>
 <div class="promotion-card-head"><div><span id="promotionRouteV367">R1 → R2</span><h2 id="promotionTitleV367">승급 조건</h2></div><strong id="promotionCountV367">0 / 2</strong></div>
 <div class="promotion-progress"><span id="promotionProgressV367"></span></div>
+<div id="promotionQualificationV440" class="rank-qualification-banner" hidden><strong id="promotionQualificationTitleV440"></strong><p id="promotionQualificationBodyV440"></p></div>
+<p id="promotionCycleMetaV440" class="rank-cycle-meta"></p>
 <div class="promotion-checks">
 <div class="promotion-condition"><strong class="promotion-condition-name" id="promotionIndustryNameV375">IND</strong><div class="promotion-condition-values"><span><small id="promotionIndustryCurrentLabelV372">현재</small><strong id="promotionIndustryCurrentV372">-</strong></span><span><small id="promotionIndustryRequiredLabelV372">필요</small><strong id="promotionIndustryRequiredV372">-</strong></span></div></div>
 <div class="promotion-condition"><strong class="promotion-condition-name" id="promotionVehicleNameV375">Vehicle #1</strong><div class="promotion-condition-values"><span><small id="promotionVehicleCurrentLabelV372">현재</small><strong id="promotionVehicleCurrentV372">-</strong></span><span><small id="promotionVehicleRequiredLabelV372">필요</small><strong id="promotionVehicleRequiredV372">-</strong></span></div></div>
@@ -82,9 +91,11 @@
 <section class="portal-card promotion-card maintenance-card" id="rankMaintenanceCardV371" hidden>
 <div class="promotion-card-head"><div><span id="maintenanceRankV371">R2</span><h2 id="maintenanceTitleV371">등급 유지 상태</h2></div><strong id="maintenanceCountV371">0 / 4</strong></div>
 <div class="promotion-progress"><span id="maintenanceProgressV371"></span></div>
+<p id="maintenanceCycleMetaV440" class="rank-cycle-meta"></p>
 <p id="maintenanceGuideV371"></p>
 <div class="promotion-activity-grid"><div><span id="maintenanceVoteLabelV371">투표 참여</span><strong id="maintenanceVoteV371">-</strong><small id="maintenanceVoteDateV371"></small></div><div><span id="maintenanceVisitLabelV371">사이트 방문</span><strong id="maintenanceVisitV371">-</strong><small id="maintenanceVisitDateV371"></small></div><div><span id="maintenanceSpecLabelV371">본인 스펙 업데이트</span><strong id="maintenanceSpecV371">-</strong><small id="maintenanceSpecDateV371"></small></div><div><span id="maintenanceAdminLabelV371">운영진 활동 확인</span><strong id="maintenanceAdminV371">-</strong><small id="maintenanceAdminDateV371"></small></div></div>
 <div id="maintenanceProtectionV371" class="promotion-congrats maintenance-protection" hidden><button aria-expanded="false" class="maintenance-protection-toggle" id="maintenanceProtectionToggleV375" type="button"><strong id="maintenanceProtectionTitleV371"></strong><span aria-hidden="true" class="maintenance-protection-chevron">⌄</span></button><div class="maintenance-protection-details" id="maintenanceProtectionDetailsV375" hidden><p id="maintenanceProtectionBodyV371"></p></div></div>
+<div id="maintenanceRecoveryV440" class="maintenance-recovery" hidden><strong id="maintenanceRecoveryTitleV440"></strong><p id="maintenanceRecoveryBodyV440"></p></div>
 <div id="maintenanceMessageV371" class="maintenance-message"></div>
 </section>
 <section class="accordion-list"><section class="my-menu-group" data-group="info"><h2 class="my-menu-group-title" data-i18n="groupInfo">내 정보</h2><div class="portal-card my-menu-group-card"><article class="accordion-item" data-section="profile">
@@ -212,7 +223,7 @@
 </dialog>
 <div aria-live="polite" class="toast" hidden="" id="toast" role="status"></div>
 <script src="../vehicle-power.js?v=4170"></script>
-<script src="./my.js?v=4340"></script>
+<script src="./my.js?v=4400"></script>
   <script src="/text-fit-v419.js?v=4190"></script>
 </body>
 </html>
