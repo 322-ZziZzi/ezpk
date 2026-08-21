@@ -1,0 +1,15 @@
+{
+  "version": "4.4.2",
+  "release": "v442",
+  "baseline": "EZPK-v441-deploy-ready.zip",
+  "baseline_sha256": "155bd0e204827884fcdace341ce162dce1d043f89274afea38e357b5ce731f65",
+  "scope": [
+    "member full rank history hidden/retired",
+    "basic profile rank management consolidation",
+    "latest rank change only",
+    "notice state split from immutable history"
+  ],
+  "migration": "0034_v442_rank_notice_state.sql",
+  "expected_schema": "5.6-v442",
+  "remote_db_modified": false
+}

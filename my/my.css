@@ -261,3 +261,27 @@ legend{color:#f5c547}
 .promotion-condition.is-complete .promotion-condition-values>span:first-child small{color:#4ade80}
 .promotion-condition-values>span:last-child small,
 .promotion-condition-values>span:last-child .required-value{color:#fcd34d}
+
+/* v442: Basic Profile rank-management consolidation */
+.rank-history-card{display:none!important}
+.profile-rank-overview-v442{grid-column:1/-1;display:grid;gap:10px;padding:15px;border:1px solid #334155;border-radius:12px;background:rgba(15,23,42,.36)}
+.profile-rank-current-v442{display:flex;align-items:flex-end;justify-content:space-between;gap:14px}
+.profile-rank-current-v442>span{color:#8e9aae;font-size:.78rem;font-weight:800}
+.profile-rank-current-v442>strong{font-size:1.55rem;line-height:1;font-weight:900}
+.profile-rank-latest-v442{margin:0;color:#aeb9c8;font-size:.86rem;line-height:1.55}
+.profile-rank-management-v442{grid-column:1/-1;display:grid;gap:12px;padding-top:3px}
+.profile-rank-management-v442[hidden]{display:none!important}
+.profile-rank-management-head-v442{padding-top:14px;border-top:1px solid #334155}
+.profile-rank-management-head-v442>strong{color:#f5c547;font-size:.9rem}
+.profile-rank-management-stack-v442{display:grid;gap:12px}
+.rank-management-subcard-v442{margin:0;padding:16px;border:1px solid #334155;border-radius:13px;background:rgba(10,15,23,.56);box-shadow:none}
+.rank-management-subcard-v442.maintenance-card{margin-top:0}
+.rank-management-details-v442{border-top:1px solid #334155;padding-top:11px}
+.rank-management-details-v442>summary{cursor:pointer;color:#aeb9c8;font-size:.84rem;font-weight:800;list-style-position:inside}
+.rank-management-details-v442[open]>summary{color:#f5c547;margin-bottom:10px}
+.rank-management-details-v442 .rank-cycle-meta{margin:0 0 10px}
+.rank-management-details-v442>.promotion-activity-grid{margin-top:10px}
+.rank-management-details-v442>#maintenanceGuideV371{margin:0;color:#aeb9c8}
+.rank-management-details-v442>.maintenance-protection,.rank-management-details-v442>.maintenance-recovery{margin-top:10px}
+#rankMaintenanceCardV371>.maintenance-message{margin:0;padding-top:12px}
+@media(max-width:620px){.profile-rank-current-v442{align-items:flex-start}.profile-rank-overview-v442{padding:14px}.rank-management-subcard-v442{padding:14px}}

@@ -1,3 +1,16 @@
+# v4.4.2 / v442 — My Profile Rank Management Consolidation
+
+- Member-facing full rank-history cards, decision details, and full-history endpoint are removed.
+- Basic Profile is the default-open My Page section.
+- Current rank + latest rank change are shown in Basic Profile.
+- Promotion and rank-maintenance summaries are consolidated inside Basic Profile; detailed activity/cycle data is collapsed by default.
+- R1 shows promotion only; R2 shows promotion + maintenance; R3 shows maintenance only; R4/R5 show no automatic rank-management area.
+- Admin immutable full rank history is preserved.
+- Adds `0034_v442_rank_notice_state.sql` so rank-change notice dismissal no longer updates `member_rank_history_events`.
+- Member `/api/member/me` now returns only a minimal `latestRankChange`; member full rank-history API is retired.
+- v441 current/required spec colors are preserved.
+- Promotion and maintenance calculation rules are unchanged.
+
 # v4.4.1 / v441 — Promotion Spec Color Clarity
 
 - UI-only update from official v440 / 4.4.0.

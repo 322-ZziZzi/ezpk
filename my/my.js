@@ -19,8 +19,6 @@ for(const [code,copy] of Object.entries(MY_V415)){if(T[code])Object.assign(T[cod
 
   let lang = normalize(window.EZPKLanguage?.get?.() || document.documentElement.lang || "en");
   let memberData = null;
-  let rankHistoryAll = null;
-  let rankHistoryExpanded = false;
   const $ = (s, root=document) => root.querySelector(s);
 
   function normalize(value){ return LANGS.includes(value) ? value : "en"; }
@@ -145,6 +143,25 @@ Object.assign(RANK_CHANGE_LABELS,{
   };
 
 
+
+  const PROFILE_RANK_LABELS={
+    ko:{management:'등급 관리',promotionDetail:'활동 상세 보기',maintenanceDetail:'등급 유지 상세 보기'},
+    en:{management:'Rank Management',promotionDetail:'View activity details',maintenanceDetail:'View maintenance details'},
+    fr:{management:'Gestion du rang',promotionDetail:"Voir le détail de l’activité",maintenanceDetail:'Voir le détail du maintien'},
+    de:{management:'Rangverwaltung',promotionDetail:'Aktivitätsdetails anzeigen',maintenanceDetail:'Erhaltungsdetails anzeigen'},
+    th:{management:'การจัดการอันดับ',promotionDetail:'ดูรายละเอียดกิจกรรม',maintenanceDetail:'ดูรายละเอียดการรักษาระดับ'},
+    ja:{management:'ランク管理',promotionDetail:'活動詳細を見る',maintenanceDetail:'ランク維持詳細を見る'},
+    pt:{management:'Gestão de patente',promotionDetail:'Ver detalhes de atividade',maintenanceDetail:'Ver detalhes de manutenção'},
+    es:{management:'Gestión de rango',promotionDetail:'Ver detalles de actividad',maintenanceDetail:'Ver detalles de mantenimiento'},
+    tr:{management:'Rütbe yönetimi',promotionDetail:'Etkinlik ayrıntılarını gör',maintenanceDetail:'Rütbe koruma ayrıntılarını gör'},
+    'zh-tw':{management:'等級管理',promotionDetail:'查看活動詳細',maintenanceDetail:'查看等級維持詳細'},
+    it:{management:'Gestione grado',promotionDetail:'Vedi dettagli attività',maintenanceDetail:'Vedi dettagli mantenimento'},
+    ar:{management:'إدارة الرتبة',promotionDetail:'عرض تفاصيل النشاط',maintenanceDetail:'عرض تفاصيل الحفاظ على الرتبة'},
+    vi:{management:'Quản lý hạng',promotionDetail:'Xem chi tiết hoạt động',maintenanceDetail:'Xem chi tiết duy trì hạng'},
+    id:{management:'Manajemen peringkat',promotionDetail:'Lihat detail aktivitas',maintenanceDetail:'Lihat detail pemeliharaan'}
+  };
+  function profileRankLabels(){return PROFILE_RANK_LABELS[lang]||PROFILE_RANK_LABELS.en}
+
   function normalizeMemberRank(value){
     const rank = String(value || "R1").toUpperCase();
     return Object.prototype.hasOwnProperty.call(RANK_TITLES, rank) ? rank : "R1";
@@ -243,7 +260,7 @@ Object.assign(REQUEST_LABELS,{
     renderPromotion(memberData.promotion);
     renderRankMaintenance(memberData.rankMaintenance);
     renderRankChangeNotice(memberData.rankChangeNotice);
-    renderRankHistory(rankHistoryExpanded&&rankHistoryAll?rankHistoryAll:(memberData.rankHistoryRecent||[]),rankHistoryExpanded);
+    renderProfileRankOverview(memberData.latestRankChange);
     $("#summaryNickname").textContent = m.nickname;
     const profileRegistered = m.profileSpecsRegistered !== false && m.power != null && m.industryLevel;
     $("#summaryPower").textContent = profileRegistered ? formatPower(m.power) : "-";
@@ -259,7 +276,9 @@ Object.assign(REQUEST_LABELS,{
     const profilePowerInput = $("#specsProfilePower");
     if (profilePowerInput) profilePowerInput.value = profileRegistered ? formatPowerInput(m.power) : "";
     setValue($("#specsForm"),"industryLevel",profileRegistered ? m.industryLevel : "");
-    $("#profileRankDisplay").value = rankLabel(m.memberRank);
+    $("#profileRankDisplay").textContent = normalizeMemberRank(m.memberRank);
+    applyRankStyle($("#profileRankDisplay"),m.memberRank);
+    const rankManagement=$("#profileRankManagementV442");if(rankManagement)rankManagement.hidden=!(memberData.promotion||memberData.rankMaintenance);
     setValue($("#specsForm"),"vehicle1Class",s.vehicle1Class);
     setValue($("#specsForm"),"vehicle1PowerValue",s.vehicle1PowerValue);
     setValue($("#specsForm"),"vehicle1PowerUnit",s.vehicle1PowerUnit);
@@ -298,7 +317,8 @@ Object.assign(REQUEST_LABELS,{
   }
   function renderPromotion(p){
     const card=$("#promotionCardV367");if(!card)return;card.hidden=!p;if(!p)return;
-    const l=PROMOTION_LABELS[lang]||PROMOTION_LABELS.en,a=ACTIVITY_LABELS[lang]||ACTIVITY_LABELS.en,life=LIFECYCLE_LABELS[lang]||LIFECYCLE_LABELS.en,activity=promotionActivitySource(p);
+    const l=PROMOTION_LABELS[lang]||PROMOTION_LABELS.en,a=ACTIVITY_LABELS[lang]||ACTIVITY_LABELS.en,life=LIFECYCLE_LABELS[lang]||LIFECYCLE_LABELS.en,activity=promotionActivitySource(p),profile=profileRankLabels();
+    const detailSummary=$("#promotionDetailsSummaryV442");if(detailSummary)detailSummary.textContent=profile.promotionDetail;
     const permanentComplete=p.specEligible?2:Number(p.completed||0);
     $("#promotionRouteV367").textContent=`${p.currentRank} → ${p.targetRank}`;$("#promotionTitleV367").textContent=l.title;$("#promotionCountV367").textContent=`${permanentComplete} / 2`;$("#promotionProgressV367").style.width=`${permanentComplete*50}%`;$("#promotionIndustryNameV375").textContent=t('industry');$("#promotionVehicleNameV375").textContent=t('vehicle1');
     $("#promotionIndustryCurrentLabelV372").textContent=l.current;$("#promotionIndustryRequiredLabelV372").textContent=l.required;$("#promotionVehicleCurrentLabelV372").textContent=l.current;$("#promotionVehicleRequiredLabelV372").textContent=l.required;
@@ -330,7 +350,8 @@ Object.assign(REQUEST_LABELS,{
   }
   function renderRankMaintenance(state){
     const card=$("#rankMaintenanceCardV371");if(!card)return;card.hidden=!state;if(!state)return;
-    const l=MAINTENANCE_LABELS[lang]||MAINTENANCE_LABELS.en,life=LIFECYCLE_LABELS[lang]||LIFECYCLE_LABELS.en,a=state.activity,i=a?.items||{};
+    const l=MAINTENANCE_LABELS[lang]||MAINTENANCE_LABELS.en,life=LIFECYCLE_LABELS[lang]||LIFECYCLE_LABELS.en,a=state.activity,i=a?.items||{},profile=profileRankLabels();
+    const detailSummary=$("#maintenanceDetailsSummaryV442");if(detailSummary)detailSummary.textContent=profile.maintenanceDetail;
     $("#maintenanceRankV371").textContent=state.currentRank;$("#maintenanceTitleV371").textContent=l.title;$("#maintenanceCountV371").textContent=`${a?.completed||0} / 4`;$("#maintenanceProgressV371").style.width=`${(a?.completed||0)*25}%`;$("#maintenanceGuideV371").textContent=life.maintenanceGuide;
     const cycle=state.cycle||{},cycleMeta=$("#maintenanceCycleMetaV440");let cycleText='';
     if(state.protection?.active&&state.protection.type==='new_member'&&!cycle.startedOn)cycleText=life.maintenanceProtected(formatDateOnly(state.protection.until));
@@ -353,22 +374,16 @@ Object.assign(REQUEST_LABELS,{
 
   function rankHistoryLabels(){return RANK_HISTORY_LABELS[lang]||RANK_HISTORY_LABELS.en}
   function rankHistoryTypeLabel(item,labels){return labels.types?.[item.type]||item.type||'-'}
-  function rankHistoryReasonLabel(item,labels){return labels.reasons?.[item.reasonCode]||item.publicNote||item.reasonCode||'-'}
   function rankHistorySummary(item,labels){if(!item)return labels.none;return `${formatDateOnly(item.createdAt)} · ${item.fromRank} → ${item.toRank} · ${rankHistoryTypeLabel(item,labels)}`}
-  function historyPowerText(snapshot){const n=Number(snapshot?.vehicle1PowerNormalized);if(Number.isFinite(n)&&n>0)return `${Number((n/1000).toFixed(2))}G`;const v=Number(snapshot?.vehicle1PowerValue);return Number.isFinite(v)&&v>0?`${v}${snapshot?.vehicle1PowerUnit||''}`:'-'}
-  function renderRankHistory(items=[],expanded=false){
-    const card=$("#rankHistoryCardV440");if(!card||!memberData?.member)return;const labels=rankHistoryLabels(),current=memberData.member.memberRank||'R1';card.hidden=false;$("#rankHistoryCurrentLabelV440").textContent=labels.current;$("#rankHistoryCurrentRankV440").textContent=current;applyRankStyle($("#rankHistoryCurrentRankV440"),current);$("#rankHistoryTitleV440").textContent=labels.title;
-    const recent=memberData.rankHistoryRecent||[],latest=recent[0]||items[0]||null;$("#rankHistoryLatestV440").textContent=latest?`${labels.latest} · ${rankHistorySummary(latest,labels)}`:labels.none;
-    const target=expanded?$("#rankHistoryAllV440"):$("#rankHistoryRecentV440"),other=expanded?$("#rankHistoryRecentV440"):$("#rankHistoryAllV440");if(other)other.hidden=true;target.hidden=false;target.replaceChildren();
-    if(!items.length){const p=document.createElement('p');p.className='form-note';p.textContent=labels.none;target.appendChild(p)}
-    for(const item of items){const article=document.createElement('article');article.className='rank-history-event';const head=document.createElement('div');head.className='rank-history-event-head';const strong=document.createElement('strong');strong.textContent=`${item.fromRank} → ${item.toRank} · ${rankHistoryTypeLabel(item,labels)}`;const time=document.createElement('time');time.textContent=formatDateOnly(item.createdAt);head.append(strong,time);article.appendChild(head);const reason=document.createElement('p');reason.className='rank-history-reason';reason.textContent=rankHistoryReasonLabel(item,labels);article.appendChild(reason);
-      const detailParts=[];if(item.ruleSnapshot)detailParts.push(`${t('industry')} I${item.ruleSnapshot.industryLevel??'-'} · ${t('vehicle1')} ${historyPowerText(item.ruleSnapshot)}`);if(item.specSnapshot)detailParts.push(`${t('industry')} ${item.specSnapshot.industryLevel||'-'} · ${t('vehicle1')} ${historyPowerText(item.specSnapshot)}`);if(item.cycleSnapshot?.startedOn||item.cycleSnapshot?.dueOn)detailParts.push(`${formatDateOnly(item.cycleSnapshot.startedOn)} ~ ${formatDateOnly(item.cycleSnapshot.dueOn)}`);if(item.activitySnapshot?.completed!=null)detailParts.push(`${item.activitySnapshot.completed}/${item.activitySnapshot.required||2} · ${lifeActivitySummary(item.activitySnapshot)}`);if(item.publicNote)detailParts.push(item.publicNote);
-      if(detailParts.length||item.snapshotQuality==='LEGACY_PARTIAL'){const details=document.createElement('details');details.className='rank-history-details';const summary=document.createElement('summary');summary.textContent=labels.detail;details.appendChild(summary);const ul=document.createElement('ul');for(const text of detailParts){const li=document.createElement('li');li.textContent=text;ul.appendChild(li)}if(item.snapshotQuality==='LEGACY_PARTIAL'){const li=document.createElement('li');li.className='rank-history-partial';li.textContent=labels.partial;ul.appendChild(li)}details.appendChild(ul);article.appendChild(details)}target.appendChild(article)}
-    const more=$("#rankHistoryMoreV440");more.hidden=!recent.length&&!rankHistoryAll?.length;more.textContent=expanded?labels.less:labels.more;more.setAttribute('aria-expanded',String(expanded));$("#rankHistoryAllV440").hidden=!expanded;$("#rankHistoryRecentV440").hidden=expanded;
+  function renderProfileRankOverview(change){
+    if(!memberData?.member)return;
+    const labels=rankHistoryLabels(),profile=profileRankLabels(),rank=normalizeMemberRank(memberData.member.memberRank);
+    const currentLabel=$("#profileCurrentRankLabelV442"),rankEl=$("#profileRankDisplay"),latest=$("#profileRankLatestV442"),management=$("#profileRankManagementTitleV442");
+    if(currentLabel)currentLabel.textContent=labels.current;
+    if(rankEl){rankEl.textContent=rank;applyRankStyle(rankEl,rank)}
+    if(latest)latest.textContent=change?`${labels.latest} · ${rankHistorySummary(change,labels)}`:labels.none;
+    if(management)management.textContent=profile.management;
   }
-  function lifeActivitySummary(activity){const items=activity?.items||{},passed=['vote','visit','specUpdate','adminConfirmation'].filter(k=>items[k]?.passed).length;return `${passed}/4`}
-  async function toggleRankHistory(){
-    const button=$("#rankHistoryMoreV440");if(button?.disabled)return;if(rankHistoryExpanded){rankHistoryExpanded=false;renderRankHistory(memberData?.rankHistoryRecent||[],false);return}button.disabled=true;try{if(!rankHistoryAll){const payload=await api('/api/member/rank-history?limit=100');rankHistoryAll=payload.data?.items||[]}rankHistoryExpanded=true;renderRankHistory(rankHistoryAll,true)}catch(_){showToast(t('failed'),'error')}finally{button.disabled=false}}
   function setMaintenanceProtectionExpanded(expanded,labels=MAINTENANCE_LABELS[lang]||MAINTENANCE_LABELS.en){const button=$("#maintenanceProtectionToggleV375"),details=$("#maintenanceProtectionDetailsV375"),chevron=button?.querySelector('.maintenance-protection-chevron');if(!button||!details)return;button.setAttribute('aria-expanded',String(expanded));button.setAttribute('aria-label',expanded?labels.collapse:labels.expand);details.hidden=!expanded;if(chevron)chevron.textContent=expanded?'⌃':'⌄'}
   function renderRankChangeNotice(change){const box=$("#rankChangeNoticeV371");if(!box)return;box.hidden=!change;if(!change)return;const l=RANK_CHANGE_LABELS[lang]||RANK_CHANGE_LABELS.en;$("#rankChangeNoticeTitleV371").textContent=l.title;$("#rankChangeNoticeBodyV371").textContent=`${l.body(change.fromRank,change.toRank)} ${l.help}`;$("#rankChangeNoticeDateV371").textContent=`${l.date} · ${formatDateOnly(change.createdAt)}`;const button=$("#rankChangeDismissV374");button.textContent=l.dismiss;button.dataset.changeId=String(change.id)}
 
@@ -422,7 +437,7 @@ Object.assign(REQUEST_LABELS,{
   });
 
   const requestedSection = new URLSearchParams(window.location.search).get("tab");
-  const initialSection = requestedSection === "profile" ? "profile" : "specs";
+  const initialSection = requestedSection === "specs" ? "specs" : "profile";
 
   accordionList.querySelectorAll(".accordion-item").forEach(item => {
     setAccordionState(item, item.dataset.section === initialSection);
@@ -592,7 +607,6 @@ Object.assign(REQUEST_LABELS,{
   });
 
   $("#maintenanceProtectionToggleV375").addEventListener("click",event=>{const expanded=event.currentTarget.getAttribute('aria-expanded')!=='true';localStorage.setItem(MAINTENANCE_PROTECTION_EXPANDED_KEY,expanded?'1':'0');setMaintenanceProtectionExpanded(expanded)});
-  $("#rankHistoryMoreV440")?.addEventListener("click",toggleRankHistory);
 
   window.addEventListener("ezpk-auth-change", event => {
     if (event.detail?.authenticated) window.location.reload();

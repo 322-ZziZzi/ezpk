@@ -26,7 +26,7 @@
 })();
 </script>
 <link href="../style.css?v=4210" rel="stylesheet"/>
-<link href="./my.css?v=4410" rel="stylesheet"/>
+<link href="./my.css?v=4420" rel="stylesheet"/>
 <link rel="stylesheet" href="/ezpk-theme.css?v=4340">
   <link rel="stylesheet" href="/text-fit-v419.css?v=4190">
   <link rel="stylesheet" href="/header-fit-v424.css?v=4240">
@@ -64,60 +64,66 @@
 </dl>
 </section>
 <section class="portal-card rank-change-notice" id="rankChangeNoticeV371" hidden><strong id="rankChangeNoticeTitleV371"></strong><p id="rankChangeNoticeBodyV371"></p><small id="rankChangeNoticeDateV371"></small><button class="portal-button rank-change-dismiss" id="rankChangeDismissV374" type="button"></button></section>
-<section class="portal-card rank-history-card" id="rankHistoryCardV440">
-<div class="rank-history-head"><div><span id="rankHistoryCurrentLabelV440">현재 등급</span><h2 id="rankHistoryCurrentRankV440">R1</h2></div><strong id="rankHistoryTitleV440">등급 이력</strong></div>
-<p id="rankHistoryLatestV440" class="rank-history-latest"></p>
-<div id="rankHistoryRecentV440" class="rank-history-list"></div>
-<button class="portal-button rank-history-more" id="rankHistoryMoreV440" type="button" aria-expanded="false">전체 이력 보기</button>
-<div id="rankHistoryAllV440" class="rank-history-list rank-history-all" hidden></div>
-</section>
-<section class="portal-card promotion-card" id="promotionCardV367" hidden>
+
+
+
+<section class="accordion-list"><section class="my-menu-group" data-group="info"><h2 class="my-menu-group-title" data-i18n="groupInfo">내 정보</h2><div class="portal-card my-menu-group-card"><article class="accordion-item is-open" data-section="profile">
+<button aria-expanded="true" class="accordion-trigger" type="button">
+<span><span aria-hidden="true" class="menu-svg-icon icon-user"></span><span data-i18n="basicProfile">기본 프로필</span></span>
+<span class="chevron">⌄</span>
+</button>
+<div class="accordion-panel">
+<div class="portal-form form-stack profile-readonly" id="profileForm">
+<label><span data-i18n="loginId">로그인 아이디</span><input disabled="" id="profileLoginId" type="text"/></label>
+<label><span data-i18n="nickname">닉네임</span><input disabled="" id="profileNickname" type="text"/></label>
+<div class="profile-rank-overview-v442">
+<div class="profile-rank-current-v442"><span id="profileCurrentRankLabelV442">현재 등급</span><strong id="profileRankDisplay">R1</strong></div>
+<p id="profileRankLatestV442" class="profile-rank-latest-v442"></p>
+</div>
+<section class="profile-rank-management-v442" id="profileRankManagementV442">
+<div class="profile-rank-management-head-v442"><strong id="profileRankManagementTitleV442">등급 관리</strong></div>
+<div class="profile-rank-management-stack-v442">
+<section class="promotion-card rank-management-subcard-v442" id="promotionCardV367" hidden>
 <div class="promotion-card-head"><div><span id="promotionRouteV367">R1 → R2</span><h2 id="promotionTitleV367">승급 조건</h2></div><strong id="promotionCountV367">0 / 2</strong></div>
 <div class="promotion-progress"><span id="promotionProgressV367"></span></div>
 <div id="promotionQualificationV440" class="rank-qualification-banner" hidden><strong id="promotionQualificationTitleV440"></strong><p id="promotionQualificationBodyV440"></p></div>
-<p id="promotionCycleMetaV440" class="rank-cycle-meta"></p>
 <div class="promotion-checks">
 <div class="promotion-condition"><strong class="promotion-condition-name" id="promotionIndustryNameV375">IND</strong><div class="promotion-condition-values"><span><small id="promotionIndustryCurrentLabelV372">현재</small><strong id="promotionIndustryCurrentV372">-</strong></span><span><small id="promotionIndustryRequiredLabelV372">필요</small><strong id="promotionIndustryRequiredV372">-</strong></span></div></div>
 <div class="promotion-condition"><strong class="promotion-condition-name" id="promotionVehicleNameV375">Vehicle #1</strong><div class="promotion-condition-values"><span><small id="promotionVehicleCurrentLabelV372">현재</small><strong id="promotionVehicleCurrentV372">-</strong></span><span><small id="promotionVehicleRequiredLabelV372">필요</small><strong id="promotionVehicleRequiredV372">-</strong></span></div></div>
 </div>
-<div class="promotion-activity-section"><div class="promotion-section-head"><strong id="promotionActivityTitleV369">최근 14일 활동</strong><span id="promotionActivityCountV369">0 / 4</span></div><div class="promotion-activity-grid">
+<div class="promotion-activity-section"><div class="promotion-section-head"><strong id="promotionActivityTitleV369">최근 14일 활동</strong><span id="promotionActivityCountV369">0 / 4</span></div>
+<details class="rank-management-details-v442" id="promotionDetailsV442"><summary id="promotionDetailsSummaryV442">활동 상세 보기</summary>
+<p id="promotionCycleMetaV440" class="rank-cycle-meta"></p>
+<div class="promotion-activity-grid">
 <div class="promotion-activity-item"><span id="activityVoteLabelV369">투표 참여</span><div class="promotion-activity-values"><span><small id="activityVoteCurrentLabelV373">현재</small><strong id="activityVoteCurrentV373">-</strong></span><span><small id="activityVoteRequiredLabelV373">필요</small><strong id="activityVoteRequiredV373">-</strong></span></div></div>
 <div class="promotion-activity-item"><span id="activityVisitLabelV369">사이트 방문</span><div class="promotion-activity-values"><span><small id="activityVisitCurrentLabelV373">현재</small><strong id="activityVisitCurrentV373">-</strong></span><span><small id="activityVisitRequiredLabelV373">필요</small><strong id="activityVisitRequiredV373">-</strong></span></div></div>
 <div class="promotion-activity-item"><span id="activitySpecLabelV369">본인 스펙 업데이트</span><div class="promotion-activity-values"><span><small id="activitySpecCurrentLabelV373">현재</small><strong id="activitySpecCurrentV373">-</strong></span><span><small id="activitySpecRequiredLabelV373">필요</small><strong id="activitySpecRequiredV373">-</strong></span></div></div>
 <div class="promotion-activity-item"><span id="activityAdminLabelV369">운영진 활동 확인</span><div class="promotion-activity-values promotion-activity-confirmation"><strong id="activityAdminV369">-</strong></div></div>
-</div><p id="promotionActivityMessageV369"></p></div>
+</div><p id="promotionActivityMessageV369"></p></details></div>
 <div id="promotionCongratsV367" class="promotion-congrats" hidden><strong id="promotionCongratsTitleV367"></strong><p id="promotionCongratsBodyV367"></p><a id="promotionRequestV367" class="portal-button portal-button-primary" href="../request/"></a></div>
 </section>
-<section class="portal-card promotion-card maintenance-card" id="rankMaintenanceCardV371" hidden>
+<section class="promotion-card maintenance-card rank-management-subcard-v442" id="rankMaintenanceCardV371" hidden>
 <div class="promotion-card-head"><div><span id="maintenanceRankV371">R2</span><h2 id="maintenanceTitleV371">등급 유지 상태</h2></div><strong id="maintenanceCountV371">0 / 4</strong></div>
 <div class="promotion-progress"><span id="maintenanceProgressV371"></span></div>
+<div id="maintenanceMessageV371" class="maintenance-message"></div>
+<details class="rank-management-details-v442" id="maintenanceDetailsV442"><summary id="maintenanceDetailsSummaryV442">등급 유지 상세 보기</summary>
 <p id="maintenanceCycleMetaV440" class="rank-cycle-meta"></p>
 <p id="maintenanceGuideV371"></p>
 <div class="promotion-activity-grid"><div><span id="maintenanceVoteLabelV371">투표 참여</span><strong id="maintenanceVoteV371">-</strong><small id="maintenanceVoteDateV371"></small></div><div><span id="maintenanceVisitLabelV371">사이트 방문</span><strong id="maintenanceVisitV371">-</strong><small id="maintenanceVisitDateV371"></small></div><div><span id="maintenanceSpecLabelV371">본인 스펙 업데이트</span><strong id="maintenanceSpecV371">-</strong><small id="maintenanceSpecDateV371"></small></div><div><span id="maintenanceAdminLabelV371">운영진 활동 확인</span><strong id="maintenanceAdminV371">-</strong><small id="maintenanceAdminDateV371"></small></div></div>
 <div id="maintenanceProtectionV371" class="promotion-congrats maintenance-protection" hidden><button aria-expanded="false" class="maintenance-protection-toggle" id="maintenanceProtectionToggleV375" type="button"><strong id="maintenanceProtectionTitleV371"></strong><span aria-hidden="true" class="maintenance-protection-chevron">⌄</span></button><div class="maintenance-protection-details" id="maintenanceProtectionDetailsV375" hidden><p id="maintenanceProtectionBodyV371"></p></div></div>
 <div id="maintenanceRecoveryV440" class="maintenance-recovery" hidden><strong id="maintenanceRecoveryTitleV440"></strong><p id="maintenanceRecoveryBodyV440"></p></div>
-<div id="maintenanceMessageV371" class="maintenance-message"></div>
+</details>
 </section>
-<section class="accordion-list"><section class="my-menu-group" data-group="info"><h2 class="my-menu-group-title" data-i18n="groupInfo">내 정보</h2><div class="portal-card my-menu-group-card"><article class="accordion-item" data-section="profile">
+</div>
+</section>
+</div>
+</div>
+</article><article class="accordion-item" data-section="specs">
 <button aria-expanded="false" class="accordion-trigger" type="button">
-<span><span aria-hidden="true" class="menu-svg-icon icon-user"></span><span data-i18n="basicProfile">기본 프로필</span></span>
+<span><span aria-hidden="true" class="menu-svg-icon icon-sliders"></span><span data-i18n="detailedSpecs">세부 스펙</span></span>
 <span class="chevron">›</span>
 </button>
-<div class="accordion-panel" hidden="">
-<div class="portal-form form-stack profile-readonly" id="profileForm">
-<label><span data-i18n="loginId">로그인 아이디</span><input disabled="" id="profileLoginId" type="text"/></label>
-<label><span data-i18n="nickname">닉네임</span><input disabled="" id="profileNickname" type="text"/></label>
-<label><span data-i18n="memberRank">회원 등급</span>
-<input aria-readonly="true" disabled="" id="profileRankDisplay" type="text" value="R1"/>
-</label>
-</div>
-</div>
-</article><article class="accordion-item is-open" data-section="specs">
-<button aria-expanded="true" class="accordion-trigger" type="button">
-<span><span aria-hidden="true" class="menu-svg-icon icon-sliders"></span><span data-i18n="detailedSpecs">세부 스펙</span></span>
-<span class="chevron">⌄</span>
-</button>
-<div class="accordion-panel">
+<div class="accordion-panel" hidden>
 <form class="portal-form form-stack" id="specsForm">
 <label class="profile-power-field"><span data-i18n="profilePower">전투력 (프로필에 표시된 수치)</span>
 <input autocomplete="off" id="specsProfilePower" inputmode="numeric" name="power" placeholder="-" required="" type="text"/>
@@ -223,7 +229,7 @@
 </dialog>
 <div aria-live="polite" class="toast" hidden="" id="toast" role="status"></div>
 <script src="../vehicle-power.js?v=4170"></script>
-<script src="./my.js?v=4400"></script>
+<script src="./my.js?v=4420"></script>
   <script src="/text-fit-v419.js?v=4190"></script>
 </body>
 </html>

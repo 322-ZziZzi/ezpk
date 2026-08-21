@@ -325,9 +325,6 @@ export default {
 
         case "GET /api/member/me":
           return handleMemberMe(request, env);
-        case "GET /api/member/rank-history":
-          return handleMemberRankHistory(request, url, env);
-
         case "POST /api/member/rank-change-notice/dismiss":
           return handleRankChangeNoticeDismiss(request, env);
 
@@ -1251,7 +1248,7 @@ async function handleMemberMe(request, env) {
       promotion,
       rankMaintenance:['R2','R3'].includes(record.member_rank)?await rankMaintenanceState(env.DB,record,false):null,
       rankChangeNotice:await memberRankChangeNotice(env.DB,member.id),
-      rankHistoryRecent:await memberRankHistoryList(env.DB,member.id,3),
+      latestRankChange:await memberRankLatestChange(env.DB,member.id),
     },
   });
 }
@@ -2211,35 +2208,30 @@ async function rankProtectionState(db,memberId){
   const row=await db.prepare(`SELECT change_type,protection_until,created_at FROM member_rank_changes WHERE member_id=? AND protection_until IS NOT NULL AND protection_until>datetime('now') ORDER BY created_at DESC LIMIT 1`).bind(memberId).first();
   return row?{active:true,type:row.change_type,until:row.protection_until,startedAt:row.created_at}:null;
 }
-function rankHistoryPublicEvent(row){
-  return {id:Number(row.id),type:String(row.event_type||''),fromRank:row.from_rank,toRank:row.to_rank,reasonCode:row.reason_code,publicNote:row.public_note||null,decisionSource:row.decision_source||null,ruleSnapshot:parseJsonOrNull(row.rule_snapshot),specSnapshot:parseJsonOrNull(row.spec_snapshot),cycleSnapshot:parseJsonOrNull(row.cycle_snapshot),activitySnapshot:parseJsonOrNull(row.public_activity_snapshot),snapshotQuality:row.snapshot_quality||'FULL',createdAt:row.created_at};
+function memberRankLatestPublicEvent(row){
+  return row?{id:Number(row.id),type:String(row.event_type||''),fromRank:row.from_rank,toRank:row.to_rank,createdAt:row.created_at}:null;
 }
-async function memberRankHistoryList(db,memberId,limit=3){
-  const safeLimit=Math.max(1,Math.min(100,Number(limit)||3));
-  const rows=await db.prepare(`SELECT id,event_type,from_rank,to_rank,reason_code,public_note,decision_source,rule_snapshot,spec_snapshot,cycle_snapshot,public_activity_snapshot,snapshot_quality,created_at FROM member_rank_history_events WHERE member_id=? ORDER BY created_at DESC,id DESC LIMIT ?`).bind(memberId,safeLimit).all();
-  return (rows.results||[]).map(rankHistoryPublicEvent);
+async function memberRankLatestChange(db,memberId){
+  const row=await db.prepare(`SELECT id,event_type,from_rank,to_rank,created_at FROM member_rank_history_events WHERE member_id=? ORDER BY created_at DESC,id DESC LIMIT 1`).bind(memberId).first();
+  return memberRankLatestPublicEvent(row);
 }
 async function memberRankChangeNotice(db,memberId){
   try{
-    const row=await db.prepare(`SELECT id,event_type,from_rank,to_rank,reason_code,created_at FROM member_rank_history_events WHERE member_id=? AND dismissed_at IS NULL AND created_at>=datetime('now','-30 days') ORDER BY created_at DESC,id DESC LIMIT 1`).bind(memberId).first();
+    const row=await db.prepare(`SELECT h.id,h.event_type,h.from_rank,h.to_rank,h.reason_code,h.created_at FROM member_rank_history_events h LEFT JOIN member_rank_notice_states n ON n.member_id=? AND n.history_event_id=h.id WHERE h.member_id=? AND h.dismissed_at IS NULL AND n.history_event_id IS NULL AND h.created_at>=datetime('now','-30 days') ORDER BY h.created_at DESC,h.id DESC LIMIT 1`).bind(memberId,memberId).first();
     return row?{id:row.id,type:String(row.event_type||'').toLowerCase(),fromRank:row.from_rank,toRank:row.to_rank,reasonCode:row.reason_code,createdAt:row.created_at}:null;
   }catch(error){
     console.warn('[EZPK] rank-change notice unavailable',error?.message||error);
     return null;
   }
 }
-async function handleMemberRankHistory(request,url,env){
-  const member=await requireMember(request,env.DB);if(member instanceof Response)return member;
-  const limit=Math.max(1,Math.min(100,Number(url.searchParams.get('limit'))||100));
-  return json({ok:true,data:{items:await memberRankHistoryList(env.DB,member.id,limit)}});
-}
 async function handleRankChangeNoticeDismiss(request,env){
   const member=await requireMember(request,env.DB);
   if(member instanceof Response)return member;
   const body=await readJson(request),changeId=Number(body.changeId);
   if(!Number.isInteger(changeId)||changeId<1)return jsonError('VALIDATION_ERROR',400);
-  const result=await env.DB.prepare(`UPDATE member_rank_history_events SET dismissed_at=datetime('now') WHERE id=? AND member_id=? AND dismissed_at IS NULL`).bind(changeId,member.id).run();
-  if(!Number(result.meta?.changes||0))return jsonError('RANK_CHANGE_NOTICE_NOT_FOUND',404);
+  const event=await env.DB.prepare(`SELECT id FROM member_rank_history_events WHERE id=? AND member_id=?`).bind(changeId,member.id).first();
+  if(!event)return jsonError('RANK_CHANGE_NOTICE_NOT_FOUND',404);
+  await env.DB.prepare(`INSERT OR IGNORE INTO member_rank_notice_states(member_id,history_event_id,dismissed_at) VALUES(?,?,CURRENT_TIMESTAMP)`).bind(member.id,changeId).run();
   return json({ok:true,data:{dismissed:true}});
 }
 async function demotionExclusionState(db,memberId,includePrivate=false){
