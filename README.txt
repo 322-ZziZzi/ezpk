@@ -228,4 +228,4 @@ v71 — Unified PC Mini-Game Layout
 - All desktop playfields use a 3:2 aspect ratio.
 - All desktop layouts use the same 1320px container, 380px ranking column, 18px gap, panel padding, and border radius.
 - Mobile playfields remain 1:1 and retain the existing touch/scroll UX.
-- Existing ranking, Supabase, and 8-language support are preserved.
+- Existing ranking, Supabase, and 8-language support are preserved
