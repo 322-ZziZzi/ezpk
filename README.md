@@ -730,4 +730,4 @@ Do not delete the historical EZPK2 D1 database as part of v437 deployment.
 - Restores the 14-language migration card to the open/recruiting copy.
 - Retains the guarded v438 previous-cycle reset tooling; reset and intake state are intentionally independent.
 - EZPK2 remains archived; no EZPK2 D1 binding is restored.
-- No new D1 migration.
+- No new D1 migration
